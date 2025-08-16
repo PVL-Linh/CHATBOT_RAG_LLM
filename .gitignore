@@ -1,6 +1,6 @@
 # Bỏ models
 src/models/
-Documents/
+
 
 # Bỏ FAISS_Vector trong src
 src/FAISS_Vector/
