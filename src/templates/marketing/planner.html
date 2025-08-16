@@ -1,0 +1,232 @@
+{% extends 'home/base.html' %} {% block title %}Content Planner · Tiximax{%
+endblock %} {% block page_css %}
+<!-- Dùng chung style Marketing -->
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing.css', v='8') }}"
+/>
+<!-- Bổ sung map selector cho Planner -->
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/planner_MKT.css', v='8') }}"
+/>
+{% endblock %} {% block topbar %}{% endblock %} {% block history_panel %}{%
+endblock %} {% block footer %}{% endblock %} {% block content %}
+<main style="width: auto" id="marketing" class="chat-area">
+  <div class="layout">
+    {% include 'partials/_marketing_sidebar.html' %}
+
+    <main class="content">
+      <div style="height: auto" class="grid-2">
+        <!-- LEFT -->
+        <section class="card has-local-loader" id="pl_form_card">
+          <h2 style="font-size: 30px; margin: 0">
+            Thiết lập thông tin nội dung
+          </h2>
+          <div class="local-loader hidden"><div class="spinner"></div></div>
+
+          <div class="goal-grid" id="pl_goals">
+            <label class="goal-card">
+              <input
+                type="radio"
+                name="pl_goal"
+                value="Gia tăng nhận thức về thương hiệu"
+              />
+              <div class="inner">
+                <span class="gicon">🧠</span>
+                <span class="gtext">Gia tăng nhận thức về thương hiệu</span>
+              </div>
+            </label>
+
+            <label class="goal-card">
+              <input
+                type="radio"
+                name="pl_goal"
+                value="Khơi gợi quan tâm và cung cấp thông tin"
+              />
+              <div class="inner">
+                <span class="gicon">ℹ️</span>
+                <span class="gtext"
+                  >Khơi gợi quan tâm và cung cấp thông tin</span
+                >
+              </div>
+            </label>
+
+            <label class="goal-card">
+              <input
+                type="radio"
+                name="pl_goal"
+                value="Thúc đẩy hành động mua hàng"
+              />
+              <div class="inner">
+                <span class="gicon">🛒</span>
+                <span class="gtext">Thúc đẩy hành động mua hàng</span>
+              </div>
+            </label>
+
+            <label class="goal-card">
+              <input
+                type="radio"
+                name="pl_goal"
+                value="Chăm sóc sau bán & xây dựng lòng trung thành"
+              />
+              <div class="inner">
+                <span class="gicon">🤝</span>
+                <span class="gtext"
+                  >Chăm sóc sau bán & xây dựng lòng trung thành</span
+                >
+              </div>
+            </label>
+          </div>
+
+          <div class="grid-2 tight">
+            <label class="tight"
+              >Giai đoạn hành trình khách hàng
+              <select id="pl_stage">
+                <option value="">Chọn giai đoạn..</option>
+                <option>Awareness - Nhận biết</option>
+                <option>Consideration - Cân nhắc</option>
+                <option>Conversion - Chuyển đổi</option>
+                <option>Loyalty - Trung thành</option>
+              </select>
+            </label>
+
+            <label class="tight"
+              >Kênh truyền thông
+              <select id="pl_channel">
+                <option value="">Chọn kênh..</option>
+                <option>Facebook</option>
+                <option>TikTok</option>
+                <option>Instagram</option>
+                <option>Blog Website</option>
+                <option>Zalo OA</option>
+                <option>YouTube</option>
+                <option>LinkedIn</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid-2 tight">
+            <label
+              >Định dạng nội dung
+              <select id="pl_format">
+                <option value="">Chọn định dạng..</option>
+                <option>Video ngắn (dưới 30s)</option>
+                <option>Bài Post dài (Facebook)</option>
+                <option>Bài Blog chuyên sâu (500–800 từ)</option>
+                <option>Blog Website SEO 2000+ từ (Chuyên gia)</option>
+                <option>Infographic</option>
+                <option>Livestream Script</option>
+                <option>Email Marketing</option>
+                <option>Landing Page Copy</option>
+              </select>
+            </label>
+
+            <label
+              >Độ dài nội dung
+              <select id="pl_length">
+                <option value="">Chọn độ dài..</option>
+                <option>Ngắn (dưới 150 từ)</option>
+                <option>Trung bình (300–500 từ)</option>
+                <option>Dài (trên 800 từ)</option>
+                <option>SEO Expert (2000+ từ)</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Phong cách ngôn ngữ (chọn tối đa 2)</label>
+          <div class="inline-checks" id="pl_tones">
+            <label
+              ><input
+                type="checkbox"
+                value="Đáng tin cậy, chuyên nghiệp, uy tín"
+              />
+              Đáng tin cậy, chuyên nghiệp, uy tín</label
+            >
+            <label
+              ><input type="checkbox" value="Nhân tình, gần gũi, đồng cảm" />
+              Nhân tình, gần gũi, đồng cảm</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                value="Năng động, hài hước, bắt kịp xu hướng"
+              />
+              Năng động, hài hước, bắt kịp xu hướng</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                value="Rõ ràng, súc tích, kêu gọi hành động"
+              />
+              Rõ ràng, súc tích, kêu gọi hành động</label
+            >
+          </div>
+
+          <label
+            >Từ khoá chiến lược
+            <input
+              id="pl_keywords"
+              placeholder='VD: "mua hộ Nhật", "ship hàng Hàn Quốc"'
+          /></label>
+          <label
+            >Chương trình ưu đãi (nếu có)
+            <textarea
+              id="pl_offer"
+              rows="2"
+              placeholder="VD: Giảm 30% phí dịch vụ cho đơn đầu tiên"
+            ></textarea>
+          </label>
+          <label
+            >Call-to-Action mong muốn
+            <input
+              id="pl_cta"
+              placeholder="VD: Chat ngay với chuyên gia Tiximax, truy cập website Tiximax.vn"
+          /></label>
+
+          <div class="grid-2 tight">
+            <label
+              >Ngôn ngữ
+              <select id="pl_lang">
+                <option>Tiếng Việt</option>
+                <option>English</option>
+              </select>
+            </label>
+            <div></div>
+          </div>
+
+          <button class="btn-primary" id="pl_generate">
+            Tạo nội dung với AI
+          </button>
+        </section>
+
+        <!-- RIGHT -->
+        <section class="card">
+          <div class="tabs" data-scope="pl">
+            <button class="tab active" data-tab="result">Kết quả</button>
+            <button class="tab" data-tab="saved">Nội dung đã lưu</button>
+            <button class="btn-ghost" id="pl_copy">📋 Sao chép</button>
+            <button class="btn-ghost" id="pl_save">🔖 Lưu</button>
+          </div>
+
+          <div id="pl_result" class="tab-panel active">
+            <div class="result-box">
+              <div id="pl_out" class="markdown"></div>
+            </div>
+            <div id="pl_meta" class="meta"></div>
+          </div>
+
+          <div id="pl_saved" class="tab-panel">
+            <div id="pl_saved_list" class="saved-list"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</main>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/planner_MKT.js', v='8') }}"
+></script>
+{% endblock %}

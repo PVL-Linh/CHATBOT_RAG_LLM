@@ -8,6 +8,7 @@ from PIL import Image
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
 from langchain_core.messages import SystemMessage
@@ -27,6 +28,9 @@ from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
 from Model_LLM.model_llm import LLM_model
 from Login.Logging_config import _log_message_to_csv
+from Helpers.Marketing_Planner.Content_Planner import (
+    _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
+)
 # =====================================
 # Flask setup
 # =====================================
@@ -44,10 +48,8 @@ except Exception:
 # Auth config
 # =====================================
 
-
 # load_users()
 # login_required()
-
 # =====================================
 # Model & VectorStore init (one-time)
 # =====================================
@@ -462,6 +464,54 @@ def api_fab():
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo FAB content: {str(e)}"}), 500
 
+
+# _normalize_channel
+#  _build_system_prompt_ifelse
+#  _build_user_prompt_body
+
+# ========= ROUTES (thay thế route cũ) =========
+
+@app.route("/marketing/planner")
+def marketing_planner():
+    # nhớ có file: templates/marketing/planner.html
+    return render_template("marketing/planner.html", active="marketing")
+
+@app.route("/api/planner/generate", methods=["POST"])
+def api_planner_generate():
+    d = request.get_json(silent=True) or {}
+
+    # Lấy các biến cần thiết
+    goal       = d.get("goal") or (d.get("objectives") or [None])[0]
+    channel_in = d.get("channel", "")
+    channel    = _normalize_channel(channel_in)   # chuẩn hoá để if/elif
+    tones      = d.get("tones", [])
+    lang       = d.get("lang", "Tiếng Việt")
+
+    # 1) system prompt theo kênh (if/elif)
+    system_prompt = _build_system_prompt_ifelse(channel, goal, tones, lang)
+
+    # 2) user prompt (có dòng Kênh truyền thông: {channel ...})
+    up_body = build_user_prompt_body({**d, "channel": channel})
+
+    # 3) áp dụng Occasion Lock (giống code cũ) rồi gọi LLM
+    up, sp = apply_occasion_lock(up_body, system_prompt)
+
+    t0 = time.time()
+    try:
+        # có thể truyền [] thay vì [SystemMessage(persona_vi)] – _to_hist của bạn chỉ nhận Human/AI
+        text = call_gemini_flash(up, sp, [SystemMessage(persona_vi)])
+    except Exception as e:
+        return jsonify({"error": f"Lỗi LLM: {e}"}), 500
+    dt = time.time() - t0
+
+    return jsonify({
+        "text": text,
+        "meta": {
+            "latency_sec": round(dt, 2),
+            "channel": channel or "N/A",
+            "goal": goal or "N/A"
+        }
+    })
 # =====================================
 # Main
 # =====================================
