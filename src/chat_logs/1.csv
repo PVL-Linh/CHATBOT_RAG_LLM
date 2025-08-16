@@ -1,0 +1,24 @@
+ts_utc,ts_local,username,role,content
+2025-08-16T03:04:48.506866+00:00,2025-08-16T10:04:48.506866+07:00,1,user,hello
+2025-08-16T03:05:14.704785+00:00,2025-08-16T10:05:14.704785+07:00,1,assistant,"Chào bạn! Tôi là trợ lý AI của Tiximax Logistic, sẵn sàng hỗ trợ bạn thông tin về công ty dựa trên các tài liệu chúng tôi có. 
+
+Bạn đang quan tâm đến vấn đề gì ạ? Ví dụ như:
+
+*   **Phế liệu trong quá trình sản xuất:** Chúng tôi có thông tin về mô hình phế liệu được phép tính trong H1 và H2, bao gồm các loại hao phí như hao phí công nghệ, hao phí do tổ chức và quản lý.
+*   **Các loại phế liệu:** Phân loại phế liệu thành ""Qua gia công"" và ""Không qua gia công"", với các phương án thu hồi, không sử dụng lại và sử dụng lại.
+
+Hãy cho tôi biết bạn cần thông tin cụ thể nào để tôi có thể hỗ trợ tốt nhất nhé!"
+2025-08-16T03:05:56.095895+00:00,2025-08-16T10:05:56.095895+07:00,1,user,logistic là gì
+2025-08-16T03:06:09.312105+00:00,2025-08-16T10:06:09.312105+07:00,1,assistant,"Chào bạn! Theo tài liệu chúng tôi có, **logistics** là quá trình quản lý dòng vận động và lưu chuyển của nguyên vật liệu, bán thành phẩm và thành phẩm. Đây là một hoạt động thương mại mang tính liên ngành, bao gồm nhiều hoạt động có sự quản lý, chi phối của nhiều bộ ngành liên quan.
+
+Đặc trưng của logistics là tính tự nguyện, hợp tác và cùng có lợi giữa các bên tham gia. Logistics liên quan đến rất nhiều lĩnh vực như sản xuất kinh doanh, thương mại, giao thông vận tải, hải quan, công nghệ thông tin và tài chính. Các hoạt động này được thực hiện thông qua các doanh nghiệp kinh doanh và mối quan hệ kinh tế giữa họ luôn biểu hiện sự hợp tác, tôn trọng lẫn nhau và cùng có lợi.
+
+Ngoài ra, logistics còn được phân loại thành ba khía cạnh:
+
+*   **Logistics sinh tồn:** Đáp ứng các nhu cầu cơ bản của cuộc sống, mang tính tất yếu khách quan trong mọi nền sản xuất xã hội.
+*   **Logistics hoạt động:** Nền tảng cho logistics hoạt động, liên quan đến các hoạt động kinh tế và sản xuất thông thường.
+*   **Logistics hệ thống:** Tổng hợp các hoạt động của doanh nghiệp trên ba khía cạnh trên, tạo cơ sở hình thành hệ thống logistics hoàn chỉnh.
+
+Bạn có muốn tôi cung cấp thêm thông tin chi tiết về một khía cạnh nào đó của logistics không?"
+2025-08-16T03:10:31.707633+00:00,2025-08-16T10:10:31.707633+07:00,1,user,"Logistics hoạt động: Nền tảng cho logistics hoạt động, liên quan đến các hoạt động kinh tế và sản xuất thông thường. chi tiết hơn"
+2025-08-16T03:10:34.082889+00:00,2025-08-16T10:10:34.082889+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001904DD2CE30>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"

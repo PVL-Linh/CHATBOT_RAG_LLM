@@ -3,7 +3,6 @@ import time
 import csv
 from datetime import datetime, timezone
 from functools import wraps
-from zoneinfo import ZoneInfo
 from PIL import Image
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
@@ -24,6 +23,10 @@ from Helpers.Content_generation import (
     generate_facebook_ads_content, generate_rephrase_content,
     generate_tiktok_content, generate_fab_content
 )
+from Helpers.prompt_internal import SYSTEM_PRIMER
+from Login.login_required import load_users, login_required
+from Model_LLM.model_llm import LLM_model
+from Login.Logging_config import _log_message_to_csv
 # =====================================
 # Flask setup
 # =====================================
@@ -40,105 +43,22 @@ except Exception:
 # =====================================
 # Auth config
 # =====================================
-USERS_CSV = os.environ.get("USERS_CSV", "./src/users.csv")
-SAVES_DIR = os.path.join(os.path.dirname(__file__), "Data", "saves")
-os.makedirs(SAVES_DIR, exist_ok=True)
 
-def load_users():
-    users = {}
-    if not os.path.exists(USERS_CSV):
-        return users
-    with open(USERS_CSV, newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            u = (row.get('username') or '').strip()
-            ph = (row.get('password_hash') or '').strip()
-            pw = (row.get('password') or '').strip()
-            if not u:
-                continue
-            if ph:
-                users[u] = {'password_hash': ph}
-            elif pw:
-                users[u] = {'password_hash': generate_password_hash(pw)}
-    return users
 
-USERS = load_users()
-
-def login_required(view=None, *, api=False):
-    def deco(fn):
-        @wraps(fn)
-        def wrapped(*args, **kwargs):
-            if not session.get('user'):
-                if api:
-                    return jsonify({"error": "Unauthorized"}), 401
-                return redirect(url_for('login', next=request.path))
-            return fn(*args, **kwargs)
-        return wrapped
-    return deco(view) if view else deco
+# load_users()
+# login_required()
 
 # =====================================
 # Model & VectorStore init (one-time)
 # =====================================
-EMBED_MODEL_DIR = os.environ.get("EMBED_MODEL_DIR", "./src/models/local_e5_large_v2")
-FAISS_DIR = os.environ.get("FAISS_DIR", "./src/FAISS_Vector")
-LLM_ENDPOINT = os.environ.get("LLM_ENDPOINT", "http://192.168.2.8:1234/v1/chat/completions")
-LLM_MODEL = os.environ.get("LLM_MODEL", "gemma-3n-e4b-it-text")
-
-try:
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBED_MODEL_DIR,
-        encode_kwargs={"normalize_embeddings": True}
-    )
-    vector_store = FAISS.load_local(
-        FAISS_DIR, embeddings, allow_dangerous_deserialization=True
-    )
-except Exception as e:
-    raise RuntimeError(f"Failed to init FAISS/embeddings: {e}")
+embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+# =====================================
+# Logging config (CSV) (_ensure_dir, _log_message_to_csv)
+# =====================================
 
 # =====================================
-# Logging config (CSV)
+# Helpers (SYSTEM_PRIMER, MAX_HISTORY, add_message)
 # =====================================
-CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/chat_logs")
-LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
-
-def _ensure_dir(path: str):
-    os.makedirs(path, exist_ok=True)
-
-def _log_message_to_csv(username: str, role: str, content: str, ts_utc_iso: str):
-    if not username:
-        return
-    _ensure_dir(CHAT_LOGS_DIR)
-    filepath = os.path.join(CHAT_LOGS_DIR, f"{username}.csv")
-
-    try:
-        local_tz = ZoneInfo(LOCAL_TZ_NAME)
-    except Exception:
-        local_tz = timezone.utc
-
-    try:
-        ts_utc = datetime.fromisoformat(ts_utc_iso.replace('Z', '+00:00'))
-    except Exception:
-        ts_utc = datetime.now(timezone.utc)
-        ts_utc_iso = ts_utc.isoformat()
-
-    ts_local_iso = ts_utc.astimezone(local_tz).isoformat()
-
-    file_exists = os.path.exists(filepath)
-    with open(filepath, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(['ts_utc', 'ts_local', 'username', 'role', 'content'])
-        writer.writerow([ts_utc_iso, ts_local_iso, username, role, content])
-
-# =====================================
-# Helpers
-# =====================================
-SYSTEM_PRIMER = (
-    "Bạn là trợ lý AI thông minh của Công ty Tiximax Logistic. "
-    "Bạn chuyên hỗ trợ cung cấp các thông tin của công ty dựa theo các tài liệu đã đưa vào. "
-    "Bạn sẽ hỗ trợ cho các phòng ban như quản lý, sale, tiếp thị và nhân sự. "
-    "Trả lời bằng các từ ngữ dễ nghe, phù hợp với chuyên ngành. Nếu bạn không có thông tin trả lời, cứ nói tôi không biết."
-)
 
 MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
 
