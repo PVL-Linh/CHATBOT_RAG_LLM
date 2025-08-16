@@ -1,0 +1,16 @@
+{# templates/home/partials/_marketing_sidebar.html #}
+<aside style="height: auto;" class="sidebar">
+  <nav>
+    <a href="/marketing"
+       class="{{ 'active' if request.path == '/marketing' else '' }}">📣 Facebook Ads</a>
+
+    <a href="/marketing/rephrase"
+       class="{{ 'active' if request.path.startswith('/marketing/rephrase') else '' }}">📝 Rephrase Content</a>
+
+    <a href="/marketing/tiktok"
+       class="{{ 'active' if request.path.startswith('/marketing/tiktok') else '' }}">🎬 TikTok Script</a>
+
+    <a href="/marketing/fab"
+       class="{{ 'active' if request.path.startswith('/marketing/fab') else '' }}">📦 FAB Optimize</a>
+  </nav>
+</aside>

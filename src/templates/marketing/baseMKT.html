@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or 'Tiximax Marketing Copilot' }}</title>
+    <link rel="stylesheet" href="/static/css/style_MKT.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">🚀 Tiximax Marketing Copilot</div>
+        <nav>
+          <a href="/">🏠 Home</a>
+          <a href="/facebook-ads">📣 Facebook Ads</a>
+          <a href="/rephrase">📝 Rephrase Content</a>
+          <a href="/tiktok">🎬 TikTok Script</a>
+          <a href="/fab">📦 FAB Optimize</a>
+        </nav>
+      </aside>
+      <main class="content">{% block content %}{% endblock %}</main>
+    </div>
+    <script src="/static/js/main_MKT.js"></script>
+  </body>
+</html>

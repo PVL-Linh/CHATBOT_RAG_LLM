@@ -1,0 +1,37 @@
+<aside class="sidebar">
+  <div class="s-header">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo" />
+  </div>
+
+  <nav class="s-nav">
+    <a class="nav-item {{ 'active' if active=='chat' else '' }}" href="{{ url_for('chat') }}">
+      <i data-lucide="bot"></i><span>Tiximax Chatbot</span>
+    </a>
+    <a class="nav-item {{ 'active' if active=='marketing' else '' }}" href="{{ url_for('marketing') }}">
+      <i data-lucide="megaphone"></i><span>Marketing</span>
+    </a>
+    <a class="nav-item {{ 'active' if active=='sales' else '' }}" href="{{ url_for('sales') }}">
+      <i data-lucide="shopping-cart"></i><span>Sales</span>
+    </a>
+    <a class="nav-item {{ 'active' if active=='hr' else '' }}" href="{{ url_for('hr') }}">
+      <i data-lucide="users"></i><span>Human Resources</span>
+    </a>
+    <a class="nav-item {{ 'active' if active=='guide' else '' }}" href="{{ url_for('guide') }}">
+      <i data-lucide="book-open"></i><span>Use Instructions</span>
+    </a>
+    <a class="nav-item" target="_blank" href="https://docs.google.com/spreadsheets/d/1ANmiHR0bItaLruSLUmlv9TWqQxHgAIhFOdLQ0sm4knc/edit?usp=sharing">
+      <i data-lucide="vote"></i><span>Survey</span>
+    </a>
+  </nav>
+
+  <div class="s-footer">
+    <button class="btn-logout" title="Đăng xuất" aria-label="Đăng xuất"
+            onclick="location.href='{{ url_for('logout') }}'">
+      <i data-lucide="log-out" aria-hidden="true"></i>
+      <span>Đăng xuất</span>
+    </button>
+    <span class="user-name" title="{{ current_user or session.get('user') }}">
+      {{ current_user or session.get('user') }}
+    </span>
+  </div>
+</aside>

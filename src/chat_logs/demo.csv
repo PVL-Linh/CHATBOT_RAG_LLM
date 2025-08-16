@@ -1,0 +1,9 @@
+ts_utc,ts_local,username,role,content
+2025-08-14T02:26:14.484380+00:00,2025-08-14T09:26:14.484380+07:00,demo,user,hello
+2025-08-14T02:26:20.436301+00:00,2025-08-14T09:26:20.436301+07:00,demo,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x0000021425344B90>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
+2025-08-14T02:34:13.161333+00:00,2025-08-14T09:34:13.161333+07:00,demo,user,11111111111111111
+2025-08-14T02:34:18.391824+00:00,2025-08-14T09:34:18.391824+07:00,demo,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x00000214253446B0>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
+2025-08-14T02:36:39.043297+00:00,2025-08-14T09:36:39.043297+07:00,demo,user,22222222222222
+2025-08-14T02:36:44.410182+00:00,2025-08-14T09:36:44.410182+07:00,demo,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x00000213EC546ED0>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
+2025-08-14T08:57:31.709500+00:00,2025-08-14T15:57:31.709500+07:00,demo,user,asdasd
+2025-08-14T08:57:38.611625+00:00,2025-08-14T15:57:38.611625+07:00,demo,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000002507243D520>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
