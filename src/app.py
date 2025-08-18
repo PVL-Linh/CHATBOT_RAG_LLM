@@ -473,7 +473,6 @@ def api_fab():
 
 @app.route("/marketing/planner")
 def marketing_planner():
-    # nhớ có file: templates/marketing/planner.html
     return render_template("marketing/planner.html", active="marketing")
 
 @app.route("/api/planner/generate", methods=["POST"])
@@ -483,7 +482,7 @@ def api_planner_generate():
     # Lấy các biến cần thiết
     goal       = d.get("goal") or (d.get("objectives") or [None])[0]
     channel_in = d.get("channel", "")
-    channel    = _normalize_channel(channel_in)   # chuẩn hoá để if/elif
+    channel    = _normalize_channel(channel_in)
     tones      = d.get("tones", [])
     lang       = d.get("lang", "Tiếng Việt")
 
