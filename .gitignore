@@ -1,0 +1,24 @@
+# Bỏ models
+src/models/
+
+
+# Bỏ FAISS_Vector trong src
+src/FAISS_Vector/
+
+# Bỏ Data trong src
+src/Data/
+
+# Bỏ file tạm Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Bỏ file môi trường
+.env
+
+# Bỏ thư mục venv
+venv/
+
+# Bỏ file tạm IDE
+.vscode/
+.idea/

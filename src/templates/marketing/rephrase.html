@@ -1,0 +1,79 @@
+{# templates/home/marketing.html #}
+{% extends 'home/base.html' %}
+{% block title %}
+  Marketing · Tiximax
+{% endblock %}
+
+{# CSS riêng cho trang Marketing #}
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing.css') }}" />
+{% endblock %}
+
+{# Ẩn Topbar/History/Footer trên trang Marketing #}
+{% block topbar %}
+
+{% endblock %}
+{% block history_panel %}
+
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
+
+{% block content %}
+  <main style="width: auto;" id="marketing" class="chat-area">
+    <div class="layout">
+      {% include 'partials/_marketing_sidebar.html' %}
+      <div class="grid-2">
+        <section class="card has-local-loader" id="re_form_card">
+          <h1 style="font-size: 30px; margin: 0;">Rephrase Content (Tóm tắt nội dung)</h1>
+          <div class="local-loader hidden">
+            <div class="spinner"></div>
+          </div>
+          <div style="width: 1000px;" class="grid-2 tight">
+            <label style="width: 30%;">
+              Ngôn ngữ<select id="re_lang">
+                <option>Tiếng Việt</option>
+                <option>English</option>
+              </select>
+            </label>
+
+            <label style="width: 30%;">
+              Giọng điệu<select id="re_tone">
+                <option>Trung tính</option>
+                <option selected>Chuyên nghiệp</option>
+                <option>Thân thiện</option>
+                <option>Thuyết phục</option>
+                <option>Hài hước</option>
+              </select>
+            </label>
+          </div>
+
+          <label>Đoạn văn cần viết lại *<textarea id="re_text" rows="10" placeholder="Dán nội dung cần rephrase…"></textarea></label>
+          <button class="btn-primary" id="re_generate">Tạo nội dung</button>
+        </section>
+
+        <section id="rephrase" class="card">
+          <div class="tabs" data-scope="re">
+            <button class="tab active" data-tab="result">Result</button>
+            <button class="tab" data-tab="saved">Saved content</button>
+            <button class="btn-ghost" id="re_copy">Coppy</button>
+            <button class="btn-ghost" id="re_save">Save</button>
+          </div>
+
+          <div id="re_result" class="tab-panel active">
+            <div id="re_out" class="markdown result-scroll"></div>
+          </div>
+
+          <div id="re_saved" class="tab-panel">
+            <div id="re_saved_list" class="saved-list"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/main_MKT.js', v='3') }}"></script>
+{% endblock %}
