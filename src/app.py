@@ -32,6 +32,11 @@ from Login.Logging_config import _log_message_to_csv
 from Helpers.Marketing_Planner.Content_Planner import (
     _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
+try:
+    from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+except ImportError:
+    from Model_LLM.hybrid_retriever import rerank, TOP_K
+
 # =====================================
 # Flask setup
 # =====================================
@@ -54,7 +59,7 @@ except Exception:
 # =====================================
 # Model & VectorStore init (one-time)
 # =====================================
-embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+# embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
 # =====================================
 # Logging config (CSV) (_ensure_dir, _log_message_to_csv)
 # =====================================
@@ -156,17 +161,17 @@ def marketing():
     return render_template('home/marketing.html', current_user=session.get('user'), active='marketing')
 
 @app.route('/sales', methods=['GET'])
-@login_required(roles=['sales'])
+@login_required
 def sales():
     return render_template('home/sales.html', current_user=session.get('user'), active='sales')
 
 @app.route('/hr', methods=['GET'])
-@login_required(roles=['hr'])
+@login_required
 def hr():
     return render_template('home/hr.html', current_user=session.get('user'), active='hr')
 
 @app.route('/guide', methods=['GET'])
-@login_required(roles=['guide'])
+@login_required
 def guide():
     return render_template('home/guide.html', current_user=session.get('user'), active='guide')
 
@@ -178,70 +183,217 @@ def admin():
 # =====================================
 # Chat APIs (protected)
 # =====================================
-@app.get('/api/chat/history')
-@login_required(api=True)
-def chat_history():
-    limit = min(int(request.args.get('limit', 30)), 100)
-    return jsonify({"ok": True, "messages": get_history()[-limit:]})
+# @app.get('/api/chat/history')
+# @login_required(api=True)
+# def chat_history():
+#     limit = min(int(request.args.get('limit', 30)), 100)
+#     return jsonify({"ok": True, "messages": get_history()[-limit:]})
+
+
+# @app.route('/api/chat', methods=['POST'])
+# @login_required(api=True)
+# def chat_api():
+#     # Lấy đủ 5 biến
+#     embeddings, vector_store, retriever, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+
+#     data = request.get_json(force=True)
+#     user_text = (data or {}).get('message', '').strip()
+#     if not user_text:
+#         return jsonify({"error": "Missing message"}), 400
+
+#     add_message("user", user_text)
+#     full_start = time.time()
+
+#     # 1) EMBED TIME (tuỳ chọn đo)
+#     try:
+#         t0 = time.time()
+#         q_vec = embeddings.embed_query("query: " + user_text)  # E5: prefix 'query: '
+#         embed_time = time.time() - t0
+#     except Exception:
+#         embed_time = 0.0
+#         q_vec = None
+
+#     # 2) HYBRID RETRIEVAL + RERANK
+#     docs_text = ""
+#     try:
+#         t0 = time.time()
+#         candidates = retriever.get_relevant_documents("query: " + user_text)
+#         ranked = rerank(user_text, candidates, top_k=TOP_K)
+#         search_time = time.time() - t0
+
+#         parts, total = [], 0
+#         for d, _score in ranked:
+#             txt = d.page_content
+#             if txt.lower().startswith("passage: "):
+#                 txt = txt[len("passage: "):]
+#             parts.append(txt)
+#             total += len(txt)
+#             if total > 4000:
+#                 break
+#         docs_text = "\n\n---\n\n".join(parts) if parts else ""
+#     except Exception:
+#         search_time = 0.0
+
+#     # 3) PROMPT
+#     context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
+#     system_prompt = f"""{SYSTEM_PRIMER}
+
+# - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
+# - Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
+# - Trích dẫn ngắn nguồn (source, chunk) khi có thể.
+# {context_hint}
+# """
+
+#     history_msgs = [{"role": "system", "content": system_prompt}]
+#     history_msgs += [
+#         {"role": m["role"], "content": m["content"]}
+#         for m in get_history() if m["role"] in ("user", "assistant")
+#     ]
+
+#     # 4) GỌI LLM
+#     try:
+#         t0 = time.time()
+#         resp = requests.post(
+#             LLM_ENDPOINT,
+#             headers={"Content-Type": "application/json"},
+#             json={
+#                 "model": LLM_MODEL,
+#                 "messages": history_msgs,
+#                 "temperature": 0.4,
+#                 "max_tokens": 6000
+#             },
+#             timeout=(5, 120)
+#         )
+#         resp.raise_for_status()
+#         result = resp.json()["choices"][0]["message"]["content"]
+#         llm_time = time.time() - t0
+#     except Exception as e:
+#         result = f"Lỗi khi gọi LLM local API: {e}"
+#         llm_time = 0.0
+
+#     add_message("assistant", result)
+#     elapsed = time.time() - full_start
+
+#     return jsonify({
+#         "ok": True,
+#         "answer": result,
+#         "timing": {
+#             "total": round(elapsed, 2),
+#             "embedding": round(embed_time, 2),
+#             "search": round(search_time, 2),
+#             "llm": round(llm_time, 2)
+#         }
+#     })
+
+
+# @app.route('/chat', methods=['POST'])
+# @login_required(api=True)
+# def chat_api_alias():
+#     return chat_api()
+
+
+from google.genai import types as genai_types
+from dotenv import load_dotenv
+load_dotenv()
+
+def _to_gemini_history_no_system(history_msgs):
+    """
+    Chuyển [{'role','content'}] -> contents cho Gemini 2.x
+    - KHÔNG để role 'system' (Gemini trả INVALID_ARGUMENT)
+    - assistant -> model, user -> user
+    """
+    out = []
+    for m in history_msgs:
+        role = m.get("role", "user")
+        content = (m.get("content") or "").strip()
+        if not content:
+            continue
+        if role == "assistant":
+            role = "model"
+        else:
+            role = "user"
+        out.append({"role": role, "parts": [{"text": content}]})
+    return out
 
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api():
-    data = request.get_json(force=True)
-    user_text = (data or {}).get('message', '').strip()
+    embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
+
+    data = request.get_json(force=True) or {}
+    user_text = (data.get('message') or "").strip()
     if not user_text:
         return jsonify({"error": "Missing message"}), 400
 
     add_message("user", user_text)
     full_start = time.time()
 
+    # 1) EMBED TIME (đo thời gian)
     try:
         t0 = time.time()
-        q_vec = embeddings.embed_query(user_text)
+        _ = embeddings.embed_query("query: " + user_text)  # E5 cần prefix 'query: '
         embed_time = time.time() - t0
     except Exception:
         embed_time = 0.0
-        q_vec = None
 
-    docs_text = ""
+    # 2) HYBRID RETRIEVAL + RERANK
+    docs_text, search_time = "", 0.0
     try:
         t0 = time.time()
-        if q_vec is not None:
-            docs = vector_store.similarity_search_by_vector(q_vec, k=3)
-            search_time = time.time() - t0
-            docs_text = "\n".join(d.page_content for d in docs)
-        else:
-            search_time = 0.0
+        candidates = retriever.get_relevant_documents("query: " + user_text)
+        ranked = rerank(user_text, candidates, top_k=TOP_K)
+
+        parts, total = [], 0
+        for d, _score in ranked:
+            txt = d.page_content
+            if txt.lower().startswith("passage: "):
+                txt = txt[len("passage: "):]
+            parts.append(txt)
+            total += len(txt)
+            if total > 4000:  # tránh prompt quá dài
+                break
+        docs_text = "\n\n---\n\n".join(parts) if parts else ""
+        search_time = time.time() - t0
     except Exception:
-        search_time = 0.0
+        pass
 
-    context_hint = f"Context: {docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
-    system_prompt = f"{SYSTEM_PRIMER}\n{context_hint}"
+    # 3) Prompt
+    context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
+    system_prompt = f"""{SYSTEM_PRIMER}
 
-    history_msgs = [{"role": "system", "content": system_prompt}]
-    history_msgs += [
+- Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
+- Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
+- Trích dẫn ngắn nguồn (source, chunk) khi có thể.
+{context_hint}
+"""
+
+    # Lấy lịch sử cũ (user/assistant) và chuyển định dạng KHÔNG có role system
+    hist_msgs = [
         {"role": m["role"], "content": m["content"]}
         for m in get_history() if m["role"] in ("user", "assistant")
     ]
+    contents = _to_gemini_history_no_system(hist_msgs)
 
+    # NHÉT system_prompt + câu hỏi hiện tại vào MỘT user message đầu tiên
+    first_user_text = f"""[SYSTEM]
+{system_prompt}
+
+[USER]
+{user_text}"""
+    contents.append({"role": "user", "parts": [{"text": first_user_text}]})
+
+    # 4) Gọi Gemini
     try:
         t0 = time.time()
-        resp = requests.post(
-            LLM_ENDPOINT,
-            headers={"Content-Type": "application/json"},
-            json={
-                "model": LLM_MODEL,
-                "messages": history_msgs,
-                "temperature": 0.5,
-                "max_tokens": 512
-            },
-            timeout=(5, 120)
+        resp = gclient.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=contents,
+            config=GEN_CFG
         )
-        resp.raise_for_status()
-        result = resp.json()["choices"][0]["message"]["content"]
+        result = getattr(resp, "text", "") or ""
         llm_time = time.time() - t0
     except Exception as e:
-        result = f"Lỗi khi gọi LLM local API: {e}"
+        result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
 
     add_message("assistant", result)
@@ -258,11 +410,11 @@ def chat_api():
         }
     })
 
+
 @app.route('/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api_alias():
     return chat_api()
-
 # =====================================
 # Marketing pages (views)
 # =====================================
@@ -542,4 +694,4 @@ def api_planner_generate():
 # Main
 # =====================================
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

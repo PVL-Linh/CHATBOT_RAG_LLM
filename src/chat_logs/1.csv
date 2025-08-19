@@ -1592,3 +1592,516 @@ Việc tính khối lượng hàng hóa phụ thuộc vào hình dạng và kíc
 *   Nếu bạn không chắc chắn về cách tính khối lượng, hãy liên hệ với chúng tôi để được hỗ trợ.
 
 Bạn có bất kỳ câu hỏi nào khác không?"
+2025-08-19T02:37:03.349308+00:00,2025-08-19T09:37:03.349308+07:00,1,user,hello
+2025-08-19T02:37:15.450985+00:00,2025-08-19T09:37:15.450985+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.1.38', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x00000202705D00E0>, 'Connection to 192.168.1.38 timed out. (connect timeout=5)'))"
+2025-08-19T06:40:24.260023+00:00,2025-08-19T13:40:24.260023+07:00,1,user,hello
+2025-08-19T06:40:58.433877+00:00,2025-08-19T13:40:58.433877+07:00,1,assistant,"Chào bạn! Tôi là trợ lý AI của Tiximax Logistics. Bạn cần tôi hỗ trợ gì ạ?
+
+Tôi có thể giúp bạn với các thông tin liên quan đến:
+
+*   **Kế hoạch nghiệp vụ kho:** Lên phương án, kiểm tra kết quả thực hiện chỉ tiêu về số lượng và chất lượng.
+*   **Hàng hạn chế nhập:** Quy trình xem xét, đánh giá và tuân thủ luật pháp Mỹ và Việt Nam khi vận chuyển hàng hóa bị hạn chế nhập.
+*   **Quản trị hoạt động kho hàng:** Lập kế hoạch, thực hiện và kiểm soát chi phí liên quan đến các nghiệp vụ nhập xuất, lưu kho, bảo quản.
+
+Nếu thông tin bạn cần không có trong dữ liệu tôi được cung cấp, tôi sẽ trả lời ""Tôi không biết""."
+2025-08-19T07:30:29.439159+00:00,2025-08-19T14:30:29.439159+07:00,1,user,bảng giá vận chuyển
+2025-08-19T07:31:59.433681+00:00,2025-08-19T14:31:59.433681+07:00,1,assistant,"Chào bạn,
+
+Dựa trên dữ liệu tôi có, đây là bảng giá vận chuyển hàng hóa đường hàng không từ Việt Nam (HCMC) đi Indonesia, áp dụng từ ngày 11/8/2025:
+
+**Bảng Giá Dịch Vụ Vận Chuyển (VNĐ/KG)**
+
+| Khu vực nhận hàng | Từ 0 đến 50 kg | Từ 50 đến 100 kg | Từ 100 đến 250 kg | Từ 250 đến 500 kg | Trên 500KG Batam |
+|---|---|---|---|---|---|
+| **Batam** | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| **Pekanbaru** | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| **Medan** | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| **Jakarta** | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| **Bogor** | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| **Denpasar** | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| **Bandung** | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| **Surabaya** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Semarang** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Padang** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Jambi** | 250.000 | 245.000 | 240.000 | 235.000 |"
+2025-08-19T07:39:53.344839+00:00,2025-08-19T14:39:53.344839+07:00,1,user,Khu vực Batam
+2025-08-19T07:40:42.395742+00:00,2025-08-19T14:40:42.395742+07:00,1,assistant,"Chào bạn,
+
+Dựa trên dữ liệu tôi có, giá cước vận chuyển nội địa Indonesia từ Batam là:
+
+*   **Giao thường:** Nhận hàng từ 4-7 ngày kể từ ngày giao hàng tùy khu vực.
+    *   Pekanbaru: 58.000 VNĐ/kg
+    *   Padang: 60.000 VNĐ/kg
+    *   Medan: 60.000 VNĐ/kg
+    *   Jambi: 60.000 VNĐ/kg
+    *   Jakarta: 63.000 VNĐ/kg
+    *   Palembang: 60.000 VNĐ/kg
+    *   Bogor: 63.000 VNĐ/kg
+    *   Lampung: 63.000 VNĐ/kg
+    *   Denpasar: 64.000 VNĐ/kg
+    *   Banten: 64.000 VNĐ/kg
+    *   Bandung: 70.000 VNĐ/kg
+    *   Depok: 64.000 VNĐ/kg
+    *   Surabaya: 65.000 VNĐ/kg"
+2025-08-19T07:40:59.982600+00:00,2025-08-19T14:40:59.982600+07:00,1,user,bảng giá vận chuyển
+2025-08-19T07:41:32.587337+00:00,2025-08-19T14:41:32.587337+07:00,1,assistant,Lỗi khi gọi LLM local API: 400 Client Error: Bad Request for url: http://192.168.2.8:1234/v1/chat/completions
+2025-08-19T07:42:23.202973+00:00,2025-08-19T14:42:23.202973+07:00,1,user,bảng giá vận chuyển
+2025-08-19T07:44:02.326923+00:00,2025-08-19T14:44:02.326923+07:00,1,assistant,"Chào bạn,
+
+Dựa trên dữ liệu tôi có, đây là bảng giá vận chuyển hàng hóa đường hàng không từ Việt Nam (HCMC) đi Indonesia, áp dụng từ ngày 11/8/2025:
+
+**Bảng Giá Dịch Vụ Vận Chuyển (VNĐ/KG)**
+
+| Khu vực nhận hàng | Từ 0 đến 50 kg | Từ 50 đến 100 kg | Từ 100 đến 250 kg | Từ 250 đến 500 kg | Trên 500KG Batam |
+|---|---|---|---|---|---|
+| **Batam** | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| **Pekanbaru** | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| **Medan** | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| **Jakarta** | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| **Bogor** | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| **Denpasar** | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| **Bandung** | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| **Surabaya** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Semarang** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Padang** | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| **Jambi** | 250.000 | 245.000 | 240.000 | 235.000 |"
+2025-08-19T07:52:02.251642+00:00,2025-08-19T14:52:02.251642+07:00,1,user,bảng giá vận chuyển
+2025-08-19T07:53:08.345444+00:00,2025-08-19T14:53:08.345444+07:00,1,assistant,"Chào bạn,
+
+Dựa trên dữ liệu tôi có, đây là bảng giá vận chuyển nội địa Indonesia từ Batam:
+
+| Khu vực nhận hàng | Giá (VNĐ/kg) |
+|---|---|
+| Pekanbaru | 58.000 |
+| Padang | 60.000 |
+| Medan | 60.000 |
+| Jakarta | 63.000 |
+| Palembang | 60.000 |
+| Bogor | 63.000 |
+| Lampung | 63.000 |
+| Denpasar | 64.000 |
+| Banten | 64.000 |
+| Bandung | 70.000 |
+| Depok | 64.000 |
+| Surabaya | 65.000 |
+| Semarang | 65.000 |
+| Jambi | 60.000 |
+
+
+
+Lưu ý:
+
+*   Giá cước có thể thay đổi tùy thuộc vào thời điểm, trọng lượng thực tế và các yếu tố khác.
+*   Đây là giá vận chuyển nội địa Indonesia từ Batam đến các thành phố được liệt kê."
+2025-08-19T07:54:57.717536+00:00,2025-08-19T14:54:57.717536+07:00,1,user,tôi muốn một số khu vực nữa
+2025-08-19T07:56:23.019425+00:00,2025-08-19T14:56:23.019425+07:00,1,assistant,"Chào bạn,
+
+Dựa trên dữ liệu tôi có, đây là bảng giá vận chuyển nội địa Indonesia từ Batam, bao gồm thêm một số khu vực khác:
+
+| Khu vực nhận hàng | Giá (VNĐ/kg) |
+|---|---|
+| Pekanbaru | 58.000 |
+| Padang | 60.000 |
+| Medan | 60.000 |
+| Jakarta | 63.000 |
+| Palembang | 60.000 |
+| Bogor | 63.000 |
+| Lampung | 63.000 |
+| Denpasar | 64.000 |
+| Banten | 64.000 |
+| Bandung | 70.000 |
+| Depok | 64.000 |
+| Surabaya | 65.000 |
+| Semarang | 65.000 |
+| Jambi | 60.000 |
+| Makassar | 70.000 |
+| Malang | 68.000 |
+| Yogyakarta | 68.000 |
+| Manado | 72.000 |
+
+Lưu ý:
+
+*   Giá cước có thể thay đổi tùy thuộc vào thời điểm, trọng lượng thực tế và các yếu tố khác.
+*   Đây là giá vận chuyển nội địa Indonesia từ Batam đến các thành phố được liệt kê."
+2025-08-19T08:04:38.659620+00:00,2025-08-19T15:04:38.659620+07:00,1,user,hello
+2025-08-19T08:04:42.946828+00:00,2025-08-19T15:04:42.946828+07:00,1,assistant,Lỗi khi gọi Gemini API: Models.generate_content() got an unexpected keyword argument 'system_instruction'
+2025-08-19T08:08:56.121220+00:00,2025-08-19T15:08:56.121220+07:00,1,user,hello
+2025-08-19T08:09:01.377012+00:00,2025-08-19T15:09:01.377012+07:00,1,assistant,"Lỗi khi gọi Gemini API: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Content with system role is not supported.', 'status': 'INVALID_ARGUMENT'}}"
+2025-08-19T08:14:32.048509+00:00,2025-08-19T15:14:32.048509+07:00,1,user,hello
+2025-08-19T08:14:37.845032+00:00,2025-08-19T15:14:37.845032+07:00,1,assistant,"Chào bạn! Tôi là Trợ lý AI của Tiximax Logistics, sẵn sàng hỗ trợ bạn. Bạn cần thông tin gì ạ?
+"
+2025-08-19T08:15:03.563693+00:00,2025-08-19T15:15:03.563693+07:00,1,user,tôi muốn một số khu vực nữa
+2025-08-19T08:15:16.786864+00:00,2025-08-19T15:15:16.786864+07:00,1,assistant,"Tôi rất tiếc, thông tin về các khu vực khác ngoài danh sách đã cung cấp không có trong dữ liệu của tôi."
+2025-08-19T08:15:51.011652+00:00,2025-08-19T15:15:51.011652+07:00,1,user,bảng vận chuyển
+2025-08-19T08:16:06.795480+00:00,2025-08-19T15:16:06.795480+07:00,1,assistant,"Bạn muốn xem bảng giá vận chuyển cho tuyến nào?
+
+*   **Từ Mỹ về Việt Nam:** Xem bảng giá vận chuyển theo loại hàng hóa và theo kg, áp dụng cho hàng thông thường, đồ điện tử (có hạn chế), và hàng đặc biệt về kho Hà Nội hoặc Sài Gòn (source: I. Bảng Giá Vận Chuyển Theo Loại Hàng Hóa và Theo Kg).
+*   **Từ Việt Nam đi Indonesia:** Xem bảng giá dịch vụ vận chuyển từ HCMC đi các khu vực như Batam, Pekanbaru, Medan, Jakarta, v.v., áp dụng từ ngày 11/8/2025 (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025).
+"
+2025-08-19T08:16:37.999545+00:00,2025-08-19T15:16:37.999545+07:00,1,user,từ việt nam đi indo
+2025-08-19T08:16:55.829899+00:00,2025-08-19T15:16:55.829899+07:00,1,assistant,"Bảng giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025) như sau (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025):
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 |  |
+"
+2025-08-19T08:17:44.764960+00:00,2025-08-19T15:17:44.764960+07:00,1,user,từ việt nam đi indo
+2025-08-19T08:17:50.390100+00:00,2025-08-19T15:17:50.390100+07:00,1,assistant,"Tôi không biết.
+"
+2025-08-19T08:23:33.429017+00:00,2025-08-19T15:23:33.429017+07:00,1,user,bảng vận chuyển từ việt nam đi indo
+2025-08-19T08:23:42.948316+00:00,2025-08-19T15:23:42.948316+07:00,1,assistant,"Bảng giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025) như sau (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025):
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 |  |
+"
+2025-08-19T08:26:42.345274+00:00,2025-08-19T15:26:42.345274+07:00,1,user,bảng vận chuyển từ việt nam đi indo
+2025-08-19T08:26:51.309646+00:00,2025-08-19T15:26:51.309646+07:00,1,assistant,"Bảng giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025) như sau (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025):
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 |  |
+"
+2025-08-19T08:35:52.628956+00:00,2025-08-19T15:35:52.628956+07:00,1,user,bảng vận chuyển từ việt nam đi indo
+2025-08-19T08:36:04.103250+00:00,2025-08-19T15:36:04.103250+07:00,1,assistant,"Chính sách giá đường air từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025) như sau (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025):
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Lampung | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Banten | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Depok | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Malang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+
+Đơn giá: VNĐ/KG.
+"
+2025-08-19T08:36:47.454578+00:00,2025-08-19T15:36:47.454578+07:00,1,user,tiếp tục
+2025-08-19T08:37:01.632765+00:00,2025-08-19T15:37:01.632765+07:00,1,assistant,"Tôi không biết.
+"
+2025-08-19T08:37:44.448187+00:00,2025-08-19T15:37:44.448187+07:00,1,user,Giá cước vận chuyển nội địa Indonesia từ Batam
+2025-08-19T08:38:00.295508+00:00,2025-08-19T15:38:00.295508+07:00,1,assistant,"Giá cước vận chuyển nội địa Indonesia từ Batam (giao thường, nhận hàng từ 4-7 ngày tùy khu vực):
+
+*   Pekanbaru: 58.000 VNĐ/KG
+*   Padang: 60.000 VNĐ/KG
+*   Medan: 60.000 VNĐ/KG
+*   Jambi: 60.000 VNĐ/KG
+*   Jakarta: 63.000 VNĐ/KG
+*   Palembang: 60.000 VNĐ/KG
+*   Bogor: 63.000 VNĐ/KG
+*   Lampung: 63.000 VNĐ/KG
+*   Denpasar: 64.000 VNĐ/KG
+*   Banten: 64.000 VNĐ/KG
+*   Bandung: 70.000 VNĐ/KG
+*   Depok: 64.000 VNĐ/KG
+*   Surabaya: 65.000 VNĐ/KG
+*   Malang: 65.000 VNĐ/KG
+*   Semarang: 68.000 VNĐ/KG
+
+(source: chunk 1)
+"
+2025-08-19T08:40:10.139871+00:00,2025-08-19T15:40:10.139871+07:00,1,user,khu vục giao nhanh
+2025-08-19T08:40:26.403338+00:00,2025-08-19T15:40:26.403338+07:00,1,assistant,"Giá cước vận chuyển nội địa Indonesia từ Batam (giao nhanh, nhận hàng từ 1-3 ngày tùy khu vực):
+
+*   Pekanbaru: 124.000 VNĐ/KG
+*   Padang: 134.000 VNĐ/KG
+*   Medan: 141.000 VNĐ/KG
+*   Jambi: 116.000 VNĐ/KG
+*   Jakarta: 106.000 VNĐ/KG
+*   Palembang: 108.000 VNĐ/KG
+*   Bogor: 106.000 VNĐ/KG
+*   Lampung: 138.000 VNĐ/KG
+*   Denpasar: 124.000 VNĐ/KG
+*   Banten: 116.000 VNĐ/KG
+*   Bandung: 111.000 VNĐ/KG
+*   Depok: 107.000 VNĐ/KG
+*   Surabaya: 118.000 VNĐ/KG
+*   Malang: 123.000 VNĐ/KG
+*   Semarang: 113.000 VNĐ/KG (source: chunk 0)"
+2025-08-19T08:40:55.992056+00:00,2025-08-19T15:40:55.992056+07:00,1,user,chính sách thất lạc hàng
+2025-08-19T08:41:01.426065+00:00,2025-08-19T15:41:01.426065+07:00,1,assistant,"Tôi không biết.
+"
+2025-08-19T08:43:46.077319+00:00,2025-08-19T15:43:46.077319+07:00,1,user,chính sách đền bù japan
+2025-08-19T08:43:52.064595+00:00,2025-08-19T15:43:52.064595+07:00,1,assistant,"Chính sách đền bù nếu thất lạc hàng (đường air Japan - VN, áp dụng từ ngày 01/05/2025):
+
+*   **Trường hợp mua bảo hiểm hàng hóa:**
+    *   Phí bảo hiểm: 8% giá trị hàng hóa.
+    *   Đền bù: Đền bù 100% giá trị hàng hóa mà khách hàng khai báo.
+*   **Trường hợp không mua bảo hiểm hàng hóa:**
+    *   Đền bù 100% giá trị vận chuyển nhưng không quá 3,000,000 VNĐ/đơn hàng (source: chunk 1)."
+2025-08-19T08:44:11.390941+00:00,2025-08-19T15:44:11.390941+07:00,1,user,chính sách đền bù korea
+2025-08-19T08:44:24.163474+00:00,2025-08-19T15:44:24.163474+07:00,1,assistant,"Chính sách đền bù nếu thất lạc hàng (đường air Korea - VN, áp dụng từ ngày 01/08/2025):
+
+*   **Trường hợp mua bảo hiểm hàng hóa:**
+    *   Phí bảo hiểm: 8% giá trị hàng hóa.
+    *   Đền bù: Đền bù 100% giá trị hàng hóa mà khách hàng khai báo.
+*   **Trường hợp không mua bảo hiểm hàng hóa:**
+    *   Đền bù 2 lần giá cước vận chuyển nhưng không quá 3,000,000 VNĐ/đơn hàng.
+    *   Chỉ đền bù trong trường hợp hàng thất lạc do TIXIMAX vận chuyển từ kho Hàn Quốc về kho Việt Nam. Thất lạc trong quá trình vận chuyển nội địa TIXIMAX không chịu trách nhiệm (source: chunk 1)."
+2025-08-19T08:44:51.103601+00:00,2025-08-19T15:44:51.103601+07:00,1,user,bản giá khu vực nhanh
+2025-08-19T08:45:06.196473+00:00,2025-08-19T15:45:06.196473+07:00,1,assistant,"Giá cước vận chuyển nội địa Indonesia từ Batam (giao nhanh, nhận hàng từ 1-3 ngày tùy khu vực):
+
+*   Pekanbaru: 124.000 VNĐ/KG
+*   Padang: 134.000 VNĐ/KG
+*   Medan: 141.000 VNĐ/KG
+*   Jambi: 116.000 VNĐ/KG
+*   Jakarta: 106.000 VNĐ/KG
+*   Palembang: 108.000 VNĐ/KG
+*   Bogor: 106.000 VNĐ/KG
+*   Lampung: 138.000 VNĐ/KG
+*   Denpasar: 124.000 VNĐ/KG
+*   Banten: 116.000 VNĐ/KG
+*   Bandung: 111.000 VNĐ/KG
+*   Depok: 107.000 VNĐ/KG
+*   Surabaya: 118.000 VNĐ/KG
+*   Malang: 123.000 VNĐ/KG
+*   Semarang: 113.000 VNĐ/KG (source: chunk 0)"
+2025-08-19T08:45:34.060717+00:00,2025-08-19T15:45:34.060717+07:00,1,user,bảng vận chuyển từ việt nam đi indo
+2025-08-19T08:45:52.764942+00:00,2025-08-19T15:45:52.764942+07:00,1,assistant,"Chính sách giá đường air từ HCMC Việt Nam đi Indonesia áp dụng từ ngày 11/8/2025 như sau:
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Lampung | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Banten | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Depok | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Malang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+
+Đơn giá: VNĐ/KG (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025).
+"
+2025-08-19T08:46:28.136301+00:00,2025-08-19T15:46:28.136301+07:00,1,user,logistic là gì
+2025-08-19T08:46:35.544929+00:00,2025-08-19T15:46:35.544929+07:00,1,assistant,"Tôi không biết.
+"
+2025-08-19T08:52:40.884974+00:00,2025-08-19T15:52:40.884974+07:00,1,user,bảng giá khu vực chậm
+2025-08-19T08:52:49.535768+00:00,2025-08-19T15:52:49.535768+07:00,1,assistant,Tôi không biết.
+2025-08-19T08:53:15.348901+00:00,2025-08-19T15:53:15.348901+07:00,1,user,bảng vận chuyển
+2025-08-19T08:53:21.070084+00:00,2025-08-19T15:53:21.070084+07:00,1,assistant,"Bạn muốn xem bảng giá vận chuyển cho tuyến nào?
+
+*   **Từ Indo (Indonesia) về Việt Nam:** Xem bảng giá chi tiết theo kg, hỗ trợ vận chuyển đến kho Hà Nội và Sài Gòn, áp dụng cho hàng thông thường, đồ điện tử và hàng đặc biệt (source: I. Bảng Giá Vận Chuyển Theo Loại Hàng Hóa và Theo Kg).
+*   **Từ Việt Nam đi Indonesia:** Xem bảng giá dịch vụ vận chuyển từ HCMC đi các khu vực như Batam, Pekanbaru, Medan, Jakarta,... áp dụng từ ngày 11/8/2025 (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025)."
+2025-08-19T08:53:42.567252+00:00,2025-08-19T15:53:42.567252+07:00,1,user,Từ Việt Nam đi Indonesia
+2025-08-19T08:53:53.916065+00:00,2025-08-19T15:53:53.916065+07:00,1,assistant,"Giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025):
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Lampung | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Banten | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Depok | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Malang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+
+Đơn giá: VNĐ/KG (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025)
+"
+2025-08-19T08:54:39.804933+00:00,2025-08-19T15:54:39.804933+07:00,1,user,vận chuyển nhanh
+2025-08-19T08:54:45.471235+00:00,2025-08-19T15:54:45.471235+07:00,1,assistant,Tiximax Logistics cung cấp dịch vụ vận chuyển nhanh từ Mỹ về Việt Nam với thời gian nhận hàng từ 7-10 ngày (source: Vận chuyển hàng Mỹ – Việt).
+2025-08-19T08:55:19.184651+00:00,2025-08-19T15:55:19.184651+07:00,1,user,giao hàng nhanh
+2025-08-19T08:55:24.226470+00:00,2025-08-19T15:55:24.226470+07:00,1,assistant,"Tôi không biết.
+"
+2025-08-19T08:55:42.979766+00:00,2025-08-19T15:55:42.979766+07:00,1,user,bản giao hàng nhanh
+2025-08-19T08:55:48.389307+00:00,2025-08-19T15:55:48.389307+07:00,1,assistant,Tôi không biết.
+2025-08-19T08:56:16.153363+00:00,2025-08-19T15:56:16.153363+07:00,1,user,Giá cước vận chuyển nội địa Indonesia từ Batam
+2025-08-19T08:56:24.419682+00:00,2025-08-19T15:56:24.419682+07:00,1,assistant,"Giá cước vận chuyển nội địa Indonesia từ Batam:
+
+*   **Giao thường (4-7 ngày):**
+    *   Pekanbaru: 58.000 VNĐ/KG
+    *   Padang: 60.000 VNĐ/KG
+    *   Medan: 60.000 VNĐ/KG
+    *   Jambi: 60.000 VNĐ/KG
+    *   Jakarta: 63.000 VNĐ/KG
+    *   Palembang: 60.000 VNĐ/KG
+    *   Bogor: 63.000 VNĐ/KG
+    *   Lampung: 63.000 VNĐ/KG
+    *   Denpasar: 64.000 VNĐ/KG
+    *   Banten: 64.000 VNĐ/KG
+    *   Bandung: 70.000 VNĐ/KG
+    *   Depok: 64.000 VNĐ/KG
+    *   Surabaya: 65.000 VNĐ/KG
+    *   Malang: 65.000 VNĐ/KG
+    *   Semarang: 68.000 VNĐ/KG
+*   **Giao nhanh (1-3 ngày):**
+    *   Pekanbaru: 124.000 VNĐ/KG
+    *   Padang: 134.000 VNĐ/KG
+    *   Medan: 141.000 VNĐ/KG
+    *   Jambi: 116.000 VNĐ/KG
+    *   Jakarta: 106.000 VNĐ/KG
+    *   Palembang: 108.000 VNĐ/KG
+    *   Bogor: 106.000 VNĐ/KG
+    *   Lampung: 138.000 VNĐ/KG
+    *   Denpasar: 124.000 VNĐ/KG
+    *   Banten: 116.000 VNĐ/KG
+    *   Bandung: 111.000 VNĐ/KG
+    *   Depok: 107.000 VNĐ/KG
+    *   Surabaya: 118.000 VNĐ/KG
+    *   Malang: 123.000 VNĐ/KG
+    *   Semarang: 113.000 VNĐ/KG"
+2025-08-19T08:56:41.140973+00:00,2025-08-19T15:56:41.140973+07:00,1,user,Quy ước tính
+2025-08-19T08:56:48.526874+00:00,2025-08-19T15:56:48.526874+07:00,1,assistant,"Dưới đây là các quy ước tính được áp dụng:
+
+*   **Quy ước tính làm tròn cân nặng:**
+    *   Từ 0kg đến 1kg: Làm tròn thành 1kg.
+    *   Trên 1kg: Làm tròn một chữ số thập phân sau dấu phẩy (source: chunk 0).
+*   **Quy cách tính khối lượng:**
+    *   Trọng lượng thể tích = (chiều dài \* chiều rộng \* chiều cao) / 6,000 (cm) (source: chunk 0).
+    *   Cân nặng thực tế < cân nặng thể tích => tính cước theo thể tích (source: chunk 0).
+*   **Phương pháp quy đổi khối lượng (TIXIMAX US):**
+    *   Dưới 0.5kg: Làm tròn thành 0.5kg.
+    *   Từ 0.5kg đến 1kg: Làm tròn thành 1kg.
+    *   Lớn hơn 1kg: Làm tròn về một chữ số thập phân (ví dụ: 1.23kg thành 1.2kg).
+*   **Nguyên tắc tính khối lượng tính cước (TIXIMAX US):**
+    *   Áp dụng mức cước theo khối lượng thực tế hoặc khối lượng thể tích, tùy theo giá trị nào cao hơn.
+"
+2025-08-19T08:57:18.541552+00:00,2025-08-19T15:57:18.541552+07:00,1,user,thu phu và điều khoản khác
+2025-08-19T08:57:26.845449+00:00,2025-08-19T15:57:26.845449+07:00,1,assistant,"Dựa trên dữ liệu được cung cấp, tôi có thể cung cấp thông tin về các khoản phụ thu hàng hóa đặc biệt và các điều khoản liên quan đến sửa đổi, đình chỉ, chấm dứt dịch vụ:
+
+*   **Phụ thu hàng hóa đặc biệt:** Khoản phụ thu này áp dụng để đảm bảo an toàn và đáp ứng tiêu chuẩn vận chuyển quốc tế cho các loại hàng hóa đặc biệt. Phụ thu bao gồm chi phí đóng gói chuyên dụng, kiểm tra chặt chẽ và xử lý giấy tờ. Mức phụ thu được tính dựa trên giá trị hàng hóa mà khách hàng khai báo. Nếu có mặt hàng đặc biệt chưa được liệt kê, khách hàng nên liên hệ TIXIMAX để được tư vấn và báo giá chính xác.
+*   **Sửa đổi, đình chỉ, chấm dứt dịch vụ:**
+    *   TIXIMAX US có quyền cập nhật, sửa đổi Điều khoản Dịch vụ. Mọi thay đổi sẽ được công bố trên website chính thức.
+    *   TIXIMAX US có quyền từ chối phục vụ hoặc ngừng hợp tác với khách hàng có hành vi gian lận, gây thiệt hại, vi phạm điều khoản hoặc không thực hiện nghĩa vụ tài chính.
+    *   Khách hàng có thể ngừng sử dụng dịch vụ bất cứ lúc nào, nhưng vẫn phải hoàn tất mọi chi phí phát sinh hoặc cam kết chưa thực hiện.
+    *   Các điều khoản có hiệu lực kể từ khi khách hàng bắt đầu sử dụng dịch vụ của TIXIMAX US.
+
+Tôi không có thông tin về các điều khoản khác. (source: VII. SỬA ĐỔI, ĐÌNH CHỈ, CHẤM DỨT DỊCH VỤ, Phụ thu hàng hóa đặc biệt)
+"
+2025-08-19T08:59:59.822665+00:00,2025-08-19T15:59:59.822665+07:00,1,user,mặc hàng thụ phu
+2025-08-19T09:00:06.381623+00:00,2025-08-19T16:00:06.381623+07:00,1,assistant,Tôi không biết.
+2025-08-19T09:00:29.844784+00:00,2025-08-19T16:00:29.844784+07:00,1,user,Bảng Giao thường
+2025-08-19T09:00:36.013546+00:00,2025-08-19T16:00:36.013546+07:00,1,assistant,Tôi không biết.
+2025-08-19T09:01:05.959177+00:00,2025-08-19T16:01:05.959177+07:00,1,user,vietnam đi indo
+2025-08-19T09:01:17.008841+00:00,2025-08-19T16:01:17.008841+07:00,1,assistant,"Chính sách giá đường air từ HCMC Việt Nam đi Indonesia (áp dụng từ ngày 11/8/2025) như sau:
+
+| Khu vực nhận hàng | Từ 0 đến 50 KG (VNĐ/KG) | Từ 50 đến 100 KG (VNĐ/KG) | Từ 100 đến 250 KG (VNĐ/KG) | Từ 250 đến 500 KG (VNĐ/KG) | Trên 500KG (VNĐ/KG) |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Lampung | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Banten | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Depok | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Malang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+
+Đơn giá: VNĐ/KG (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025)."
+2025-08-19T09:01:40.306109+00:00,2025-08-19T16:01:40.306109+07:00,1,user,tỷ giá mua hộ
+2025-08-19T09:01:47.709861+00:00,2025-08-19T16:01:47.709861+07:00,1,assistant,"Bạn muốn biết tỷ giá mua hộ cho tuyến vận chuyển nào? Hiện tại tôi có thông tin về:
+
+*   **Đường Air UK - VN:** Tỷ giá VCB GBP + 1000 VNĐ (áp dụng từ 1/04/2025).
+*   **Đường Air Korea - VN:** Tỷ giá 19.5 (áp dụng từ 01/08/2025).
+*   **Đường Air Japan - VN:** 1 JPY = 183 VNĐ (áp dụng từ 01/05/2025).
+*   **Vận chuyển hàng từ Indonesia về Việt Nam:**
+    *   Đơn hàng dưới 10 triệu đồng: Tỷ giá 1.70
+    *   Đơn hàng từ 10 triệu đến 50 triệu đồng: Tỷ giá 1.68
+    *   Đơn hàng trên 50 triệu đồng: Tỷ giá 1.65 (áp dụng từ 11/06/2025 đến 31/12/2025)."
+2025-08-19T09:02:28.124662+00:00,2025-08-19T16:02:28.124662+07:00,1,user,vận chuyển indo - vietnam
+2025-08-19T09:02:36.278898+00:00,2025-08-19T16:02:36.278898+07:00,1,assistant,"Chào bạn, chúng tôi cung cấp dịch vụ vận chuyển hàng hóa đường hàng không từ Indonesia (Indo) về Việt Nam, hỗ trợ vận chuyển đến kho Hà Nội và Sài Gòn. Dưới đây là thông tin về giá vận chuyển theo loại hàng hóa và trọng lượng:
+
+**1. Về Kho Hà Nội:**
+
+| Mặt hàng                                       | 0-50 kg      | 50-100 kg    | 100-500 kg   | 500-1000 kg  |
+| --------------------------------------------- | ----------- | ----------- | ----------- | ----------- |
+| Hàng thông thường (quần áo, mỹ phẩm, phụ tùng) | 280,000 VNĐ/kg | 275,000 VNĐ/kg | 270,000 VNĐ/kg | 265,000 VNĐ/kg |
+| Đồ điện tử                                     | 300,000 VNĐ/kg (không nhận) |
+| Hàng đặc biệt (chất lỏng, cây sống)           | Liên hệ tư vấn |
+
+**2. Về Kho Sài Gòn:**
+
+*Giá sẽ được cung cấp khi bạn liên hệ tư vấn.*
+
+Bạn có thể xem thêm thông tin chi tiết tại [Bảng Giá Vận Chuyển Hàng Hóa Đường Hàng Không Indo - Việt Nam](https://tiximax.net/pages/cuoc-van-chuyen-indo)."
+2025-08-19T09:04:55.911486+00:00,2025-08-19T16:04:55.911486+07:00,1,user,chi phí lưu kho
+2025-08-19T09:05:02.265513+00:00,2025-08-19T16:05:02.265513+07:00,1,assistant,"Chi phí lưu kho được quy định như sau:
+
+*   **Việt Nam (tất cả các loại hàng):** Miễn phí lưu kho.
+*   **Indonesia:**
+    *   Hàng thường: 200,000 VNĐ/ngày sau 30 ngày miễn phí.
+    *   Hàng cồng kềnh: 500,000 VNĐ/ngày sau 07 ngày miễn phí.
+
+**Quy ước hàng thường:**
+
+*   Kích thước < 60cm + 40cm + 40cm (tổng cộng không vượt quá 140cm)
+*   Hoặc trọng lượng < 30kg (source: chunk 0)."
+2025-08-19T09:07:56.664125+00:00,2025-08-19T16:07:56.664125+07:00,1,user,dịch vụ vận chuyển korea
+2025-08-19T09:08:03.700902+00:00,2025-08-19T16:08:03.700902+07:00,1,assistant,"Dịch vụ vận chuyển từ Korea về Việt Nam (áp dụng từ ngày 01/08/2025):
+
+*   **Đơn giá:**
+    *   Đầu Hà Nội: 150.000 VNĐ/KG
+    *   Đầu Hồ Chí Minh: 165.000 VNĐ/KG
+    *   Đồ điện tử (Laptop, Ipad, Điện thoại, Đồng hồ,...): 200.000 VNĐ/cái
+    *   Nước hoa, mỹ phẩm, hàng hiệu (có giá trị từ 300.000 won/cái): 8% giá trị hàng khai báo
+*   **Thời gian nhận hàng:**
+    *   Hà Nội: 2 - 5 ngày kể từ ngày bay
+    *   Hồ Chí Minh: 5 - 7 ngày kể từ ngày bay
+
+Lưu ý: Giá dịch vụ chưa bao gồm VAT (source: chính sách giá đường air korea - vn áp dụng từ ngày 01/08/2025)."

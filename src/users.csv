@@ -1,6 +1,6 @@
-username,password
-admin,123456789,
-demo,123456,
-sale,sale@123,
-duybao,123456789,
-1,1,
+username,password,role
+mkt01,mkt01pass,marketing
+sale01,sale01pass,sales
+hr01,hr01pass,hr
+admin,supersecret,admin
+1,1,admin

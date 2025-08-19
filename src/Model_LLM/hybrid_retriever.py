@@ -145,7 +145,7 @@ TOP_K = 12              # k cuối cùng dùng làm context
 K_SEM = 20              # k semantic (FAISS) trước khi hợp nhất
 K_LEX = 20              # k lexical (BM25) trước khi hợp nhất
 MMR_FETCH_K = 80        # số lượng fetch để MMR đa dạng
-MMR_LAMBDA = 0.4        # 0.35–0.5, thấp = đa dạng hơn
+MMR_LAMBDA = 0.45        # 0.35–0.5, thấp = đa dạng hơn
 
 USE_RERANK = True
 RERANK_CANDIDATES = 80
@@ -182,7 +182,7 @@ def _clean_text(s: str) -> str:
     s = re.sub(r"[ \t]{2,}", " ", s)
     return s.strip()
 
-def _split_text(text: str, chunk_size=1200, overlap=300) -> List[str]:
+def _split_text(text: str, chunk_size=800, overlap=200) -> List[str]:
     # Split thô theo đoạn xuống dòng trước để giảm vỡ ý
     parts = []
     paragraphs = re.split(r"\n{2,}", text)
@@ -257,7 +257,7 @@ def prepare_bm25_docs() -> List[Document]:
         if not t:
             continue
         t_norm = _normalize_case(t)  # <<< ép lowercase/uppercase đồng bộ cho BM25
-        for piece in _split_text(t_norm, chunk_size=1000, overlap=250):
+        for piece in _split_text(t_norm, chunk_size=1200, overlap=300):
             out_docs.append(Document(
                 page_content=piece,
                 metadata={"source": fname, "page": -1, "chunk_id": chunk_id, "norm_case": CASE_NORM}
