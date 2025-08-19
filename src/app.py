@@ -166,7 +166,7 @@ def hr():
     return render_template('home/hr.html', current_user=session.get('user'), active='hr')
 
 @app.route('/guide', methods=['GET'])
-@login_required(roles=['guide'])
+@login_required
 def guide():
     return render_template('home/guide.html', current_user=session.get('user'), active='guide')
 
