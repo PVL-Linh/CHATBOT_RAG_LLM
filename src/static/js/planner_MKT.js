@@ -67,10 +67,10 @@ async function loadSaved(type, targetId) {
     actions.className = "item-actions";
     const bCopy = document.createElement("button");
     bCopy.className = "btn-ghost";
-    bCopy.textContent = "📋 Sao chép";
+    bCopy.textContent = "📋";
     const bDel = document.createElement("button");
     bDel.className = "btn-ghost";
-    bDel.textContent = "🗑️ Xóa";
+    bDel.textContent = "🗑️";
     actions.append(bCopy, bDel);
     header.append(title, actions);
 

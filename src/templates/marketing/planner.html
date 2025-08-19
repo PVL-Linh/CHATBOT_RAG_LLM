@@ -1,19 +1,28 @@
-{% extends 'home/base.html' %} {% block title %}Content Planner · Tiximax{%
-endblock %} {% block page_css %}
-<!-- Dùng chung style Marketing -->
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css', v='8') }}"
-/>
-<!-- Bổ sung map selector cho Planner -->
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/planner_MKT.css', v='8') }}"
-/>
-{% endblock %} {% block topbar %}{% endblock %} {% block history_panel %}{%
-endblock %} {% block footer %}{% endblock %} {% block content %}
-<main style="width: auto" id="marketing" class="chat-area">
-  <div class="layout">
+{# templates/home/marketing.html #}
+{% extends 'home/base.html' %}
+{% block title %}
+  Marketing · Tiximax
+{% endblock %}
+
+{# CSS riêng cho trang Marketing #}
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing.css') }}" />
+{% endblock %}
+
+{# Ẩn Topbar/History/Footer trên trang Marketing #}
+{% block topbar %}
+
+{% endblock %}
+{% block history_panel %}
+
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
+
+{% block content %}
+  <main style="width: auto;" id="marketing" class="chat-area">
+    <div class="layout">
     {% include 'partials/_marketing_sidebar.html' %}
 
     <main class="content">
@@ -145,7 +154,7 @@ endblock %} {% block footer %}{% endblock %} {% block content %}
             >
             <label
               ><input type="checkbox" value="Nhân tình, gần gũi, đồng cảm" />
-              Nhân tình, gần gũi, đồng cảm</label
+              Thân thiện, gần gũi, đồng cảm</label
             >
             <label
               ><input
@@ -203,10 +212,10 @@ endblock %} {% block footer %}{% endblock %} {% block content %}
         <!-- RIGHT -->
         <section class="card">
           <div class="tabs" data-scope="pl">
-            <button class="tab active" data-tab="result">Kết quả</button>
-            <button class="tab" data-tab="saved">Nội dung đã lưu</button>
-            <button class="btn-ghost" id="pl_copy">📋 Sao chép</button>
-            <button class="btn-ghost" id="pl_save">🔖 Lưu</button>
+            <button class="tab active" data-tab="result">Result</button>
+            <button class="tab" data-tab="saved">Saved content</button>
+            <button class="btn-ghost" id="pl_copy">📋 Coppy</button>
+            <button class="btn-ghost" id="pl_save">🔖 Save</button>
           </div>
 
           <div id="pl_result" class="tab-panel active">
@@ -223,10 +232,9 @@ endblock %} {% block footer %}{% endblock %} {% block content %}
       </div>
     </main>
   </div>
-</main>
-{% endblock %} {% block extra_scripts %}
-<script
-  defer
-  src="{{ url_for('static', filename='js/planner_MKT.js', v='8') }}"
-></script>
+  </main>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/planner_MKT.js', v='4') }}"></script>
 {% endblock %}

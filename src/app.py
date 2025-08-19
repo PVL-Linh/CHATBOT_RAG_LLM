@@ -18,7 +18,8 @@ from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_i
 from Helpers.prompt_KT import persona_vi
 from Helpers.Image_generation_and_processing import (
     build_image_prompt, generate_image_via_gemini_api,
-    add_logo_to_images, pil_to_base64, load_default_logo
+    add_logo_to_images, pil_to_base64, load_default_logo,
+    conform_aspect, ALLOWED_ASPECTS
 )
 from Helpers.Content_generation import (
     generate_facebook_ads_content, generate_rephrase_content,
@@ -31,10 +32,6 @@ from Login.Logging_config import _log_message_to_csv
 from Helpers.Marketing_Planner.Content_Planner import (
     _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
-try:
-    from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
-except ImportError:
-    from Model_LLM.hybrid_retriever import rerank, TOP_K
 # =====================================
 # Flask setup
 # =====================================
@@ -57,7 +54,7 @@ except Exception:
 # =====================================
 # Model & VectorStore init (one-time)
 # =====================================
-# embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
 # =====================================
 # Logging config (CSV) (_ensure_dir, _log_message_to_csv)
 # =====================================
@@ -129,6 +126,7 @@ def login():
     session.clear()
     session.permanent = remember
     session['user'] = username
+    session['role'] = user.get('role', 'marketing')
     session['messages'] = []
 
     next_url = request.form.get("next") or request.args.get("next") or url_for("chat")
@@ -153,24 +151,29 @@ def chat():
     )
 
 @app.route('/marketing', methods=['GET'])
-@login_required
+@login_required(roles=['marketing'])
 def marketing():
     return render_template('home/marketing.html', current_user=session.get('user'), active='marketing')
 
 @app.route('/sales', methods=['GET'])
-@login_required
+@login_required(roles=['sales'])
 def sales():
     return render_template('home/sales.html', current_user=session.get('user'), active='sales')
 
 @app.route('/hr', methods=['GET'])
-@login_required
+@login_required(roles=['hr'])
 def hr():
     return render_template('home/hr.html', current_user=session.get('user'), active='hr')
 
 @app.route('/guide', methods=['GET'])
-@login_required
+@login_required(roles=['guide'])
 def guide():
     return render_template('home/guide.html', current_user=session.get('user'), active='guide')
+
+@app.route('/admin', methods=['GET'])
+@login_required(roles=['admin'])
+def admin():
+    return render_template('home/admin.html', current_user=session.get('user'), active='admin')
 
 # =====================================
 # Chat APIs (protected)
@@ -181,13 +184,9 @@ def chat_history():
     limit = min(int(request.args.get('limit', 30)), 100)
     return jsonify({"ok": True, "messages": get_history()[-limit:]})
 
-
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api():
-    # Lấy đủ 5 biến
-    embeddings, vector_store, retriever, LLM_ENDPOINT, LLM_MODEL = LLM_model()
-
     data = request.get_json(force=True)
     user_text = (data or {}).get('message', '').strip()
     if not user_text:
@@ -196,45 +195,28 @@ def chat_api():
     add_message("user", user_text)
     full_start = time.time()
 
-    # 1) EMBED TIME (tuỳ chọn đo)
     try:
         t0 = time.time()
-        q_vec = embeddings.embed_query("query: " + user_text)  # E5: prefix 'query: '
+        q_vec = embeddings.embed_query(user_text)
         embed_time = time.time() - t0
     except Exception:
         embed_time = 0.0
         q_vec = None
 
-    # 2) HYBRID RETRIEVAL + RERANK
     docs_text = ""
     try:
         t0 = time.time()
-        candidates = retriever.get_relevant_documents("query: " + user_text)
-        ranked = rerank(user_text, candidates, top_k=TOP_K)
-        search_time = time.time() - t0
-
-        parts, total = [], 0
-        for d, _score in ranked:
-            txt = d.page_content
-            if txt.lower().startswith("passage: "):
-                txt = txt[len("passage: "):]
-            parts.append(txt)
-            total += len(txt)
-            if total > 4000:
-                break
-        docs_text = "\n\n---\n\n".join(parts) if parts else ""
+        if q_vec is not None:
+            docs = vector_store.similarity_search_by_vector(q_vec, k=3)
+            search_time = time.time() - t0
+            docs_text = "\n".join(d.page_content for d in docs)
+        else:
+            search_time = 0.0
     except Exception:
         search_time = 0.0
 
-    # 3) PROMPT
-    context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
-    system_prompt = f"""{SYSTEM_PRIMER}
-
-- Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
-- Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
-- Trích dẫn ngắn nguồn (source, chunk) khi có thể.
-{context_hint}
-"""
+    context_hint = f"Context: {docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
+    system_prompt = f"{SYSTEM_PRIMER}\n{context_hint}"
 
     history_msgs = [{"role": "system", "content": system_prompt}]
     history_msgs += [
@@ -242,7 +224,6 @@ def chat_api():
         for m in get_history() if m["role"] in ("user", "assistant")
     ]
 
-    # 4) GỌI LLM
     try:
         t0 = time.time()
         resp = requests.post(
@@ -251,8 +232,8 @@ def chat_api():
             json={
                 "model": LLM_MODEL,
                 "messages": history_msgs,
-                "temperature": 0.4,
-                "max_tokens": 700
+                "temperature": 0.5,
+                "max_tokens": 512
             },
             timeout=(5, 120)
         )
@@ -277,7 +258,6 @@ def chat_api():
         }
     })
 
-
 @app.route('/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api_alias():
@@ -287,14 +267,17 @@ def chat_api_alias():
 # Marketing pages (views)
 # =====================================
 @app.route("/marketing/rephrase")
+@login_required(roles=['marketing'])
 def page_rephrase():
     return render_template("marketing/rephrase.html")
 
 @app.route("/marketing/tiktok")
+@login_required(roles=['marketing'])
 def page_tiktok():
     return render_template("marketing/tiktok.html")
 
 @app.route("/marketing/fab")
+@login_required(roles=['marketing'])
 def page_fab():
     return render_template("marketing/fab.html")
 
@@ -302,11 +285,13 @@ def page_fab():
 # Saves APIs (NO rename)
 # =====================================
 @app.route("/api/saves", methods=["GET"])
+@login_required(api=True)
 def api_saves():
     item_type = request.args.get("type", "fbads")
     return jsonify({"items": get_items(item_type)})
 
 @app.route("/api/save", methods=["POST"])
+@login_required(api=True)
 def api_save():
     payload = request.get_json() or {}
     item_type = payload.get("type", "fbads")
@@ -319,6 +304,7 @@ def api_save():
     return jsonify({"ok": True, "saved": saved_item})
 
 @app.route("/api/saves/delete", methods=["POST"])
+@login_required(api=True)
 def api_delete():
     payload = request.get_json() or {}
     item_type = payload.get("type", "fbads")
@@ -332,6 +318,7 @@ def api_delete():
 # Generation APIs
 # =====================================
 @app.route("/api/fbads/generate_text", methods=["POST"])
+@login_required(api=True, roles=['marketing'])
 def api_fb_text():
     """Generate Facebook Ads text content"""
     data = request.get_json() or {}
@@ -375,19 +362,22 @@ def api_fb_text():
     
 
 @app.route("/api/fbads/generate_images", methods=["POST"])
+@login_required(api=True, roles=['marketing'])
 def api_fb_imgs():
     """Generate Facebook Ads images"""
     form_data = request.form
 
     # Extract form parameters
-    result_text = form_data.get("result_text", "")
-    product     = form_data.get("product_desc", "")
-    customer    = form_data.get("customer", "")
-    brand       = (form_data.get("brand", "") or "").strip() or "Tiximax Logistics"
+    result_text  = form_data.get("result_text", "")
+    product      = form_data.get("product_desc", "")
+    customer     = form_data.get("customer", "")
+    brand        = (form_data.get("brand", "") or "").strip() or "Tiximax Logistics"
     engine_label = form_data.get("engine_label", "Gemini 2.0 Flash")
-    aspect      = form_data.get("aspect", "1:1")
-    style       = form_data.get("style_preset", "Semi-realistic")
-    composition = form_data.get("composition", "Lifestyle scene")
+    aspect       = (form_data.get("aspect", "1:1") or "1:1").strip()
+    if aspect not in ALLOWED_ASPECTS:
+        aspect = "1:1"
+    style        = form_data.get("style_preset", "Semi-realistic")
+    composition  = form_data.get("composition", "Lifestyle scene")
 
     # Logo settings
     add_logo    = form_data.get("add_logo", "false").lower() == "true"
@@ -403,9 +393,8 @@ def api_fb_imgs():
         except Exception:
             logo_img = None
     elif add_logo:
-        # dùng helper mặc định nếu bạn có; nếu không, fallback thủ công
         try:
-            logo_img = load_default_logo(app.root_path)  # Helper của bạn
+            logo_img = load_default_logo(app.root_path)
         except Exception:
             default_path = os.path.join(app.root_path, "static", "images", "logo.png")
             if os.path.exists(default_path):
@@ -417,33 +406,40 @@ def api_fb_imgs():
     # Generate or extract image prompt
     prompt_raw = extract_image_prompt(result_text) if result_text else None
     if not prompt_raw:
-        # subject có brand để gợi đúng tinh thần thương hiệu (không in text trong ảnh)
         subject = f"{brand} – {product} (audience: {customer})"
         prompt_raw = build_image_prompt(
             subject=subject,
             aspect_ratio=aspect,
             style=style,
             composition=composition,
-            include_logo=(not add_logo)  # nếu đã add_logo bằng overlay thì tránh ép generator gắn thêm
+            include_logo=(not add_logo)
         )
 
     # Ensure English prompt and generate images
     try:
         prompt_en = ensure_english_prompt(prompt_raw)
         engine = "gemini2" if engine_label == "Gemini 2.0 Flash" else "imagen4"
-        images = generate_image_via_gemini_api(prompt_en, engine=engine, aspect_ratio=aspect, n_images=2)
+        images = generate_image_via_gemini_api(
+            prompt_en, engine=engine, aspect_ratio=aspect, n_images=2
+        )
 
-        # Add logo if requested
+        # Bắt buộc ảnh đúng tỉ lệ đã chọn (crop giữa; muốn pad thì đổi mode="pad")
+        images = [conform_aspect(im, aspect, mode="crop", bg="#FFFFFF") for im in (images or [])]
+
+        # Add logo if requested (sau khi đã đúng tỉ lệ)
         if add_logo and images:
             if logo_img is None:
                 return jsonify({"error": "Không tìm thấy logo (static/images/logo.png) hoặc file upload."}), 400
-            images = add_logo_to_images(images, logo_img, margin=logo_margin, keep_original=keep_logo, scale=logo_scale)
+            images = add_logo_to_images(
+                images, logo_img, margin=logo_margin, keep_original=keep_logo, scale=logo_scale
+            )
 
         return jsonify({"images": [pil_to_base64(img) for img in images], "used_prompt": prompt_en})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo ảnh: {str(e)}"}), 500
 
 @app.route("/api/rephrase", methods=["POST"])
+@login_required(api=True, roles=['marketing'])
 def api_rephrase():
     data = request.get_json() or {}
     text_src = data.get("text_src", "")
@@ -460,6 +456,7 @@ def api_rephrase():
         return jsonify({"error": f"Lỗi khi viết lại: {str(e)}"}), 500
 
 @app.route("/api/tiktok", methods=["POST"])
+@login_required(api=True, roles=['marketing'])
 def api_tiktok():
     data = request.get_json() or {}
     brief = data.get("brief", "")
@@ -477,6 +474,7 @@ def api_tiktok():
         return jsonify({"error": f"Lỗi khi tạo TikTok content: {str(e)}"}), 500
 
 @app.route("/api/fab", methods=["POST"])
+@login_required(api=True, roles=['marketing'])
 def api_fab():
     data = request.get_json() or {}
     benefits = data.get("benefits", "")
@@ -499,10 +497,12 @@ def api_fab():
 # ========= ROUTES (thay thế route cũ) =========
 
 @app.route("/marketing/planner")
+@login_required(roles=['marketing'])
 def marketing_planner():
     return render_template("marketing/planner.html", active="marketing")
 
 @app.route("/api/planner/generate", methods=["POST"])
+@login_required(roles=['marketing'])
 def api_planner_generate():
     d = request.get_json(silent=True) or {}
 
@@ -542,5 +542,4 @@ def api_planner_generate():
 # Main
 # =====================================
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True,  use_reloader=False)
-# , use_reloader=False
+    app.run(host='0.0.0.0', port=5000, debug=True)

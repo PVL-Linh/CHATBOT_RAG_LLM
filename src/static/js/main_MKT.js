@@ -160,11 +160,11 @@ async function loadSaved(type, targetId) {
 
     const bCopy = document.createElement("button");
     bCopy.className = "btn-ghost";
-    bCopy.textContent = "📋 Sao chép";
+    bCopy.textContent = "📋";
 
     const bDel = document.createElement("button");
     bDel.className = "btn-ghost";
-    bDel.textContent = "🗑️ Xóa";
+    bDel.textContent = "🗑️";
 
     actions.append(bCopy, bDel);
     header.append(left, actions);
@@ -266,9 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
         mdRenderTo(out, d1.text || "");
         out.dataset.md = d1.text || "";
         const metaEl = document.getElementById("fb_meta");
-        metaEl.textContent = `LLM: ${
-          d1.meta?.latency_sec || 0
-        }s • Brand: ${brand} • Tone: ${tone}`;
+        metaEl.textContent = `LLM: ${d1.meta?.latency_sec || 0
+          }s • Brand: ${brand} • Tone: ${tone}`;
 
         document
           .querySelector('.tabs[data-scope="fb"] .tab[data-tab="result"]')
@@ -353,11 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
         copyFrom(document.getElementById("fb_result_md"))
       );
 
-    document
-      .getElementById("fb_copy")
-      ?.addEventListener("click", () =>
-        copyFrom(document.getElementById("fb_result_md"))
-      );
+    // Save
     document.getElementById("fb_save")?.addEventListener("click", async () => {
       const el = document.getElementById("fb_result_md");
       const text = (el.dataset.md || "").trim();
@@ -365,19 +360,26 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Chưa có nội dung để lưu.");
         return;
       }
-      await fetch("/api/save", {
+      const body = {
+        type: "fbads",
+        text,
+        input: {
+          product_desc: document.getElementById("fb_product").value,
+          customer: document.getElementById("fb_customer").value,
+          lang: document.getElementById("fb_lang").value,
+        },
+      };
+      const r = await fetch("/api/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "fbads",
-          text,
-          input: {
-            product_desc: document.getElementById("fb_product").value,
-            customer: document.getElementById("fb_customer").value,
-            lang: document.getElementById("fb_lang").value,
-          },
-        }),
+        body: JSON.stringify(body),
       });
+      if (!r.ok) {
+        const err = await r.text();
+        console.error("SAVE failed:", err);
+        alert("Lỗi lưu nội dung.");
+        return;
+      }
       showToast(`Đã lưu (FB Ads) lúc ${new Date().toLocaleString()}`);
       await loadSaved("fbads", "fb_saved_list");
       document
@@ -593,3 +595,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+document.addEventListener('click', function (e) {
+    const a = e.target.closest('a.nav-item.locked');
+    if (!a) return;
+    e.preventDefault();
+    const name = (a.querySelector('span')?.textContent || 'Chức năng').trim();
+    if (window.toast) window.toast(`${name} đang bị khóa cho tài khoản của bạn.`);
+    else alert(`${name} đang bị khóa cho tài khoản của bạn.`);
+  });

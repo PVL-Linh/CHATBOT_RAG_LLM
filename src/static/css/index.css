@@ -960,3 +960,29 @@ body {
   margin-left: 6px !important;
   transform: none !important;
 }
+/* Layout cho từng mục menu */
+.sidebar .s-nav > a.nav-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  width: 100%;
+}
+
+/* Icon khóa lệch hẳn sang phải */
+.sidebar .s-nav > a.nav-item .lock-ico {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: .85;
+}
+
+/* Trạng thái BỊ KHÓA: luôn mờ + không click được, áp dụng ở mọi trang */
+.sidebar .s-nav > a.nav-item.locked {
+  opacity: .5 !important;
+  cursor: default !important;
+  pointer-events: none !important;  /* click như không có link */
+}
+
+/* Đảm bảo màu icon thống nhất khi mờ */
+.sidebar .s-nav > a.nav-item.locked i[data-lucide] { color: inherit; }
