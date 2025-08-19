@@ -1,47 +1,96 @@
-import fitz
+# Processing_Data/pdf_to_text.py
 import os
-from main import clean_page_text
-from all_path import *
-def process_pdf_documents(input_folder: str, output_folder: str = "src/Data") -> dict:
+from typing import Dict
+import fitz  # PyMuPDF
+from Data_processing import clean_page_text
+
+# OCR fallback (tự động khi trang gần như không có text)
+USE_OCR_FALLBACK = True
+try:
+    import pytesseract
+    from PIL import Image
+    import io
+except Exception:
+    USE_OCR_FALLBACK = False
+
+def _extract_text(page: fitz.Page) -> str:
+    """Ưu tiên trích xuất dict/spans để ít rơi ký tự (như số 0 trong ô)."""
+    try:
+        data = page.get_text("dict")
+        out = []
+        for b in data.get("blocks", []):
+            for ln in b.get("lines", []):
+                out.append("".join(sp.get("text", "") for sp in ln.get("spans", [])))
+        txt = "\n".join(out)
+        if txt.strip():
+            return txt
+    except Exception:
+        pass
+    return page.get_text() or ""
+
+def process_pdf_documents(input_folder: str, output_folder: str = "src/Data") -> Dict[str, str]:
     """
-    Xử lý toàn bộ PDF trong thư mục đầu vào.
-    Lưu bản .txt vào output_folder.
-    Trả về dict chứa tên file và nội dung đã làm sạch.
+    Trích xuất toàn bộ PDF -> TXT (có lọc header/footer + xử lý bảng).
+    Trả về dict {txt_filename: content}.
     """
     input_folder = os.path.abspath(input_folder)
+    output_folder = os.path.abspath(output_folder)
     os.makedirs(output_folder, exist_ok=True)
 
-    dataset = {}  # Lưu nội dung văn bản đã xử lý
-
     for filename in os.listdir(input_folder):
-        if filename.endswith(".pdf"):
-            pdf_path = os.path.join(input_folder, filename)
-            txt_filename = os.path.splitext(filename)[0] + ".txt"
-            txt_path = os.path.join(output_folder, txt_filename)
+        if not filename.lower().endswith(".pdf"):
+            continue
 
-            print(f"🔍 Đang xử lý: {filename}")
-            doc = fitz.open(pdf_path)
+        pdf_path = os.path.join(input_folder, filename)
+        txt_filename = os.path.splitext(filename)[0] + ".txt"
+        txt_path = os.path.join(output_folder, txt_filename)
 
-            full_text = []
+        print(f"🔍 Đang xử lý: {filename}")
+        doc = fitz.open(pdf_path)
+        page_texts = []
 
-            for page in doc:
-                text = page.get_text()
-                cleaned_text = clean_page_text(text)
-                full_text.append(cleaned_text)
+        for page in doc:
+            raw = _extract_text(page)
 
-            combined_text = "\n\n".join(full_text)
+            # OCR fallback chỉ khi trang gần như rỗng (scan/ảnh)
+            if USE_OCR_FALLBACK and len(raw.strip()) < 40:
+                try:
+                    pix = page.get_pixmap(dpi=200)
+                    img = Image.open(io.BytesIO(pix.tobytes("png")))
+                    ocr = pytesseract.image_to_string(img, lang="vie+eng")
+                    raw = (raw + "\n" + (ocr or "")).strip()
+                except Exception:
+                    pass
 
-            # Ghi ra file txt
-            with open(txt_path, "w", encoding="utf-8") as f:
-                f.write(combined_text)
-                
+            cleaned = clean_page_text(
+                raw,
+                drop_headers=True,
+                keep_tables=True,
+                table_mode="flatten",  # "keep" | "flatten" | "drop"
+                latex_math=True,
+            )
+            page_texts.append(cleaned)
 
-            # Lưu vào dataset trả về
-            dataset[filename] = combined_text
-            doc.close()
+        combined = "\n\n".join(page_texts)
+        with open(txt_path, "w", encoding="utf-8") as f:
+            f.write(combined)
+        doc.close()
 
     print("✅ Hoàn tất xử lý tất cả file PDF.")
-    return dataset
 
-# documents_folder, output_folder = path_Documents_folder()
-# process_pdf_documents(documents_folder, output_folder)
+    # # Load lại TXT & CSV (nếu có)
+    # data_documents: Dict[str, str] = {}
+    # for filename in os.listdir(output_folder):
+    #     path = os.path.join(output_folder, filename)
+    #     if filename.lower().endswith(".txt"):
+    #         with open(path, "r", encoding="utf-8") as f:
+    #             data_documents[filename] = f.read()
+    #     elif filename.lower().endswith(".csv"):
+    #         import csv
+    #         rows = []
+    #         with open(path, "r", encoding="utf-8") as f:
+    #             for row in csv.reader(f):
+    #                 rows.append(" | ".join(row))
+    #         data_documents[filename] = "\n".join(rows)
+
+    # return data_documents
