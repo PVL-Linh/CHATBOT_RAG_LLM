@@ -31,6 +31,10 @@ from Login.Logging_config import _log_message_to_csv
 from Helpers.Marketing_Planner.Content_Planner import (
     _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
+try:
+    from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+except ImportError:
+    from Model_LLM.hybrid_retriever import rerank, TOP_K
 # =====================================
 # Flask setup
 # =====================================
@@ -53,7 +57,7 @@ except Exception:
 # =====================================
 # Model & VectorStore init (one-time)
 # =====================================
-embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+# embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
 # =====================================
 # Logging config (CSV) (_ensure_dir, _log_message_to_csv)
 # =====================================
@@ -177,9 +181,13 @@ def chat_history():
     limit = min(int(request.args.get('limit', 30)), 100)
     return jsonify({"ok": True, "messages": get_history()[-limit:]})
 
+
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api():
+    # Lấy đủ 5 biến
+    embeddings, vector_store, retriever, LLM_ENDPOINT, LLM_MODEL = LLM_model()
+
     data = request.get_json(force=True)
     user_text = (data or {}).get('message', '').strip()
     if not user_text:
@@ -188,28 +196,45 @@ def chat_api():
     add_message("user", user_text)
     full_start = time.time()
 
+    # 1) EMBED TIME (tuỳ chọn đo)
     try:
         t0 = time.time()
-        q_vec = embeddings.embed_query(user_text)
+        q_vec = embeddings.embed_query("query: " + user_text)  # E5: prefix 'query: '
         embed_time = time.time() - t0
     except Exception:
         embed_time = 0.0
         q_vec = None
 
+    # 2) HYBRID RETRIEVAL + RERANK
     docs_text = ""
     try:
         t0 = time.time()
-        if q_vec is not None:
-            docs = vector_store.similarity_search_by_vector(q_vec, k=3)
-            search_time = time.time() - t0
-            docs_text = "\n".join(d.page_content for d in docs)
-        else:
-            search_time = 0.0
+        candidates = retriever.get_relevant_documents("query: " + user_text)
+        ranked = rerank(user_text, candidates, top_k=TOP_K)
+        search_time = time.time() - t0
+
+        parts, total = [], 0
+        for d, _score in ranked:
+            txt = d.page_content
+            if txt.lower().startswith("passage: "):
+                txt = txt[len("passage: "):]
+            parts.append(txt)
+            total += len(txt)
+            if total > 4000:
+                break
+        docs_text = "\n\n---\n\n".join(parts) if parts else ""
     except Exception:
         search_time = 0.0
 
-    context_hint = f"Context: {docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
-    system_prompt = f"{SYSTEM_PRIMER}\n{context_hint}"
+    # 3) PROMPT
+    context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
+    system_prompt = f"""{SYSTEM_PRIMER}
+
+- Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
+- Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
+- Trích dẫn ngắn nguồn (source, chunk) khi có thể.
+{context_hint}
+"""
 
     history_msgs = [{"role": "system", "content": system_prompt}]
     history_msgs += [
@@ -217,6 +242,7 @@ def chat_api():
         for m in get_history() if m["role"] in ("user", "assistant")
     ]
 
+    # 4) GỌI LLM
     try:
         t0 = time.time()
         resp = requests.post(
@@ -225,8 +251,8 @@ def chat_api():
             json={
                 "model": LLM_MODEL,
                 "messages": history_msgs,
-                "temperature": 0.5,
-                "max_tokens": 512
+                "temperature": 0.4,
+                "max_tokens": 700
             },
             timeout=(5, 120)
         )
@@ -250,6 +276,7 @@ def chat_api():
             "llm": round(llm_time, 2)
         }
     })
+
 
 @app.route('/chat', methods=['POST'])
 @login_required(api=True)
@@ -515,4 +542,5 @@ def api_planner_generate():
 # Main
 # =====================================
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True,  use_reloader=False)
+# , use_reloader=False

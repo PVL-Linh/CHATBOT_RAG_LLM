@@ -1,5 +1,7 @@
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("intfloat/e5-large-v2")
-model.save("./src/models/local_e5_large_v2")
- 
+# Tải multilingual-e5-large từ HuggingFace Hub
+model = SentenceTransformer("intfloat/multilingual-e5-large")
+
+# Lưu xuống thư mục local
+model.save("./src/models/local_multilingual_e5_large")

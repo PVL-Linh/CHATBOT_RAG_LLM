@@ -7,7 +7,7 @@ src/FAISS_Vector/
 
 # Bỏ Data trong src
 src/Data/
-
+src/test.py
 # Bỏ file tạm Python
 __pycache__/
 *.pyc
