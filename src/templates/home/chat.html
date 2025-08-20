@@ -1,5 +1,14 @@
 {% extends "home/base.html" %} {% block title %}Tiximax Chatbot{% endblock %} {%
-block history_panel %}
+block topbar %}
+<header class="topbar">
+  <div class="tb-right">
+    <!-- Nút mở lịch sử chat -->
+    <button id="historyBtn" class="btn-outline">
+      <i data-lucide="history"></i> Lịch sử
+    </button>
+  </div>
+</header>
+{% endblock %} {% block history_panel %}
 <div id="overlay" class="overlay" aria-hidden="true"></div>
 <aside id="historyPanel" class="history-panel" aria-label="Lịch sử chat">
   <div class="hp-toolbar">
@@ -8,10 +17,9 @@ block history_panel %}
     </button>
   </div>
   <div class="hp-header">
-    <h3><i data-lucide="history"></i></h3>
     <div class="hp-actions">
       <button id="newSession" class="btn-sm" title="Tạo đoạn chat mới">
-        <i data-lucide="square-pen"></i>New Chat
+        <i data-lucide="square-pen"></i> New Chat
       </button>
       <button id="closeHistory" class="icon-btn" title="Đóng">
         <i data-lucide="x"></i>

@@ -1,6 +1,8 @@
 import os, csv
 from zoneinfo import ZoneInfo
 from datetime import datetime, timezone
+from pathlib import Path
+
 
 CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/chat_logs")
 LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
@@ -33,3 +35,37 @@ def _log_message_to_csv(username: str, role: str, content: str, ts_utc_iso: str)
         if not file_exists:
             writer.writerow(['ts_utc', 'ts_local', 'username', 'role', 'content'])
         writer.writerow([ts_utc_iso, ts_local_iso, username, role, content])
+
+
+
+
+
+def _read_persistent_history(username: str, limit: int = 200):
+    """
+    Đọc chat_logs/<username>.csv theo schema:
+    ts_utc, ts_local, username, role, content
+    Trả về list[{"role","content","ts"}] đã sắp theo thời gian tăng dần
+    và cắt còn 'limit' cuối cùng.
+    """
+    if not username:
+        return []
+
+    p = Path(CHAT_LOGS_DIR) / f"{username}.csv"
+    if not p.exists():
+        return []
+
+    rows = []
+    with p.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        for r in reader:
+            role = (r.get("role") or "").strip()
+            content = r.get("content") or ""
+            ts = (r.get("ts_utc") or r.get("ts_local") or "").strip()
+            if content:
+                rows.append({"role": role, "content": content, "ts": ts})
+
+    # sắp xếp theo ts (nếu parse được ISO)
+    def _key(x):
+        return x.get("ts") or ""
+    rows.sort(key=_key)
+    return rows[-limit:]

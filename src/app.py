@@ -28,14 +28,16 @@ from Helpers.Content_generation import (
 from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
 from Model_LLM.model_llm import LLM_model
-from Login.Logging_config import _log_message_to_csv
+
 from Helpers.Marketing_Planner.Content_Planner import (
     _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+    from .Login.Logging_config import _log_message_to_csv, _read_persistent_history
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
+    from Login.Logging_config import _log_message_to_csv, _read_persistent_history
 
 # =====================================
 # Flask setup
@@ -72,6 +74,15 @@ MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
 
 def get_history():
     msgs = session.get("messages") or []
+
+    # Nếu rỗng nhưng đã đăng nhập → đọc lại từ CSV
+    if not msgs and session.get("user"):
+        try:
+            msgs = _read_persistent_history(session["user"], limit=MAX_HISTORY)
+            session["messages"] = msgs
+        except Exception as e:
+            app.logger.exception("Failed to hydrate history: %s", e)
+
     if len(msgs) > MAX_HISTORY:
         msgs = msgs[-MAX_HISTORY:]
         session["messages"] = msgs
@@ -89,6 +100,16 @@ def add_message(role, content):
         _log_message_to_csv(session.get('user'), role, content, ts_utc_iso)
     except Exception as e:
         app.logger.exception("Failed to write chat CSV: %s", e)
+
+@app.route("/api/history", methods=["GET"])
+@login_required(api=True)
+def api_history():
+    user = session.get("user")
+    if not user:
+        return jsonify({"items": []})
+    limit = int(request.args.get("limit", 50))
+    items = _read_persistent_history(user, limit=min(limit, MAX_HISTORY))
+    return jsonify({"items": items})
 
 # =====================================
 # Error handlers
@@ -132,7 +153,8 @@ def login():
     session.permanent = remember
     session['user'] = username
     session['role'] = user.get('role', 'marketing')
-    session['messages'] = []
+    session['messages'] = _read_persistent_history(username, limit=MAX_HISTORY)
+
 
     next_url = request.form.get("next") or request.args.get("next") or url_for("chat")
     return redirect(next_url)

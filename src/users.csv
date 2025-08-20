@@ -4,4 +4,5 @@ sale01,sale01pass,sales
 hr01,hr01pass,hr
 admin,supersecret,admin
 1,1,admin
-2,2,admin
+2,2,sales
+3,3,admin
