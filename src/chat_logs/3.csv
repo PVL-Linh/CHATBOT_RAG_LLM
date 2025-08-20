@@ -1,6 +1,0 @@
-ts_utc,ts_local,username,role,content
-2025-08-20T02:37:07.205819+00:00,2025-08-20T09:37:07.205819+07:00,3,user,hello
-2025-08-20T02:37:13.077039+00:00,2025-08-20T09:37:13.077039+07:00,3,assistant,"Chào bạn! Tôi là Trợ lý AI của Tiximax Logistics. Tôi có thể giúp gì cho bạn hôm nay?
-"
-2025-08-20T02:43:40.926747+00:00,2025-08-20T09:43:40.926747+07:00,3,user,bạn là ai
-2025-08-20T02:43:46.249361+00:00,2025-08-20T09:43:46.249361+07:00,3,assistant,"Tôi là Trợ lý AI thông minh của Công ty Tiximax Logistics. Nhiệm vụ chính của tôi là hỗ trợ cung cấp thông tin và giải đáp dựa trên dữ liệu, tài liệu nội bộ đã được cung cấp. Tôi phục vụ nhiều phòng ban trong công ty bao gồm: Quản lý, Kinh doanh (Sales), Tiếp thị (Marketing), và Nhân sự (HR)."
