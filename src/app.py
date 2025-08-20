@@ -31,13 +31,20 @@ from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
 # from Login.Logging_config import _log_message_to_csv  # <-- KHÔNG dùng nữa, ta ghi CSV ngay tại app.py
 from Helpers.Marketing_Planner.Content_Planner import (
-    _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
+    _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
 
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+    from .Helpers.Marketing_Planner.channels_store import (
+    list_all_for_planner, load_channels, create_channel, update_channel,
+    delete_channel, get_by_name )
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
+    from Helpers.Marketing_Planner.channels_store import (
+    list_all_for_planner, load_channels, create_channel, update_channel,
+    delete_channel, get_by_name
+    )
 
 # =====================================
 # Flask setup
@@ -673,6 +680,102 @@ def api_history_by_session():
     sessions = _read_sessions_and_messages(user)
     items = sessions.get(sid, [])
     return jsonify({"items": items})
+
+
+
+# ==================================== lannner new ==========================
+
+# ========= Channels: UI =========
+@app.route("/marketing/channels")
+@login_required(roles=['marketing'])
+def marketing_channels():
+    return render_template("marketing/channels.html", active="marketing")
+
+# ========= Channels: APIs =========
+@app.route("/api/channels", methods=["GET"])
+@login_required(roles=['marketing'])
+def api_channels_list():
+    return jsonify({"items": list_all_for_planner()})
+
+@app.route("/api/channels/custom", methods=["GET"])
+@login_required(roles=['marketing'])
+def api_channels_list_custom():
+    return jsonify({"items": load_channels()})
+
+@app.route("/api/channels", methods=["POST"])
+@login_required(roles=['marketing'])
+def api_channels_create():
+    d = request.get_json(silent=True) or {}
+    try:
+        item = create_channel(d)
+        return jsonify(item), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/channels/<cid>", methods=["PUT","PATCH"])
+@login_required(roles=['marketing'])
+def api_channels_update(cid):
+    d = request.get_json(silent=True) or {}
+    try:
+        item = update_channel(cid, d)
+        return jsonify(item)
+    except KeyError:
+        return jsonify({"error": "Not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/channels/<cid>", methods=["DELETE"])
+@login_required(roles=['marketing'])
+def api_channels_delete(cid):
+    try:
+        delete_channel(cid)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/channels/prompt", methods=["POST"])
+@login_required(roles=['marketing'])
+def api_channels_prompt():
+    d = request.get_json(silent=True) or {}
+    channel_in = d.get("channel", "")
+    lang       = d.get("lang", "Tiếng Việt")
+    tones      = d.get("tones", [])
+
+    channel = _normalize_channel(channel_in)
+    ch = get_by_name(channel)
+    desc = _describe_custom_channel(ch, lang) if ch else _describe_builtin_channel(channel, lang)
+    tones_line = ", ".join(tones) if tones else "Chuyên nghiệp, rõ ràng"
+
+    sys_ask = f"""
+You are a prompt engineer. Based on the channel specification below,
+write a concise, production-ready **SYSTEM PROMPT** (in {lang}) for a content generator agent for **Tiximax Logistics**.
+
+Requirements:
+- Start with a 1–2 sentence role definition.
+- Then 3–8 bullet rules aligned with the channel and this brand voice: {tones_line}.
+- Include a section "ĐẦU RA (markdown)" that defines the exact output structure.
+- Do NOT invent pricing/promotions.
+- Tailor strictly to the channel constraints.
+
+Channel specification:
+{desc}
+
+After the SYSTEM PROMPT, also include a short **USER PROMPT (example)**.
+Format:
+
+### SYSTEM PROMPT
+...
+### USER PROMPT (example)
+...
+""".strip()
+
+    try:
+        result = call_gemini_flash(sys_ask, "", [SystemMessage(persona_vi)])
+    except Exception as e:
+        return jsonify({"error": f"Lỗi gọi Gemini: {e}"}), 500
+
+    return jsonify({"channel": channel, "generated": result})
 
 # =====================================
 # Main
