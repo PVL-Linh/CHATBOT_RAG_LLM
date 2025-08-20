@@ -94,3 +94,34 @@ def build_user_prompt_body(d: dict) -> str:
         Hãy xuất đúng format trong system prompt (markdown).
         """.strip()
 
+# --- Helpers: mô tả kênh cho Gemini / built-in spec ---
+def _describe_custom_channel(ch: dict, lang: str) -> str:
+    return f"""
+    Tên kênh: {ch.get('name','')}
+    Nền tảng: {ch.get('platform','')}
+    Đối tượng: {ch.get('audience','')}
+    Giọng điệu: {ch.get('tone','')}
+    Hướng dẫn nội dung: {ch.get('content_guide','')}        # <-- NEW
+    Phong cách visual: {ch.get('visual_guide','')}
+    Định dạng ưu tiên: {ch.get('formats','')}
+    Giới hạn độ dài: {ch.get('length','')}
+    Hashtag: {ch.get('hashtags','')}
+    Call-to-Action: {ch.get('cta','')}
+    Khung giờ gợi ý: {ch.get('post_time','')}
+    Rủi ro/Ghi chú: {ch.get('risk_notes','')}
+    Chỉ dẫn đặc biệt: {ch.get('special','')}
+    Ngôn ngữ đầu ra: {lang}
+    """.strip()
+
+def _describe_builtin_channel(channel: str, lang: str) -> str:
+    mapping = {
+        "Facebook": Prompt_FaceBook_Planner,
+        "TikTok": Prompt_TikTok_Planner,
+        "Instagram": Prompt_Instagram_Planner,
+        "Blog Website": Prompt_Blog_Website_Planner,
+        "Zalo OA": Prompt_Zalo_OA_Planner,
+        "YouTube": Prompt_YouTube_Planner,
+        "LinkedIn": Prompt_LinkedIn_Planner,
+    }
+    base = mapping.get(channel, "Generic channel")
+    return f"Kênh: {channel}\nNgôn ngữ đầu ra: {lang}\nThông số:\n{base}"

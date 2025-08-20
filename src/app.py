@@ -1,20 +1,22 @@
-import os, json, time
-import time
-import csv
+import os, json, time, csv
 from datetime import datetime, timezone
 from functools import wraps
+from pathlib import Path
 from PIL import Image
 
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
+
+# LangChain / LLM helpers (giữ nguyên import của bạn)
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
-# Import helper modules
+
+# Import helper modules (giữ nguyên theo cấu trúc dự án của bạn)
 from Helpers.Data_storage import save_item, delete_item, get_items
-from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt 
+from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
 from Helpers.prompt_KT import persona_vi
 from Helpers.Image_generation_and_processing import (
     build_image_prompt, generate_image_via_gemini_api,
@@ -27,15 +29,22 @@ from Helpers.Content_generation import (
 )
 from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
-from Model_LLM.model_llm import LLM_model
-from Login.Logging_config import _log_message_to_csv
+# from Login.Logging_config import _log_message_to_csv  # <-- KHÔNG dùng nữa, ta ghi CSV ngay tại app.py
 from Helpers.Marketing_Planner.Content_Planner import (
-    _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
+    _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
+
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+    from .Helpers.Marketing_Planner.channels_store import (
+    list_all_for_planner, load_channels, create_channel, update_channel,
+    delete_channel, get_by_name )
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
+    from Helpers.Marketing_Planner.channels_store import (
+    list_all_for_planner, load_channels, create_channel, update_channel,
+    delete_channel, get_by_name
+    )
 
 # =====================================
 # Flask setup
@@ -53,23 +62,64 @@ except Exception:
 # =====================================
 # Auth config
 # =====================================
-
 # load_users()
 # login_required()
-# =====================================
-# Model & VectorStore init (one-time)
-# =====================================
-# embeddings, vector_store, LLM_ENDPOINT, LLM_MODEL = LLM_model()
-# =====================================
-# Logging config (CSV) (_ensure_dir, _log_message_to_csv)
-# =====================================
 
 # =====================================
-# Helpers (SYSTEM_PRIMER, MAX_HISTORY, add_message)
+# Gemini types
 # =====================================
+from google.genai import types as genai_types
+from dotenv import load_dotenv
+load_dotenv()
 
+# =====================================
+# Constants & Settings
+# =====================================
 MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
+CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/chat_logs")
+LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 
+# =====================================
+# CSV logging (WITH session_id)
+# =====================================
+from zoneinfo import ZoneInfo
+
+def _ensure_dir(path: str):
+    os.makedirs(path, exist_ok=True)
+
+def _log_message_to_csv_sid(username: str, role: str, content: str, ts_utc_iso: str, session_id: str = ""):
+    """
+    Ghi 1 dòng vào CSV theo schema:
+    ts_utc, ts_local, username, session_id, role, content
+    """
+    if not username:
+        return
+    _ensure_dir(CHAT_LOGS_DIR)
+    filepath = os.path.join(CHAT_LOGS_DIR, f"{username}.csv")
+
+    try:
+        local_tz = ZoneInfo(LOCAL_TZ_NAME)
+    except Exception:
+        local_tz = timezone.utc
+
+    try:
+        ts_utc = datetime.fromisoformat(ts_utc_iso.replace('Z', '+00:00'))
+    except Exception:
+        ts_utc = datetime.now(timezone.utc)
+        ts_utc_iso = ts_utc.isoformat()
+
+    ts_local_iso = ts_utc.astimezone(local_tz).isoformat()
+
+    file_exists = os.path.exists(filepath)
+    with open(filepath, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['ts_utc', 'ts_local', 'username', 'session_id', 'role', 'content'])
+        writer.writerow([ts_utc_iso, ts_local_iso, username, session_id or "", role, content])
+
+# =====================================
+# Session helpers
+# =====================================
 def get_history():
     msgs = session.get("messages") or []
     if len(msgs) > MAX_HISTORY:
@@ -77,16 +127,16 @@ def get_history():
         session["messages"] = msgs
     return msgs
 
-def add_message(role, content):
+def add_message(role, content, session_id: str = ""):
     msgs = get_history()
     ts_utc_iso = datetime.now(timezone.utc).isoformat()
-    msgs.append({"role": role, "content": content, "ts": ts_utc_iso})
+    msgs.append({"role": role, "content": content, "ts": ts_utc_iso, "session_id": session_id or ""})
     if len(msgs) > MAX_HISTORY:
         msgs = msgs[-MAX_HISTORY:]
     session["messages"] = msgs
 
     try:
-        _log_message_to_csv(session.get('user'), role, content, ts_utc_iso)
+        _log_message_to_csv_sid(session.get('user'), role, content, ts_utc_iso, session_id or "")
     except Exception as e:
         app.logger.exception("Failed to write chat CSV: %s", e)
 
@@ -132,7 +182,7 @@ def login():
     session.permanent = remember
     session['user'] = username
     session['role'] = user.get('role', 'marketing')
-    session['messages'] = []
+    session['messages'] = []  # sẽ hydrate bằng API /frontend nếu cần
 
     next_url = request.form.get("next") or request.args.get("next") or url_for("chat")
     return redirect(next_url)
@@ -181,126 +231,11 @@ def admin():
     return render_template('home/admin.html', current_user=session.get('user'), active='admin')
 
 # =====================================
-# Chat APIs (protected)
+# Utils: convert history to Gemini format (no system role)
 # =====================================
-# @app.get('/api/chat/history')
-# @login_required(api=True)
-# def chat_history():
-#     limit = min(int(request.args.get('limit', 30)), 100)
-#     return jsonify({"ok": True, "messages": get_history()[-limit:]})
-
-
-# @app.route('/api/chat', methods=['POST'])
-# @login_required(api=True)
-# def chat_api():
-#     # Lấy đủ 5 biến
-#     embeddings, vector_store, retriever, LLM_ENDPOINT, LLM_MODEL = LLM_model()
-
-#     data = request.get_json(force=True)
-#     user_text = (data or {}).get('message', '').strip()
-#     if not user_text:
-#         return jsonify({"error": "Missing message"}), 400
-
-#     add_message("user", user_text)
-#     full_start = time.time()
-
-#     # 1) EMBED TIME (tuỳ chọn đo)
-#     try:
-#         t0 = time.time()
-#         q_vec = embeddings.embed_query("query: " + user_text)  # E5: prefix 'query: '
-#         embed_time = time.time() - t0
-#     except Exception:
-#         embed_time = 0.0
-#         q_vec = None
-
-#     # 2) HYBRID RETRIEVAL + RERANK
-#     docs_text = ""
-#     try:
-#         t0 = time.time()
-#         candidates = retriever.get_relevant_documents("query: " + user_text)
-#         ranked = rerank(user_text, candidates, top_k=TOP_K)
-#         search_time = time.time() - t0
-
-#         parts, total = [], 0
-#         for d, _score in ranked:
-#             txt = d.page_content
-#             if txt.lower().startswith("passage: "):
-#                 txt = txt[len("passage: "):]
-#             parts.append(txt)
-#             total += len(txt)
-#             if total > 4000:
-#                 break
-#         docs_text = "\n\n---\n\n".join(parts) if parts else ""
-#     except Exception:
-#         search_time = 0.0
-
-#     # 3) PROMPT
-#     context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
-#     system_prompt = f"""{SYSTEM_PRIMER}
-
-# - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
-# - Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
-# - Trích dẫn ngắn nguồn (source, chunk) khi có thể.
-# {context_hint}
-# """
-
-#     history_msgs = [{"role": "system", "content": system_prompt}]
-#     history_msgs += [
-#         {"role": m["role"], "content": m["content"]}
-#         for m in get_history() if m["role"] in ("user", "assistant")
-#     ]
-
-#     # 4) GỌI LLM
-#     try:
-#         t0 = time.time()
-#         resp = requests.post(
-#             LLM_ENDPOINT,
-#             headers={"Content-Type": "application/json"},
-#             json={
-#                 "model": LLM_MODEL,
-#                 "messages": history_msgs,
-#                 "temperature": 0.4,
-#                 "max_tokens": 6000
-#             },
-#             timeout=(5, 120)
-#         )
-#         resp.raise_for_status()
-#         result = resp.json()["choices"][0]["message"]["content"]
-#         llm_time = time.time() - t0
-#     except Exception as e:
-#         result = f"Lỗi khi gọi LLM local API: {e}"
-#         llm_time = 0.0
-
-#     add_message("assistant", result)
-#     elapsed = time.time() - full_start
-
-#     return jsonify({
-#         "ok": True,
-#         "answer": result,
-#         "timing": {
-#             "total": round(elapsed, 2),
-#             "embedding": round(embed_time, 2),
-#             "search": round(search_time, 2),
-#             "llm": round(llm_time, 2)
-#         }
-#     })
-
-
-# @app.route('/chat', methods=['POST'])
-# @login_required(api=True)
-# def chat_api_alias():
-#     return chat_api()
-
-
-from google.genai import types as genai_types
-from dotenv import load_dotenv
-load_dotenv()
-
 def _to_gemini_history_no_system(history_msgs):
     """
-    Chuyển [{'role','content'}] -> contents cho Gemini 2.x
-    - KHÔNG để role 'system' (Gemini trả INVALID_ARGUMENT)
-    - assistant -> model, user -> user
+    [{'role','content'}] -> contents cho Gemini 2.x (không dùng role 'system')
     """
     out = []
     for m in history_msgs:
@@ -315,28 +250,34 @@ def _to_gemini_history_no_system(history_msgs):
         out.append({"role": role, "parts": [{"text": content}]})
     return out
 
+# =====================================
+# Chat API (protected)
+# =====================================
+from Model_LLM.model_llm import LLM_model
+
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api():
     embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
 
     data = request.get_json(force=True) or {}
-    user_text = (data.get('message') or "").strip()
+    user_text  = (data.get('message') or "").strip()
+    session_id = (data.get('session_id') or "").strip()  # nhận từ frontend
     if not user_text:
         return jsonify({"error": "Missing message"}), 400
 
-    add_message("user", user_text)
+    add_message("user", user_text, session_id=session_id)
     full_start = time.time()
 
-    # 1) EMBED TIME (đo thời gian)
+    # 1) EMBED TIME
     try:
         t0 = time.time()
-        _ = embeddings.embed_query("query: " + user_text)  # E5 cần prefix 'query: '
+        _ = embeddings.embed_query("query: " + user_text)
         embed_time = time.time() - t0
     except Exception:
         embed_time = 0.0
 
-    # 2) HYBRID RETRIEVAL + RERANK
+    # 2) HYBRID RETRIEVE + RERANK
     docs_text, search_time = "", 0.0
     try:
         t0 = time.time()
@@ -350,7 +291,7 @@ def chat_api():
                 txt = txt[len("passage: "):]
             parts.append(txt)
             total += len(txt)
-            if total > 4000:  # tránh prompt quá dài
+            if total > 4000:
                 break
         docs_text = "\n\n---\n\n".join(parts) if parts else ""
         search_time = time.time() - t0
@@ -367,14 +308,12 @@ def chat_api():
 {context_hint}
 """
 
-    # Lấy lịch sử cũ (user/assistant) và chuyển định dạng KHÔNG có role system
     hist_msgs = [
         {"role": m["role"], "content": m["content"]}
         for m in get_history() if m["role"] in ("user", "assistant")
     ]
     contents = _to_gemini_history_no_system(hist_msgs)
 
-    # NHÉT system_prompt + câu hỏi hiện tại vào MỘT user message đầu tiên
     first_user_text = f"""[SYSTEM]
 {system_prompt}
 
@@ -396,7 +335,7 @@ def chat_api():
         result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
 
-    add_message("assistant", result)
+    add_message("assistant", result, session_id=session_id)
     elapsed = time.time() - full_start
 
     return jsonify({
@@ -410,13 +349,13 @@ def chat_api():
         }
     })
 
-
 @app.route('/chat', methods=['POST'])
 @login_required(api=True)
 def chat_api_alias():
     return chat_api()
+
 # =====================================
-# Marketing pages (views)
+# Marketing views
 # =====================================
 @app.route("/marketing/rephrase")
 @login_required(roles=['marketing'])
@@ -434,7 +373,7 @@ def page_fab():
     return render_template("marketing/fab.html")
 
 # =====================================
-# Saves APIs (NO rename)
+# Saves APIs
 # =====================================
 @app.route("/api/saves", methods=["GET"])
 @login_required(api=True)
@@ -467,12 +406,11 @@ def api_delete():
     return jsonify({"ok": success})
 
 # =====================================
-# Generation APIs
+# Generation APIs (giữ nguyên như bản trước)
 # =====================================
 @app.route("/api/fbads/generate_text", methods=["POST"])
 @login_required(api=True, roles=['marketing'])
 def api_fb_text():
-    """Generate Facebook Ads text content"""
     data = request.get_json() or {}
     product  = data.get("product_desc", "")
     customer = data.get("customer", "")
@@ -483,7 +421,6 @@ def api_fb_text():
     if not product or not customer:
         return jsonify({"error": "Thiếu dữ liệu bắt buộc."}), 400
 
-    # Dựng user_prompt: nhét đầy đủ brand/tone/lang + yêu cầu format
     user_prompt = f"""
         Tạo nội dung truyền thông theo mẫu cố định bên dưới cho chiến dịch Facebook Ads.
         Ngôn ngữ: {lang}.
@@ -499,11 +436,8 @@ def api_fb_text():
         - Không bịa khuyến mãi/giá nếu không có.
         - Chỉ xuất MỘT bài hoàn chỉnh đúng template (Phân tích → Ý tưởng chiến dịch → Kịch bản video → Bài viết cho Facebook → IMAGE_PROMPT).
         """.strip()
-    
-    # Áp khóa theo dịp (chỉ thêm constraint, không phá cấu trúc)
     u_prompt, sys_inst = apply_occasion_lock(user_prompt, persona_vi)
 
-    # Gọi model theo flow cũ (không dùng generate_facebook_ads_content vì chưa thấy định nghĩa)
     try:
         t0 = time.time()
         text = call_gemini_flash(u_prompt, sys_inst, [SystemMessage(persona_vi)])
@@ -511,15 +445,12 @@ def api_fb_text():
         return jsonify({"text": text, "meta": {"latency_sec": round(latency, 2)}})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo nội dung: {str(e)}"}), 500
-    
 
 @app.route("/api/fbads/generate_images", methods=["POST"])
 @login_required(api=True, roles=['marketing'])
 def api_fb_imgs():
-    """Generate Facebook Ads images"""
     form_data = request.form
 
-    # Extract form parameters
     result_text  = form_data.get("result_text", "")
     product      = form_data.get("product_desc", "")
     customer     = form_data.get("customer", "")
@@ -531,13 +462,11 @@ def api_fb_imgs():
     style        = form_data.get("style_preset", "Semi-realistic")
     composition  = form_data.get("composition", "Lifestyle scene")
 
-    # Logo settings
     add_logo    = form_data.get("add_logo", "false").lower() == "true"
     keep_logo   = form_data.get("keep_logo_original", "true").lower() == "true"
     logo_scale  = float(form_data.get("logo_scale", 0.15))
     logo_margin = int(form_data.get("logo_margin", 20))
 
-    # Handle logo image
     logo_img = None
     if request.files.get("logo_file"):
         try:
@@ -555,7 +484,6 @@ def api_fb_imgs():
                 except Exception:
                     logo_img = None
 
-    # Generate or extract image prompt
     prompt_raw = extract_image_prompt(result_text) if result_text else None
     if not prompt_raw:
         subject = f"{brand} – {product} (audience: {customer})"
@@ -567,7 +495,6 @@ def api_fb_imgs():
             include_logo=(not add_logo)
         )
 
-    # Ensure English prompt and generate images
     try:
         prompt_en = ensure_english_prompt(prompt_raw)
         engine = "gemini2" if engine_label == "Gemini 2.0 Flash" else "imagen4"
@@ -575,10 +502,8 @@ def api_fb_imgs():
             prompt_en, engine=engine, aspect_ratio=aspect, n_images=2
         )
 
-        # Bắt buộc ảnh đúng tỉ lệ đã chọn (crop giữa; muốn pad thì đổi mode="pad")
         images = [conform_aspect(im, aspect, mode="crop", bg="#FFFFFF") for im in (images or [])]
 
-        # Add logo if requested (sau khi đã đúng tỉ lệ)
         if add_logo and images:
             if logo_img is None:
                 return jsonify({"error": "Không tìm thấy logo (static/images/logo.png) hoặc file upload."}), 400
@@ -641,13 +566,9 @@ def api_fab():
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo FAB content: {str(e)}"}), 500
 
-
-# _normalize_channel
-#  _build_system_prompt_ifelse
-#  _build_user_prompt_body
-
-# ========= ROUTES (thay thế route cũ) =========
-
+# =====================================
+# Planner APIs (giữ nguyên logic cũ)
+# =====================================
 @app.route("/marketing/planner")
 @login_required(roles=['marketing'])
 def marketing_planner():
@@ -657,26 +578,18 @@ def marketing_planner():
 @login_required(roles=['marketing'])
 def api_planner_generate():
     d = request.get_json(silent=True) or {}
-
-    # Lấy các biến cần thiết
     goal       = d.get("goal") or (d.get("objectives") or [None])[0]
     channel_in = d.get("channel", "")
     channel    = _normalize_channel(channel_in)
     tones      = d.get("tones", [])
     lang       = d.get("lang", "Tiếng Việt")
 
-    # 1) system prompt theo kênh (if/elif)
     system_prompt = _build_system_prompt_ifelse(channel, goal, tones, lang)
-
-    # 2) user prompt (có dòng Kênh truyền thông: {channel ...})
     up_body = build_user_prompt_body({**d, "channel": channel})
-
-    # 3) áp dụng Occasion Lock (giống code cũ) rồi gọi LLM
     up, sp = apply_occasion_lock(up_body, system_prompt)
 
     t0 = time.time()
     try:
-        # có thể truyền [] thay vì [SystemMessage(persona_vi)] – _to_hist của bạn chỉ nhận Human/AI
         text = call_gemini_flash(up, sp, [SystemMessage(persona_vi)])
     except Exception as e:
         return jsonify({"error": f"Lỗi LLM: {e}"}), 500
@@ -684,12 +597,186 @@ def api_planner_generate():
 
     return jsonify({
         "text": text,
-        "meta": {
-            "latency_sec": round(dt, 2),
-            "channel": channel or "N/A",
-            "goal": goal or "N/A"
-        }
+        "meta": {"latency_sec": round(dt, 2), "channel": channel or "N/A", "goal": goal or "N/A"}
     })
+
+# =====================================
+# History APIs (NEW for sessions)
+# =====================================
+def _read_sessions_and_messages(username: str):
+    """
+    Trả về dict: session_id -> list[{role, content, ts}]
+    Tin cũ (không có cột session_id) sẽ gom vào 'default'.
+    """
+    p = Path(CHAT_LOGS_DIR) / f"{username}.csv"
+    sessions = {}
+    if not p.exists():
+        return sessions
+
+    with p.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        has_sid = 'session_id' in (reader.fieldnames or [])
+        for r in reader:
+            sid = (r.get('session_id') or "").strip() if has_sid else "default"
+            role = (r.get('role') or "").strip()
+            content = r.get('content') or ""
+            ts = (r.get('ts_utc') or r.get('ts_local') or "").strip()
+            if not content:
+                continue
+            sessions.setdefault(sid, []).append({"role": role, "content": content, "ts": ts})
+
+    for sid in sessions:
+        sessions[sid].sort(key=lambda x: x.get("ts") or "")
+    return sessions
+
+@app.route("/api/history", methods=["GET"])
+@login_required(api=True)
+def api_history():
+    """Giữ API cũ: trả N tin gần nhất (không phân session)"""
+    user = session.get("user")
+    if not user:
+        return jsonify({"items": []})
+    limit = int(request.args.get("limit", 50))
+    sessions = _read_sessions_and_messages(user)
+    flat = []
+    for sid, msgs in sessions.items():
+        for m in msgs:
+            flat.append({**m, "session_id": sid})
+    flat.sort(key=lambda x: x.get("ts") or "")
+    return jsonify({"items": flat[-min(limit, MAX_HISTORY):]})
+
+@app.route("/api/history/sessions", methods=["GET"])
+@login_required(api=True)
+def api_history_sessions():
+    """Liệt kê các đoạn chat theo CSV"""
+    user = session.get("user")
+    if not user:
+        return jsonify({"sessions": []})
+    sessions = _read_sessions_and_messages(user)
+    out = []
+    for sid, msgs in sessions.items():
+        if not msgs:
+            continue
+        first_user = next((m for m in msgs if m["role"] == "user"), None)
+        title = (first_user["content"][:30] if first_user else "Cuộc trò chuyện") if sid != "default" else "Mặc định"
+        out.append({
+            "id": sid,
+            "title": title,
+            "count": len(msgs),
+            "first_ts": msgs[0]["ts"],
+            "last_ts": msgs[-1]["ts"],
+        })
+    out.sort(key=lambda x: x["last_ts"], reverse=True)
+    return jsonify({"sessions": out})
+
+@app.route("/api/history/by_session", methods=["GET"])
+@login_required(api=True)
+def api_history_by_session():
+    """Lấy tin nhắn theo session_id"""
+    user = session.get("user")
+    if not user:
+        return jsonify({"items": []})
+    sid = (request.args.get("session_id") or "").strip() or "default"
+    sessions = _read_sessions_and_messages(user)
+    items = sessions.get(sid, [])
+    return jsonify({"items": items})
+
+
+
+# ==================================== lannner new ==========================
+
+# ========= Channels: UI =========
+@app.route("/marketing/channels")
+@login_required(roles=['marketing'])
+def marketing_channels():
+    return render_template("marketing/channels.html", active="marketing")
+
+# ========= Channels: APIs =========
+@app.route("/api/channels", methods=["GET"])
+@login_required(roles=['marketing'])
+def api_channels_list():
+    return jsonify({"items": list_all_for_planner()})
+
+@app.route("/api/channels/custom", methods=["GET"])
+@login_required(roles=['marketing'])
+def api_channels_list_custom():
+    return jsonify({"items": load_channels()})
+
+@app.route("/api/channels", methods=["POST"])
+@login_required(roles=['marketing'])
+def api_channels_create():
+    d = request.get_json(silent=True) or {}
+    try:
+        item = create_channel(d)
+        return jsonify(item), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/channels/<cid>", methods=["PUT","PATCH"])
+@login_required(roles=['marketing'])
+def api_channels_update(cid):
+    d = request.get_json(silent=True) or {}
+    try:
+        item = update_channel(cid, d)
+        return jsonify(item)
+    except KeyError:
+        return jsonify({"error": "Not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/api/channels/<cid>", methods=["DELETE"])
+@login_required(roles=['marketing'])
+def api_channels_delete(cid):
+    try:
+        delete_channel(cid)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/channels/prompt", methods=["POST"])
+@login_required(roles=['marketing'])
+def api_channels_prompt():
+    d = request.get_json(silent=True) or {}
+    channel_in = d.get("channel", "")
+    lang       = d.get("lang", "Tiếng Việt")
+    tones      = d.get("tones", [])
+
+    channel = _normalize_channel(channel_in)
+    ch = get_by_name(channel)
+    desc = _describe_custom_channel(ch, lang) if ch else _describe_builtin_channel(channel, lang)
+    tones_line = ", ".join(tones) if tones else "Chuyên nghiệp, rõ ràng"
+
+    sys_ask = f"""
+You are a prompt engineer. Based on the channel specification below,
+write a concise, production-ready **SYSTEM PROMPT** (in {lang}) for a content generator agent for **Tiximax Logistics**.
+
+Requirements:
+- Start with a 1–2 sentence role definition.
+- Then 3–8 bullet rules aligned with the channel and this brand voice: {tones_line}.
+- Include a section "ĐẦU RA (markdown)" that defines the exact output structure.
+- Do NOT invent pricing/promotions.
+- Tailor strictly to the channel constraints.
+
+Channel specification:
+{desc}
+
+After the SYSTEM PROMPT, also include a short **USER PROMPT (example)**.
+Format:
+
+### SYSTEM PROMPT
+...
+### USER PROMPT (example)
+...
+""".strip()
+
+    try:
+        result = call_gemini_flash(sys_ask, "", [SystemMessage(persona_vi)])
+    except Exception as e:
+        return jsonify({"error": f"Lỗi gọi Gemini: {e}"}), 500
+
+    return jsonify({"channel": channel, "generated": result})
+
 # =====================================
 # Main
 # =====================================

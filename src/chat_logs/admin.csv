@@ -1,5 +1,63 @@
-ts_utc,ts_local,username,role,content
-2025-08-14T02:33:35.413291+00:00,2025-08-14T09:33:35.413291+07:00,admin,user,hahahha
-2025-08-14T02:33:40.767923+00:00,2025-08-14T09:33:40.767923+07:00,admin,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x00000214253758E0>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
-2025-08-14T02:35:46.751151+00:00,2025-08-14T09:35:46.751151+07:00,admin,user,hihi
-2025-08-14T02:35:52.009655+00:00,2025-08-14T09:35:52.009655+07:00,admin,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x0000021425368200>, 'Connection to 192.168.2.8 timed out. (connect timeout=5)'))"
+ts_utc,ts_local,username,session_id,role,content
+2025-08-20T04:15:35.251523+00:00,2025-08-20T11:15:35.251523+07:00,admin,mgov0w0l,user,Bảng giá dịch vụ vận chuyển
+2025-08-20T04:15:47.735800+00:00,2025-08-20T11:15:47.735800+07:00,admin,mgov0w0l,assistant,"Dưới đây là bảng giá dịch vụ vận chuyển hàng hóa đường hàng không từ TP.HCM, Việt Nam đi Indonesia, áp dụng từ ngày 11/8/2025:
+
+| Khu vực      | 0-50 kg (VNĐ/kg) | 50-100 kg (VNĐ/kg) | 100-250 kg (VNĐ/kg) | 250-500 kg (VNĐ/kg) | Trên 500 kg (VNĐ/kg) |
+| ----------- | --------------- | ---------------- | ----------------- | ----------------- | ------------------ |
+| Batam       | 190.000         | 185.000          | 180.000           | 175.000           | 160.000            |
+| Pekanbaru   | 248.000         | 243.000          | 238.000           | 233.000           | 218.000            |
+| Medan       | 250.000         | 245.000          | 240.000           | 235.000           | 220.000            |
+| Jakarta     | 253.000         | 248.000          | 243.000           | 238.000           | 223.000            |
+| Bogor       | 253.000         | 248.000          | 243.000           | 238.000           | 223.000            |
+| Denpasar    | 254.000         | 249.000          | 244.000           | 239.000           | 224.000            |
+| Bandung     | 260.000         | 255.000          | 250.000           | 245.000           | 230.000            |
+| Surabaya    | 255.000         | 250.000          | 245.000           | 240.000           | 225.000            |
+| Semarang    | 255.000         | 250.000          | 245.000           | 240.000           | 225.000            |
+| Padang      | 255.000         | 250.000          | 245.000           | 240.000           | 225.000            |
+| Jambi       | 250.000         | 245.000          | 240.000           | 235.000           | 220.000            |
+| Palembang   | 250.000         | 245.000          | 240.000           | 235.000           | 220.000            |
+| Lampung     | 253.000         | 248.000          | 243.000           | 238.000           | 223.000            |
+| Banten      | 254.000         | 249.000          | 244.000           | 239.000           | 224.000            |
+| Depok       | 254.000         | 249.000          | 244.000           | 239.000           | 224.000            |
+| Malang      | 255.000         | 250.000          | 245.000           | 240.000           | 225.000            |
+
+Ngoài ra, còn có bảng giá vận chuyển hàng hóa đường hàng không từ Indo (Indonesia) về Việt Nam, áp dụng cho hàng thông thường, đồ điện tử và hàng đặc biệt, với các mức giá khác nhau tùy theo trọng lượng và điểm đến (Hà Nội hoặc Sài Gòn). Bạn có muốn biết thêm chi tiết về bảng giá này không? (source: chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025 i.​ bảng giá dịch vụ vận chuyển)
+"
+2025-08-20T04:17:04.485348+00:00,2025-08-20T11:17:04.485348+07:00,admin,mgov0w0l,user,"tôi muốn gửi hàng phụ tùng xe nặng 50kg từ jakatar về sài gòn giá bao nhiêu, có giảm giá không quy trình gửi hàng như nào"
+2025-08-20T04:17:10.644465+00:00,2025-08-20T11:17:10.644465+07:00,admin,mgov0w0l,assistant,"Chào bạn,
+
+Giá cước vận chuyển phụ tùng xe nặng 50kg từ Jakarta về Sài Gòn là 285,000 VNĐ/kg. Vậy tổng chi phí là 14,250,000 VNĐ (50kg x 285,000 VNĐ/kg) (chunk 2).
+
+Hiện tại, Tiximax Logistics có chương trình giảm giá 50k cho đơn hàng từ 500k trở lên (chunk 1). Tuy nhiên, đơn hàng của bạn chưa đủ điều kiện để áp dụng mã giảm giá này.
+
+**Quy trình gửi hàng:**
+
+Vì không có thông tin chi tiết về quy trình gửi hàng từ Jakarta về Sài Gòn, tôi không thể cung cấp thông tin này.
+"
+2025-08-20T04:17:55.485552+00:00,2025-08-20T11:17:55.485552+07:00,admin,mgov0w0l,user,đơn hàng của tôi hiện đang ở đâu sđt của tôi 0934983490
+2025-08-20T04:18:01.285724+00:00,2025-08-20T11:18:01.285724+07:00,admin,mgov0w0l,assistant,"Chúng tôi cung cấp hệ thống cập nhật trạng thái đơn hàng minh bạch, và luôn có nhân viên hỗ trợ trực tiếp nếu bạn cần kiểm tra tiến độ (source: chunk 1). Vui lòng liên hệ hotline 0906 704 701 hoặc email global.trans@tiximax.net để được hỗ trợ trực tiếp.
+"
+2025-08-20T04:18:30.747508+00:00,2025-08-20T11:18:30.747508+07:00,admin,mgov0w0l,user,"hãy gọi Anh là Anh ddwungf xưng tôi Anh buồn lắm, em có hiểu không"
+2025-08-20T04:18:36.284591+00:00,2025-08-20T11:18:36.284591+07:00,admin,mgov0w0l,assistant,"Em hiểu rồi ạ. Từ giờ em sẽ xưng hô là ""Anh"" với Anh nhé. Em xin lỗi vì đã làm Anh buồn ạ. Em sẽ cố gắng hỗ trợ Anh tốt hơn.
+"
+2025-08-20T04:19:25.809582+00:00,2025-08-20T11:19:25.809582+07:00,admin,mgov0w0l,user,"em có thể cho Anh biết thời tiết hôm nay như nào không, em có muốn đi chơi với Anh không"
+2025-08-20T04:19:31.695457+00:00,2025-08-20T11:19:31.695457+07:00,admin,mgov0w0l,assistant,"Tôi rất tiếc, tôi không có thông tin về thời tiết hôm nay. Tôi là trợ lý ảo của Tiximax Logistics và nhiệm vụ của tôi là hỗ trợ các vấn đề liên quan đến logistics. Về việc đi chơi, tôi là một AI nên không thể đi chơi cùng Anh được ạ."
+2025-08-20T04:20:27.169099+00:00,2025-08-20T11:20:27.169099+07:00,admin,mgov0w0l,user,"Anh đã nói đừng xưng tôi với ANh Anh buồn á, vậy công ty của em có ai có thể đi chơi với ANh không Anh tên Hoàng năm nay 30 tuổi"
+2025-08-20T04:20:33.937911+00:00,2025-08-20T11:20:33.937911+07:00,admin,mgov0w0l,assistant,"Em hiểu rồi, Anh Hoàng. Để em xem trong công ty mình có ai phù hợp để giới thiệu với Anh không nhé. Em cần thêm một chút thông tin về sở thích của Anh Hoàng để tìm người phù hợp ạ. Anh Hoàng có thể chia sẻ một vài sở thích của mình được không ạ?
+"
+2025-08-20T04:21:40.994109+00:00,2025-08-20T11:21:40.994109+07:00,admin,mgov0w0l,user,"Anh thích màu hồng ghét giả dối, Anh cao 1m70 nặng 67kg hàng tháng Anh gửi hàng đi indonesia rất nhiều em có hỗ trợ ANh thêm gì không"
+2025-08-20T04:21:48.739585+00:00,2025-08-20T11:21:48.739585+07:00,admin,mgov0w0l,assistant,"Chào Anh Hoàng,
+
+Với việc Anh Hoàng gửi hàng đi Indonesia thường xuyên, em có thể hỗ trợ Anh một số thông tin và ưu đãi sau ạ:
+
+*   **Báo giá cạnh tranh:** Em sẽ liên hệ bộ phận kinh doanh để cung cấp cho Anh Hoàng báo giá tốt nhất cho các lô hàng đi Indonesia, dựa trên số lượng và tần suất gửi hàng của Anh.
+*   **Ưu đãi khách hàng thân thiết:** Nếu Anh Hoàng trở thành khách hàng thân thiết của Tiximax Logistics, Anh sẽ được hưởng các ưu đãi đặc biệt như chiết khấu cao hơn, hỗ trợ ưu tiên và các dịch vụ gia tăng khác.
+*   **Tư vấn thủ tục hải quan:** Em có thể cung cấp thông tin chi tiết về các thủ tục hải quan cần thiết khi gửi hàng đi Indonesia, giúp Anh Hoàng tiết kiệm thời gian và tránh các rắc rối phát sinh.
+*   **Hỗ trợ đóng gói và bảo hiểm hàng hóa:** Em có thể tư vấn cho Anh Hoàng về cách đóng gói hàng hóa an toàn và lựa chọn gói bảo hiểm phù hợp để đảm bảo hàng hóa được vận chuyển an toàn và được bồi thường trong trường hợp xảy ra sự cố.
+
+Anh Hoàng có thể cung cấp thêm thông tin về số lượng và loại hàng hóa mà Anh thường xuyên gửi đi Indonesia để em có thể hỗ trợ Anh tốt hơn được không ạ?"
+2025-08-20T04:24:41.773587+00:00,2025-08-20T11:24:41.773587+07:00,admin,mgov0w0l,user,Vậy anh cao bao nhiêu
+2025-08-20T04:24:48.039310+00:00,2025-08-20T11:24:48.039310+07:00,admin,mgov0w0l,assistant,"Tôi là trợ lý ảo và không có chiều cao. Tôi có thể giúp gì thêm cho bạn về các dịch vụ của Tiximax Logistics không?
+"
+2025-08-20T04:25:04.659449+00:00,2025-08-20T11:25:04.659449+07:00,admin,mgov0w0l,user,Bạn biết tôi cao bao nhiêu không
+2025-08-20T04:25:10.450973+00:00,2025-08-20T11:25:10.450973+07:00,admin,mgov0w0l,assistant,Tôi không biết Anh cao bao nhiêu. Tôi là trợ lý ảo và không có thông tin cá nhân của Anh.

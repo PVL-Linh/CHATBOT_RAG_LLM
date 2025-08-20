@@ -1,8 +1,9 @@
 // =====================
-// Init icons
+// Init icons & bootstrap
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) lucide.createIcons();
+  bootstrapFromLocalThenServer(); // khởi động
 });
 
 // =====================
@@ -14,10 +15,11 @@ const chatForm = document.getElementById("chatForm");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 const timingEl = document.getElementById("timing");
-const newChatBtn = document.getElementById("newChatBtn");
+const newChatBtn = document.getElementById("newChatBtn"); // (nếu có)
 
-// Drawer / History elements
-const historyBtn = document.getElementById("newChatBtn");
+const historyBtn =
+  document.getElementById("historyBtn") ||
+  document.getElementById("newChatBtn"); // fallback nếu chưa đổi id
 const historyPanel = document.getElementById("historyPanel");
 const historyList = document.getElementById("historyList");
 const newSessionBtn = document.getElementById("newSession");
@@ -26,10 +28,10 @@ const overlayEl = document.getElementById("overlay");
 const newSessionTopBtn = document.getElementById("newSessionTop");
 
 // =====================
-// Client-side session state (KHÔNG dùng window.history!)
+// Client-side session state
 // =====================
-let sessionHistory = []; // cho API và UI hiện tại
-const MAX_LOCAL_MSGS = 200; // giới hạn số tin lưu localStorage
+let sessionHistory = []; // buffer cho UI hiện tại
+const MAX_LOCAL_MSGS = 200;
 
 // =====================
 // Markdown render
@@ -52,7 +54,6 @@ function renderMarkdown(md) {
 // =====================
 function addMessage(role, content, opts = { persist: true }) {
   if (!content) return;
-
   if (greeting) greeting.style.display = "none";
 
   const li = document.createElement("li");
@@ -68,7 +69,6 @@ function addMessage(role, content, opts = { persist: true }) {
     chatList.scrollTop = chatList.scrollHeight;
   }
 
-  // Cập nhật sessionHistory + localStorage nếu cần
   if (opts.persist) {
     sessionHistory.push({ role, content });
     persistMessage(role, content);
@@ -99,10 +99,7 @@ if (chatForm) {
     const text = (chatInput?.value || "").trim();
     if (!text) return;
 
-    // UI + lưu
-    addMessage("user", text); // persist = true (mặc định)
-
-    // Clear input
+    addMessage("user", text);
     chatInput.value = "";
     chatInput.style.height = "auto";
 
@@ -110,13 +107,14 @@ if (chatForm) {
     addTyping();
 
     try {
-      // Không gửi history – server tự lấy từ Flask session
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          session_id: currentSessionId || "",
+        }),
       });
-
       const data = await res.json();
       removeTyping();
       if (sendBtn) sendBtn.disabled = false;
@@ -127,7 +125,7 @@ if (chatForm) {
       }
 
       const answer = data.answer || "";
-      addMessage("assistant", answer); // persist
+      addMessage("assistant", answer);
 
       if (data.timing && timingEl) {
         const t = data.timing;
@@ -150,7 +148,7 @@ if (chatForm) {
     chatInput.style.height = chatInput.scrollHeight + "px";
   });
 
-  // Gửi khi Enter (không Shift)
+  // Enter để gửi (không Shift)
   chatInput?.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -160,52 +158,7 @@ if (chatForm) {
 }
 
 // =====================
-// Quick chips (tiền tố)
-// =====================
-// === Chips: chỉ 1 prefix tại 1 thời điểm ===
-// const PREFIXES = ['[Sreach]', '[Deep Research]', '[Create Images]'];
-// const PREFIX_MAP = {
-//   search: '[Sreach]',
-//   deep:   '[Deep Research]',
-//   image:  '[Create Images]'
-// };
-
-// function removeAnyPrefix(s) {
-//   // Bỏ khoảng trắng đầu, rồi cắt bỏ 1 prefix nếu đang có
-//   let r = (s || '').replace(/^\s+/, '');
-//   for (const p of PREFIXES) {
-//     if (r.startsWith(p)) {
-//       r = r.slice(p.length).replace(/^\s+/, '');
-//       break;
-//     }
-//   }
-//   return r;
-// }
-
-// [...document.querySelectorAll('.chip')].forEach(chip => {
-//   chip.addEventListener('click', () => {
-//     if (!chatInput) return;
-//     const act = chip.getAttribute('data-action');
-//     const prefix = PREFIX_MAP[act] || '';
-
-//     // Luôn thay prefix cũ bằng prefix mới
-//     const tail = removeAnyPrefix(chatInput.value);
-//     chatInput.value = `${prefix} ${tail}`.trim();
-
-//     // Đưa caret về cuối & focus
-//     chatInput.focus();
-//     const end = chatInput.value.length;
-//     try { chatInput.setSelectionRange(end, end); } catch (_) {}
-
-//     // (Tuỳ chọn) hiển thị chip đang chọn
-//     document.querySelectorAll('.chip').forEach(c =>
-//       c.classList.toggle('active', c === chip)
-//     );
-//   });
-// });
-
-// =====================
-// New chat (xóa màn hình hiện tại – không ảnh hưởng server session)
+// New chat (xóa UI hiện tại – không ảnh hưởng server session)
 // =====================
 if (newChatBtn) {
   newChatBtn.addEventListener("click", () => {
@@ -223,12 +176,14 @@ const USER = (window.TXM_USER || "anonymous").trim();
 const SESS_KEY = `txm_sessions_${USER}`;
 const MSG_KEY_PREFIX = `txm_msgs_${USER}_`;
 const CURR_KEY = `txm_current_session_${USER}`;
+
 try {
   const OLD_KEY = "txm_current_session";
   if (localStorage.getItem(OLD_KEY) && !localStorage.getItem(CURR_KEY)) {
     localStorage.removeItem(OLD_KEY);
   }
 } catch (_) {}
+
 let currentSessionId = localStorage.getItem(CURR_KEY) || null;
 
 function nowTS() {
@@ -262,7 +217,6 @@ function loadMsgs(id) {
 }
 function saveMsgs(id, msgs) {
   try {
-    // Giới hạn số tin mỗi session
     if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
     localStorage.setItem(msgKey(id), JSON.stringify(msgs));
   } catch (_) {}
@@ -297,6 +251,7 @@ function setSessionTitleFromFirstUser(msg) {
   saveSessions(sessions);
 }
 
+// Drawer show/hide
 function showHistory() {
   if (!historyPanel || !overlayEl) return;
   document.body.classList.add("history-open");
@@ -342,7 +297,7 @@ newSessionBtn?.addEventListener("click", () => {
   hideHistory();
 });
 
-// Persist 1 tin nhắn vào localStorage cho session hiện tại
+// Persist 1 tin nhắn vào local session
 function persistMessage(role, content) {
   if (!content) return;
 
@@ -366,7 +321,7 @@ function persistMessage(role, content) {
   if (document.body.classList.contains("history-open")) renderHistoryPanel();
 }
 
-// Hook để đặt tiêu đề từ câu đầu của user
+// Hook đặt tiêu đề từ câu đầu user
 if (chatForm && chatInput) {
   chatForm.addEventListener(
     "submit",
@@ -375,7 +330,6 @@ if (chatForm && chatInput) {
       if (text) {
         if (!currentSessionId) ensureSession(true);
         setSessionTitleFromFirstUser(text);
-        // persistMessage('user', text) đã được gọi trong addMessage()
       }
     },
     true
@@ -425,7 +379,7 @@ function renderHistoryPanel() {
     li.addEventListener("click", (e) => {
       if (e.target.closest(".acts")) return;
       currentSessionId = s.id;
-      localStorage.setItem("txm_current_session", s.id);
+      localStorage.setItem(CURR_KEY, s.id); // dùng CURR_KEY thống nhất
 
       if (chatList) chatList.innerHTML = "";
       const msgs = loadMsgs(s.id);
@@ -433,7 +387,6 @@ function renderHistoryPanel() {
       if (chatList)
         msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
 
-      // Đồng bộ context cho lần gửi tiếp theo
       sessionHistory = msgs.map((m) => ({ role: m.role, content: m.content }));
       hideHistory();
     });
@@ -483,9 +436,44 @@ function renderHistoryPanel() {
 }
 
 // =====================
-// Bootstrap: khôi phục session hiện tại
+// Server hydrate
 // =====================
-document.addEventListener("DOMContentLoaded", () => {
+async function hydrateFromServer(limit = 100) {
+  try {
+    const res = await fetch(`/api/history?limit=${limit}`, { method: "GET" });
+    const data = await res.json();
+    const items = data.items || [];
+    if (!items.length) return;
+
+    const hasUI = chatList && chatList.children && chatList.children.length > 0;
+    if (hasUI) return; // tránh render đè nếu đã có local
+
+    if (greeting) greeting.style.display = "none";
+    if (chatList) chatList.innerHTML = "";
+
+    // server đã sort tăng dần → render tuần tự
+    items.forEach((m) => addMessage(m.role, m.content, { persist: false }));
+    sessionHistory = items.map(({ role, content }) => ({ role, content }));
+
+    // (Tuỳ chọn) tạo 1 phiên local từ dữ liệu server để có trong drawer
+    if (!currentSessionId) {
+      ensureSession(true);
+      const msgs = items.map(({ role, content }) => ({
+        role,
+        content,
+        at: new Date().toISOString(),
+      }));
+      saveMsgs(currentSessionId, msgs);
+      const firstUser = items.find((x) => x.role === "user");
+      if (firstUser) setSessionTitleFromFirstUser(firstUser.content);
+    }
+  } catch (e) {
+    console.warn("hydrateFromServer() failed:", e);
+  }
+}
+
+async function bootstrapFromLocalThenServer() {
+  // 1) khôi phục từ localStorage (nếu có)
   try {
     currentSessionId = localStorage.getItem(CURR_KEY) || null;
     if (currentSessionId && chatList) {
@@ -501,9 +489,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   } catch (_) {}
-});
 
+  // 2) nếu UI vẫn trống → hydrate từ server CSV
+  const hasUI = chatList && chatList.children && chatList.children.length > 0;
+  if (!hasUI) {
+    await hydrateFromServer(100);
+  }
+}
+
+// =====================
 // Rebind tạo session mới ở top
+// =====================
 if (newSessionTopBtn) {
   newSessionTopBtn.addEventListener("click", () => {
     const id = genId();

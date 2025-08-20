@@ -1,28 +1,15 @@
-{# templates/home/marketing.html #}
-{% extends 'home/base.html' %}
-{% block title %}
-  Marketing · Tiximax
-{% endblock %}
-
-{# CSS riêng cho trang Marketing #}
+{# templates/home/marketing.html #} {% extends 'home/base.html' %} {% block
+title %} Marketing · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing.css') }}" />
-{% endblock %}
-
-{# Ẩn Topbar/History/Footer trên trang Marketing #}
-{% block topbar %}
-
-{% endblock %}
-{% block history_panel %}
-
-{% endblock %}
-{% block footer %}
-
-{% endblock %}
-
-{% block content %}
-  <main style="width: auto;" id="marketing" class="chat-area">
-    <div class="layout">
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing.css') }}"
+/>
+{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
+topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
+footer %} {% endblock %} {% block content %}
+<main style="width: auto" id="marketing" class="chat-area">
+  <div class="layout">
     {% include 'partials/_marketing_sidebar.html' %}
 
     <main class="content">
@@ -100,17 +87,10 @@
               </select>
             </label>
 
-            <label class="tight"
-              >Kênh truyền thông
+            <label class="tight">
+              Kênh truyền thông
               <select id="pl_channel">
                 <option value="">Chọn kênh..</option>
-                <option>Facebook</option>
-                <option>TikTok</option>
-                <option>Instagram</option>
-                <option>Blog Website</option>
-                <option>Zalo OA</option>
-                <option>YouTube</option>
-                <option>LinkedIn</option>
               </select>
             </label>
           </div>
@@ -232,9 +212,10 @@
       </div>
     </main>
   </div>
-  </main>
-{% endblock %}
-
-{% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/planner_MKT.js', v='4') }}"></script>
+</main>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/planner_MKT.js', v='4') }}"
+></script>
 {% endblock %}

@@ -132,21 +132,19 @@ function syncGoalActive() {
     card.classList.toggle("is-active", !!checked);
   });
 }
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll('#pl_goals input[name="pl_goal"]').forEach((i) => {
-    i.addEventListener("change", syncGoalActive);
-  });
-  syncGoalActive();
-});
 
-/* (tuỳ chọn) đồng bộ chiều cao 4 card – tránh “mục tiêu” cao thấp khác nhau */
+/* ===== Equal height cho 4 ô mục tiêu (theo box cao nhất) ===== */
 function equalizeGoalHeights() {
   const cards = document.querySelectorAll("#pl_goals .goal-card");
   if (!cards.length) return;
+  // reset để đo chính xác
   cards.forEach((c) => (c.style.height = "auto"));
+  // lấy chiều cao lớn nhất
   const maxH = Math.max(...[...cards].map((c) => c.offsetHeight));
+  // gán lại cho tất cả
   cards.forEach((c) => (c.style.height = maxH + "px"));
 }
+
 const debounce = (fn, ms = 120) => {
   let t;
   return (...a) => {
@@ -155,6 +153,90 @@ const debounce = (fn, ms = 120) => {
   };
 };
 
+/* ==================== NEW: Channels integration ==================== */
+/** Nạp danh sách kênh (built-in + custom) vào <select id="pl_channel"> */
+async function loadPlannerChannels() {
+  try {
+    const r = await fetch("/api/channels");
+    const d = await r.json();
+    const sel = document.getElementById("pl_channel");
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Chọn kênh..</option>';
+    (d.items || []).forEach((it) => {
+      const opt = document.createElement("option");
+      opt.value = it.name;
+      opt.textContent = it.name;
+      sel.appendChild(opt);
+    });
+    if (cur) sel.value = cur;
+  } catch (e) {
+    console.error("loadPlannerChannels:", e);
+  }
+}
+
+/** Tạo (hoặc lấy) khối preview prompt dưới form bên trái */
+function ensurePromptPreviewBox() {
+  let wrap = document.getElementById("pl_prompt_preview_wrap");
+  if (wrap) return wrap;
+  const formCard = document.getElementById("pl_form_card");
+  if (!formCard) return null;
+  wrap = document.createElement("div");
+  wrap.id = "pl_prompt_preview_wrap";
+  wrap.className = "card";
+  wrap.innerHTML = `
+    <div style="display:flex; align-items:center; gap:8px; margin-top:10px;">
+      <strong>Preview Prompt</strong>
+      <button id="pl_copy_prompt" class="btn-ghost" type="button">📋 Sao chép</button>
+    </div>
+    <pre id="pl_prompt_preview" class="markdown" style="max-height:260px; overflow:auto; white-space:pre-wrap;"></pre>
+  `;
+  formCard.appendChild(wrap);
+  document.getElementById("pl_copy_prompt")?.addEventListener("click", () => {
+    const txt = document.getElementById("pl_prompt_preview")?.textContent || "";
+    if (!txt.trim()) return;
+    navigator.clipboard.writeText(txt);
+    showToast("Đã sao chép prompt.");
+  });
+  return wrap;
+}
+
+/** Gọi Gemini để sinh prompt theo kênh đã chọn và hiện preview */
+async function fetchPromptForChannel() {
+  const sel = document.getElementById("pl_channel");
+  const langSel = document.getElementById("pl_lang");
+  const wrap = ensurePromptPreviewBox();
+  const out = document.getElementById("pl_prompt_preview");
+  if (!sel || !out || !wrap) return;
+
+  const channel = sel.value || "";
+  if (!channel) {
+    out.textContent = "";
+    return;
+  }
+
+  const tones = getCheckedValues("#pl_tones input[type=checkbox]", 2);
+  await withLoader(wrap, async () => {
+    try {
+      const r = await fetch("/api/channels/prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel,
+          lang: langSel?.value || "Tiếng Việt",
+          tones,
+        }),
+      });
+      const d = await r.json();
+      if (d.error) throw new Error(d.error);
+      out.textContent = d.generated || "";
+    } catch (e) {
+      out.textContent = "Không thể tạo prompt: " + e.message;
+    }
+  });
+}
+
+/* ==================== DOM Ready ==================== */
 document.addEventListener("DOMContentLoaded", () => {
   attachTabs();
   loadSaved("planner", "pl_saved_list");
@@ -180,8 +262,23 @@ document.addEventListener("DOMContentLoaded", () => {
         checked.pop().checked = false;
         showToast("Chỉ chọn tối đa 2 giọng điệu.");
       }
+      // Nếu người dùng đổi tone, cập nhật preview prompt (nếu đã chọn kênh)
+      const ch = document.getElementById("pl_channel")?.value;
+      if (ch) fetchPromptForChannel();
     });
   }
+
+  // Channels: nạp dropdown + bind preview khi đổi kênh/ngôn ngữ
+  loadPlannerChannels().then(() => {
+    const selCh = document.getElementById("pl_channel");
+    selCh && selCh.addEventListener("change", fetchPromptForChannel);
+  });
+  const selLang = document.getElementById("pl_lang");
+  selLang &&
+    selLang.addEventListener("change", () => {
+      const ch = document.getElementById("pl_channel")?.value;
+      if (ch) fetchPromptForChannel();
+    });
 
   // Generate
   document.getElementById("pl_generate")?.addEventListener("click", () =>
@@ -262,41 +359,4 @@ document.addEventListener("DOMContentLoaded", () => {
       .querySelector('.tabs[data-scope="pl"] .tab[data-tab="saved"]')
       ?.click();
   });
-});
-/* ===== Equal height cho 4 ô mục tiêu (theo box cao nhất) ===== */
-function equalizeGoalHeights() {
-  const cards = document.querySelectorAll("#pl_goals .goal-card");
-  if (!cards.length) return;
-  // reset để đo chính xác
-  cards.forEach((c) => (c.style.height = "auto"));
-  // lấy chiều cao lớn nhất
-  const maxH = Math.max(...[...cards].map((c) => c.offsetHeight));
-  // gán lại cho tất cả
-  cards.forEach((c) => (c.style.height = maxH + "px"));
-}
-
-// chạy khi DOM sẵn sàng, khi resize và khi nội dung trong card thay đổi
-document.addEventListener("DOMContentLoaded", () => {
-  equalizeGoalHeights();
-
-  // khi chọn/uncheck mục tiêu -> có viền/box-shadow -> có thể làm cao hơn
-  document.querySelectorAll('#pl_goals input[name="pl_goal"]').forEach((i) => {
-    i.addEventListener("change", equalizeGoalHeights);
-  });
-
-  // khi đổi font/viewport
-  const debounce = (fn, ms = 120) => {
-    let t;
-    return (...a) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...a), ms);
-    };
-  };
-  window.addEventListener("resize", debounce(equalizeGoalHeights));
-
-  // quan sát mọi thay đổi kích thước trong 4 thẻ (an toàn hơn)
-  const ro = new ResizeObserver(debounce(equalizeGoalHeights, 60));
-  document
-    .querySelectorAll("#pl_goals .goal-card")
-    .forEach((c) => ro.observe(c));
 });
