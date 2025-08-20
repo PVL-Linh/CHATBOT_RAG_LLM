@@ -291,10 +291,10 @@ def crawl(base: str, out_prefix: str, max_pages: int = 10000, workers: int = 12,
                     break
 
     # Save outputs
-    csv_path = f"src/Data/{out_prefix}.csv"
-    jsonl_path = f"{out_prefix}.jsonl"
-    urls_path = f"{out_prefix}_urls.txt"
-    txt_path = f"src/Data/{out_prefix}.txt"  # Thêm file txt ghép thông tin từ CSV
+    csv_path = f"src/Data/{out_prefix}us.csv"
+    jsonl_path = f"{out_prefix}us.jsonl"
+    urls_path = f"{out_prefix}us_urls.txt"
+    txt_path = f"src/Data/{out_prefix}us.txt"  # Thêm file txt ghép thông tin từ CSV
 
     # Lưu CSV
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
@@ -333,8 +333,8 @@ def crawl(base: str, out_prefix: str, max_pages: int = 10000, workers: int = 12,
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Crawl tiximax.net (full coverage for posts/news/categories/tags).")
-    ap.add_argument("--base", type=str, default="https://tiximax.net/", help="Base site URL")
+    ap = argparse.ArgumentParser(description="Crawl tiximax.us (full coverage for posts/news/categories/tags).")
+    ap.add_argument("--base", type=str, default="https://tiximax.us/", help="Base site URL")
     ap.add_argument("--out", type=str, default="tiximax_full", help="Output file prefix (without extension)")
     ap.add_argument("--max-pages", type=int, default=10000, help="Max number of pages to fetch")
     ap.add_argument("--workers", type=int, default=12, help="Number of parallel workers")

@@ -1004,13 +1004,12 @@ html, body { height: 100%; }
   opacity: .55;
   cursor: not-allowed;
 }
-
-/* Đảm bảo màu icon thống nhất khi mờ */
-.sidebar .s-nav > a.nav-item.locked i[data-lucide] { color: inherit; }
-.sidebar .s-nav > a.nav-item{display:flex;align-items:center;gap:.6rem;width:100%;}
-.sidebar .s-nav > a.nav-item .lock-ico{margin-left:auto;width:18px;height:18px;flex-shrink:0;opacity:.85;}
-.sidebar .s-nav > a.nav-item.locked{opacity:.5;cursor:default;pointer-events:none;}
-/* Bố cục từng mục menu */
+.sidebar .nav-item.locked:hover { opacity: .75; }
+.sidebar .nav-item .lock-ico {
+  margin-left: .4rem;
+  width: 16px; height: 16px; line-height: 16px;
+}
+/* Layout cho từng mục menu */
 .sidebar .s-nav > a.nav-item {
   display: flex;
   align-items: center;
@@ -1018,7 +1017,7 @@ html, body { height: 100%; }
   width: 100%;
 }
 
-/* Icon khóa nằm mép phải */
+/* Icon khóa lệch hẳn sang phải */
 .sidebar .s-nav > a.nav-item .lock-ico {
   margin-left: auto;
   width: 18px;
@@ -1027,10 +1026,15 @@ html, body { height: 100%; }
   opacity: .85;
 }
 
-/* Trạng thái bị khóa: mờ, KHÔNG link nhưng vẫn nhận click (không làm gì) */
+/* Trạng thái BỊ KHÓA: luôn mờ + không click được, áp dụng ở mọi trang */
 .sidebar .s-nav > a.nav-item.locked {
-  opacity: .5;
-  cursor: not-allowed;
-  pointer-events: none; /* KHÔNG dùng pointer-events: none để tránh click "lọt" vào mục phía trên *
-  /* KHÔNG dùng pointer-events:none để tránh click "lọt" vào mục phía trên */
+  opacity: .5 !important;
+  cursor: default !important;
+  pointer-events: none !important;  /* click như không có link */
 }
+
+/* Đảm bảo màu icon thống nhất khi mờ */
+.sidebar .s-nav > a.nav-item.locked i[data-lucide] { color: inherit; }
+.sidebar .s-nav > a.nav-item{display:flex;align-items:center;gap:.6rem;width:100%;}
+.sidebar .s-nav > a.nav-item .lock-ico{margin-left:auto;width:18px;height:18px;flex-shrink:0;opacity:.85;}
+.sidebar .s-nav > a.nav-item.locked{opacity:.5;cursor:default;pointer-events:none;}
