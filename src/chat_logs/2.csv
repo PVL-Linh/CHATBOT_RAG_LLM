@@ -1,0 +1,47 @@
+ts_utc,ts_local,username,role,content
+2025-08-20T01:33:18.856535+00:00,2025-08-20T08:33:18.856535+07:00,2,user,hello
+2025-08-20T01:33:23.926392+00:00,2025-08-20T08:33:23.926392+07:00,2,assistant,"Chào bạn! Tôi là Trợ lý AI của Tiximax Logistics. Tôi có thể giúp gì cho bạn hôm nay?
+"
+2025-08-20T01:33:37.500406+00:00,2025-08-20T08:33:37.500406+07:00,2,user,2
+2025-08-20T01:33:42.506210+00:00,2025-08-20T08:33:42.506210+07:00,2,assistant,Tôi không biết.
+2025-08-20T01:33:50.311089+00:00,2025-08-20T08:33:50.311089+07:00,2,user,chính sách đền bù
+2025-08-20T01:33:58.253450+00:00,2025-08-20T08:33:58.253450+07:00,2,assistant,"Tiximax Logistics có chính sách đền bù cho các trường hợp sau:
+
+*   **TixiMax Logistics Mua Hàng Sai:** Sai link, kích thước, hoặc màu sắc so với yêu cầu của Khách hàng. Đền bù 100% giá trị đơn hàng.
+*   **Mất Hàng Trong Quá Trình Vận Chuyển:** Thất lạc do vận chuyển quốc tế, vấn đề hải quan, hoặc trường hợp bất khả kháng. Đền bù tối đa 100%, không vượt quá 2.000.000 VNĐ.
+*   **Hàng Hỏng Do Vận Chuyển:** Đổ vỡ, móp méo trong quá trình vận chuyển (không áp dụng cho sản phẩm cũ). Đền bù từ 10% - 50% tùy mức độ hư hỏng, tối đa 50%, không quá 2.000.000 VNĐ.
+
+Ngoài ra, chính sách đền bù còn áp dụng cho các trường hợp thất lạc hàng đối với dịch vụ Air US-VN và Air Korea-VN, chi tiết như sau:
+
+*   **Air US-VN (áp dụng từ 01/04/2025):**
+    *   **Có mua bảo hiểm (5% giá trị hàng hóa):** Đền bù 100% giá trị hàng hóa mà khách hàng khai báo.
+    *   **Không mua bảo hiểm:** Đền bù 100% giá trị vận chuyển nhưng không quá 3,000,000 VNĐ/đơn hàng.
+*   **Air Korea-VN (áp dụng từ 01/08/2025):**
+    *   **Có mua bảo hiểm (8% giá trị hàng hóa):** Đền bù 100% giá trị hàng hóa mà khách hàng khai báo.
+    *   **Không mua bảo hiểm:** Đền bù 2 lần giá cước vận chuyển nhưng không quá 3,000,000 VNĐ/đơn hàng. Chỉ đền bù trong trường hợp hàng thất lạc do Tiximax vận chuyển từ kho Hàn Quốc về kho Việt Nam.
+
+(source: Youtube, Chính sách đổi trả, CHÍNH SÁCH ĐẠI LÝ ĐƯỜNG AIR US - VN, chính sách giá đường air korea - vn)"
+2025-08-20T01:34:57.908081+00:00,2025-08-20T08:34:57.908081+07:00,2,user,bảng giá dịch vụ
+2025-08-20T01:35:07.689439+00:00,2025-08-20T08:35:07.689439+07:00,2,assistant,"Tiximax Logistics có bảng giá dịch vụ vận chuyển từ HCM đi Indonesia như sau (áp dụng từ 11/8/2025):
+
+| Khu vực nhận hàng | 0-50 kg | 50-100 kg | 100-250 kg | 250-500 kg | Trên 500kg |
+|---|---|---|---|---|---|
+| Batam | 190.000 | 185.000 | 180.000 | 175.000 | 160.000 |
+| Pekanbaru | 248.000 | 243.000 | 238.000 | 233.000 | 218.000 |
+| Medan | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Jakarta | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Bogor | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Denpasar | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Bandung | 260.000 | 255.000 | 250.000 | 245.000 | 230.000 |
+| Surabaya | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Semarang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Padang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+| Jambi | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Palembang | 250.000 | 245.000 | 240.000 | 235.000 | 220.000 |
+| Lampung | 253.000 | 248.000 | 243.000 | 238.000 | 223.000 |
+| Banten | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Depok | 254.000 | 249.000 | 244.000 | 239.000 | 224.000 |
+| Malang | 255.000 | 250.000 | 245.000 | 240.000 | 225.000 |
+
+Đơn giá: VNĐ/kg (chính sách giá đường air tuyến vn - indo áp dụng từ ngày 11/8/2025).
+"

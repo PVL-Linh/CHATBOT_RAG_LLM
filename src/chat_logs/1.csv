@@ -2105,3 +2105,187 @@ Bạn có thể xem thêm thông tin chi tiết tại [Bảng Giá Vận Chuyể
     *   Hồ Chí Minh: 5 - 7 ngày kể từ ngày bay
 
 Lưu ý: Giá dịch vụ chưa bao gồm VAT (source: chính sách giá đường air korea - vn áp dụng từ ngày 01/08/2025)."
+2025-08-19T09:36:18.637482+00:00,2025-08-19T16:36:18.637482+07:00,1,user,bản giá vận chuyển
+2025-08-19T09:37:50.339308+00:00,2025-08-19T16:37:50.339308+07:00,1,assistant,"Chào bạn,
+
+Dưới đây là bảng giá vận chuyển hàng hóa đường hàng không từ Indonesia (Indo) về Việt Nam, áp dụng từ ngày 01/05/2025.
+
+**I. Tỷ giá mua hộ:**
+
+*   1 JPY = 183 VNĐ
+
+**II. Dịch vụ vận chuyển khối lượng (kg):**
+
+*   Đơn giá: 140,000 VNĐ/kg
+*   Giá dịch vụ đã bao gồm VAT.
+*   Giá trên là giá vận chuyển quốc tế Nhật Bản – Việt Nam, chưa bao gồm giá vận chuyển nội địa (Hà Nội – đi các tỉnh khác).
+*   Chuyến bay: 3 chuyến cố định vào thứ 2 - 4 - 6.
+*   Thời gian nhận hàng:
+    *   Hà Nội: 3 - 5 ngày kể từ ngày hàng tới kho Nhật Bản.
+    *   Hồ Chí Minh: 6 - 8 ngày kể từ ngày hàng tới kho Nhật Bản.
+
+**III. Loại hàng hóa phụ thu:**
+
+*   **Đồ điện tử:** (laptop, ipad, điện thoại, đồng hồ, v.v.)
+    *   < 10 triệu/sản phẩm: 300,000 VNĐ/lô/thùng
+    *   > 10 triệu/sản phẩm: 300,000 VNĐ/sản phẩm
+*   **Nước hoa, mỹ phẩm, hàng hiệu:**
+    *   < 5 triệu/sản phẩm: 0 VNĐ/cái
+    *   > 5 triệu/sản phẩm: 100,000 VNĐ/cái
+
+**IV. Quy ước làm tròn:**
+
+*   ≤ 0.5kg => làm tròn thành 0.5kg
+*   Từ 0.6kg đến 1kg => làm tròn thành 1kg
+
+**V. Chính sách đền bù nếu thất lạc hàng:**
+
+*   **Trường hợp mua bảo hiểm hàng hóa:**
+    *   Phí bảo hiểm: 8% giá trị hàng hóa.
+    *   Đền bù: 100% giá trị hàng hóa mà khách hàng khai báo.
+*   **Trường hợp không mua bảo hiểm hàng hóa:**
+    *   Đền bù: 100% giá trị vận chuyển nhưng không quá 3,000,000 VNĐ/đơn hàng.
+
+Bạn có thể tham khảo thêm thông tin chi tiết về bảng giá này trong tài liệu ""Bảng Giá Vận Chuyển Hàng Hóa Đường Hàng Không Indo - Việt Nam 2025"".
+
+Nếu bạn cần hỗ trợ thêm hoặc có bất kỳ câu hỏi nào khác, đừng ngần ngại cho tôi biết nhé!
+"
+2025-08-19T09:39:00.560815+00:00,2025-08-19T16:39:00.560815+07:00,1,user,bảng giá vận chuyển
+2025-08-19T09:41:05.766802+00:00,2025-08-19T16:41:05.766802+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Read timed out. (read timeout=120)"
+2025-08-19T09:45:46.471436+00:00,2025-08-19T16:45:46.471436+07:00,1,user,bảng giá vận chuyển
+2025-08-19T09:48:03.482306+00:00,2025-08-19T16:48:03.482306+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Read timed out. (read timeout=120)"
+2025-08-19T09:51:12.987665+00:00,2025-08-19T16:51:12.987665+07:00,1,user,bảng giá vận chuyển
+2025-08-19T09:53:31.025528+00:00,2025-08-19T16:53:31.025528+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Read timed out. (read timeout=120)"
+2025-08-19T10:12:43.062896+00:00,2025-08-19T17:12:43.062896+07:00,1,user,bảng giá vận chuyển
+2025-08-19T10:12:58.901426+00:00,2025-08-19T17:12:58.901426+07:00,1,assistant,"Lỗi khi gọi LLM local API: HTTPConnectionPool(host='192.168.2.8', port=1234): Max retries exceeded with url: /v1/chat/completions (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000245550E1A00>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+2025-08-19T10:13:35.939991+00:00,2025-08-19T17:13:35.939991+07:00,1,user,bảng giá vận chuyển
+2025-08-19T10:13:45.666469+00:00,2025-08-19T17:13:45.666469+07:00,1,assistant,"Chúng tôi có bảng giá vận chuyển hàng hóa đường hàng không Indo - Việt Nam năm 2025. Giá vận chuyển được tính dựa trên trọng lượng hàng hóa và điểm đến (Hà Nội hoặc Sài Gòn). Chúng tôi hỗ trợ vận chuyển hàng thông thường, đồ điện tử, và hàng đặc biệt.
+
+**Về Kho Hà Nội:**
+
+*   **Hàng thông thường:**
+    *   0-50 kg: 280,000 VNĐ/kg
+    *   50-100 kg: 275,000 VNĐ/kg
+    *   100-500 kg: 270,000 VNĐ/kg
+    *   500-1000 kg: 265,000 VNĐ/kg
+*   **Đồ điện tử:** 300,000 VNĐ/kg (không nhận)
+*   **Hàng đặc biệt:** Liên hệ tư vấn
+
+**Về Kho Sài Gòn:**
+
+*   Vui lòng cung cấp thông tin về loại hàng hóa và trọng lượng để nhận báo giá.
+
+Ngoài ra, chúng tôi cũng có bảng giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia áp dụng từ ngày 11/8/2025. Giá cước vận chuyển nội địa Indonesia từ Batam cũng được cung cấp.
+
+Để biết chính xác chi phí vận chuyển cho từng lô hàng, quý khách vui lòng liên hệ trực tiếp với đội ngũ tư vấn TIXIMAX US. Xin lưu ý rằng bảng giá trên chỉ mang tính chất tham khảo và có thể thay đổi tùy thuộc vào thời điểm, biến động thị trường hoặc các chính sách ưu đãi. (Bảng Giá Vận Chuyển Hàng Hóa Đường Hàng Không Indo - Việt Nam 2025)
+"
+2025-08-19T10:14:03.542005+00:00,2025-08-19T17:14:03.542005+07:00,1,user,HCMC Việt Nam đi Indonesia
+2025-08-19T10:14:18.432123+00:00,2025-08-19T17:14:18.432123+07:00,1,assistant,"Từ HCMC Việt Nam đi Indonesia, giá dịch vụ vận chuyển áp dụng từ ngày 11/8/2025 như sau (VNĐ/KG):
+
+*   **Batam:**
+    *   0-50 kg: 190.000
+    *   50-100 kg: 185.000
+    *   100-250 kg: 180.000
+    *   250-500 kg: 175.000
+    *   Trên 500 kg: 160.000
+*   **Pekanbaru:**
+    *   0-50 kg: 248.000
+    *   50-100 kg: 243.000
+    *   100-250 kg: 238.000
+    *   250-500 kg: 233.000
+    *   Trên 500 kg: 218.000
+*   **Medan:**
+    *   0-50 kg: 250.000
+    *   50-100 kg: 245.000
+    *   100-250 kg: 240.000
+    *   250-500 kg: 235.000
+    *   Trên 500 kg: 220.000
+*   **Jakarta:**
+    *   0-50 kg: 253.000
+    *   50-100 kg: 248.000
+    *   100-250 kg: 243.000
+    *   250-500 kg: 238.000
+    *   Trên 500 kg: 223.000
+*   **Bogor:**
+    *   0-50 kg: 253.000
+    *   50-100 kg: 248.000
+    *   100-250 kg: 243.000
+    *   250-500 kg: 238.000
+    *   Trên 500 kg: 223.000
+*   **Denpasar:**
+    *   0-50 kg: 254.000
+    *   50-100 kg: 249.000
+    *   100-250 kg: 244.000
+    *   250-500 kg: 239.000
+    *   Trên 500 kg: 224.000
+*   **Bandung:**
+    *   0-50 kg: 260.000
+    *   50-100 kg: 255.000
+    *   100-250 kg: 250.000
+    *   250-500 kg: 245.000
+    *   Trên 500 kg: 230.000
+*   **Surabaya:**
+    *   0-50 kg: 255.000
+    *   50-100 kg: 250.000
+    *   100-250 kg: 245.000
+    *   250-500 kg: 240.000
+    *   Trên 500 kg: 225.000
+*   **Semarang:**
+    *   0-50 kg: 255.000
+    *   50-100 kg: 250.000
+    *   100-250 kg: 245.000
+    *   250-500 kg: 240.000
+    *   Trên 500 kg: 225.000
+*   **Padang:**
+    *   0-50 kg: 255.000
+    *   50-100 kg: 250.000
+    *   100-250 kg: 245.000
+    *   250-500 kg: 240.000
+    *   Trên 500 kg: 225.000
+*   **Jambi:**
+    *   0-50 kg: 250.000
+    *   50-100 kg: 245.000
+    *   100-250 kg: 240.000
+    *   250-500 kg: 235.000
+    *   Trên 500 kg: 220.000
+*   **Palembang:**
+    *   0-50 kg: 250.000
+    *   50-100 kg: 245.000
+    *   100-250 kg: 240.000
+    *   250-500 kg: 235.000
+    *   Trên 500 kg: 220.000
+*   **Lampung:**
+    *   0-50 kg: 253.000
+    *   50-100 kg: 248.000
+    *   100-250 kg: 243.000
+    *   250-500 kg: 238.000
+    *   Trên 500 kg: 223.000
+*   **Banten:**
+    *   0-50 kg: 254.000
+    *   50-100 kg: 249.000
+    *   100-250 kg: 244.000
+    *   250-500 kg: 239.000
+    *   Trên 500 kg: 224.000
+*   **Depok:**
+    *   0-50 kg: 254.000
+    *   50-100 kg: 249.000
+    *   100-250 kg: 244.000
+    *   250-500 kg: 239.000
+    *   Trên 500 kg: 224.000
+*   **Malang:**
+    *   0-50 kg: 255.000
+    *   50-100 kg: 250.000
+    *   100-250 kg: 245.000
+    *   250-500 kg: 240.000
+    *   Trên 500 kg: 225.000
+
+(source: CHÍNH SÁCH GIÁ ĐƯỜNG AIR TUYẾN VN - INDO)"
+2025-08-20T01:30:52.379614+00:00,2025-08-20T08:30:52.379614+07:00,1,user,HCMC Việt Nam đi Indonesia 0-50
+2025-08-20T01:31:02.483452+00:00,2025-08-20T08:31:02.483452+07:00,1,assistant,"Giá dịch vụ vận chuyển từ HCMC Việt Nam đi Indonesia cho kiện hàng từ 0-50KG như sau:
+*   Batam: 190.000 VNĐ/KG
+*   Pekanbaru: 248.000 VNĐ/KG
+*   Medan: 250.000 VNĐ/KG
+*   Jakarta, Bogor, Lampung: 253.000 VNĐ/KG
+*   Denpasar, Banten, Depok: 254.000 VNĐ/KG
+*   Surabaya, Semarang, Padang, Malang: 255.000 VNĐ/KG
+*   Bandung: 260.000 VNĐ/KG (source: CHÍNH SÁCH GIÁ ĐƯỜNG AIR TUYẾN VN - INDO)"

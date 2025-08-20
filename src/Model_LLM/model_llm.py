@@ -49,6 +49,8 @@
 
 # llm_model_gemini.py
 # llm_model_gemini.py
+
+# ================== GEMINI =====================================
 import os
 from dotenv import load_dotenv
 

@@ -1,46 +1,48 @@
 // =====================
 // Init icons
 // =====================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) lucide.createIcons();
 });
 
 // =====================
 // Elements
 // =====================
-const chatList   = document.getElementById('chatList');
-const greeting   = document.getElementById('greeting');
-const chatForm   = document.getElementById('chatForm');
-const chatInput  = document.getElementById('chatInput');
-const sendBtn    = document.getElementById('sendBtn');
-const timingEl   = document.getElementById('timing');
-const newChatBtn = document.getElementById('newChatBtn');
+const chatList = document.getElementById("chatList");
+const greeting = document.getElementById("greeting");
+const chatForm = document.getElementById("chatForm");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const timingEl = document.getElementById("timing");
+const newChatBtn = document.getElementById("newChatBtn");
 
 // Drawer / History elements
-const historyBtn     = document.getElementById('newChatBtn');
-const historyPanel   = document.getElementById('historyPanel');
-const historyList    = document.getElementById('historyList');
-const newSessionBtn  = document.getElementById('newSession');
-const closeHistory   = document.getElementById('closeHistory');
-const overlayEl      = document.getElementById('overlay');
-const newSessionTopBtn = document.getElementById('newSessionTop');
+const historyBtn = document.getElementById("newChatBtn");
+const historyPanel = document.getElementById("historyPanel");
+const historyList = document.getElementById("historyList");
+const newSessionBtn = document.getElementById("newSession");
+const closeHistory = document.getElementById("closeHistory");
+const overlayEl = document.getElementById("overlay");
+const newSessionTopBtn = document.getElementById("newSessionTop");
 
 // =====================
 // Client-side session state (KHÔNG dùng window.history!)
 // =====================
-let sessionHistory = [];                 // cho API và UI hiện tại
-const MAX_LOCAL_MSGS = 200;              // giới hạn số tin lưu localStorage
+let sessionHistory = []; // cho API và UI hiện tại
+const MAX_LOCAL_MSGS = 200; // giới hạn số tin lưu localStorage
 
 // =====================
 // Markdown render
 // =====================
 function renderMarkdown(md) {
-  const raw = marked.parse(md || '');
+  const raw = marked.parse(md || "");
   const clean = DOMPurify.sanitize(raw);
-  const wrapper = document.createElement('div');
+  const wrapper = document.createElement("div");
   wrapper.innerHTML = clean;
-  wrapper.querySelectorAll('pre code').forEach(block => {
-    try { hljs.highlightElement(block); } catch (_) {}
+  wrapper.querySelectorAll("pre code").forEach((block) => {
+    try {
+      hljs.highlightElement(block);
+    } catch (_) {}
   });
   return wrapper;
 }
@@ -51,13 +53,13 @@ function renderMarkdown(md) {
 function addMessage(role, content, opts = { persist: true }) {
   if (!content) return;
 
-  if (greeting) greeting.style.display = 'none';
+  if (greeting) greeting.style.display = "none";
 
-  const li = document.createElement('li');
-  li.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
+  const li = document.createElement("li");
+  li.className = "msg " + (role === "user" ? "user" : "assistant");
 
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
   bubble.appendChild(renderMarkdown(content));
 
   li.appendChild(bubble);
@@ -75,16 +77,16 @@ function addMessage(role, content, opts = { persist: true }) {
 
 function addTyping() {
   if (!chatList) return;
-  const li = document.createElement('li');
-  li.id = 'typingRow';
-  li.className = 'msg assistant';
+  const li = document.createElement("li");
+  li.id = "typingRow";
+  li.className = "msg assistant";
   li.innerHTML = `<div class="bubble"><span class="dots">Vui lòng chờ...</span></div>`;
   chatList.appendChild(li);
   chatList.scrollTop = chatList.scrollHeight;
 }
 
 function removeTyping() {
-  const t = document.getElementById('typingRow');
+  const t = document.getElementById("typingRow");
   if (t) t.remove();
 }
 
@@ -92,27 +94,27 @@ function removeTyping() {
 // Send form
 // =====================
 if (chatForm) {
-  chatForm.addEventListener('submit', async (e) => {
+  chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const text = (chatInput?.value || '').trim();
+    const text = (chatInput?.value || "").trim();
     if (!text) return;
 
     // UI + lưu
-    addMessage('user', text); // persist = true (mặc định)
+    addMessage("user", text); // persist = true (mặc định)
 
     // Clear input
-    chatInput.value = '';
-    chatInput.style.height = 'auto';
+    chatInput.value = "";
+    chatInput.style.height = "auto";
 
     if (sendBtn) sendBtn.disabled = true;
     addTyping();
 
     try {
       // Không gửi history – server tự lấy từ Flask session
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
       });
 
       const data = await res.json();
@@ -120,37 +122,39 @@ if (chatForm) {
       if (sendBtn) sendBtn.disabled = false;
 
       if (!data.ok) {
-        addMessage('assistant', `⚠️ Lỗi: ${data.error || 'Không rõ'}`);
+        addMessage("assistant", `⚠️ Lỗi: ${data.error || "Không rõ"}`);
         return;
       }
 
-      const answer = data.answer || '';
-      addMessage('assistant', answer); // persist
+      const answer = data.answer || "";
+      addMessage("assistant", answer); // persist
 
       if (data.timing && timingEl) {
         const t = data.timing;
         timingEl.textContent =
-          `Tổng: ${t.total.toFixed(2)}s | Embedding: ${t.embedding.toFixed(2)}s | ` +
+          `Tổng: ${t.total.toFixed(2)}s | Embedding: ${t.embedding.toFixed(
+            2
+          )}s | ` +
           `Tìm kiếm: ${t.search.toFixed(2)}s | LLM: ${t.llm.toFixed(2)}s`;
       }
     } catch (err) {
       removeTyping();
       if (sendBtn) sendBtn.disabled = false;
-      addMessage('assistant', `❌ Lỗi kết nối: ${err}`);
+      addMessage("assistant", `❌ Lỗi kết nối: ${err}`);
     }
   });
 
   // Auto-grow textarea
-  chatInput?.addEventListener('input', () => {
-    chatInput.style.height = 'auto';
-    chatInput.style.height = chatInput.scrollHeight + 'px';
+  chatInput?.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+    chatInput.style.height = chatInput.scrollHeight + "px";
   });
 
   // Gửi khi Enter (không Shift)
-  chatInput?.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  chatInput?.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      chatForm.dispatchEvent(new Event("submit", { cancelable: true }));
     }
   });
 }
@@ -204,43 +208,57 @@ if (chatForm) {
 // New chat (xóa màn hình hiện tại – không ảnh hưởng server session)
 // =====================
 if (newChatBtn) {
-  newChatBtn.addEventListener('click', () => {
+  newChatBtn.addEventListener("click", () => {
     sessionHistory = [];
-    if (chatList) chatList.innerHTML = '';
-    if (greeting) greeting.style.display = 'flex';
-    if (timingEl) timingEl.textContent = '';
+    if (chatList) chatList.innerHTML = "";
+    if (greeting) greeting.style.display = "flex";
+    if (timingEl) timingEl.textContent = "";
   });
 }
 
 // =====================
 // Chat History drawer (localStorage)
 // =====================
-const USER = (window.TXM_USER || 'anonymous').trim();
+const USER = (window.TXM_USER || "anonymous").trim();
 const SESS_KEY = `txm_sessions_${USER}`;
 const MSG_KEY_PREFIX = `txm_msgs_${USER}_`;
 const CURR_KEY = `txm_current_session_${USER}`;
 try {
-  const OLD_KEY = 'txm_current_session';
+  const OLD_KEY = "txm_current_session";
   if (localStorage.getItem(OLD_KEY) && !localStorage.getItem(CURR_KEY)) {
     localStorage.removeItem(OLD_KEY);
   }
 } catch (_) {}
 let currentSessionId = localStorage.getItem(CURR_KEY) || null;
 
-function nowTS() { return new Date().toISOString(); }
-function genId() { return Math.random().toString(36).slice(2, 10); }
-function msgKey(id) { return MSG_KEY_PREFIX + id; }
+function nowTS() {
+  return new Date().toISOString();
+}
+function genId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+function msgKey(id) {
+  return MSG_KEY_PREFIX + id;
+}
 
 function loadSessions() {
-  try { return JSON.parse(localStorage.getItem(SESS_KEY) || '[]'); }
-  catch (_) { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(SESS_KEY) || "[]");
+  } catch (_) {
+    return [];
+  }
 }
 function saveSessions(list) {
-  try { localStorage.setItem(SESS_KEY, JSON.stringify(list)); } catch (_) {}
+  try {
+    localStorage.setItem(SESS_KEY, JSON.stringify(list));
+  } catch (_) {}
 }
 function loadMsgs(id) {
-  try { return JSON.parse(localStorage.getItem(msgKey(id)) || '[]'); }
-  catch (_) { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(msgKey(id)) || "[]");
+  } catch (_) {
+    return [];
+  }
 }
 function saveMsgs(id, msgs) {
   try {
@@ -255,7 +273,12 @@ function ensureSession(createIfMissing = false) {
   if (!createIfMissing) return null;
   const id = genId();
   const sessions = loadSessions();
-  sessions.unshift({ id, name: 'Cuộc trò chuyện mới', createdAt: nowTS(), updatedAt: nowTS() });
+  sessions.unshift({
+    id,
+    name: "Cuộc trò chuyện mới",
+    createdAt: nowTS(),
+    updatedAt: nowTS(),
+  });
   saveSessions(sessions);
   localStorage.setItem(CURR_KEY, id);
   currentSessionId = id;
@@ -265,10 +288,10 @@ function ensureSession(createIfMissing = false) {
 
 function setSessionTitleFromFirstUser(msg) {
   const sessions = loadSessions();
-  const s = sessions.find(x => x.id === currentSessionId);
+  const s = sessions.find((x) => x.id === currentSessionId);
   if (!s) return;
-  if (s.name === 'Cuộc trò chuyện mới') {
-    s.name = (msg || 'Untitled').slice(0, 30);
+  if (s.name === "Cuộc trò chuyện mới") {
+    s.name = (msg || "Untitled").slice(0, 30);
   }
   s.updatedAt = nowTS();
   saveSessions(sessions);
@@ -276,36 +299,45 @@ function setSessionTitleFromFirstUser(msg) {
 
 function showHistory() {
   if (!historyPanel || !overlayEl) return;
-  document.body.classList.add('history-open');
+  document.body.classList.add("history-open");
   renderHistoryPanel();
   if (window.lucide) lucide.createIcons();
 }
 function hideHistory() {
-  document.body.classList.remove('history-open');
+  document.body.classList.remove("history-open");
 }
 
 if (historyBtn && historyPanel) {
-  historyBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    const open = document.body.classList.contains('history-open');
-    open ? hideHistory() : showHistory();
-  }, true);
+  historyBtn.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const open = document.body.classList.contains("history-open");
+      open ? hideHistory() : showHistory();
+    },
+    true
+  );
 }
-overlayEl?.addEventListener('click', hideHistory);
-closeHistory?.addEventListener('click', hideHistory);
+overlayEl?.addEventListener("click", hideHistory);
+closeHistory?.addEventListener("click", hideHistory);
 
-newSessionBtn?.addEventListener('click', () => {
+newSessionBtn?.addEventListener("click", () => {
   const id = genId();
   const sessions = loadSessions();
-  sessions.unshift({ id, name: 'Cuộc trò chuyện mới', createdAt: nowTS(), updatedAt: nowTS() });
+  sessions.unshift({
+    id,
+    name: "Cuộc trò chuyện mới",
+    createdAt: nowTS(),
+    updatedAt: nowTS(),
+  });
   saveSessions(sessions);
   localStorage.setItem(CURR_KEY, id);
   currentSessionId = id;
   saveMsgs(id, []);
-  if (chatList) chatList.innerHTML = '';
-  if (greeting) greeting.style.display = 'flex';
+  if (chatList) chatList.innerHTML = "";
+  if (greeting) greeting.style.display = "flex";
   sessionHistory = [];
   hideHistory();
 });
@@ -314,7 +346,7 @@ newSessionBtn?.addEventListener('click', () => {
 function persistMessage(role, content) {
   if (!content) return;
 
-  if (!currentSessionId && role === 'user') ensureSession(true);
+  if (!currentSessionId && role === "user") ensureSession(true);
   if (!currentSessionId) return;
 
   const msgs = loadMsgs(currentSessionId);
@@ -325,52 +357,62 @@ function persistMessage(role, content) {
   saveMsgs(currentSessionId, msgs);
 
   const sessions = loadSessions();
-  const s = sessions.find(x => x.id === currentSessionId);
-  if (s) { s.updatedAt = nowTS(); saveSessions(sessions); }
+  const s = sessions.find((x) => x.id === currentSessionId);
+  if (s) {
+    s.updatedAt = nowTS();
+    saveSessions(sessions);
+  }
 
-  if (document.body.classList.contains('history-open')) renderHistoryPanel();
+  if (document.body.classList.contains("history-open")) renderHistoryPanel();
 }
 
 // Hook để đặt tiêu đề từ câu đầu của user
 if (chatForm && chatInput) {
-  chatForm.addEventListener('submit', () => {
-    const text = (chatInput?.value || '').trim();
-    if (text) {
-      if (!currentSessionId) ensureSession(true);
-      setSessionTitleFromFirstUser(text);
-      // persistMessage('user', text) đã được gọi trong addMessage()
-    }
-  }, true);
+  chatForm.addEventListener(
+    "submit",
+    () => {
+      const text = (chatInput?.value || "").trim();
+      if (text) {
+        if (!currentSessionId) ensureSession(true);
+        setSessionTitleFromFirstUser(text);
+        // persistMessage('user', text) đã được gọi trong addMessage()
+      }
+    },
+    true
+  );
 }
 
 // Vẽ panel lịch sử
-function renderHistoryPanel(){
+function renderHistoryPanel() {
   if (!historyList) return;
 
   const sessions = loadSessions()
-    .map(s => {
+    .map((s) => {
       const msgs = loadMsgs(s.id);
-      const lastAt = (msgs && msgs.length)
-        ? msgs[msgs.length - 1].at
-        : (s.updatedAt || s.createdAt);
+      const lastAt =
+        msgs && msgs.length
+          ? msgs[msgs.length - 1].at
+          : s.updatedAt || s.createdAt;
       return { ...s, __lastAt: lastAt };
     })
     .sort((a, b) => new Date(b.__lastAt || 0) - new Date(a.__lastAt || 0));
 
-  historyList.innerHTML = '';
+  historyList.innerHTML = "";
   sessions.forEach((s) => {
-    const li = document.createElement('li');
-    li.className = 'hp-item';
+    const li = document.createElement("li");
+    li.className = "hp-item";
 
-    const row = document.createElement('div');
-    row.className = 'row';
+    const row = document.createElement("div");
+    row.className = "row";
     row.innerHTML = `
       <div class="name">${DOMPurify.sanitize(s.name)}</div>
-      <div class="meta">${new Date(s.__lastAt || s.updatedAt || s.createdAt).toLocaleString()}</div>
+      <div class="meta">${new Date(
+        s.__lastAt || s.updatedAt || s.createdAt
+      ).toLocaleString()}</div>
     `;
 
-    const acts = document.createElement('div');
-    acts.className = 'acts';
+    const acts = document.createElement("div");
+    acts.className = "acts";
     acts.innerHTML = `
       <button class="icon-btn act-rename" title="Đổi tên"><i data-lucide="pencil"></i></button>
       <button class="icon-btn act-delete" title="Xóa"><i data-lucide="trash-2"></i></button>
@@ -380,28 +422,30 @@ function renderHistoryPanel(){
     li.appendChild(acts);
 
     // Mở đoạn chat
-    li.addEventListener('click', (e) => {
-      if (e.target.closest('.acts')) return;
+    li.addEventListener("click", (e) => {
+      if (e.target.closest(".acts")) return;
       currentSessionId = s.id;
-      localStorage.setItem('txm_current_session', s.id);
+      localStorage.setItem("txm_current_session", s.id);
 
-      if (chatList) chatList.innerHTML = '';
+      if (chatList) chatList.innerHTML = "";
       const msgs = loadMsgs(s.id);
-      if (greeting) greeting.style.display = msgs.length ? 'none' : 'flex';
-      if (chatList) msgs.forEach(m => addMessage(m.role, m.content, { persist: false }));
+      if (greeting) greeting.style.display = msgs.length ? "none" : "flex";
+      if (chatList)
+        msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
 
       // Đồng bộ context cho lần gửi tiếp theo
-      sessionHistory = msgs.map(m => ({ role: m.role, content: m.content }));
+      sessionHistory = msgs.map((m) => ({ role: m.role, content: m.content }));
       hideHistory();
     });
 
     // Đổi tên
-    acts.querySelector('.act-rename').addEventListener('click', (e) => {
-      e.preventDefault(); e.stopImmediatePropagation();
+    acts.querySelector(".act-rename").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
       const sessions2 = loadSessions();
-      const item = sessions2.find(x => x.id === s.id);
-      const newName = prompt('Đặt tên đoạn chat:', item?.name || '');
-      if (newName && newName.trim()){
+      const item = sessions2.find((x) => x.id === s.id);
+      const newName = prompt("Đặt tên đoạn chat:", item?.name || "");
+      if (newName && newName.trim()) {
         item.name = newName.trim();
         item.updatedAt = nowTS();
         saveSessions(sessions2);
@@ -411,19 +455,20 @@ function renderHistoryPanel(){
     });
 
     // Xóa
-    acts.querySelector('.act-delete').addEventListener('click', (e) => {
-      e.preventDefault(); e.stopImmediatePropagation();
-      if (!confirm('Xóa đoạn chat này?')) return;
+    acts.querySelector(".act-delete").addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (!confirm("Xóa đoạn chat này?")) return;
 
       localStorage.removeItem(msgKey(s.id));
-      const sessions3 = loadSessions().filter(x => x.id !== s.id);
+      const sessions3 = loadSessions().filter((x) => x.id !== s.id);
       saveSessions(sessions3);
 
-      if (currentSessionId === s.id){
+      if (currentSessionId === s.id) {
         localStorage.removeItem(CURR_KEY);
         currentSessionId = null;
-        if (chatList) chatList.innerHTML = '';
-        if (greeting) greeting.style.display = 'flex';
+        if (chatList) chatList.innerHTML = "";
+        if (greeting) greeting.style.display = "flex";
         sessionHistory = [];
       }
 
@@ -440,16 +485,19 @@ function renderHistoryPanel(){
 // =====================
 // Bootstrap: khôi phục session hiện tại
 // =====================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   try {
     currentSessionId = localStorage.getItem(CURR_KEY) || null;
     if (currentSessionId && chatList) {
       const msgs = loadMsgs(currentSessionId);
       if (msgs.length) {
-        if (greeting) greeting.style.display = 'none';
-        chatList.innerHTML = '';
-        msgs.forEach(m => addMessage(m.role, m.content, { persist: false }));
-        sessionHistory = msgs.map(m => ({ role: m.role, content: m.content }));
+        if (greeting) greeting.style.display = "none";
+        chatList.innerHTML = "";
+        msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
+        sessionHistory = msgs.map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
       }
     }
   } catch (_) {}
@@ -457,16 +505,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Rebind tạo session mới ở top
 if (newSessionTopBtn) {
-  newSessionTopBtn.addEventListener('click', () => {
+  newSessionTopBtn.addEventListener("click", () => {
     const id = genId();
     const sessions = loadSessions();
-    sessions.unshift({ id, name: 'Cuộc trò chuyện mới', createdAt: nowTS(), updatedAt: nowTS() });
+    sessions.unshift({
+      id,
+      name: "Cuộc trò chuyện mới",
+      createdAt: nowTS(),
+      updatedAt: nowTS(),
+    });
     saveSessions(sessions);
     localStorage.setItem(CURR_KEY, id);
     currentSessionId = id;
     saveMsgs(id, []);
-    if (chatList) chatList.innerHTML = '';
-    if (greeting) greeting.style.display = 'flex';
+    if (chatList) chatList.innerHTML = "";
+    if (greeting) greeting.style.display = "flex";
     sessionHistory = [];
     hideHistory();
   });
