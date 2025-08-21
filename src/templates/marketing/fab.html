@@ -1,26 +1,15 @@
-{# templates/home/marketing.html #}
-{% extends 'home/base.html' %}
-{% block title %}
-  Marketing · Tiximax
-{% endblock %}
-
-{# CSS riêng cho trang Marketing #}
+{# templates/home/marketing.html #} {% extends 'home/base.html' %}
+{% set active = 'marketing' %}
+{% block
+title %} FAB · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing.css') }}" />
-{% endblock %}
-
-{# Ẩn Topbar/History/Footer trên trang Marketing #}
-{% block topbar %}
-
-{% endblock %}
-{% block history_panel %}
-
-{% endblock %}
-{% block footer %}
-
-{% endblock %}
-
-{% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing.css') }}"
+/>
+{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
+topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
+footer %} {% endblock %} {% block content %}
   <main style="width: auto;" id="marketing" class="chat-area">
     <div class="layout">
       {% include 'partials/_marketing_sidebar.html' %}
