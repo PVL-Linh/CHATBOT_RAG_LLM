@@ -40,19 +40,28 @@ function copyFrom(el) {
 
 /* --- Download .txt (UTF-8 BOM) + slug --- */
 function downloadTxt(filename, text) {
-  const blob = new Blob(["\uFEFF" + (text || "")], { type: "text/plain;charset=utf-8" });
+  const blob = new Blob(["\uFEFF" + (text || "")], {
+    type: "text/plain;charset=utf-8",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
   URL.revokeObjectURL(url);
 }
 function slug(s) {
-  return (s || "")
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
-    .slice(0, 60) || "content";
+  return (
+    (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60) || "content"
+  );
 }
 
 function showToast(msg, ttl = 2200) {
@@ -403,3 +412,19 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Đang tải file .txt…");
   });
 });
+async function loadChannels() {
+  const res = await fetch("/api/channels"); // phải là endpoint này
+  if (!res.ok) return;
+  const data = await res.json();
+  const sel = document.getElementById("pl_channel");
+  sel.innerHTML = '<option value="">Chọn kênh..</option>';
+  for (const ch of data.items || []) {
+    const id = ch.id || ch.name;
+    const name = ch.name || ch.title || id;
+    sel.insertAdjacentHTML(
+      "beforeend",
+      `<option value="${id}">${name}</option>`
+    );
+  }
+}
+document.addEventListener("DOMContentLoaded", loadChannels);

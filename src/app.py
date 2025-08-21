@@ -598,7 +598,7 @@ def marketing_planner():
     return render_template("marketing/planner.html", active="marketing")
 
 @app.route("/api/planner/generate", methods=["POST"])
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def api_planner_generate():
     d = request.get_json(silent=True) or {}
     goal       = d.get("goal") or (d.get("objectives") or [None])[0]
@@ -715,10 +715,45 @@ def marketing_channels():
     return render_template("marketing/channels.html", active="marketing")
 
 # ========= Channels: APIs =========
+def _merge_channels_for_planner():
+    # Lấy kênh builtin (mặc định)
+    try:
+        builtin = list_all_for_planner() or []
+    except Exception:
+        builtin = []
+
+    # Lấy kênh custom (admin/manager tạo)
+    try:
+        custom = load_channels() or []
+    except Exception:
+        custom = []
+
+    # Hợp nhất + bỏ trùng theo id/name, bỏ kênh archived
+    seen, merged = set(), []
+    for c in (builtin + custom):
+        key = (c.get('id') or c.get('name') or '').strip().lower()
+        if not key or key in seen:
+            continue
+        if c.get('archived'):
+            continue
+        merged.append(c)
+        seen.add(key)
+    return merged
+
+
+
+
+
+
+
+
+
 @app.route("/api/channels", methods=["GET"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def api_channels_list():
-    return jsonify({"items": list_all_for_planner()})
+    return jsonify({"items": _merge_channels_for_planner()})
+
+
 
 @app.route("/api/channels/custom", methods=["GET"])
 @login_required(roles=['admin', 'manager_marketing'])
