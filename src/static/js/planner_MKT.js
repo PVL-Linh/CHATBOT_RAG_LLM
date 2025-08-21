@@ -37,6 +37,24 @@ function copyFrom(el) {
   document.execCommand("copy");
   document.body.removeChild(t);
 }
+
+/* --- Download .txt (UTF-8 BOM) + slug --- */
+function downloadTxt(filename, text) {
+  const blob = new Blob(["\uFEFF" + (text || "")], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function slug(s) {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "content";
+}
+
 function showToast(msg, ttl = 2200) {
   const root = document.getElementById("marketing") || document.body;
   const el = document.createElement("div");
@@ -68,10 +86,13 @@ async function loadSaved(type, targetId) {
     const bCopy = document.createElement("button");
     bCopy.className = "btn-ghost";
     bCopy.textContent = "📋";
+    const bDown = document.createElement("button");
+    bDown.className = "btn-ghost";
+    bDown.textContent = "📥";
     const bDel = document.createElement("button");
     bDel.className = "btn-ghost";
     bDel.textContent = "🗑️";
-    actions.append(bCopy, bDel);
+    actions.append(bCopy, bDown, bDel);
     header.append(title, actions);
 
     const body = document.createElement("div");
@@ -88,7 +109,7 @@ async function loadSaved(type, targetId) {
     };
 
     header.addEventListener("click", (e) => {
-      if (e.target === bCopy || e.target === bDel) return;
+      if (e.target === bCopy || e.target === bDel || e.target === bDown) return;
       wrap.classList.toggle("open");
       if (wrap.classList.contains("open")) ensure();
     });
@@ -97,6 +118,13 @@ async function loadSaved(type, targetId) {
       ensure();
       copyFrom(md);
       showToast("Đã sao chép.");
+    });
+    bDown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const sum = it.input?.summary || "planner";
+      const ts = it.ts ? new Date(it.ts) : new Date();
+      const stamp = ts.toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`planner_${slug(sum)}_${stamp}.txt`, it.text || "");
     });
     bDel.addEventListener("click", async (e) => {
       e.stopPropagation();
@@ -137,11 +165,8 @@ function syncGoalActive() {
 function equalizeGoalHeights() {
   const cards = document.querySelectorAll("#pl_goals .goal-card");
   if (!cards.length) return;
-  // reset để đo chính xác
-  cards.forEach((c) => (c.style.height = "auto"));
-  // lấy chiều cao lớn nhất
+  cards.forEach((c) => (c.style.height = "auto")); // reset
   const maxH = Math.max(...[...cards].map((c) => c.offsetHeight));
-  // gán lại cho tất cả
   cards.forEach((c) => (c.style.height = maxH + "px"));
 }
 
@@ -154,7 +179,6 @@ const debounce = (fn, ms = 120) => {
 };
 
 /* ==================== NEW: Channels integration ==================== */
-/** Nạp danh sách kênh (built-in + custom) vào <select id="pl_channel"> */
 async function loadPlannerChannels() {
   try {
     const r = await fetch("/api/channels");
@@ -262,7 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
         checked.pop().checked = false;
         showToast("Chỉ chọn tối đa 2 giọng điệu.");
       }
-      // Nếu người dùng đổi tone, cập nhật preview prompt (nếu đã chọn kênh)
       const ch = document.getElementById("pl_channel")?.value;
       if (ch) fetchPromptForChannel();
     });
@@ -358,5 +381,25 @@ document.addEventListener("DOMContentLoaded", () => {
     document
       .querySelector('.tabs[data-scope="pl"] .tab[data-tab="saved"]')
       ?.click();
+  });
+
+  // Download .txt (Planner)
+  document.getElementById("pl_download")?.addEventListener("click", () => {
+    const outEl = document.getElementById("pl_out");
+    const text = (outEl?.dataset?.md || outEl?.textContent || "").trim();
+    if (!text) {
+      alert("Chưa có nội dung để tải.");
+      return;
+    }
+    const sum =
+      "Planner – " +
+      (document.getElementById("pl_channel").value || "Kenh") +
+      " / " +
+      (document.getElementById("pl_format").value || "Dinh-dang") +
+      " / " +
+      (getSelectedGoal() || "Muc-tieu");
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    downloadTxt(`planner_${slug(sum)}_${stamp}.txt`, text);
+    showToast("Đang tải file .txt…");
   });
 });

@@ -14,15 +14,11 @@ function attachTabs() {
     const panels = tabs.parentElement.querySelectorAll(".tab-panel");
     tabs.querySelectorAll(".tab").forEach((tab) => {
       tab.addEventListener("click", () => {
-        tabs
-          .querySelectorAll(".tab")
-          .forEach((t) => t.classList.remove("active"));
+        tabs.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
         panels.forEach((p) => p.classList.remove("active"));
         tab.classList.add("active");
         const id = tab.dataset.tab; // result | images | saved
-        tabs.parentElement
-          .querySelector(`#${scope}_${id}`)
-          .classList.add("active");
+        tabs.parentElement.querySelector(`#${scope}_${id}`).classList.add("active");
       });
     });
   });
@@ -47,6 +43,26 @@ function copyFrom(el) {
   tmp.select();
   document.execCommand("copy");
   document.body.removeChild(tmp);
+}
+
+/* ---------- Download .txt (UTF-8 BOM) ---------- */
+function downloadTxt(filename, text) {
+  const blob = new Blob(["\uFEFF" + (text || "")], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function slug(s) {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "content";
 }
 
 /* ---------- Toast ---------- */
@@ -87,31 +103,23 @@ function _pickBullet(md) {
 function _pickKeySentence(text) {
   const t = _stripMarkdown(text);
   const sents = t.split(/(?<=[\.\!\?])\s+/).filter(Boolean);
-  const KEY =
-    /ý tưởng|hook|headline|caption|lợi ích|ưu điểm|đề xuất|đề bài|kêu gọi/i;
+  const KEY = /ý tưởng|hook|headline|caption|lợi ích|ưu điểm|đề xuất|đề bài|kêu gọi/i;
   const found = sents.find((s) => KEY.test(s));
-  return (
-    found || sents.find((s) => s.split(/\s+/).length >= 6) || sents[0] || ""
-  );
+  return (found || sents.find((s) => s.split(/\s+/).length >= 6) || sents[0] || "");
 }
 function _truncate(s, n = 80) {
   return s && s.length > n ? s.slice(0, n - 1) + "…" : s || "";
 }
-
 function summarizeTitle(md, input = null, type = "", maxLen = 80) {
   if (input) {
     if (type === "fbads" && (input.product_desc || input.customer)) {
       const p = (input.product_desc || "").trim();
       const c = (input.customer || "").trim();
-      if (p || c)
-        return _truncate(`FB Ads – ${p}${c ? " → " + c : ""}`, maxLen);
+      if (p || c) return _truncate(`FB Ads – ${p}${c ? " → " + c : ""}`, maxLen);
     }
-    if (type === "rephrase" && input.src)
-      return _truncate(`Rephrase – ${input.src}`, maxLen);
-    if (type === "tiktok" && input.brief)
-      return _truncate(`TikTok – ${input.brief}`, maxLen);
-    if (type === "fab" && input.benefits)
-      return _truncate(`FAB – ${input.benefits}`, maxLen);
+    if (type === "rephrase" && input.src) return _truncate(`Rephrase – ${input.src}`, maxLen);
+    if (type === "tiktok" && input.brief) return _truncate(`TikTok – ${input.brief}`, maxLen);
+    if (type === "fab" && input.benefits) return _truncate(`FAB – ${input.benefits}`, maxLen);
   }
   const fromHeading = _pickHeading(md);
   if (fromHeading) return _truncate(fromHeading, maxLen);
@@ -121,7 +129,7 @@ function summarizeTitle(md, input = null, type = "", maxLen = 80) {
   return _truncate(fromSentence, maxLen) || "Nội dung đã lưu";
 }
 
-/* ---------- Danh sách đã lưu (accordion, KHÔNG có Đổi tên) ---------- */
+/* ---------- Danh sách đã lưu (accordion, CÓ nút Download) ---------- */
 async function loadSaved(type, targetId) {
   const res = await fetch(`/api/saves?type=${encodeURIComponent(type)}`);
   const data = await res.json();
@@ -143,12 +151,7 @@ async function loadSaved(type, targetId) {
 
     const title = document.createElement("div");
     title.className = "item-title";
-    title.textContent = summarizeTitle(
-      it.text || "",
-      it.input || null,
-      type,
-      80
-    );
+    title.textContent = summarizeTitle(it.text || "", it.input || null, type, 80);
 
     const time = document.createElement("div");
     time.className = "item-time";
@@ -160,13 +163,20 @@ async function loadSaved(type, targetId) {
 
     const bCopy = document.createElement("button");
     bCopy.className = "btn-ghost";
+    bCopy.title = "Copy";
     bCopy.textContent = "📋";
+
+    const bDown = document.createElement("button");
+    bDown.className = "btn-ghost";
+    bDown.title = "Download .txt";
+    bDown.textContent = "📥";
 
     const bDel = document.createElement("button");
     bDel.className = "btn-ghost";
+    bDel.title = "Delete";
     bDel.textContent = "🗑️";
 
-    actions.append(bCopy, bDel);
+    actions.append(bCopy, bDown, bDel);
     header.append(left, actions);
 
     const body = document.createElement("div");
@@ -184,7 +194,8 @@ async function loadSaved(type, targetId) {
     };
 
     header.addEventListener("click", (e) => {
-      if (e.target === bCopy || e.target === bDel) return;
+      const btn = e.target.closest("button");
+      if (btn && (btn === bCopy || btn === bDel || btn === bDown)) return;
       wrap.classList.toggle("open");
       if (wrap.classList.contains("open")) renderIfNeeded();
     });
@@ -194,6 +205,14 @@ async function loadSaved(type, targetId) {
       renderIfNeeded();
       copyFrom(md);
       showToast("Đã sao chép nội dung.");
+    });
+
+    bDown.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const titleTxt = summarizeTitle(it.text || "", it.input || null, type, 60);
+      const ts = it.ts ? new Date(it.ts) : new Date();
+      const stamp = ts.toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`${type}_${slug(titleTxt)}_${stamp}.txt`, it.text || "");
     });
 
     bDel.addEventListener("click", async (e) => {
@@ -215,6 +234,7 @@ async function loadSaved(type, targetId) {
 /* ---------- On ready ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   attachTabs();
+
   /* ===== Facebook Ads ===== */
   const btnFb = document.getElementById("fb_generate");
   if (btnFb) {
@@ -230,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
           alert("Vui lòng nhập đầy đủ mô tả & chân dung.");
           return;
         }
-        // Lấy brand/tone an toàn (nếu chưa có input thì dùng mặc định)
+        // Lấy brand/tone an toàn
         const brandEl = document.getElementById("fb_brand");
         const toneEl = document.getElementById("fb_tone");
         const brand = brandEl ? brandEl.value.trim() : "Tiximax Logistics";
@@ -240,7 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const r1 = await fetch("/api/fbads/generate_text", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // body: JSON.stringify({ product_desc: product, customer, lang }),
           body: JSON.stringify({
             product_desc: product,
             customer,
@@ -266,8 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mdRenderTo(out, d1.text || "");
         out.dataset.md = d1.text || "";
         const metaEl = document.getElementById("fb_meta");
-        metaEl.textContent = `LLM: ${d1.meta?.latency_sec || 0
-          }s • Brand: ${brand} • Tone: ${tone}`;
+        metaEl.textContent = `LLM: ${d1.meta?.latency_sec || 0}s • Brand: ${brand} • Tone: ${tone}`;
 
         document
           .querySelector('.tabs[data-scope="fb"] .tab[data-tab="result"]')
@@ -278,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fd.append("result_text", d1.text || "");
         fd.append("product_desc", product);
         fd.append("customer", customer);
-        fd.append("brand", brand); // <== quan trọng
+        fd.append("brand", brand);
         fd.append("engine_label", document.getElementById("fb_engine").value);
         fd.append("aspect", document.getElementById("fb_aspect").value);
         fd.append("style_preset", document.getElementById("fb_style").value);
@@ -286,26 +304,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const addLogo = document.getElementById("fb_add_logo").checked;
         fd.append("add_logo", addLogo);
-        fd.append(
-          "keep_logo_original",
-          document.getElementById("fb_keep_logo").checked
-        );
-        fd.append(
-          "logo_scale",
-          parseFloat(document.getElementById("fb_logo_scale").value) / 100.0
-        );
-        fd.append(
-          "logo_margin",
-          parseInt(document.getElementById("fb_logo_margin").value, 10)
-        );
+        fd.append("keep_logo_original", document.getElementById("fb_keep_logo").checked);
+        fd.append("logo_scale", parseFloat(document.getElementById("fb_logo_scale").value) / 100.0);
+        fd.append("logo_margin", parseInt(document.getElementById("fb_logo_margin").value, 10));
 
         const lf = document.getElementById("fb_logo_file").files[0];
         if (addLogo && lf) fd.append("logo_file", lf);
 
-        const r2 = await fetch("/api/fbads/generate_images", {
-          method: "POST",
-          body: fd,
-        });
+        const r2 = await fetch("/api/fbads/generate_images", { method: "POST", body: fd });
         if (!r2.ok) {
           const errText = await r2.text();
           console.error("generate_images failed:", r2.status, errText);
@@ -321,8 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        document.getElementById("fb_used_prompt").textContent =
-          d2.used_prompt || "";
+        document.getElementById("fb_used_prompt").textContent = d2.used_prompt || "";
         grid.innerHTML = "";
         (d2.images || []).forEach((b64, i) => {
           const c = document.createElement("div");
@@ -346,11 +351,9 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     // Copy
-    document
-      .getElementById("fb_copy")
-      ?.addEventListener("click", () =>
-        copyFrom(document.getElementById("fb_result_md"))
-      );
+    document.getElementById("fb_copy")?.addEventListener("click", () =>
+      copyFrom(document.getElementById("fb_result_md"))
+    );
 
     // Save
     document.getElementById("fb_save")?.addEventListener("click", async () => {
@@ -385,6 +388,22 @@ document.addEventListener("DOMContentLoaded", () => {
       document
         .querySelector('.tabs[data-scope="fb"] .tab[data-tab="saved"]')
         .click();
+    });
+
+    // Download (FB Ads)
+    document.getElementById("fb_download")?.addEventListener("click", () => {
+      const el = document.getElementById("fb_result_md");
+      const text = (el.dataset.md || el.textContent || "").trim();
+      if (!text) {
+        alert("Chưa có nội dung để tải.");
+        return;
+      }
+      const product = document.getElementById("fb_product")?.value || "";
+      const customer = document.getElementById("fb_customer")?.value || "";
+      const title = summarizeTitle(text, { product_desc: product, customer }, "fbads", 60);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`fbads_${slug(title)}_${stamp}.txt`, text);
+      showToast("Đang tải file .txt…");
     });
   }
 
@@ -423,11 +442,10 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
 
-    document
-      .getElementById("re_copy")
-      ?.addEventListener("click", () =>
-        copyFrom(document.getElementById("re_out"))
-      );
+    document.getElementById("re_copy")?.addEventListener("click", () =>
+      copyFrom(document.getElementById("re_out"))
+    );
+
     document.getElementById("re_save")?.addEventListener("click", async () => {
       const el = document.getElementById("re_out");
       const text = (el.dataset.md || "").trim();
@@ -454,6 +472,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector('.tabs[data-scope="re"] .tab[data-tab="saved"]')
         .click();
     });
+
+    // Download (Rephrase)
+    document.getElementById("re_download")?.addEventListener("click", () => {
+      const el = document.getElementById("re_out");
+      const text = (el.dataset.md || el.textContent || "").trim();
+      if (!text) return alert("Chưa có nội dung để tải.");
+      const title = summarizeTitle(text, { src: document.getElementById("re_text")?.value || "" }, "rephrase", 60);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`rephrase_${slug(title)}_${stamp}.txt`, text);
+      showToast("Đang tải file .txt…");
+    });
   }
 
   /* ===== TikTok ===== */
@@ -469,8 +498,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
         const lang = document.getElementById("tk_lang").value;
-        const duration =
-          parseInt(document.getElementById("tk_duration").value, 10) || 20;
+        const duration = parseInt(document.getElementById("tk_duration").value, 10) || 20;
         const objective = document.getElementById("tk_objective").value;
 
         const r = await fetch("/api/tiktok", {
@@ -493,11 +521,10 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
 
-    document
-      .getElementById("tk_copy")
-      ?.addEventListener("click", () =>
-        copyFrom(document.getElementById("tk_out"))
-      );
+    document.getElementById("tk_copy")?.addEventListener("click", () =>
+      copyFrom(document.getElementById("tk_out"))
+    );
+
     document.getElementById("tk_save")?.addEventListener("click", async () => {
       const el = document.getElementById("tk_out");
       const text = (el.dataset.md || "").trim();
@@ -524,6 +551,17 @@ document.addEventListener("DOMContentLoaded", () => {
       document
         .querySelector('.tabs[data-scope="tk"] .tab[data-tab="saved"]')
         .click();
+    });
+
+    // Download (TikTok)
+    document.getElementById("tk_download")?.addEventListener("click", () => {
+      const el = document.getElementById("tk_out");
+      const text = (el.dataset.md || el.textContent || "").trim();
+      if (!text) return alert("Chưa có nội dung để tải.");
+      const title = summarizeTitle(text, { brief: document.getElementById("tk_brief")?.value || "" }, "tiktok", 60);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`tiktok_${slug(title)}_${stamp}.txt`, text);
+      showToast("Đang tải file .txt…");
     });
   }
 
@@ -562,11 +600,10 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
 
-    document
-      .getElementById("fab_copy")
-      ?.addEventListener("click", () =>
-        copyFrom(document.getElementById("fab_out"))
-      );
+    document.getElementById("fab_copy")?.addEventListener("click", () =>
+      copyFrom(document.getElementById("fab_out"))
+    );
+
     document.getElementById("fab_save")?.addEventListener("click", async () => {
       const el = document.getElementById("fab_out");
       const text = (el.dataset.md || "").trim();
@@ -593,13 +630,26 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector('.tabs[data-scope="fab"] .tab[data-tab="saved"]')
         .click();
     });
+
+    // Download (FAB)
+    document.getElementById("fab_download")?.addEventListener("click", () => {
+      const el = document.getElementById("fab_out");
+      const text = (el.dataset.md || el.textContent || "").trim();
+      if (!text) return alert("Chưa có nội dung để tải.");
+      const title = summarizeTitle(text, { benefits: document.getElementById("fab_benefits")?.value || "" }, "fab", 60);
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      downloadTxt(`fab_${slug(title)}_${stamp}.txt`, text);
+      showToast("Đang tải file .txt…");
+    });
   }
 });
-document.addEventListener('click', function (e) {
-    const a = e.target.closest('a.nav-item.locked');
-    if (!a) return;
-    e.preventDefault();
-    const name = (a.querySelector('span')?.textContent || 'Chức năng').trim();
-    if (window.toast) window.toast(`${name} đang bị khóa cho tài khoản của bạn.`);
-    else alert(`${name} đang bị khóa cho tài khoản của bạn.`);
-  });
+
+/* ---------- Lock nav for restricted roles ---------- */
+document.addEventListener("click", function (e) {
+  const a = e.target.closest("a.nav-item.locked");
+  if (!a) return;
+  e.preventDefault();
+  const name = (a.querySelector("span")?.textContent || "Chức năng").trim();
+  if (window.toast) window.toast(`${name} đang bị khóa cho tài khoản của bạn.`);
+  else alert(`${name} đang bị khóa cho tài khoản của bạn.`);
+});
