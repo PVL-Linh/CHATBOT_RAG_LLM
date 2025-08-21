@@ -42,7 +42,6 @@ def _ensure_file():
                 "length": "",
                 "hashtags": "",
                 "cta": "",
-                "post_time": "",
                 "risk_notes": "",
                 "special": "",
             })
@@ -79,7 +78,6 @@ def create_channel(payload: Dict[str, Any]) -> Dict[str, Any]:
     "length": payload.get("length") or "",
     "hashtags": payload.get("hashtags") or "",
     "cta": payload.get("cta") or "",
-    "post_time": payload.get("post_time") or "",
     "risk_notes": payload.get("risk_notes") or "",
     "special": payload.get("special") or "",
     }
@@ -92,7 +90,7 @@ def update_channel(cid: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     for it in items:
         if it["id"] == cid:
             for k in ["name","platform","audience","tone","content_guide","visual_guide",  # <-- thêm content_guide
-                        "formats","length","hashtags","cta","post_time","risk_notes","special"]:
+                        "formats","length","hashtags","cta","risk_notes","special"]:
                 if k in payload:
                     it[k] = payload[k]
             save_channels(items)

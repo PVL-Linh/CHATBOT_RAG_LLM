@@ -198,7 +198,6 @@ function resetForm() {
   $("#f_hashtags").value = "";
   $("#f_cta").value = "";
   $("#f_length").value = "";
-  $("#f_post_time").value = "";
   $("#f_risk_notes").value = "";
   $("#f_special").value = "";
   toneCtrl?.set([]);
@@ -215,7 +214,6 @@ function fillForm(it) {
   $("#f_hashtags").value = it.hashtags || "";
   $("#f_cta").value = it.cta || "";
   $("#f_length").value = it.length || "";
-  $("#f_post_time").value = it.post_time || "";
   $("#f_risk_notes").value = it.risk_notes || "";
   $("#f_special").value = it.special || "";
   toneCtrl?.set(it.tone || "");
@@ -235,7 +233,6 @@ function collectAllFields() {
     length: $("#f_length").value,
     hashtags: $("#f_hashtags").value,
     cta: $("#f_cta").value,
-    post_time: $("#f_post_time").value,
     risk_notes: $("#f_risk_notes").value,
     special: $("#f_special").value,
   };

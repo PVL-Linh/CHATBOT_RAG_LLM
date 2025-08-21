@@ -107,7 +107,6 @@ def _describe_custom_channel(ch: dict, lang: str) -> str:
     Giới hạn độ dài: {ch.get('length','')}
     Hashtag: {ch.get('hashtags','')}
     Call-to-Action: {ch.get('cta','')}
-    Khung giờ gợi ý: {ch.get('post_time','')}
     Rủi ro/Ghi chú: {ch.get('risk_notes','')}
     Chỉ dẫn đặc biệt: {ch.get('special','')}
     Ngôn ngữ đầu ra: {lang}
