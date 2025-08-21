@@ -171,21 +171,44 @@ def login():
     USERS = load_users()
     user = USERS.get(username)
 
-    if not user or not password or not check_password_hash(user["password_hash"], password):
-        return render_template(
-            "home/login.html",
-            error="Tên đăng nhập hoặc mật khẩu không đúng.",
-            next_url=request.form.get("next","")
-        )
+    def _is_hashed(s: str) -> bool:
+        s = s or ""
+        return s.startswith(("pbkdf2:", "scrypt:", "argon2:", "bcrypt:"))
 
+    if (not user) or (not password):
+        return render_template("home/login.html",
+                            error="Tên đăng nhập hoặc mật khẩu không đúng.",
+                            next_url=request.form.get("next",""))
+
+    stored_hash  = user.get("password_hash") or ""
+    stored_plain = user.get("password_plain") or ""
+
+    ok = False
+    try:
+        if _is_hashed(stored_hash):
+            ok = check_password_hash(stored_hash, password)
+        else:
+            # CSV đang lưu plain ở cột password hoặc password_hash (trường hợp hiếm)
+            ok = (password == stored_plain) or (password == stored_hash)
+    except Exception:
+        # fallback cuối cùng
+        ok = (password == stored_plain)
+
+    if not ok:
+        return render_template("home/login.html",
+                            error="Tên đăng nhập hoặc mật khẩu không đúng.",
+                            next_url=request.form.get("next",""))
+
+    # --- Đăng nhập thành công ---
     session.clear()
     session.permanent = remember
     session['user'] = username
-    session['role'] = user.get('role', 'marketing')
-    session['messages'] = []  # sẽ hydrate bằng API /frontend nếu cần
-
+    session['role'] = (user.get('role') or '').strip()
+    session['roles'] = user.get('roles', [])      # QUAN TRỌNG
+    session['messages'] = []
     next_url = request.form.get("next") or request.args.get("next") or url_for("chat")
     return redirect(next_url)
+
 
 @app.route("/logout")
 def logout():
@@ -206,7 +229,7 @@ def chat():
     )
 
 @app.route('/marketing', methods=['GET'])
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def marketing():
     return render_template('home/marketing.html', current_user=session.get('user'), active='marketing')
 
@@ -358,17 +381,17 @@ def chat_api_alias():
 # Marketing views
 # =====================================
 @app.route("/marketing/rephrase")
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def page_rephrase():
     return render_template("marketing/rephrase.html")
 
 @app.route("/marketing/tiktok")
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def page_tiktok():
     return render_template("marketing/tiktok.html")
 
 @app.route("/marketing/fab")
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def page_fab():
     return render_template("marketing/fab.html")
 
@@ -409,7 +432,7 @@ def api_delete():
 # Generation APIs (giữ nguyên như bản trước)
 # =====================================
 @app.route("/api/fbads/generate_text", methods=["POST"])
-@login_required(api=True, roles=['marketing'])
+@login_required(api=True, roles=['marketing','manager_marketing'])
 def api_fb_text():
     data = request.get_json() or {}
     product  = data.get("product_desc", "")
@@ -447,7 +470,7 @@ def api_fb_text():
         return jsonify({"error": f"Lỗi khi tạo nội dung: {str(e)}"}), 500
 
 @app.route("/api/fbads/generate_images", methods=["POST"])
-@login_required(api=True, roles=['marketing'])
+@login_required(api=True, roles=['marketing','manager_marketing'])
 def api_fb_imgs():
     form_data = request.form
 
@@ -516,7 +539,7 @@ def api_fb_imgs():
         return jsonify({"error": f"Lỗi khi tạo ảnh: {str(e)}"}), 500
 
 @app.route("/api/rephrase", methods=["POST"])
-@login_required(api=True, roles=['marketing'])
+@login_required(api=True, roles=['marketing','manager_marketing'])
 def api_rephrase():
     data = request.get_json() or {}
     text_src = data.get("text_src", "")
@@ -533,7 +556,7 @@ def api_rephrase():
         return jsonify({"error": f"Lỗi khi viết lại: {str(e)}"}), 500
 
 @app.route("/api/tiktok", methods=["POST"])
-@login_required(api=True, roles=['marketing'])
+@login_required(api=True, roles=['marketing','manager_marketing'])
 def api_tiktok():
     data = request.get_json() or {}
     brief = data.get("brief", "")
@@ -551,7 +574,7 @@ def api_tiktok():
         return jsonify({"error": f"Lỗi khi tạo TikTok content: {str(e)}"}), 500
 
 @app.route("/api/fab", methods=["POST"])
-@login_required(api=True, roles=['marketing'])
+@login_required(api=True, roles=['marketing', 'manager_marketing'])
 def api_fab():
     data = request.get_json() or {}
     benefits = data.get("benefits", "")
@@ -570,7 +593,7 @@ def api_fab():
 # Planner APIs (giữ nguyên logic cũ)
 # =====================================
 @app.route("/marketing/planner")
-@login_required(roles=['marketing'])
+@login_required(roles=['marketing', 'manager_marketing'])
 def marketing_planner():
     return render_template("marketing/planner.html", active="marketing")
 
@@ -687,23 +710,23 @@ def api_history_by_session():
 
 # ========= Channels: UI =========
 @app.route("/marketing/channels")
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def marketing_channels():
     return render_template("marketing/channels.html", active="marketing")
 
 # ========= Channels: APIs =========
 @app.route("/api/channels", methods=["GET"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_list():
     return jsonify({"items": list_all_for_planner()})
 
 @app.route("/api/channels/custom", methods=["GET"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_list_custom():
     return jsonify({"items": load_channels()})
 
 @app.route("/api/channels", methods=["POST"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_create():
     d = request.get_json(silent=True) or {}
     try:
@@ -713,7 +736,7 @@ def api_channels_create():
         return jsonify({"error": str(e)}), 400
 
 @app.route("/api/channels/<cid>", methods=["PUT","PATCH"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_update(cid):
     d = request.get_json(silent=True) or {}
     try:
@@ -725,7 +748,7 @@ def api_channels_update(cid):
         return jsonify({"error": str(e)}), 400
 
 @app.route("/api/channels/<cid>", methods=["DELETE"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_delete(cid):
     try:
         delete_channel(cid)
@@ -735,7 +758,7 @@ def api_channels_delete(cid):
 
 
 @app.route("/api/channels/prompt", methods=["POST"])
-@login_required(roles=['marketing'])
+@login_required(roles=['admin', 'manager_marketing'])
 def api_channels_prompt():
     d = request.get_json(silent=True) or {}
     channel_in = d.get("channel", "")
@@ -748,27 +771,27 @@ def api_channels_prompt():
     tones_line = ", ".join(tones) if tones else "Chuyên nghiệp, rõ ràng"
 
     sys_ask = f"""
-You are a prompt engineer. Based on the channel specification below,
-write a concise, production-ready **SYSTEM PROMPT** (in {lang}) for a content generator agent for **Tiximax Logistics**.
+        You are a prompt engineer. Based on the channel specification below,
+        write a concise, production-ready **SYSTEM PROMPT** (in {lang}) for a content generator agent for **Tiximax Logistics**.
 
-Requirements:
-- Start with a 1–2 sentence role definition.
-- Then 3–8 bullet rules aligned with the channel and this brand voice: {tones_line}.
-- Include a section "ĐẦU RA (markdown)" that defines the exact output structure.
-- Do NOT invent pricing/promotions.
-- Tailor strictly to the channel constraints.
+        Requirements:
+        - Start with a 1–2 sentence role definition.
+        - Then 3–8 bullet rules aligned with the channel and this brand voice: {tones_line}.
+        - Include a section "ĐẦU RA (markdown)" that defines the exact output structure.
+        - Do NOT invent pricing/promotions.
+        - Tailor strictly to the channel constraints.
 
-Channel specification:
-{desc}
+        Channel specification:
+        {desc}
 
-After the SYSTEM PROMPT, also include a short **USER PROMPT (example)**.
-Format:
+        After the SYSTEM PROMPT, also include a short **USER PROMPT (example)**.
+        Format:
 
-### SYSTEM PROMPT
-...
-### USER PROMPT (example)
-...
-""".strip()
+        ### SYSTEM PROMPT
+        ...
+        ### USER PROMPT (example)
+        ...
+        """.strip()
 
     try:
         result = call_gemini_flash(sys_ask, "", [SystemMessage(persona_vi)])
@@ -776,6 +799,7 @@ Format:
         return jsonify({"error": f"Lỗi gọi Gemini: {e}"}), 500
 
     return jsonify({"channel": channel, "generated": result})
+
 
 # =====================================
 # Main
