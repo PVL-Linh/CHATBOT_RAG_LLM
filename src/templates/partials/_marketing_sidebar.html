@@ -1,5 +1,11 @@
 {# templates/home/partials/_marketing_sidebar.html #}
 <aside id="sidebar-mkt" class="sidebar">
+  {# Chuẩn hoá roles như trên #} {% set r1 = (session.get('role') or '')|lower
+  %} {% set r2 = (session.get('roles') or [])|join(',')|lower %} {% set r_all =
+  (',' ~ (r1|replace(';', ',')|replace('|', ',')|replace('/', ',')|replace(' ',
+  ',')) ~ ',' ~ r2 ~ ',') %} {% set can_admin = (',admin,' in r_all) %} {% set
+  can_channels = can_admin or (',manager_marketing,' in r_all) %}
+
   <nav>
     <a
       href="/marketing"
@@ -10,29 +16,38 @@
     <a
       href="/marketing/rephrase"
       class="{{ 'active' if request.path.startswith('/marketing/rephrase') else '' }}"
-      >📝 Rephrase Content</a
     >
+      📝 Rephrase Content
+    </a>
 
     <a
       href="/marketing/tiktok"
       class="{{ 'active' if request.path.startswith('/marketing/tiktok') else '' }}"
-      >🎬 TikTok Script</a
     >
+      🎬 TikTok Script
+    </a>
 
     <a
       href="/marketing/fab"
       class="{{ 'active' if request.path.startswith('/marketing/fab') else '' }}"
-      >📦 FAB Optimize</a
     >
+      📦 FAB Optimize
+    </a>
+
     <a
       href="/marketing/planner"
       class="{{ 'active' if request.path.startswith('/marketing/planner') else '' }}"
-      >📅 Content Planner</a
     >
+      📅 Content Planner
+    </a>
+
+    {% if can_channels %}
     <a
       href="/marketing/channels"
       class="{{ 'active' if request.path.startswith('/marketing/channels') else '' }}"
-      >📡 Marketing Channels</a
     >
+      📡 Marketing Channels
+    </a>
+    {% endif %}
   </nav>
 </aside>
