@@ -3,16 +3,18 @@ from datetime import datetime, timezone
 from functools import wraps
 from pathlib import Path
 from PIL import Image
-
+from Helpers.vinai_stt import transcribe_file
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
-
+from Helpers.media_convert import convert_to_wav16k_mono
+from werkzeug.utils import secure_filename
 # LangChain / LLM helpers (giữ nguyên import của bạn)
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
+from Helpers.media_convert import convert_to_wav16k_mono
 
 # Import helper modules (giữ nguyên theo cấu trúc dự án của bạn)
 from Helpers.Data_storage import save_item, delete_item, get_items
@@ -218,6 +220,63 @@ def logout():
 # =====================================
 # Pages (protected)
 # =====================================
+@app.route('/transcribe', methods=['POST'])
+@login_required(api=True)
+def api_transcribe():
+    """
+    Nhận form-data:
+      - audio: <file audio/video>
+      - lang:  vi | en | auto (mặc định vi)
+    """
+    if 'audio' not in request.files:
+        return jsonify({"error": "Thiếu file 'audio' (multipart/form-data)."}), 400
+
+    audio = request.files['audio']
+    if not audio or not audio.filename:
+        return jsonify({"error": "Tên file trống."}), 400
+
+    lang = (request.form.get('lang') or 'vi').strip().lower()
+    upload_dir = os.path.join(app.root_path, 'uploads', 'stt')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    fname = f"{int(time.time()*1000)}_{secure_filename(audio.filename)}"
+    src_path = os.path.join(upload_dir, fname)
+    audio.save(src_path)
+
+    # B1) Chuẩn hoá sang WAV 16k mono (ổn định cho mọi nguồn: mp4/webm/m4a/…)
+    try:
+        base, ext = os.path.splitext(src_path)
+        # Nếu đã .wav thì tạo file _16k.wav; nếu không thì .wav luôn
+        wav_path = base + "_16k.wav" if ext.lower() == ".wav" else base + ".wav"
+        path_for_asr = convert_to_wav16k_mono(src_path, wav_path)
+    except Exception as conv_e:
+        app.logger.exception("Convert error: %s", conv_e)
+        return jsonify({"error": f"Không chuyển được sang WAV: {conv_e}"}), 400
+
+    # B2) Nhận dạng
+    try:
+        text, segments = transcribe_file(path_for_asr, lang=lang)
+        if not (text or "").strip():
+            return jsonify({
+                "error": "Không nhận được tiếng nói (kết quả rỗng). "
+                         "Hãy chọn đúng ngôn ngữ, kiểm tra âm lượng/ồn nền, hoặc thử file khác."
+            }), 200
+        return jsonify({
+            "ok": True,
+            "text": text,
+            "segments": segments,
+            "filename": os.path.basename(path_for_asr)
+        })
+    except Exception as e:
+        app.logger.exception("ASR error: %s", e)
+        return jsonify({"error": f"ASR failed: {e}"}), 500
+    
+# Alias để tương thích với JS cũ nếu nơi khác còn trỏ /tools/stt
+@app.route('/tools/stt', methods=['POST'])
+@login_required(api=True)
+def api_transcribe_alias():
+    return api_transcribe()
+
 @app.route('/', methods=['GET'])
 @login_required
 def chat():
@@ -226,6 +285,15 @@ def chat():
         messages=get_history()[-30:],
         current_user=session.get('user'),
         active='chat'
+    )
+
+@app.route('/transcribe', methods=['GET'])
+@login_required
+def transcribe():
+    return render_template(
+        'home/transcribe.html',      # <— chuyển sang thư mục home
+        current_user=session.get('user'),
+        active='transcribe'           # để nhóm Marketing vẫn sáng trong sidebar chung
     )
 
 @app.route('/marketing', methods=['GET'])
@@ -740,20 +808,10 @@ def _merge_channels_for_planner():
         seen.add(key)
     return merged
 
-
-
-
-
-
-
-
-
 @app.route("/api/channels", methods=["GET"])
 @login_required(roles=['marketing', 'manager_marketing'])
 def api_channels_list():
     return jsonify({"items": _merge_channels_for_planner()})
-
-
 
 @app.route("/api/channels/custom", methods=["GET"])
 @login_required(roles=['admin', 'manager_marketing'])

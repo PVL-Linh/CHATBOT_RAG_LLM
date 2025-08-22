@@ -55,6 +55,10 @@
       <i data-lucide="user-star"></i><span>Admin</span>
     </a>
     {% endif %} {# 2) Mục chung #}
+    <a class="nav-item {{ 'active' if active=='transcribe' else '' }}"
+      href="{{ url_for('transcribe') }}">
+      <i data-lucide="mic"></i><span>Speech to Text</span>
+    </a>
     <a
       class="nav-item {{ 'active' if active=='guide' else '' }}"
       href="{{ url_for('guide') }}"
