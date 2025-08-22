@@ -208,31 +208,24 @@ async function loadPlannerChannels() {
   }
 }
 
-/** Tạo (hoặc lấy) khối preview prompt dưới form bên trái */
-function ensurePromptPreviewBox() {
-  let wrap = document.getElementById("pl_prompt_preview_wrap");
-  if (wrap) return wrap;
-  const formCard = document.getElementById("pl_form_card");
-  if (!formCard) return null;
-  wrap = document.createElement("div");
-  wrap.id = "pl_prompt_preview_wrap";
-  wrap.className = "card";
-  wrap.innerHTML = `
-    <div style="display:flex; align-items:center; gap:8px; margin-top:10px;">
-      <strong>Preview Prompt</strong>
-      <button id="pl_copy_prompt" class="btn-ghost" type="button">📋 Sao chép</button>
-    </div>
-    <pre id="pl_prompt_preview" class="markdown" style="max-height:260px; overflow:auto; white-space:pre-wrap;"></pre>
-  `;
-  formCard.appendChild(wrap);
-  document.getElementById("pl_copy_prompt")?.addEventListener("click", () => {
-    const txt = document.getElementById("pl_prompt_preview")?.textContent || "";
-    if (!txt.trim()) return;
-    navigator.clipboard.writeText(txt);
-    showToast("Đã sao chép prompt.");
-  });
-  return wrap;
-}
+// /** Tạo (hoặc lấy) khối preview prompt dưới form bên trái */
+// function ensurePromptPreviewBox() {
+//   let wrap = document.getElementById("pl_prompt_preview_wrap");
+//   if (wrap) return wrap;
+//   const formCard = document.getElementById("pl_form_card");
+//   if (!formCard) return null;
+//   wrap = document.createElement("div");
+//   wrap.id = "pl_prompt_preview_wrap";
+//   wrap.className = "card";
+//   formCard.appendChild(wrap);
+//   document.getElementById("pl_copy_prompt")?.addEventListener("click", () => {
+//     const txt = document.getElementById("pl_prompt_preview")?.textContent || "";
+//     if (!txt.trim()) return;
+//     navigator.clipboard.writeText(txt);
+//     showToast("Đã sao chép prompt.");
+//   });
+//   return wrap;
+// }
 
 /** Gọi Gemini để sinh prompt theo kênh đã chọn và hiện preview */
 async function fetchPromptForChannel() {

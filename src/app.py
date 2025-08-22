@@ -1,20 +1,20 @@
-import os, json, time, csv
+import os, json, time, csv, uuid
 from datetime import datetime, timezone
 from functools import wraps
 from pathlib import Path
 from PIL import Image
 
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
-
-# LangChain / LLM helpers (giữ nguyên import của bạn)
+import threading, json
+# LangChain / LLM helpers
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
 
-# Import helper modules (giữ nguyên theo cấu trúc dự án của bạn)
+# Import helper modules
 from Helpers.Data_storage import save_item, delete_item, get_items
 from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
 from Helpers.prompt_KT import persona_vi
@@ -29,23 +29,31 @@ from Helpers.Content_generation import (
 )
 from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
-# from Login.Logging_config import _log_message_to_csv  # <-- KHÔNG dùng nữa, ta ghi CSV ngay tại app.py
+# from Login.Logging_config import _log_message_to_csv 
 from Helpers.Marketing_Planner.Content_Planner import (
     _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
-
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
     from .Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name )
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
     from Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
 
+from Helpers.rate_limit import get_text_limiter
+from zoneinfo import ZoneInfo
+from Model_LLM.model_llm import LLM_model
+from google.genai import types as genai_types
+from dotenv import load_dotenv
+
+load_dotenv()
 # =====================================
 # Flask setup
 # =====================================
@@ -68,9 +76,39 @@ except Exception:
 # =====================================
 # Gemini types
 # =====================================
-from google.genai import types as genai_types
-from dotenv import load_dotenv
-load_dotenv()
+# --- semaphore cho tuyến gọi thẳng bằng gclient (không qua Helpers/LLM_client) ---
+LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
+
+def _estimate_from_contents(contents, max_out_tokens=1024):
+    words = 0
+    for m in contents or []:
+        for p in (m.get("parts") or []):
+            if isinstance(p, dict) and p.get("text"):
+                words += len(p["text"].split())
+    return int(1.3 * words) + int(max_out_tokens or 512)
+
+def _safe_gemini_generate(gclient, model, contents, config, retries=3, backoff=0.4):
+    limiter = get_text_limiter()
+    max_out = config.get("max_output_tokens") if isinstance(config, dict) else getattr(config, "max_output_tokens", 1024)
+    tokens_est = _estimate_from_contents(contents, max_out)
+    last_err = None
+    for i in range(retries + 1):
+        try:
+            limiter.acquire(tokens_est)
+            t0 = time.time()
+            with LLM_SEM:
+                resp = gclient.models.generate_content(model=model, contents=contents, config=config)
+            limiter.on_success()
+            return (getattr(resp, "text", "") or ""), time.time() - t0
+        except Exception as e:
+            last_err = e
+            s = str(e).lower()
+            if ("429" in s or "quota" in s or "rate" in s) and i < retries:
+                limiter.on_429()
+                time.sleep(backoff * (2 ** i))
+                continue
+            limiter.on_429()
+            raise last_err
 
 # =====================================
 # Constants & Settings
@@ -82,7 +120,7 @@ LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 # =====================================
 # CSV logging (WITH session_id)
 # =====================================
-from zoneinfo import ZoneInfo
+
 
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
@@ -276,7 +314,24 @@ def _to_gemini_history_no_system(history_msgs):
 # =====================================
 # Chat API (protected)
 # =====================================
-from Model_LLM.model_llm import LLM_model
+# LỌC 
+import re
+
+_SOURCE_TAG_PAT = re.compile(
+    r"""\s*[\(\[](?=[^)\]]{0,240}?\b(?:source|nguồn|chunk)\b)[^)\]]+[\)\]]""",
+    re.IGNORECASE,
+)
+
+def strip_source_citations(text: str) -> str:
+    if not text:
+        return text
+    text = _SOURCE_TAG_PAT.sub("", text)
+    # dọn khoảng trắng/thừa dấu cách trước dấu câu
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    return text.strip()
+
+# =====================================
 
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
@@ -346,18 +401,11 @@ def chat_api():
 
     # 4) Gọi Gemini
     try:
-        t0 = time.time()
-        resp = gclient.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=contents,
-            config=GEN_CFG
-        )
-        result = getattr(resp, "text", "") or ""
-        llm_time = time.time() - t0
+        result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
     except Exception as e:
         result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
-
+    result = strip_source_citations(result)
     add_message("assistant", result, session_id=session_id)
     elapsed = time.time() - full_start
 
@@ -740,14 +788,6 @@ def _merge_channels_for_planner():
         seen.add(key)
     return merged
 
-
-
-
-
-
-
-
-
 @app.route("/api/channels", methods=["GET"])
 @login_required(roles=['marketing', 'manager_marketing'])
 def api_channels_list():
@@ -835,6 +875,68 @@ def api_channels_prompt():
 
     return jsonify({"channel": channel, "generated": result})
 
+@app.route('/api/chat/stream', methods=['POST'])
+@login_required(api=True)
+def chat_stream():
+    embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
+
+    data = request.get_json(force=True) or {}
+    user_text  = (data.get('message') or "").strip()
+    session_id = (data.get('session_id') or "").strip()
+    if not user_text:
+        return jsonify({"error": "Missing message"}), 400
+
+    add_message("user", user_text, session_id=session_id)
+
+    # (tùy bạn) rút gọn phần embed/retrieve cho stream hoặc giữ nguyên như chat_api()
+    hist_msgs = [{"role": m["role"], "content": m["content"]}
+                 for m in get_history() if m["role"] in ("user", "assistant")]
+    contents = _to_gemini_history_no_system(hist_msgs)
+
+    context_hint = "(Stream mode - context omitted)"  # hoặc ghép docs_text nếu muốn
+    system_prompt = f"""{SYSTEM_PRIMER}
+    - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp (nếu có).
+    {context_hint}
+    """
+    first_user_text = f"""[SYSTEM]
+    {system_prompt}
+
+    [USER]
+    {user_text}"""
+    contents.append({"role": "user", "parts": [{"text": first_user_text}]})
+    limiter = get_text_limiter()
+    tokens_est = _estimate_from_contents(contents, GEN_CFG.get("max_output_tokens", 1024))
+
+    def gen():
+        yield "event: ready\ndata: {}\n\n"
+        try:
+            limiter.acquire(tokens_est)
+            with LLM_SEM:
+                resp = gclient.models.generate_content(
+                    model=GEMINI_MODEL, contents=contents, config=GEN_CFG, stream=True
+                )
+                acc = []
+                for ev in resp:
+                    chunk = getattr(ev, "text", "") or ""
+                    if chunk:
+                        acc.append(chunk)
+                        yield f"data: {json.dumps({'delta': chunk})}\n\n"
+                    else:
+                        yield ": keep-alive\n\n"
+            limiter.on_success()
+            # Lưu full answer
+            full_answer = "".join(acc).strip()
+            add_message("assistant", full_answer, session_id=session_id)
+            yield "event: done\ndata: {}\n\n"
+        except Exception as e:
+            limiter.on_429()
+            yield f"event: error\ndata: {json.dumps({'message': str(e)})}\n\n"
+
+    return Response(
+        stream_with_context(gen()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    )
 
 # =====================================
 # Main
