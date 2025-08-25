@@ -1,6 +1,6 @@
 /* ====== Speech-to-Text Client (2-column + history) ====== */
 (() => {
-  const ENDPOINT = "/transcribe"; // backend đã có alias /tools/stt nếu cần
+  const ENDPOINT = "/transcribe";
   const card = document.getElementById("tk_form_card");
 
   // ---------- Elements ----------
@@ -13,10 +13,13 @@
     stopBtn: document.getElementById("stt_stop"),
     timer: document.getElementById("stt_timer"),
     status: document.getElementById("stt_status"),
+    // Preview (audio only)
+    previewAudio: document.getElementById("stt_preview_audio"),
     // RIGHT - result
     text: document.getElementById("stt_text"),
     copyBtn: document.getElementById("stt_copy"),
     downloadBtn: document.getElementById("stt_download"),
+    saveBtn: document.getElementById("stt_save"),
     segments: document.getElementById("stt_segments"),
     // RIGHT - history
     historyList: document.getElementById("stt_history_list"),
@@ -90,6 +93,73 @@
       a.remove();
     }, 0);
   };
+  const escHtml = (s = "") =>
+    s.replace(
+      /[&<>"']/g,
+      (m) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        }[m])
+    );
+
+  // ---------- Audio preview (ALWAYS audio, even for video files) ----------
+  let previewURL = null;
+
+  // Fallback: nếu audio không phát được trực tiếp từ file video,
+  // dùng video offscreen + captureStream -> audio.srcObject (sẽ không có total duration)
+  const _forceAudioFromVideo = (blob) => {
+    if (!els.previewAudio) return;
+    const url = URL.createObjectURL(blob);
+    const v = document.createElement("video");
+    v.src = url;
+    v.muted = true;
+    v.playsInline = true;
+    v.addEventListener(
+      "loadedmetadata",
+      () => {
+        try {
+          const stream = v.captureStream();
+          els.previewAudio.pause?.();
+          els.previewAudio.src = "";
+          els.previewAudio.srcObject = stream;
+          v.play().catch(() => {});
+          els.previewAudio.play?.().catch(() => {});
+        } catch {
+          /* ignore */
+        }
+      },
+      { once: true }
+    );
+    v.load();
+  };
+
+  const setPreviewFromBlob = (blob) => {
+    if (!blob || !els.previewAudio) return;
+    // cleanup URL cũ
+    if (previewURL) {
+      URL.revokeObjectURL(previewURL);
+      previewURL = null;
+    }
+    // cố gắng phát trực tiếp blob bằng audio
+    previewURL = URL.createObjectURL(blob);
+    const a = els.previewAudio;
+    a.pause?.();
+    a.srcObject = null; // đảm bảo không còn stream
+    a.src = previewURL;
+    a.load();
+    // nếu phát sinh lỗi (thường với 1 số container video), fallback sang captureStream
+    a.addEventListener("error", () => _forceAudioFromVideo(blob), {
+      once: true,
+    });
+  };
+
+  window.addEventListener("beforeunload", () => {
+    if (previewURL) URL.revokeObjectURL(previewURL);
+  });
 
   // ---------- History (local) ----------
   const HISTORY_KEY = "stt_history_v1";
@@ -109,15 +179,15 @@
     saveHistory(arr);
     renderHistory();
   };
+
   const renderHistory = () => {
     const list = loadHistory();
     els.historyList.innerHTML = "";
     if (!list.length) {
-      els.historyList.innerHTML = `<div class="hist-item"><div class="hist-meta">Chưa có mục nào. Hãy tải file/ghi âm để bắt đầu.</div></div>`;
+      els.historyList.innerHTML = `<div class="hist-item"><div class="hist-meta">Chưa có mục nào. Hãy bấm 📌 để lưu.</div></div>`;
       return;
     }
     const frag = document.createDocumentFragment();
-
     list.forEach((it) => {
       const div = document.createElement("div");
       div.className = "hist-item";
@@ -125,7 +195,6 @@
 
       const name = (it.filename || "transcript").toString();
       const when = new Date(it.createdAt || Date.now());
-      // thời gian kiểu 16:24 • 22/08/2025
       const timeStr = `${when.toLocaleTimeString("vi-VN", {
         hour: "2-digit",
         minute: "2-digit",
@@ -134,26 +203,28 @@
       const lang = (it.lang || "auto").toUpperCase();
 
       div.innerHTML = `
-      <div class="hist-top">
-        <div class="hist-left">
-          <div class="hist-name" title="${name}">${name}</div>
-          <div class="hist-meta">
-            <span class="lang-badge">${lang}</span>
-            <span class="dot">•</span>
-            <span>${timeStr}</span>
+        <div class="hist-top">
+          <div class="hist-left">
+            <button type="button" class="hist-name-btn" data-act="toggle" title="Xem/ẩn nội dung">
+              <span class="chev">▸</span>
+              <span class="hist-name">${escHtml(name)}</span>
+            </button>
+            <div class="hist-meta">
+              <span class="lang-badge">${escHtml(lang)}</span>
+              <span class="dot">•</span>
+              <span>${escHtml(timeStr)}</span>
+            </div>
+          </div>
+          <div class="hist-actions">
+            <button class="btn-ghost" data-act="copy" title="Sao chép">📋</button>
+            <button class="btn-ghost" data-act="download" title="Tải TXT">💾</button>
+            <button class="btn-ghost" data-act="delete" title="Xoá">🗑</button>
           </div>
         </div>
-        <div class="hist-actions">
-          <button class="btn-ghost" data-act="load" title="Mở">📄</button>
-          <button class="btn-ghost" data-act="copy" title="Sao chép">📋</button>
-          <button class="btn-ghost" data-act="download" title="Tải TXT">💾</button>
-          <button class="btn-ghost" data-act="delete" title="Xóa">🗑</button>
-        </div>
-      </div>
-    `;
+        <div class="hist-content">${escHtml(it.text || "")}</div>
+      `;
       frag.appendChild(div);
     });
-
     els.historyList.appendChild(frag);
   };
 
@@ -178,10 +249,8 @@
       };
 
       switch (btn.dataset.act) {
-        case "load":
-          els.text.value = it.text || "";
-          renderSegments(it.segments || []);
-          setStatus("Đã mở từ lịch sử.", "ready");
+        case "toggle":
+          itemEl.classList.toggle("open");
           break;
         case "copy":
           doCopy(it.text || "");
@@ -239,7 +308,7 @@
 
   const uploadBlob = async (blob, filename, lang) => {
     const fd = new FormData();
-    fd.append("audio", blob, filename || "audio.webm"); // field name phải là 'audio'
+    fd.append("audio", blob, filename || "audio.webm");
     if (lang) fd.append("lang", lang);
     const setPct = makeProgressBar();
     setStatus("Đang tải lên & nhận dạng…", "uploading");
@@ -261,7 +330,10 @@
       e.stopPropagation();
       if (ev === "drop") {
         const file = e.dataTransfer?.files?.[0];
-        if (file) handleFile(file);
+        if (file) {
+          setPreviewFromBlob(file); // << preview audio khi kéo-thả
+          handleFile(file);
+        }
       }
       card.classList.remove("dragover");
     })
@@ -284,9 +356,9 @@
   };
 
   // ---------- Recording ----------
-  let mediaRecorder = null;
-  let chunks = [];
-  let stream = null;
+  let mediaRecorder = null,
+    chunks = [],
+    stream = null;
 
   const bestMime = () => {
     const cands = [
@@ -326,6 +398,7 @@
         const type = mediaRecorder.mimeType || "audio/webm";
         const ext = type.includes("mp4") ? "m4a" : "webm";
         const blob = new Blob(chunks, { type });
+        setPreviewFromBlob(blob); // << preview audio sau khi ghi âm
         await transcribeBlob(blob, `recording.${ext}`, "record");
       };
       mediaRecorder.start(100);
@@ -341,7 +414,6 @@
       );
     }
   };
-
   const stopRecording = () => {
     if (mediaRecorder && mediaRecorder.state !== "inactive")
       mediaRecorder.stop();
@@ -368,17 +440,22 @@
       const e = last.end ?? (last.end_ms || 0) / 1000;
       duration = Math.max(0, (e || 0) - (s || 0));
     }
+    const displayName =
+      meta.filename || res.original_filename || res.filename || "transcript";
     return {
       id: Date.now(),
-      filename: res.filename || meta.filename || "transcript",
+      filename: displayName,
       lang: meta.lang,
       source: meta.source, // upload | record
       createdAt: new Date().toISOString(),
       duration,
       text: res.text || res.transcript || "",
-      segments: segments,
+      segments,
     };
   };
+
+  // Giữ kết quả cuối cùng để "Lưu" thủ công
+  let lastPayload = null;
 
   const transcribeBlob = async (blob, filename, source) => {
     try {
@@ -394,23 +471,23 @@
       if (text) els.text.value = text;
       renderSegments(segments);
 
-      // Save to history
-      const histItem = buildHistoryItem(res, { filename, lang, source });
-      if ((histItem.text || "").trim()) addHistoryItem(histItem);
+      // Không lưu tự động nữa — chỉ giữ tạm để người dùng bấm 📌
+      lastPayload = {
+        res: { ...res, text, segments },
+        meta: { filename: res.original_filename || filename, lang, source },
+      };
 
       if (res.error) setStatus(`Lưu ý: ${res.error}`, "error");
-      else setStatus("Xong! 🎉", "done");
+      else setStatus("Xong! 👉 Bấm 📌 để lưu vào Lịch sử.", "done");
     } catch (err) {
       console.error(err);
       const m = String(err.message || "");
-      if (m.toLowerCase().includes("không có track âm thanh")) {
+      if (m.toLowerCase().includes("không có track âm thanh"))
         setStatus(
           "File không có tiếng. Hãy chọn file có audio hoặc ghi âm lại.",
           "error"
         );
-      } else {
-        setStatus(`Lỗi: ${m}`, "error");
-      }
+      else setStatus(`Lỗi: ${m}`, "error");
     } finally {
       els.uploadBtn.disabled = false;
       els.recordBtn.disabled = false;
@@ -421,6 +498,7 @@
   els.uploadBtn?.addEventListener("click", async () => {
     const f = els.file.files?.[0];
     if (!f) return setStatus("Chưa chọn file.", "error");
+    setPreviewFromBlob(f); // << preview khi chọn file rồi bấm upload
     await handleFile(f);
   });
   els.recordBtn?.addEventListener("click", () => startRecording());
@@ -434,33 +512,53 @@
       setStatus("Không thể sao chép. Hãy chọn và Ctrl+C.", "error");
     }
   });
-
   els.downloadBtn?.addEventListener("click", () => {
-    const fn = `transcript_${Date.now()}.txt`;
-    downloadTxt(fn, els.text.value || "");
+    const base = (lastPayload?.meta?.filename || "transcript").replace(
+      /\.[^/.]+$/,
+      ""
+    );
+    downloadTxt(`${base}_${Date.now()}.txt`, els.text.value || "");
+  });
+  els.saveBtn?.addEventListener("click", () => {
+    const text = (els.text.value || "").trim();
+    if (!text) return setStatus("Chưa có nội dung để lưu.", "error");
+    const lp = lastPayload || {
+      res: { text, segments: [] },
+      meta: {
+        filename: "transcript.txt",
+        lang: els.lang?.value || "vi",
+        source: "manual",
+      },
+    };
+    // luôn lấy text hiện tại để lưu (kể cả bạn có chỉnh sửa)
+    const item = buildHistoryItem({ ...lp.res, text }, lp.meta);
+    addHistoryItem(item);
+    setStatus("Đã lưu vào Lịch sử.", "done");
   });
 
+  // Xem trước ngay khi đổi input file (không cần bấm Upload)
   els.file?.addEventListener("change", () => {
     if (els.file.files?.length) {
-      setStatus(`Đã chọn: ${els.file.files[0].name}`, "ready");
+      const f = els.file.files[0];
+      setPreviewFromBlob(f); // << preview tức thì
+      setStatus(`Đã chọn: ${f.name}`, "ready");
     }
   });
 
   bindHistoryEvents();
-  renderHistory(); // load history lần đầu
-  // ===== Pill tabs giống trang mẫu =====
+  renderHistory();
+
+  // ===== Pill tabs =====
   (function tabs() {
     const scope = document.querySelector('.pill-tabs[data-scope="stt"]');
     const panelsWrap = document.querySelector(".stt-panel");
     if (!scope || !panelsWrap) return;
     scope.querySelectorAll(".pill").forEach((btn) => {
       btn.addEventListener("click", () => {
-        // toggle pill
         scope
           .querySelectorAll(".pill")
           .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        // toggle panel
         panelsWrap
           .querySelectorAll(".tab-panel")
           .forEach((p) => p.classList.remove("active"));
@@ -470,5 +568,6 @@
       });
     });
   })();
+
   setStatus("Sẵn sàng.", "ready");
 })();

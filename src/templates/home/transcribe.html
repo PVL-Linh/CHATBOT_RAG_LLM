@@ -29,6 +29,10 @@ endblock %}{% block footer %}{% endblock %} {% block content %}
             ⬆ Tải file & nhận dạng
           </button>
         </div>
+        <label>Xem trước</label>
+        <div class="stt-preview">
+          <audio id="stt_preview_audio" controls preload="metadata"></audio>
+        </div>
       </div>
 
       <div class="stt-row">
@@ -56,6 +60,9 @@ endblock %}{% block footer %}{% endblock %} {% block content %}
       <div class="icon-actions">
         <button id="stt_copy" class="icon-btn" title="Sao chép">📋</button>
         <button id="stt_download" class="icon-btn" title="Tải TXT">💾</button>
+        <button id="stt_save" class="icon-btn primary" title="Lưu vào lịch sử">
+          📌
+        </button>
       </div>
     </div>
 

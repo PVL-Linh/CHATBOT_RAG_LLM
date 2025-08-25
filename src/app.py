@@ -37,20 +37,19 @@ from Login.login_required import load_users, login_required
 from Helpers.Marketing_Planner.Content_Planner import (
     _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
-from Processing_Data import Pdf_Images_to_Text
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
     from .Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
     from Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 
 from Helpers.rate_limit import get_text_limiter
 from zoneinfo import ZoneInfo
@@ -1023,7 +1022,7 @@ def api_pdf_to_txt():
     try:
         # 1) Thử gọi helper của bạn (nếu có import đúng)
         try:
-            result = pdf_to_txt(temp_pdf)  # dùng import của bạn
+            result = pdf_to_txt_vi(temp_pdf)  # dùng import của bạn
         except Exception as helper_err:
             app.logger.warning("Helper pdf_to_txt() lỗi, dùng fallback: %s", helper_err)
             result = None
