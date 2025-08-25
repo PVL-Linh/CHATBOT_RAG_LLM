@@ -1,70 +1,73 @@
-# Core
-Flask==3.1.1
-flask_compress==1.18
-gunicorn==22.0.0
-python-dotenv==1.0.1
-requests==2.32.3
+# Web Framework
+flask==3.1.1
+flask-compress==1.18
+gunicorn==21.2.0
+Werkzeug==3.0.4
 
-# LangChain cohort
-langchain==0.3.27
-langchain-core==0.3.74
-langchain-community==0.3.27
-langchain-text-splitters==0.3.9
-langchain-openai==0.3.6
-# langchain-pinecone==0.2.3
-langchain-huggingface
-langsmith>=0.3.45
-
-# Vector / Embeddings
-faiss-cpu==1.11.0.post1
+# AI/ML Core Libraries
+langchain==0.3.18
+langchain-community==0.3.17
+langchain-core==0.3.34
+langchain-openai==0.3.4
+langchain-pinecone==0.2.3
+langchain-text-splitters==0.3.6
+langchainhub==0.1.21
+langsmith==0.3.8
+openai==1.61.1
 sentence-transformers==5.1.0
-tiktoken==0.8.0
+faiss-cpu==1.11.0.post1
+google-generativeai==0.8.5
+google-genai==1.30.0
 
-# HF stack
-transformers==4.44.2
-huggingface-hub==0.33.5
-protobuf==5.29.3
+# Vector Database
+pinecone==5.4.2
+pinecone-plugin-inference==3.1.0
 
-# PDF / OCR
+# Data Processing
+pandas==2.2.3
+numpy==1.26.4
+pillow==11.1.0
 PyMuPDF==1.26.3
+pypdf==5.3.0
 pdfminer.six==20250506
 pdf2image==1.16.3
-pytesseract==0.3.13
-pillow==11.1.0
-imageio_ffmpeg==0.6.0
-pypdf==5.3.0
 
-# Parsing / Crawling
+# Web Scraping
+requests==2.32.3
 beautifulsoup4==4.13.4
-readability-lxml==0.8.4.1
 lxml==6.0.0
+readability-lxml==0.8.4.1
 tldextract==5.3.0
 feedparser==6.0.11
 
-# STT
-SpeechRecognition==3.14.3
-vosk==0.3.45
-faster-whisper==1.2.0
+# OCR and Document Processing
+pytesseract==0.3.13
+reportlab==4.4.3
 
-# Data / Utils
-# numpy==1.26.4
-numpy>=2.1.0
+# Search
+rank-bm25==0.2.2
+
+# Async HTTP
+aiohttp==3.10.11
+httpx==0.28.1
+
+# Core Utilities
+python-dotenv==1.0.1
+pydantic==2.10.6
+pydantic-settings==2.7.1
 tiktoken==0.8.0
-pandas==2.2.3
-SQLAlchemy==2.0.38
 tenacity==9.0.0
-regex==2024.11.6
-typing_extensions==4.12.2
-python-dateutil==2.9.0.post0
+click==8.1.8
 PyYAML==6.0.2
-orjson==3.10.15
+Jinja2==3.1.5
+MarkupSafe==3.0.2
 
-# Optional (chỉ bật nếu thực sự dùng)
-# streamlit==1.42.0
-# altair==5.5.0
-# pydeck==0.9.1
-# watchdog==6.0.0
-# diffusers==0.34.0
+# Audio (lightweight only - comment out heavy ones)
+speech-recognition==3.14.3
+# vosk==0.3.45
+# faster-whisper==1.2.0
+
+# Heavy libraries - uncomment only if needed
 # playwright==1.54.0
-# rich==13.9.4
-# reportlab==4.4.3
+# imageio-ffmpeg==0.6.0
+# diffusers==0.34.0
