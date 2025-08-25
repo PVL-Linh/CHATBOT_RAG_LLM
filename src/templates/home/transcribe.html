@@ -1,0 +1,84 @@
+{% extends 'home/base.html' %}
+{% block title %}Speech to Text · Tiximax{% endblock %}
+
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/transcribe.css') }}?v=3" />
+{% endblock %}
+
+{% block topbar %}{% endblock %}{% block history_panel %}{% endblock %}{% block footer %}{% endblock %}
+
+{% block content %}
+<section class="stt-layout">
+  <!-- LEFT: form chức năng -->
+  <aside class="card stt-left" id="tk_form_card">
+    <h2 class="stt-page-title">🗣️ Speech - to - Text</h2>
+
+    <div class="stt-form">
+      <div class="stt-row">
+        <label for="stt_lang">Ngôn ngữ</label>
+        <select id="stt_lang">
+          <option value="vi" selected>Tiếng Việt (vi)</option>
+          <option value="en">English (en)</option>
+          <option value="auto">Tự động (auto)</option>
+        </select>
+      </div>
+
+      <div class="stt-row">
+        <label>Tệp</label>
+        <div class="stt-file">
+          <input id="stt_file" type="file" accept="audio/*,video/*" />
+          <button id="stt_upload_btn" class="btn">⬆ Tải file & nhận dạng</button>
+        </div>
+      </div>
+
+      <div class="stt-row">
+        <label>Ghi âm</label>
+        <div class="stt-rec">
+          <button id="stt_record" class="btn">⏺ Ghi âm</button>
+          <button id="stt_stop" class="btn" disabled>⏹ Dừng & nhận dạng</button>
+          <span id="stt_timer" class="stt-timer">00:00</span>
+        </div>
+      </div>
+
+      <div id="stt_status" class="stt-status">Sẵn sàng.</div>
+      <div class="stt-progress"><span></span></div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: tabs + panel hiển thị -->
+  <main class="stt-right">
+    <div class="stt-topbar">
+      <div class="pill-tabs" data-scope="stt">
+        <button class="pill active" data-tab="result">Result</button>
+        <button class="pill" data-tab="segments">Segments</button>
+        <button class="pill" data-tab="history">History</button>
+      </div>
+      <div class="icon-actions">
+        <button id="stt_copy" class="icon-btn" title="Sao chép">📋</button>
+        <button id="stt_download" class="icon-btn" title="Tải TXT">💾</button>
+      </div>
+    </div>
+
+    <section class="stt-panel card">
+      <div id="stt_tab_result" class="tab-panel active">
+        <textarea id="stt_text" class="stt-textarea" rows="14" placeholder="Kết quả sẽ hiện ở đây..."></textarea>
+      </div>
+
+      <div id="stt_tab_segments" class="tab-panel">
+        <div id="stt_segments" class="stt-segments"></div>
+      </div>
+
+      <div id="stt_tab_history" class="tab-panel">
+        <div class="hist-toolbar">
+          <button id="stt_history_clear" class="icon-btn" title="Xóa hết">🗑</button>
+        </div>
+        <div id="stt_history_list" class="stt-history-list"></div>
+      </div>
+    </section>
+  </main>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/transcribe.js') }}?v=6"></script>
+{% endblock %}

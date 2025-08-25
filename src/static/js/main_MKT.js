@@ -643,13 +643,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-/* ---------- Lock nav for restricted roles ---------- */
-document.addEventListener("click", function (e) {
-  const a = e.target.closest("a.nav-item.locked");
-  if (!a) return;
-  e.preventDefault();
-  const name = (a.querySelector("span")?.textContent || "Chức năng").trim();
-  if (window.toast) window.toast(`${name} đang bị khóa cho tài khoản của bạn.`);
-  else alert(`${name} đang bị khóa cho tài khoản của bạn.`);
-});

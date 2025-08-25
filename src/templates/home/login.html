@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/css/login.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
   </head>
-  <body class="bg">
+  <body class="bg bg--aurora">
     <div class="card">
       <div class="brand">
         <img src="/static/images/logo.png" alt="Tiximax" />
@@ -45,6 +45,12 @@
             <span id="icon-show" class="emoji" aria-hidden="true" style="display:none;">🙈</span>
           </button>
         </label>
+        <div class="pwd-meta">
+          <div class="meter" aria-hidden="true">
+            <span id="meter-bar"></span>
+          </div>
+          <div id="caps" class="caps" role="status" aria-live="polite" aria-atomic="true" style="opacity:0">Caps Lock đang bật</div>
+        </div>
 
         <div class="row">
           <label class="remember">
@@ -57,6 +63,10 @@
       </form>
       <p class="help">Chưa có tài khoản? Liên hệ admin để được cấp quyền.</p>
     </div>
+    <div class="orbs" aria-hidden="true">
+      <i class="o1"></i><i class="o2"></i><i class="o3"></i>
+    </div>
+    <button id="bgToggle" class="bg-toggle" type="button" title="Đổi nền">🎨</button>
     <script src="/static/js/login.js"></script>
   </body>
 </html>
