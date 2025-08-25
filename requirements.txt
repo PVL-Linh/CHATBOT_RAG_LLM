@@ -1,70 +1,61 @@
-# Core
+# ---- Core web ----
 Flask==3.1.1
 flask_compress==1.18
 gunicorn==22.0.0
 python-dotenv==1.0.1
 requests==2.32.3
+orjson==3.10.15
 
-# LangChain cohort
+# ---- LangChain cohort (đồng bộ phiên bản 0.3.x) ----
 langchain==0.3.27
 langchain-core==0.3.74
 langchain-community==0.3.27
 langchain-text-splitters==0.3.9
 langchain-openai==0.3.6
-# langchain-pinecone==0.2.3
 langchain-huggingface==0.3.1
-langsmith>=0.3.45
+langsmith==0.3.45
 
-# Vector / Embeddings
+# ---- Vector / Embeddings ----
 faiss-cpu==1.11.0.post1
-sentence-transformers==5.1.0
+sentence-transformers==3.0.1
 tiktoken==0.8.0
 
-# HF stack
+# Torch CPU cho sentence-transformers (bản CPU nhẹ nhất, có wheel Linux)
+torch==2.4.1
+torchvision==0.19.1
+
+# ---- HF stack ----
 transformers==4.44.2
 huggingface-hub==0.33.5
 protobuf==5.29.3
+typing_extensions==4.12.2
+regex==2024.11.6
+PyYAML==6.0.2
+python-dateutil==2.9.0.post0
 
-# PDF / OCR
+# ---- PDF / OCR ----
 PyMuPDF==1.26.3
 pdfminer.six==20250506
 pdf2image==1.16.3
 pytesseract==0.3.13
 pillow==11.1.0
-imageio_ffmpeg==0.6.0
 pypdf==5.3.0
 
-# Parsing / Crawling
+# ---- Parsing / Crawling ----
 beautifulsoup4==4.13.4
 readability-lxml==0.8.4.1
-lxml==6.0.0
+lxml==5.3.0
 tldextract==5.3.0
 feedparser==6.0.11
 
-# STT
+# ---- STT ----
 SpeechRecognition==3.14.3
 vosk==0.3.45
-faster-whisper==1.2.0
+faster-whisper==1.0.3
+# (faster-whisper sẽ kéo ctranslate2 CPU tương thích)
 
-# Data / Utils
-# numpy==1.26.4
-numpy>=2.1.0
-tiktoken==0.8.0
+# ---- Data / Utils ----
+numpy==1.26.4        # pin 1.26.x để tránh xung đột FAISS/torch
 pandas==2.2.3
 SQLAlchemy==2.0.38
 tenacity==9.0.0
-regex==2024.11.6
-typing_extensions==4.12.2
-python-dateutil==2.9.0.post0
-PyYAML==6.0.2
-orjson==3.10.15
-
-# Optional (chỉ bật nếu thực sự dùng)
-# streamlit==1.42.0
-# altair==5.5.0
-# pydeck==0.9.1
-# watchdog==6.0.0
-# diffusers==0.34.0
-# playwright==1.54.0
-# rich==13.9.4
-# reportlab==4.4.3

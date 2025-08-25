@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: tiximax-app
+    env: python
+    plan: starter # hoặc free/test tùy bạn
+    region: singapore # gần VN
+    buildCommand: |
+      apt-get update
+      xargs -a apt.txt apt-get install -y
+      pip install --upgrade pip
+      pip install --no-cache-dir -r requirements.txt
+    startCommand: gunicorn app:app --workers=2 --threads=4 --timeout=180 --preload
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PORT
+        value: 10000
+      # Thêm các API key của bạn ở dashboard Render (ẩn):
+      # - key: API_KEY_MKT
+      #   sync: false
+      # - key: HF_HOME
+      #   value: /opt/render/.cache/huggingface
+    autoDeploy: true
