@@ -1,13 +1,11 @@
-{% extends 'home/base.html' %}
-{% block title %}Speech to Text · Tiximax{% endblock %}
-
-{% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/transcribe.css') }}?v=3" />
-{% endblock %}
-
-{% block topbar %}{% endblock %}{% block history_panel %}{% endblock %}{% block footer %}{% endblock %}
-
-{% block content %}
+{% extends 'home/base.html' %} {% block title %}Speech to Text · Tiximax{%
+endblock %} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/transcribe.css') }}?v=3"
+/>
+{% endblock %} {% block topbar %}{% endblock %}{% block history_panel %}{%
+endblock %}{% block footer %}{% endblock %} {% block content %}
 <section class="stt-layout">
   <!-- LEFT: form chức năng -->
   <aside class="card stt-left" id="tk_form_card">
@@ -27,7 +25,9 @@
         <label>Tệp</label>
         <div class="stt-file">
           <input id="stt_file" type="file" accept="audio/*,video/*" />
-          <button id="stt_upload_btn" class="btn">⬆ Tải file & nhận dạng</button>
+          <button id="stt_upload_btn" class="btn">
+            ⬆ Tải file & nhận dạng
+          </button>
         </div>
       </div>
 
@@ -61,7 +61,12 @@
 
     <section class="stt-panel card">
       <div id="stt_tab_result" class="tab-panel active">
-        <textarea id="stt_text" class="stt-textarea" rows="14" placeholder="Kết quả sẽ hiện ở đây..."></textarea>
+        <textarea
+          id="stt_text"
+          class="stt-textarea"
+          rows="14"
+          placeholder="Kết quả sẽ hiện ở đây..."
+        ></textarea>
       </div>
 
       <div id="stt_tab_segments" class="tab-panel">
@@ -70,15 +75,18 @@
 
       <div id="stt_tab_history" class="tab-panel">
         <div class="hist-toolbar">
-          <button id="stt_history_clear" class="icon-btn" title="Xóa hết">🗑</button>
+          <button id="stt_history_clear" class="icon-btn" title="Xóa hết">
+            🗑
+          </button>
         </div>
         <div id="stt_history_list" class="stt-history-list"></div>
       </div>
     </section>
   </main>
 </section>
-{% endblock %}
-
-{% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/transcribe.js') }}?v=6"></script>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/transcribe.js') }}?v=6"
+></script>
 {% endblock %}

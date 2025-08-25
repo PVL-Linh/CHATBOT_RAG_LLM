@@ -320,3 +320,35 @@
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
 }
+.pdf-history-list {
+  display: grid;
+  gap: 8px;
+}
+.hist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+.hist-item .meta .name {
+  font-weight: 600;
+}
+.hist-item .meta .sub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.hist-item .actions .btn-ghost {
+  margin-left: 6px;
+}
+.pdf-status.ok {
+  color: #0a7;
+}
+.pdf-status.err {
+  color: #c33;
+}
+.local-loader.hidden {
+  display: none;
+}

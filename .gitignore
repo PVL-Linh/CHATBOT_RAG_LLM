@@ -4,17 +4,17 @@ TRASH/
 src/chat_logs/
 # Bỏ FAISS_Vector trong src
 src/FAISS_Vector/
-
+instance/
 # Bỏ Data trong src
 src/Data/
 src/test.py
+src/uploads/
 # Bỏ file tạm Python
 __pycache__/
 *.pyc
 *.pyo
 
 # Bỏ file môi trường
-.env
 
 # Bỏ thư mục venv
 venv/
