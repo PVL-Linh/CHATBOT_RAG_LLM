@@ -127,9 +127,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings  # NEW
 
-from all_path import path_Documents_folder  # nếu bạn dùng; có thể bỏ nếu không cần
+from all_path import path_Documents_folder  
 from pdf_to_text import process_pdf_documents
-
+try:
+    from .DataBase_Web.web_crawler import web_crawler
+except ImportError:
+    from DataBase_Web.web_crawler import web_crawler
 # =======================
 # Tham số
 # =======================
@@ -175,33 +178,53 @@ def _clean_text(s: str) -> str:
     return s.strip()
 
 def _load_text_files(folder: str) -> Dict[str, str]:
-    """Đọc toàn bộ .txt và .csv trong thư mục làm corpus."""
+    """
+    Đọc đệ quy toàn bộ *.txt trong `folder`, bỏ qua mọi file tên 'urls.txt'.
+    Trả về dict: {relative_path: text_content}
+    """
     data: Dict[str, str] = {}
     folder = os.path.abspath(folder)
     if not os.path.isdir(folder):
         print(f"⚠️  Không tìm thấy thư mục: {folder}", file=sys.stderr)
         return data
 
-    import csv
-    files = [fn for fn in os.listdir(folder) if os.path.isfile(os.path.join(folder, fn))]
-    for fn in files:
-        path = os.path.join(folder, fn)
-        try:
-            if fn.lower().endswith(".txt"):
-                with open(path, "r", encoding="utf-8") as f:
-                    data[fn] = f.read()
-            elif fn.lower().endswith(".csv"):
-                rows = []
-                with open(path, "r", encoding="utf-8") as f:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        rows.append(" | ".join(row))
-                data[fn] = "\n".join(rows)
-        except Exception as e:
-            print(f"⚠️  Lỗi đọc file {fn}: {e}", file=sys.stderr)
+    excluded = {"urls.txt"}
+    loaded, skipped = 0, 0
 
-    print(f"📄 Loaded {len(data)} files (.txt, .csv) from {folder}")
+    for root, _dirs, files in os.walk(folder):
+        for fn in files:
+            # chỉ nhận .txt
+            if not fn.lower().endswith(".txt"):
+                continue
+            # bỏ qua urls.txt ở mọi cấp
+            if fn.lower() in excluded:
+                skipped += 1
+                continue
+
+            path = os.path.join(root, fn)
+            rel_name = os.path.relpath(path, folder)  # lưu tên tương đối để nhận biết thuộc thư mục nào
+
+            try:
+                # cố gắng đọc UTF-8 trước, fallback nếu có BOM/lỗi
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        txt = f.read()
+                except UnicodeDecodeError:
+                    with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
+                        txt = f.read()
+
+                if txt:
+                    data[rel_name] = txt
+                    loaded += 1
+                else:
+                    skipped += 1
+            except Exception as e:
+                skipped += 1
+                print(f"⚠️  Lỗi đọc file {rel_name}: {e}", file=sys.stderr)
+
+    print(f"📄 Loaded {loaded} .txt files (skipped {skipped}, excluded: {', '.join(sorted(excluded))}) from {folder}")
     return data
+
 
 # =======================
 # Main

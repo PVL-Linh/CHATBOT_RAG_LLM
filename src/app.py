@@ -1,24 +1,25 @@
-import os, json, time, csv
+import tempfile
+import os, json, time, csv, uuid
 from datetime import datetime, timezone
 from functools import wraps
 from pathlib import Path
 from PIL import Image
-from Helpers.vinai_stt import transcribe_file
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+
+import fitz
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
-from Helpers.media_convert import convert_to_wav16k_mono
-from werkzeug.utils import secure_filename
-# LangChain / LLM helpers (giữ nguyên import của bạn)
+import threading, json
+# LangChain / LLM helpers
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
-from Helpers.media_convert import convert_to_wav16k_mono
 
-# Import helper modules (giữ nguyên theo cấu trúc dự án của bạn)
+# Import helper modules
 from Helpers.Data_storage import save_item, delete_item, get_items
 from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
+from Helpers.media_convert import convert_to_wav16k_mono
 from Helpers.prompt_KT import persona_vi
 from Helpers.Image_generation_and_processing import (
     build_image_prompt, generate_image_via_gemini_api,
@@ -30,24 +31,33 @@ from Helpers.Content_generation import (
     generate_tiktok_content, generate_fab_content
 )
 from Helpers.prompt_internal import SYSTEM_PRIMER
+from Helpers.vinai_stt import transcribe_file
 from Login.login_required import load_users, login_required
-# from Login.Logging_config import _log_message_to_csv  # <-- KHÔNG dùng nữa, ta ghi CSV ngay tại app.py
+# from Login.Logging_config import _log_message_to_csv 
 from Helpers.Marketing_Planner.Content_Planner import (
     _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
-
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
     from .Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name )
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
     from Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
+    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 
+from Helpers.rate_limit import get_text_limiter
+from zoneinfo import ZoneInfo
+from Model_LLM.model_llm import LLM_model
+from google.genai import types as genai_types
+from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+load_dotenv()
 # =====================================
 # Flask setup
 # =====================================
@@ -70,9 +80,39 @@ except Exception:
 # =====================================
 # Gemini types
 # =====================================
-from google.genai import types as genai_types
-from dotenv import load_dotenv
-load_dotenv()
+# --- semaphore cho tuyến gọi thẳng bằng gclient (không qua Helpers/LLM_client) ---
+LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
+
+def _estimate_from_contents(contents, max_out_tokens=1024):
+    words = 0
+    for m in contents or []:
+        for p in (m.get("parts") or []):
+            if isinstance(p, dict) and p.get("text"):
+                words += len(p["text"].split())
+    return int(1.3 * words) + int(max_out_tokens or 512)
+
+def _safe_gemini_generate(gclient, model, contents, config, retries=3, backoff=0.4):
+    limiter = get_text_limiter()
+    max_out = config.get("max_output_tokens") if isinstance(config, dict) else getattr(config, "max_output_tokens", 1024)
+    tokens_est = _estimate_from_contents(contents, max_out)
+    last_err = None
+    for i in range(retries + 1):
+        try:
+            limiter.acquire(tokens_est)
+            t0 = time.time()
+            with LLM_SEM:
+                resp = gclient.models.generate_content(model=model, contents=contents, config=config)
+            limiter.on_success()
+            return (getattr(resp, "text", "") or ""), time.time() - t0
+        except Exception as e:
+            last_err = e
+            s = str(e).lower()
+            if ("429" in s or "quota" in s or "rate" in s) and i < retries:
+                limiter.on_429()
+                time.sleep(backoff * (2 ** i))
+                continue
+            limiter.on_429()
+            raise last_err
 
 # =====================================
 # Constants & Settings
@@ -84,7 +124,7 @@ LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 # =====================================
 # CSV logging (WITH session_id)
 # =====================================
-from zoneinfo import ZoneInfo
+
 
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
@@ -220,63 +260,6 @@ def logout():
 # =====================================
 # Pages (protected)
 # =====================================
-@app.route('/transcribe', methods=['POST'])
-@login_required(api=True)
-def api_transcribe():
-    """
-    Nhận form-data:
-      - audio: <file audio/video>
-      - lang:  vi | en | auto (mặc định vi)
-    """
-    if 'audio' not in request.files:
-        return jsonify({"error": "Thiếu file 'audio' (multipart/form-data)."}), 400
-
-    audio = request.files['audio']
-    if not audio or not audio.filename:
-        return jsonify({"error": "Tên file trống."}), 400
-
-    lang = (request.form.get('lang') or 'vi').strip().lower()
-    upload_dir = os.path.join(app.root_path, 'uploads', 'stt')
-    os.makedirs(upload_dir, exist_ok=True)
-
-    fname = f"{int(time.time()*1000)}_{secure_filename(audio.filename)}"
-    src_path = os.path.join(upload_dir, fname)
-    audio.save(src_path)
-
-    # B1) Chuẩn hoá sang WAV 16k mono (ổn định cho mọi nguồn: mp4/webm/m4a/…)
-    try:
-        base, ext = os.path.splitext(src_path)
-        # Nếu đã .wav thì tạo file _16k.wav; nếu không thì .wav luôn
-        wav_path = base + "_16k.wav" if ext.lower() == ".wav" else base + ".wav"
-        path_for_asr = convert_to_wav16k_mono(src_path, wav_path)
-    except Exception as conv_e:
-        app.logger.exception("Convert error: %s", conv_e)
-        return jsonify({"error": f"Không chuyển được sang WAV: {conv_e}"}), 400
-
-    # B2) Nhận dạng
-    try:
-        text, segments = transcribe_file(path_for_asr, lang=lang)
-        if not (text or "").strip():
-            return jsonify({
-                "error": "Không nhận được tiếng nói (kết quả rỗng). "
-                         "Hãy chọn đúng ngôn ngữ, kiểm tra âm lượng/ồn nền, hoặc thử file khác."
-            }), 200
-        return jsonify({
-            "ok": True,
-            "text": text,
-            "segments": segments,
-            "filename": os.path.basename(path_for_asr)
-        })
-    except Exception as e:
-        app.logger.exception("ASR error: %s", e)
-        return jsonify({"error": f"ASR failed: {e}"}), 500
-    
-# Alias để tương thích với JS cũ nếu nơi khác còn trỏ /tools/stt
-@app.route('/tools/stt', methods=['POST'])
-@login_required(api=True)
-def api_transcribe_alias():
-    return api_transcribe()
-
 @app.route('/', methods=['GET'])
 @login_required
 def chat():
@@ -285,15 +268,6 @@ def chat():
         messages=get_history()[-30:],
         current_user=session.get('user'),
         active='chat'
-    )
-
-@app.route('/transcribe', methods=['GET'])
-@login_required
-def transcribe():
-    return render_template(
-        'home/transcribe.html',      # <— chuyển sang thư mục home
-        current_user=session.get('user'),
-        active='transcribe'           # để nhóm Marketing vẫn sáng trong sidebar chung
     )
 
 @app.route('/marketing', methods=['GET'])
@@ -344,7 +318,24 @@ def _to_gemini_history_no_system(history_msgs):
 # =====================================
 # Chat API (protected)
 # =====================================
-from Model_LLM.model_llm import LLM_model
+# LỌC 
+import re
+
+_SOURCE_TAG_PAT = re.compile(
+    r"""\s*[\(\[](?=[^)\]]{0,240}?\b(?:source|nguồn|chunk)\b)[^)\]]+[\)\]]""",
+    re.IGNORECASE,
+)
+
+def strip_source_citations(text: str) -> str:
+    if not text:
+        return text
+    text = _SOURCE_TAG_PAT.sub("", text)
+    # dọn khoảng trắng/thừa dấu cách trước dấu câu
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    return text.strip()
+
+# =====================================
 
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
@@ -414,18 +405,11 @@ def chat_api():
 
     # 4) Gọi Gemini
     try:
-        t0 = time.time()
-        resp = gclient.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=contents,
-            config=GEN_CFG
-        )
-        result = getattr(resp, "text", "") or ""
-        llm_time = time.time() - t0
+        result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
     except Exception as e:
         result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
-
+    result = strip_source_citations(result)
     add_message("assistant", result, session_id=session_id)
     elapsed = time.time() - full_start
 
@@ -813,6 +797,8 @@ def _merge_channels_for_planner():
 def api_channels_list():
     return jsonify({"items": _merge_channels_for_planner()})
 
+
+
 @app.route("/api/channels/custom", methods=["GET"])
 @login_required(roles=['admin', 'manager_marketing'])
 def api_channels_list_custom():
@@ -893,6 +879,399 @@ def api_channels_prompt():
 
     return jsonify({"channel": channel, "generated": result})
 
+@app.route('/api/chat/stream', methods=['POST'])
+@login_required(api=True)
+def chat_stream():
+    embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
+
+    data = request.get_json(force=True) or {}
+    user_text  = (data.get('message') or "").strip()
+    session_id = (data.get('session_id') or "").strip()
+    if not user_text:
+        return jsonify({"error": "Missing message"}), 400
+
+    add_message("user", user_text, session_id=session_id)
+
+    # (tùy bạn) rút gọn phần embed/retrieve cho stream hoặc giữ nguyên như chat_api()
+    hist_msgs = [{"role": m["role"], "content": m["content"]}
+                 for m in get_history() if m["role"] in ("user", "assistant")]
+    contents = _to_gemini_history_no_system(hist_msgs)
+
+    context_hint = "(Stream mode - context omitted)"  # hoặc ghép docs_text nếu muốn
+    system_prompt = f"""{SYSTEM_PRIMER}
+    - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp (nếu có).
+    {context_hint}
+    """
+    first_user_text = f"""[SYSTEM]
+    {system_prompt}
+
+    [USER]
+    {user_text}"""
+    contents.append({"role": "user", "parts": [{"text": first_user_text}]})
+    limiter = get_text_limiter()
+    tokens_est = _estimate_from_contents(contents, GEN_CFG.get("max_output_tokens", 1024))
+
+    def gen():
+        yield "event: ready\ndata: {}\n\n"
+        try:
+            limiter.acquire(tokens_est)
+            with LLM_SEM:
+                resp = gclient.models.generate_content(
+                    model=GEMINI_MODEL, contents=contents, config=GEN_CFG, stream=True
+                )
+                acc = []
+                for ev in resp:
+                    chunk = getattr(ev, "text", "") or ""
+                    if chunk:
+                        acc.append(chunk)
+                        yield f"data: {json.dumps({'delta': chunk})}\n\n"
+                    else:
+                        yield ": keep-alive\n\n"
+            limiter.on_success()
+            # Lưu full answer
+            full_answer = "".join(acc).strip()
+            add_message("assistant", full_answer, session_id=session_id)
+            yield "event: done\ndata: {}\n\n"
+        except Exception as e:
+            limiter.on_429()
+            yield f"event: error\ndata: {json.dumps({'message': str(e)})}\n\n"
+
+    return Response(
+        stream_with_context(gen()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    )
+
+
+# =========================== PDF to TXT ====================================
+
+
+
+# --- DÁN THÊM/THAY THẾ HÀM LÀM SẠCH Ở BẤT KỲ ĐÂU TRƯỚC ROUTE:
+def _clean_extracted_text(s: str) -> str:
+    if not s:
+        return ""
+    # lọc ký tự form feed
+    s = s.replace("\x0c", "\n")
+    # bỏ dòng toàn số (thường số trang)
+    lines = [ln.strip() for ln in s.splitlines()]
+    out = []
+    for ln in lines:
+        if (ln.isdigit() and len(ln) <= 3) or (len(ln) == 1 and ln.isdigit()):
+            continue
+        out.append(ln)
+    s2 = "\n".join(out)
+    s2 = re.sub(r"\n{3,}", "\n\n", s2)      # gộp >2 dòng trống
+    s2 = re.sub(r"[ \t]{2,}", " ", s2)      # gộp nhiều khoảng trắng
+    return s2.strip()
+
+
+@app.route("/api/pdf_to_txt", methods=["POST"])
+@login_required(api=True)
+def api_pdf_to_txt():
+    """
+    Nhận file PDF, ưu tiên gọi helper pdf_to_txt(...).
+    - Nếu helper trả dict {text, txt_path}: dùng luôn
+    - Nếu helper trả string path .txt: tự mở file đọc
+    - Nếu helper trả text thô: dùng text
+    - Nếu helper LỖI: Fallback tự trích PDF bằng PyMuPDF tại đây
+    Trả về: {"text", "raw", "txt_path"}
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "Thiếu file PDF"}), 400
+
+    pdf_in = request.files["file"]
+    if not (pdf_in.filename or "").lower().endswith(".pdf"):
+        return jsonify({"error": "File không phải PDF"}), 400
+
+    # Lưu PDF tạm
+    tmp_dir = tempfile.gettempdir()
+    temp_pdf = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.pdf")
+    pdf_in.save(temp_pdf)
+
+    raw_text, txt_path = "", None
+
+    def _fallback_extract(pdf_path: str):
+        """Đọc PDF trực tiếp bằng PyMuPDF (không cần helper)."""
+        text_chunks = []
+        with fitz.open(pdf_path) as doc:
+            for i, page in enumerate(doc, start=1):
+                t = page.get_text("text") or ""
+                if not t.strip():
+                    # fallback blocks
+                    try:
+                        blocks = page.get_text("blocks") or []
+                        t = "\n".join(
+                            b[4] for b in blocks
+                            if isinstance(b, (list, tuple)) and len(b) >= 5 and isinstance(b[4], str)
+                        )
+                    except Exception:
+                        t = ""
+                text_chunks.append(f"=== Page {i} ===\n{t.strip()}\n")
+        text_all = "\n".join(text_chunks)
+
+        # Lưu .txt tạm để UI có đường link download
+        temp_txt = os.path.splitext(pdf_path)[0] + ".txt"
+        try:
+            with open(temp_txt, "w", encoding="utf-8") as f:
+                f.write(text_all)
+        except Exception:
+            temp_txt = None
+        return text_all, temp_txt
+
+    try:
+        # 1) Thử gọi helper của bạn (nếu có import đúng)
+        try:
+            result = pdf_to_txt_vi(temp_pdf)  # dùng import của bạn
+        except Exception as helper_err:
+            app.logger.warning("Helper pdf_to_txt() lỗi, dùng fallback: %s", helper_err)
+            result = None
+
+        if result is None:
+            # 2) Fallback: tự trích bằng PyMuPDF
+            raw_text, txt_path = _fallback_extract(temp_pdf)
+        else:
+            # 3) Chuẩn hóa mọi kiểu trả về của helper
+            if isinstance(result, dict):
+                raw_text = result.get("text") or ""
+                txt_path = result.get("txt_path")
+            elif isinstance(result, str):
+                # Nếu là đường dẫn txt -> đọc file
+                if os.path.exists(result) and result.lower().endswith(".txt"):
+                    txt_path = result
+                    try:
+                        with open(result, "r", encoding="utf-8") as f:
+                            raw_text = f.read()
+                    except Exception:
+                        raw_text = ""
+                else:
+                    # ít gặp: helper trả text luôn
+                    raw_text = result or ""
+            else:
+                raw_text = getattr(result, "text", "") or ""
+                txt_path = getattr(result, "txt_path", None)
+
+            # Nếu helper không tạo file txt, tự tạo để có link download
+            if not txt_path:
+                tmp_txt = os.path.splitext(temp_pdf)[0] + ".txt"
+                try:
+                    with open(tmp_txt, "w", encoding="utf-8") as f:
+                        f.write(raw_text or "")
+                    txt_path = tmp_txt
+                except Exception:
+                    txt_path = None
+
+        # Chuẩn hóa string
+        if not isinstance(raw_text, str):
+            try:
+                if isinstance(raw_text, (list, tuple)):
+                    raw_text = "\n".join(map(str, raw_text))
+                else:
+                    raw_text = str(raw_text)
+            except Exception:
+                raw_text = str(raw_text)
+
+        cleaned = _clean_extracted_text(raw_text)
+        username = session.get("user") or "anon"
+        hist_txt_path = _save_history_txt(username, cleaned, pdf_in.filename)
+
+        return jsonify({
+            "ok": True,
+            "text": cleaned,     # UI hiển thị
+            "raw": raw_text,     # để debug nếu cần
+            "txt_path": txt_path # cho nút Download
+        })
+
+    except Exception as e:
+        app.logger.exception("PDF->TXT fatal: %s", e)
+        return jsonify({"error": f"Lỗi xử lý PDF: {e}"}), 500
+
+    finally:
+        # Xoá PDF tạm
+        try:
+            if os.path.exists(temp_pdf):
+                os.remove(temp_pdf)
+        except Exception:
+            pass
+
+
+# ========= ZERO-CONFIG HELPERS (history lưu vào ./instance/pdf_txt/<user>/) =========
+from werkzeug.utils import secure_filename
+
+def _hist_user_dir(username: str) -> str:
+    base = os.path.join(app.instance_path, "pdf_txt_111", secure_filename(username or "anon"))
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _is_in_dir(path: str, base_dir: str) -> bool:
+    try:
+        return os.path.realpath(path).startswith(os.path.realpath(base_dir) + os.sep)
+    except Exception:
+        return False
+
+def _save_history_txt(username: str, raw_text: str, orig_pdf_name: str) -> str:
+    userdir = _hist_user_dir(username)
+    ts = datetime.now(timezone.utc).astimezone(ZoneInfo(LOCAL_TZ_NAME)).strftime("%Y%m%d_%H%M%S")
+    base_pdf = os.path.splitext(os.path.basename(orig_pdf_name or "document.pdf"))[0]
+    fname = f"{ts}__{secure_filename(base_pdf)}.txt"
+    out_path = os.path.join(userdir, fname)
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(raw_text or "")
+    return out_path
+
+def _list_history(username: str, limit: int = 50):
+    userdir = _hist_user_dir(username)
+    items = []
+    for name in sorted(os.listdir(userdir), reverse=True):
+        if not name.lower().endswith(".txt"):
+            continue
+        p = os.path.join(userdir, name)
+        try:
+            st = os.stat(p)
+            items.append({
+                "name": name,
+                "path": p,
+                "size": st.st_size,
+                "mtime": datetime.fromtimestamp(st.st_mtime, tz=ZoneInfo(LOCAL_TZ_NAME)).isoformat(),
+            })
+        except Exception:
+            pass
+    return items[:max(1, min(limit, 200))]
+
+# =============================== ROUTES (API) ===============================
+
+@app.route("/api/pdf_to_txt/history", methods=["GET"])
+@login_required(api=True)
+def api_pdf_to_txt_history():
+    limit = int(request.args.get("limit", 50))
+    user = session.get("user") or "anon"
+    items = _list_history(user, limit=limit)
+    # ẩn absolute path khỏi response, tạo URL download hợp lệ
+    for it in items:
+        it.pop("path", None)
+        it["download_url"] = url_for(
+            "api_pdf_to_txt_download",
+            path=os.path.join(_hist_user_dir(user), it["name"])
+        )
+    return jsonify({"items": items})
+
+@app.route("/api/pdf_to_txt/download", methods=["GET"])
+@login_required(api=True)
+def api_pdf_to_txt_download():
+    p = request.args.get("path", "")
+    userdir = _hist_user_dir(session.get("user") or "anon")
+    if not p or not os.path.exists(p) or not _is_in_dir(p, userdir):
+        return jsonify({"error": "Không tìm thấy file"}), 404
+    return send_file(p, as_attachment=True, download_name=os.path.basename(p))
+
+@app.route("/api/pdf_to_txt/delete", methods=["POST"])
+@login_required(api=True)
+def api_pdf_to_txt_delete():
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    if not name or not name.lower().endswith(".txt"):
+        return jsonify({"error": "Thiếu hoặc sai tên file .txt"}), 400
+    userdir = _hist_user_dir(session.get("user") or "anon")
+    p = os.path.join(userdir, name)
+    if not os.path.exists(p) or not _is_in_dir(p, userdir):
+        return jsonify({"error": "Không tìm thấy file hợp lệ"}), 404
+    try:
+        os.remove(p)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": f"Xóa thất bại: {e}"}), 500
+
+@app.route("/api/pdf_to_txt/save", methods=["POST"])
+@login_required(api=True)
+def api_pdf_to_txt_save():
+    d = request.get_json(silent=True) or {}
+    text = (d.get("text") or "").strip()
+    base_name = (d.get("base_name") or "").strip()  # tên gợi ý (vd: abc.pdf)
+    if not text:
+        return jsonify({"error": "Không có nội dung để lưu."}), 400
+    user = session.get("user") or "anon"
+    try:
+        orig = base_name or "manual_note"
+        txt_path = _save_history_txt(user, text, orig)
+        return jsonify({"ok": True, "txt_path": txt_path})
+    except Exception as e:
+        return jsonify({"error": f"Lưu thất bại: {e}"}), 500
+
+
+@app.route("/pdf_to_txt", methods=["GET"])
+@login_required
+def page_pdf_to_txt():
+    return render_template("home/pdf_to_txt.html", active="page_pdf_to_txt", current_user=session.get('user'))
+
+
+# =====================================
+# Pages (protected)
+# =====================================
+@app.route('/transcribe', methods=['POST'])
+@login_required(api=True)
+def api_transcribe():
+    """
+    Nhận form-data:
+      - audio: <file audio/video>
+      - lang:  vi | en | auto (mặc định vi)
+    """
+    if 'audio' not in request.files:
+        return jsonify({"error": "Thiếu file 'audio' (multipart/form-data)."}), 400
+
+    audio = request.files['audio']
+    if not audio or not audio.filename:
+        return jsonify({"error": "Tên file trống."}), 400
+
+    lang = (request.form.get('lang') or 'vi').strip().lower()
+    upload_dir = os.path.join(app.root_path, 'uploads', 'stt')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    fname = f"{int(time.time()*1000)}_{secure_filename(audio.filename)}"
+    src_path = os.path.join(upload_dir, fname)
+    audio.save(src_path)
+
+    # B1) Chuẩn hoá sang WAV 16k mono (ổn định cho mọi nguồn: mp4/webm/m4a/…)
+    try:
+        base, ext = os.path.splitext(src_path)
+        # Nếu đã .wav thì tạo file _16k.wav; nếu không thì .wav luôn
+        wav_path = base + "_16k.wav" if ext.lower() == ".wav" else base + ".wav"
+        path_for_asr = convert_to_wav16k_mono(src_path, wav_path)
+    except Exception as conv_e:
+        app.logger.exception("Convert error: %s", conv_e)
+        return jsonify({"error": f"Không chuyển được sang WAV: {conv_e}"}), 400
+
+    # B2) Nhận dạng
+    try:
+        text, segments = transcribe_file(path_for_asr, lang=lang)
+        if not (text or "").strip():
+            return jsonify({
+                "error": "Không nhận được tiếng nói (kết quả rỗng). "
+                         "Hãy chọn đúng ngôn ngữ, kiểm tra âm lượng/ồn nền, hoặc thử file khác."
+            }), 200
+        return jsonify({
+            "ok": True,
+            "text": text,
+            "segments": segments,
+            "filename": os.path.basename(path_for_asr)
+        })
+    except Exception as e:
+        app.logger.exception("ASR error: %s", e)
+        return jsonify({"error": f"ASR failed: {e}"}), 500
+    
+# Alias để tương thích với JS cũ nếu nơi khác còn trỏ /tools/stt
+@app.route('/tools/stt', methods=['POST'])
+@login_required(api=True)
+def api_transcribe_alias():
+    return api_transcribe()
+
+@app.route('/transcribe', methods=['GET'])
+@login_required
+def transcribe():
+    return render_template(
+        'home/transcribe.html',     
+        current_user=session.get('user'),
+        active='transcribe'         
+    )
 
 # =====================================
 # Main
