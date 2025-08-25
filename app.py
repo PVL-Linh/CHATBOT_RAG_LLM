@@ -17,43 +17,43 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
 
 # Import helper modules
-from Helpers.Data_storage import save_item, delete_item, get_items
-from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
-from Helpers.media_convert import convert_to_wav16k_mono
-from Helpers.prompt_KT import persona_vi
-from Helpers.Image_generation_and_processing import (
+from src.Helpers.Data_storage import save_item, delete_item, get_items
+from src.Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
+from src.Helpers.media_convert import convert_to_wav16k_mono
+from src.Helpers.prompt_KT import persona_vi
+from src.Helpers.Image_generation_and_processing import (
     build_image_prompt, generate_image_via_gemini_api,
     add_logo_to_images, pil_to_base64, load_default_logo,
     conform_aspect, ALLOWED_ASPECTS
 )
-from Helpers.Content_generation import (
+from src.Helpers.Content_generation import (
     generate_facebook_ads_content, generate_rephrase_content,
     generate_tiktok_content, generate_fab_content
 )
-from Helpers.prompt_internal import SYSTEM_PRIMER
-from Helpers.vinai_stt import transcribe_file
-from Login.login_required import load_users, login_required
+from src.Helpers.prompt_internal import SYSTEM_PRIMER
+from src.Helpers.vinai_stt import transcribe_file
+from src.Login.login_required import load_users, login_required
 # from Login.Logging_config import _log_message_to_csv 
-from Helpers.Marketing_Planner.Content_Planner import (
+from src.Helpers.Marketing_Planner.Content_Planner import (
     _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
 try:
-    from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
-    from .Helpers.Marketing_Planner.channels_store import (
+    from src.Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
+    from src.Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
+    from src.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except ImportError:
-    from Model_LLM.hybrid_retriever import rerank, TOP_K
-    from Helpers.Marketing_Planner.channels_store import (
+    from src.Model_LLM.hybrid_retriever import rerank, TOP_K
+    from src.Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
+    from src.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 
-from Helpers.rate_limit import get_text_limiter
+from src.Helpers.rate_limit import get_text_limiter
 from zoneinfo import ZoneInfo
-from Model_LLM.model_llm import LLM_model
+from src.Model_LLM.model_llm import LLM_model
 from google.genai import types as genai_types
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
@@ -61,8 +61,11 @@ load_dotenv()
 # =====================================
 # Flask setup
 # =====================================
-app = Flask(__name__)
-app.config.from_object('config.Config')  # SECRET_KEY etc.
+app = Flask(__name__,
+    template_folder="src/templates",
+    static_folder="src/static",)
+
+app.config.from_object('src.config.Config')  # SECRET_KEY etc.
 app.config.setdefault('SEND_FILE_MAX_AGE_DEFAULT', 31536000)
 
 try:
