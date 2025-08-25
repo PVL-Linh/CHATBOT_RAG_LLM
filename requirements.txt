@@ -49,6 +49,7 @@ faster-whisper==1.2.0
 # Data / Utils
 # numpy==1.26.4
 numpy>=2.1.0
+tiktoken==0.8.0
 pandas==2.2.3
 SQLAlchemy==2.0.38
 tenacity==9.0.0
