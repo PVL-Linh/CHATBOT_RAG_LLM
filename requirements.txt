@@ -121,7 +121,7 @@ rank_bm25==0.2.2
 pytesseract==0.3.13
 pdfminer.six==20250506
 pdf2image==1.16.3
-speech_recognition==3.8.1
+SpeechRecognition==3.14.3
 vosk==0.3.45
 faster-whisper==1.2.0
 imageio_ffmpeg==0.6.0
