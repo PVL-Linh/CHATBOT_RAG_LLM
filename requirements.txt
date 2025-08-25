@@ -22,7 +22,7 @@ tiktoken==0.8.0
 
 # HF stack
 transformers==4.44.2
-huggingface-hub==0.25.2
+huggingface-hub==0.33.5
 protobuf==5.29.3
 
 # PDF / OCR
