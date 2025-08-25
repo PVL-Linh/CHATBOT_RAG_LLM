@@ -203,152 +203,73 @@
     overflow: visible;
   }
 }
+/* Lịch sử – layout sạch */
+#pdf_history_list { display: grid; gap: 10px; }
 
-/* Pretty select giống STT */
-.pdf-form select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 100%;
-  min-height: 40px;
-  padding: 10px 42px 10px 12px;
-  background-color: #fff;
-  border: 1px solid #e6e8ef;
+.hist-item {
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--surface, #fff);
   border-radius: 12px;
-  color: #0f172a;
-  font: 500 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto,
-    "Helvetica Neue", Arial;
-  background-image: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23334155' stroke-width='1.6'>\
-<path d='M6 8l4 4 4-4'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px 16px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.pdf-form select:hover {
-  border-color: #cfd6e4;
-}
-.pdf-form select:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-}
-.pdf-form select:disabled {
-  background-color: #f8fafc;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-.pdf-form select::-ms-expand {
-  display: none;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 12px;
 }
 
-.pdf-form .pdf-row > label {
+.hist-item .meta { min-width: 0; }
+.hist-item .name-link {
   font-weight: 600;
-  color: #111827;
-}
-
-/* History compact */
-.pdf-history-list .hist-item {
-  border: 1px solid #eef1f5;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
-  background: #fff;
-}
-.pdf-history-list .hist-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.pdf-history-list .hist-name {
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--link, #2563eb);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.pdf-history-list .hist-meta {
-  color: #64748b;
+.hist-item .name-link:hover { text-decoration: underline; }
+
+.hist-item .sub {
   font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.lang-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #c7d2fe;
-  background: #eef2ff;
-  color: #1f2a5a;
-  font-weight: 700;
-  font-size: 12px;
+  opacity: .7;
+  margin-top: 2px;
 }
 
-/* Action group */
-.hist-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px;
-  background: #fff;
-  border: 1px solid #e6e8ef;
-  border-radius: 12px;
-  box-shadow: 0 1px 0 rgba(2, 6, 23, 0.02);
+.hist-item .actions { display: flex; gap: 8px; align-items: start; }
+.hist-item .actions .btn-ghost[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* Khối preview – accordion mượt và có cuộn bên trong */
+.hist-item .preview {
+  grid-column: 1 / -1;
+  border-top: 1px dashed var(--border, #e5e7eb);
+  margin-top: 6px;
+  padding-top: 8px;
+  overflow: hidden;                 /* đóng: ẩn hết */
+  max-height: 0;                    /* đóng */
+  transition: max-height .25s ease;
 }
-.pdf-history-list .hist-actions .btn-ghost {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: #1f2937;
-  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+
+.hist-item.open .preview {
+  /* khi mở: hiển thị tối đa 360px và cuộn bên trong */
+  max-height: 360px;
 }
-.pdf-history-list .hist-actions .btn-ghost:hover {
-  background: #eef2ff;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.06);
+
+.hist-item .preview pre {
+  margin: 0;
+  padding: 8px;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 340px;                /* khớp với 360px - padding */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12.5px;
+  line-height: 1.4;
 }
-.pdf-history-list .hist-actions .btn-ghost:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.1);
-}
-.pdf-history-list {
-  display: grid;
-  gap: 8px;
-}
-.hist-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  background: #fff;
-}
-.hist-item .meta .name {
-  font-weight: 600;
-}
-.hist-item .meta .sub {
-  font-size: 12px;
-  opacity: 0.7;
-}
-.hist-item .actions .btn-ghost {
-  margin-left: 6px;
-}
-.pdf-status.ok {
-  color: #0a7;
-}
-.pdf-status.err {
-  color: #c33;
-}
-.local-loader.hidden {
-  display: none;
+
+/* Trạng thái Saved cho nút Lưu */
+#pdf_save.is-saved { position: relative; }
+#pdf_save.is-saved::after {
+  content: " ✓";
+  font-weight: 700;
 }

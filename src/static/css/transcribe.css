@@ -148,7 +148,7 @@
 
 .stt-textarea {
   width: 100%;
-  min-height: 360px;
+  height: auto;
   resize: vertical;
   border: 1px solid #e6e8ef;
   border-radius: 12px;

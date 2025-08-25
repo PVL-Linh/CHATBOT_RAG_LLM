@@ -970,12 +970,8 @@ def _clean_extracted_text(s: str) -> str:
 @login_required(api=True)
 def api_pdf_to_txt():
     """
-    Nhận file PDF, ưu tiên gọi helper pdf_to_txt(...).
-    - Nếu helper trả dict {text, txt_path}: dùng luôn
-    - Nếu helper trả string path .txt: tự mở file đọc
-    - Nếu helper trả text thô: dùng text
-    - Nếu helper LỖI: Fallback tự trích PDF bằng PyMuPDF tại đây
-    Trả về: {"text", "raw", "txt_path"}
+    Convert PDF -> text.
+    KHÔNG lưu vào History! Chỉ ghi TXT tạm (per-user) để nút Download hoạt động.
     """
     if "file" not in request.files:
         return jsonify({"error": "Thiếu file PDF"}), 400
@@ -984,21 +980,20 @@ def api_pdf_to_txt():
     if not (pdf_in.filename or "").lower().endswith(".pdf"):
         return jsonify({"error": "File không phải PDF"}), 400
 
-    # Lưu PDF tạm
-    tmp_dir = tempfile.gettempdir()
-    temp_pdf = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.pdf")
+    user = session.get("user") or "anon"
+    tmp_user = _tmp_user_dir(user)
+
+    # Lưu bản PDF tạm trong thư mục tạm của user
+    temp_pdf = os.path.join(tmp_user, f"{uuid.uuid4().hex}.pdf")
     pdf_in.save(temp_pdf)
 
-    raw_text, txt_path = "", None
-
+    raw_text = ""
     def _fallback_extract(pdf_path: str):
-        """Đọc PDF trực tiếp bằng PyMuPDF (không cần helper)."""
         text_chunks = []
         with fitz.open(pdf_path) as doc:
             for i, page in enumerate(doc, start=1):
                 t = page.get_text("text") or ""
                 if not t.strip():
-                    # fallback blocks
                     try:
                         blocks = page.get_text("blocks") or []
                         t = "\n".join(
@@ -1008,93 +1003,68 @@ def api_pdf_to_txt():
                     except Exception:
                         t = ""
                 text_chunks.append(f"=== Page {i} ===\n{t.strip()}\n")
-        text_all = "\n".join(text_chunks)
-
-        # Lưu .txt tạm để UI có đường link download
-        temp_txt = os.path.splitext(pdf_path)[0] + ".txt"
-        try:
-            with open(temp_txt, "w", encoding="utf-8") as f:
-                f.write(text_all)
-        except Exception:
-            temp_txt = None
-        return text_all, temp_txt
+        return "\n".join(text_chunks)
 
     try:
-        # 1) Thử gọi helper của bạn (nếu có import đúng)
+        # Ưu tiên helper của bạn
         try:
-            result = pdf_to_txt_vi(temp_pdf)  # dùng import của bạn
+            result = pdf_to_txt_vi(temp_pdf)
         except Exception as helper_err:
-            app.logger.warning("Helper pdf_to_txt() lỗi, dùng fallback: %s", helper_err)
+            app.logger.warning("Helper pdf_to_txt_vi lỗi, dùng fallback: %s", helper_err)
             result = None
 
         if result is None:
-            # 2) Fallback: tự trích bằng PyMuPDF
-            raw_text, txt_path = _fallback_extract(temp_pdf)
+            raw_text = _fallback_extract(temp_pdf)
         else:
-            # 3) Chuẩn hóa mọi kiểu trả về của helper
             if isinstance(result, dict):
                 raw_text = result.get("text") or ""
-                txt_path = result.get("txt_path")
             elif isinstance(result, str):
-                # Nếu là đường dẫn txt -> đọc file
                 if os.path.exists(result) and result.lower().endswith(".txt"):
-                    txt_path = result
                     try:
                         with open(result, "r", encoding="utf-8") as f:
                             raw_text = f.read()
+                        # (bỏ qua đường dẫn txt ngoài – ta sẽ tự tạo file tạm an toàn)
                     except Exception:
                         raw_text = ""
                 else:
-                    # ít gặp: helper trả text luôn
                     raw_text = result or ""
             else:
                 raw_text = getattr(result, "text", "") or ""
-                txt_path = getattr(result, "txt_path", None)
 
-            # Nếu helper không tạo file txt, tự tạo để có link download
-            if not txt_path:
-                tmp_txt = os.path.splitext(temp_pdf)[0] + ".txt"
-                try:
-                    with open(tmp_txt, "w", encoding="utf-8") as f:
-                        f.write(raw_text or "")
-                    txt_path = tmp_txt
-                except Exception:
-                    txt_path = None
-
-        # Chuẩn hóa string
         if not isinstance(raw_text, str):
             try:
-                if isinstance(raw_text, (list, tuple)):
-                    raw_text = "\n".join(map(str, raw_text))
-                else:
-                    raw_text = str(raw_text)
+                raw_text = "\n".join(map(str, raw_text)) if isinstance(raw_text, (list, tuple)) else str(raw_text)
             except Exception:
                 raw_text = str(raw_text)
 
         cleaned = _clean_extracted_text(raw_text)
-        username = session.get("user") or "anon"
-        hist_txt_path = _save_history_txt(username, cleaned, pdf_in.filename)
+
+        # ❌ KHÔNG lưu vào History ở đây
+        # ✅ Tạo file TXT tạm (per-user) để Download
+        ts = datetime.now(timezone.utc).astimezone(ZoneInfo(LOCAL_TZ_NAME)).strftime("%Y%m%d_%H%M%S")
+        base_pdf = os.path.splitext(os.path.basename(pdf_in.filename or "document.pdf"))[0]
+        tmp_txt_name = f"{ts}__{secure_filename(base_pdf)}.txt"
+        tmp_txt_path = os.path.join(tmp_user, tmp_txt_name)
+        with open(tmp_txt_path, "w", encoding="utf-8") as f:
+            f.write(cleaned or "")
 
         return jsonify({
             "ok": True,
-            "text": cleaned,     # UI hiển thị
-            "raw": raw_text,     # để debug nếu cần
-            "txt_path": txt_path # cho nút Download
+            "text": cleaned,     # hiển thị ở tab Result
+            "raw": raw_text,     # (nếu muốn debug)
+            "txt_path": tmp_txt_path  # nút Download dùng path này
         })
 
     except Exception as e:
         app.logger.exception("PDF->TXT fatal: %s", e)
         return jsonify({"error": f"Lỗi xử lý PDF: {e}"}), 500
-
     finally:
-        # Xoá PDF tạm
         try:
             if os.path.exists(temp_pdf):
                 os.remove(temp_pdf)
         except Exception:
             pass
-
-
+        
 # ========= ZERO-CONFIG HELPERS (history lưu vào ./instance/pdf_txt/<user>/) =========
 from werkzeug.utils import secure_filename
 
@@ -1102,7 +1072,11 @@ def _hist_user_dir(username: str) -> str:
     base = os.path.join(app.instance_path, "pdf_txt_111", secure_filename(username or "anon"))
     os.makedirs(base, exist_ok=True)
     return base
-
+def _tmp_user_dir(username: str) -> str:
+    """Thư mục tạm cho user để chứa TXT preview (không phải History)."""
+    base = os.path.join(app.instance_path, "pdf_txt_tmp", secure_filename(username or "anon"))
+    os.makedirs(base, exist_ok=True)
+    return base
 def _is_in_dir(path: str, base_dir: str) -> bool:
     try:
         return os.path.realpath(path).startswith(os.path.realpath(base_dir) + os.sep)
@@ -1159,9 +1133,14 @@ def api_pdf_to_txt_history():
 @login_required(api=True)
 def api_pdf_to_txt_download():
     p = request.args.get("path", "")
-    userdir = _hist_user_dir(session.get("user") or "anon")
-    if not p or not os.path.exists(p) or not _is_in_dir(p, userdir):
+    user = session.get("user") or "anon"
+    user_hist = _hist_user_dir(user)
+    user_tmp  = _tmp_user_dir(user)
+
+    p = os.path.normpath(p)
+    if not p or not os.path.exists(p) or not (_is_in_dir(p, user_hist) or _is_in_dir(p, user_tmp)):
         return jsonify({"error": "Không tìm thấy file"}), 404
+
     return send_file(p, as_attachment=True, download_name=os.path.basename(p))
 
 @app.route("/api/pdf_to_txt/delete", methods=["POST"])
