@@ -1,20 +1,23 @@
-import os, json, time, csv, uuid
+import os, json, time, csv
 from datetime import datetime, timezone
 from functools import wraps
 from pathlib import Path
+import uuid
 from PIL import Image
-
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file
+from Helpers.vinai_stt import transcribe_file
+from flask import Flask, render_template, request, send_file, session, redirect, url_for, jsonify
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
-import threading, json
-# LangChain / LLM helpers
+from Helpers.media_convert import convert_to_wav16k_mono
+from werkzeug.utils import secure_filename
+# LangChain / LLM helpers (giữ nguyên import của bạn)
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
+from Helpers.media_convert import convert_to_wav16k_mono
 
-# Import helper modules
+# Import helper modules (giữ nguyên theo cấu trúc dự án của bạn)
 from Helpers.Data_storage import save_item, delete_item, get_items
 from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
 from Helpers.prompt_KT import persona_vi
@@ -29,31 +32,27 @@ from Helpers.Content_generation import (
 )
 from Helpers.prompt_internal import SYSTEM_PRIMER
 from Login.login_required import load_users, login_required
-# from Login.Logging_config import _log_message_to_csv 
+# from Login.Logging_config import _log_message_to_csv  # <-- KHÔNG dùng nữa, ta ghi CSV ngay tại app.py
 from Helpers.Marketing_Planner.Content_Planner import (
     _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 )
+from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
+
 try:
     from .Model_LLM.hybrid_retriever import rerank, TOP_K  # khi chạy -m src.app
     from .Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
 except ImportError:
     from Model_LLM.hybrid_retriever import rerank, TOP_K
     from Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
-    from Processing_Data.Pdf_Images_to_Text import pdf_to_txt
-
-from Helpers.rate_limit import get_text_limiter
-from zoneinfo import ZoneInfo
+from Helpers.media_convert import convert_to_wav16k_mono
+import tempfile, re
+from werkzeug.utils import secure_filename
 from Model_LLM.model_llm import LLM_model
-from google.genai import types as genai_types
-from dotenv import load_dotenv
-
-load_dotenv()
 # =====================================
 # Flask setup
 # =====================================
@@ -76,39 +75,9 @@ except Exception:
 # =====================================
 # Gemini types
 # =====================================
-# --- semaphore cho tuyến gọi thẳng bằng gclient (không qua Helpers/LLM_client) ---
-LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
-
-def _estimate_from_contents(contents, max_out_tokens=1024):
-    words = 0
-    for m in contents or []:
-        for p in (m.get("parts") or []):
-            if isinstance(p, dict) and p.get("text"):
-                words += len(p["text"].split())
-    return int(1.3 * words) + int(max_out_tokens or 512)
-
-def _safe_gemini_generate(gclient, model, contents, config, retries=3, backoff=0.4):
-    limiter = get_text_limiter()
-    max_out = config.get("max_output_tokens") if isinstance(config, dict) else getattr(config, "max_output_tokens", 1024)
-    tokens_est = _estimate_from_contents(contents, max_out)
-    last_err = None
-    for i in range(retries + 1):
-        try:
-            limiter.acquire(tokens_est)
-            t0 = time.time()
-            with LLM_SEM:
-                resp = gclient.models.generate_content(model=model, contents=contents, config=config)
-            limiter.on_success()
-            return (getattr(resp, "text", "") or ""), time.time() - t0
-        except Exception as e:
-            last_err = e
-            s = str(e).lower()
-            if ("429" in s or "quota" in s or "rate" in s) and i < retries:
-                limiter.on_429()
-                time.sleep(backoff * (2 ** i))
-                continue
-            limiter.on_429()
-            raise last_err
+from google.genai import types as genai_types
+from dotenv import load_dotenv
+load_dotenv()
 
 # =====================================
 # Constants & Settings
@@ -120,7 +89,7 @@ LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 # =====================================
 # CSV logging (WITH session_id)
 # =====================================
-
+from zoneinfo import ZoneInfo
 
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
@@ -254,8 +223,65 @@ def logout():
     return redirect(url_for("login"))
 
 # =====================================
-# Pages (protected)
+# Pages (transcribe)
 # =====================================
+@app.route('/transcribe', methods=['POST'])
+@login_required(api=True)
+def api_transcribe():
+    """
+    Nhận form-data:
+      - audio: <file audio/video>
+      - lang:  vi | en | auto (mặc định vi)
+    """
+    if 'audio' not in request.files:
+        return jsonify({"error": "Thiếu file 'audio' (multipart/form-data)."}), 400
+
+    audio = request.files['audio']
+    if not audio or not audio.filename:
+        return jsonify({"error": "Tên file trống."}), 400
+
+    lang = (request.form.get('lang') or 'vi').strip().lower()
+    upload_dir = os.path.join(app.root_path, 'uploads', 'stt')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    fname = f"{int(time.time()*1000)}_{secure_filename(audio.filename)}"
+    src_path = os.path.join(upload_dir, fname)
+    audio.save(src_path)
+
+    # B1) Chuẩn hoá sang WAV 16k mono (ổn định cho mọi nguồn: mp4/webm/m4a/…)
+    try:
+        base, ext = os.path.splitext(src_path)
+        # Nếu đã .wav thì tạo file _16k.wav; nếu không thì .wav luôn
+        wav_path = base + "_16k.wav" if ext.lower() == ".wav" else base + ".wav"
+        path_for_asr = convert_to_wav16k_mono(src_path, wav_path)
+    except Exception as conv_e:
+        app.logger.exception("Convert error: %s", conv_e)
+        return jsonify({"error": f"Không chuyển được sang WAV: {conv_e}"}), 400
+
+    # B2) Nhận dạng
+    try:
+        text, segments = transcribe_file(path_for_asr, lang=lang)
+        if not (text or "").strip():
+            return jsonify({
+                "error": "Không nhận được tiếng nói (kết quả rỗng). "
+                         "Hãy chọn đúng ngôn ngữ, kiểm tra âm lượng/ồn nền, hoặc thử file khác."
+            }), 200
+        return jsonify({
+            "ok": True,
+            "text": text,
+            "segments": segments,
+            "filename": os.path.basename(path_for_asr)
+        })
+    except Exception as e:
+        app.logger.exception("ASR error: %s", e)
+        return jsonify({"error": f"ASR failed: {e}"}), 500
+    
+# Alias để tương thích với JS cũ nếu nơi khác còn trỏ /tools/stt
+@app.route('/tools/stt', methods=['POST'])
+@login_required(api=True)
+def api_transcribe_alias():
+    return api_transcribe()
+
 @app.route('/', methods=['GET'])
 @login_required
 def chat():
@@ -264,6 +290,15 @@ def chat():
         messages=get_history()[-30:],
         current_user=session.get('user'),
         active='chat'
+    )
+
+@app.route('/transcribe', methods=['GET'])
+@login_required
+def transcribe():
+    return render_template(
+        'home/transcribe.html',      # <— chuyển sang thư mục home
+        current_user=session.get('user'),
+        active='transcribe'           # để nhóm Marketing vẫn sáng trong sidebar chung
     )
 
 @app.route('/marketing', methods=['GET'])
@@ -291,6 +326,11 @@ def guide():
 def admin():
     return render_template('home/admin.html', current_user=session.get('user'), active='admin')
 
+@app.route("/pdf_to_txt", methods=["GET"])
+@login_required
+def page_pdf_to_txt():
+    return render_template("home/pdf_to_txt.html", current_user=session.get('user'), active="page_pdf_to_txt")
+
 # =====================================
 # Utils: convert history to Gemini format (no system role)
 # =====================================
@@ -314,24 +354,7 @@ def _to_gemini_history_no_system(history_msgs):
 # =====================================
 # Chat API (protected)
 # =====================================
-# LỌC 
-import re
 
-_SOURCE_TAG_PAT = re.compile(
-    r"""\s*[\(\[](?=[^)\]]{0,240}?\b(?:source|nguồn|chunk)\b)[^)\]]+[\)\]]""",
-    re.IGNORECASE,
-)
-
-def strip_source_citations(text: str) -> str:
-    if not text:
-        return text
-    text = _SOURCE_TAG_PAT.sub("", text)
-    # dọn khoảng trắng/thừa dấu cách trước dấu câu
-    text = re.sub(r"[ \t]{2,}", " ", text)
-    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
-    return text.strip()
-
-# =====================================
 
 @app.route('/api/chat', methods=['POST'])
 @login_required(api=True)
@@ -401,11 +424,18 @@ def chat_api():
 
     # 4) Gọi Gemini
     try:
-        result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
+        t0 = time.time()
+        resp = gclient.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=contents,
+            config=GEN_CFG
+        )
+        result = getattr(resp, "text", "") or ""
+        llm_time = time.time() - t0
     except Exception as e:
         result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
-    result = strip_source_citations(result)
+
     add_message("assistant", result, session_id=session_id)
     elapsed = time.time() - full_start
 
@@ -793,8 +823,6 @@ def _merge_channels_for_planner():
 def api_channels_list():
     return jsonify({"items": _merge_channels_for_planner()})
 
-
-
 @app.route("/api/channels/custom", methods=["GET"])
 @login_required(roles=['admin', 'manager_marketing'])
 def api_channels_list_custom():
@@ -875,68 +903,91 @@ def api_channels_prompt():
 
     return jsonify({"channel": channel, "generated": result})
 
-@app.route('/api/chat/stream', methods=['POST'])
+# ================================ PDF2Text ============================================
+@app.route("/api/pdf_to_txt/download", methods=["GET"])
 @login_required(api=True)
-def chat_stream():
-    embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
+def api_pdf_to_txt_download():
+    p = request.args.get("path", "")
+    if not p or not os.path.exists(p):
+        return jsonify({"error": "Không tìm thấy file"}), 404
+    return send_file(p, as_attachment=True, download_name=os.path.basename(p))
 
-    data = request.get_json(force=True) or {}
-    user_text  = (data.get('message') or "").strip()
-    session_id = (data.get('session_id') or "").strip()
-    if not user_text:
-        return jsonify({"error": "Missing message"}), 400
 
-    add_message("user", user_text, session_id=session_id)
+def _clean_extracted_text(s: str) -> str:
+    if not s:
+        return ""
+    # xuống dòng form feed -> newline
+    s = s.replace("\x0c", "\n")
+    lines = [ln.strip() for ln in s.splitlines()]
 
-    # (tùy bạn) rút gọn phần embed/retrieve cho stream hoặc giữ nguyên như chat_api()
-    hist_msgs = [{"role": m["role"], "content": m["content"]}
-                 for m in get_history() if m["role"] in ("user", "assistant")]
-    contents = _to_gemini_history_no_system(hist_msgs)
+    out = []
+    for ln in lines:
+        # bỏ dòng chỉ toàn số (thường là số trang) hoặc chỉ 1 ký tự
+        if (ln.isdigit() and len(ln) <= 3) or (len(ln) == 1 and ln.isdigit()):
+            continue
+        out.append(ln)
 
-    context_hint = "(Stream mode - context omitted)"  # hoặc ghép docs_text nếu muốn
-    system_prompt = f"""{SYSTEM_PRIMER}
-    - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp (nếu có).
-    {context_hint}
-    """
-    first_user_text = f"""[SYSTEM]
-    {system_prompt}
+    s2 = "\n".join(out)
+    # gộp nhiều dòng trống liên tiếp còn tối đa 1
+    s2 = re.sub(r"\n{3,}", "\n\n", s2)
+    # gộp nhiều khoảng trắng liên tiếp
+    s2 = re.sub(r"[ \t]{2,}", " ", s2)
+    return s2.strip()
 
-    [USER]
-    {user_text}"""
-    contents.append({"role": "user", "parts": [{"text": first_user_text}]})
-    limiter = get_text_limiter()
-    tokens_est = _estimate_from_contents(contents, GEN_CFG.get("max_output_tokens", 1024))
+@app.route("/api/pdf_to_txt", methods=["POST"])
+@login_required(api=True)
+def api_pdf_to_txt():
+    if "file" not in request.files:
+        return jsonify({"error": "Thiếu file PDF"}), 400
 
-    def gen():
-        yield "event: ready\ndata: {}\n\n"
+    pdf_file = request.files["file"]
+    if not (pdf_file.filename or "").lower().endswith(".pdf"):
+        return jsonify({"error": "File không phải PDF"}), 400
+
+    try:
+        tmp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(tmp_dir, f"{uuid.uuid4().hex}.pdf")
+        pdf_file.save(temp_path)
+
+        result = pdf_to_txt(temp_path)  # có thể trả string / dict / dataclass
         try:
-            limiter.acquire(tokens_est)
-            with LLM_SEM:
-                resp = gclient.models.generate_content(
-                    model=GEMINI_MODEL, contents=contents, config=GEN_CFG, stream=True
-                )
-                acc = []
-                for ev in resp:
-                    chunk = getattr(ev, "text", "") or ""
-                    if chunk:
-                        acc.append(chunk)
-                        yield f"data: {json.dumps({'delta': chunk})}\n\n"
-                    else:
-                        yield ": keep-alive\n\n"
-            limiter.on_success()
-            # Lưu full answer
-            full_answer = "".join(acc).strip()
-            add_message("assistant", full_answer, session_id=session_id)
-            yield "event: done\ndata: {}\n\n"
-        except Exception as e:
-            limiter.on_429()
-            yield f"event: error\ndata: {json.dumps({'message': str(e)})}\n\n"
+            os.remove(temp_path)
+        except:
+            pass
 
-    return Response(
-        stream_with_context(gen()),
-        mimetype="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
-    )
+        # Chuẩn hoá về chuỗi + lấy txt_path nếu có
+        raw_text = ""
+        txt_path = None
+
+        if isinstance(result, str):
+            raw_text = result
+        elif isinstance(result, dict):
+            raw_text = result.get("text") or ""
+            txt_path = result.get("txt_path")
+        else:
+            # dataclass / namedtuple: dùng getattr
+            raw_text = getattr(result, "text", "") or ""
+            txt_path = getattr(result, "txt_path", None)
+
+        # fallback nếu hàm trả list các trang
+        if not isinstance(raw_text, str):
+            try:
+                if isinstance(raw_text, (list, tuple)):
+                    raw_text = "\n".join(map(str, raw_text))
+                else:
+                    raw_text = json.dumps(raw_text, ensure_ascii=False)
+            except Exception:
+                raw_text = str(raw_text)
+
+        cleaned = _clean_extracted_text(raw_text)
+
+        return jsonify({
+            "text": cleaned,      # hiển thị mặc định
+            "raw": raw_text,      # nếu cần xem bản gốc
+            "txt_path": txt_path  # đường dẫn file .txt đã lưu (nếu có)
+        })
+    except Exception as e:
+        return jsonify({"error": f"Lỗi xử lý PDF: {e}"}), 500
 
 # =====================================
 # Main
