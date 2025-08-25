@@ -36,15 +36,35 @@ const MAX_LOCAL_MSGS = 200;
 // =====================
 // Markdown render
 // =====================
+// Bật GFM để parse bảng Markdown kiểu |A|B|
+if (window.marked) {
+  marked.setOptions({
+    gfm: true,
+    breaks: true,
+    headerIds: false,
+    mangle: false,
+  });
+}
 function renderMarkdown(md) {
   const raw = marked.parse(md || "");
   const clean = DOMPurify.sanitize(raw);
   const wrapper = document.createElement("div");
   wrapper.innerHTML = clean;
+
+  // Bọc mọi <table> trong div .table-scroll để cuộn ngang nếu rộng
+  const tables = wrapper.querySelectorAll("table");
+  tables.forEach((t) => {
+    const wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    t.parentNode.insertBefore(wrap, t);
+    wrap.appendChild(t);
+  });
+  // Gắn cờ để addMessage biết đây là bảng
+  wrapper.dataset.hasTable = tables.length ? "1" : "0";
+
+  // Highlight code như cũ
   wrapper.querySelectorAll("pre code").forEach((block) => {
-    try {
-      hljs.highlightElement(block);
-    } catch (_) {}
+    try { hljs.highlightElement(block); } catch (_) {}
   });
   return wrapper;
 }
@@ -61,7 +81,14 @@ function addMessage(role, content, opts = { persist: true }) {
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.appendChild(renderMarkdown(content));
+
+  // >>> đổi từ append thẳng sang gắn node để kiểm tra có bảng
+  const node = renderMarkdown(content);
+  if (node.dataset.hasTable === "1") {
+    bubble.classList.add("is-table");
+  }
+  bubble.appendChild(node);
+  // <<<
 
   li.appendChild(bubble);
   if (chatList) {

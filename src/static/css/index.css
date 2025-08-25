@@ -997,3 +997,43 @@ body {
 }
 
 /*====================================================================================================================================*/
+/* === Fix: bảng có chiều rộng như tin nhắn bình thường === */
+/* ===== Bảng trong tin nhắn chat ===== */
+.msg .bubble.is-table {
+  display: block;
+  max-width: 780px;       /* full chiều rộng hàng chat */
+  padding: 20px;            /* bảng tự kiểm soát padding */
+  overflow: visible;
+}
+
+/* Vùng cuộn ngang nếu bảng quá rộng */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Style bảng cơ bản */
+.table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* tránh bị bó cứng cột */
+}
+
+.table-scroll th,
+.table-scroll td {
+  border: 1px solid var(--border, #e5e7eb);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-scroll thead th {
+  position: sticky;      /* header dính khi cuộn dọc (nếu cần) */
+  top: 0;
+  background: var(--panel, #fff);
+  z-index: 1;
+}
+
+.table-scroll tbody tr:nth-child(odd) {
+  background: rgba(0,0,0,0.03);
+}
