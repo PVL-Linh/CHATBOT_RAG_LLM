@@ -21,7 +21,7 @@ sentence-transformers==3.0.1
 tiktoken==0.8.0
 
 # Torch CPU cho sentence-transformers (bản CPU nhẹ nhất, có wheel Linux)
-torch==2.4.1
+torch==2.5.1
 torchvision==0.19.1
 
 # ---- HF stack ----
