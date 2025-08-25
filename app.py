@@ -44,12 +44,12 @@ try:
     delete_channel, get_by_name )
     from src.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except ImportError:
-    from src.Model_LLM.hybrid_retriever import rerank, TOP_K
-    from src.Helpers.Marketing_Planner.channels_store import (
+    from .src.Model_LLM.hybrid_retriever import rerank, TOP_K
+    from .src.Helpers.Marketing_Planner.channels_store import (
     list_all_for_planner, load_channels, create_channel, update_channel,
     delete_channel, get_by_name
     )
-    from src.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
+    from .src.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 
 from src.Helpers.rate_limit import get_text_limiter
 from zoneinfo import ZoneInfo

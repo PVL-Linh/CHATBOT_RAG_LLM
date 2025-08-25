@@ -126,3 +126,6 @@ vosk==0.3.45
 faster-whisper==1.2.0
 imageio_ffmpeg==0.6.0
 gunicorn>=21.2
+langchain-huggingface==0.3.1
+huggingface-hub>=0.23
+transformers>=4.41

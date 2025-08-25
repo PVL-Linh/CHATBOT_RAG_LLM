@@ -55,7 +55,12 @@ import os
 from dotenv import load_dotenv
 
 # Dùng bản mới để bỏ deprecation warning
-from langchain_huggingface import HuggingFaceEmbeddings
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+except ModuleNotFoundError:
+    # fallback cho môi trường cũ
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+
 from langchain_community.vectorstores import FAISS
 
 from .hybrid_retriever import build_hybrid_retriever
