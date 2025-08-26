@@ -3,7 +3,7 @@ src/models/
 TRASH/
 src/chat_logs/
 # Bỏ FAISS_Vector trong src
-src/FAISS_Vector/
+# src/FAISS_Vector/
 instance/
 # Bỏ Data trong src
 src/Data/

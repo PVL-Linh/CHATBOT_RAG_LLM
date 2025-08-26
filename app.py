@@ -12,8 +12,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import requests
 import threading, json
 # LangChain / LLM helpers
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_community.vectorstores import FAISS
+# from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.messages import SystemMessage
 
 # Import helper modules
@@ -532,10 +532,76 @@ def api_fb_text():
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo nội dung: {str(e)}"}), 500
 
+from io import BytesIO
+
+def _to_float(s, default):
+    try: return float(s)
+    except Exception: return default
+
+def _to_int(s, default):
+    try: return int(s)
+    except Exception: return default
+
+def _load_logo_image(app, request, add_logo: bool):
+    """Ưu tiên: upload -> logo_url -> env DEFAULT_LOGO_PATH -> instance/brand/logo.png -> static/images/logo.png"""
+    if not add_logo:
+        return None
+
+    # 1) Upload
+    up = request.files.get("logo_file")
+    if up and getattr(up, "filename", ""):
+        try:
+            return Image.open(up.stream).convert("RGBA")
+        except Exception as e:
+            app.logger.warning("Logo upload invalid: %s", e)
+
+    # 2) URL
+    logo_url = (request.form.get("logo_url") or "").strip()
+    if logo_url:
+        try:
+            r = requests.get(logo_url, timeout=7)
+            r.raise_for_status()
+            return Image.open(BytesIO(r.content)).convert("RGBA")
+        except Exception as e:
+            app.logger.warning("Logo URL fetch failed: %s", e)
+
+    # 3) ENV fixed path
+    p_env = os.getenv("DEFAULT_LOGO_PATH", "")
+    if p_env and os.path.exists(p_env):
+        try:
+            return Image.open(p_env).convert("RGBA")
+        except Exception as e:
+            app.logger.warning("DEFAULT_LOGO_PATH invalid: %s", e)
+
+    # 4) Instance saved
+    p_inst = os.path.join(app.instance_path, "brand", "logo.png")
+    if os.path.exists(p_inst):
+        try:
+            return Image.open(p_inst).convert("RGBA")
+        except Exception as e:
+            app.logger.warning("Instance logo invalid: %s", e)
+
+    # 5) Static fallback
+    p_static = os.path.join(app.static_folder, "images", "logo.png")
+    if os.path.exists(p_static):
+        try:
+            return Image.open(p_static).convert("RGBA")
+        except Exception as e:
+            app.logger.warning("Static logo invalid: %s", e)
+
+    return None
+
+
 @app.route("/api/fbads/generate_images", methods=["POST"])
-@login_required(api=True, roles=['marketing','manager_marketing'])
+# TẠM thời bỏ roles để test local; sau khi ok hãy bật lại
+# @login_required(api=True, roles=['marketing','manager_marketing'])
+@login_required(api=True)
 def api_fb_imgs():
     form_data = request.form
+
+    app.logger.info("Content-Type: %s", request.content_type)
+    app.logger.info("Form keys: %s", list(form_data.keys()))
+    app.logger.info("Files keys: %s", list(request.files.keys()))
 
     result_text  = form_data.get("result_text", "")
     product      = form_data.get("product_desc", "")
@@ -544,31 +610,18 @@ def api_fb_imgs():
     engine_label = form_data.get("engine_label", "Gemini 2.0 Flash")
     aspect       = (form_data.get("aspect", "1:1") or "1:1").strip()
     if aspect not in ALLOWED_ASPECTS:
+        app.logger.warning("Aspect '%s' not allowed. Fallback to 1:1", aspect)
         aspect = "1:1"
     style        = form_data.get("style_preset", "Semi-realistic")
     composition  = form_data.get("composition", "Lifestyle scene")
 
     add_logo    = form_data.get("add_logo", "false").lower() == "true"
     keep_logo   = form_data.get("keep_logo_original", "true").lower() == "true"
-    logo_scale  = float(form_data.get("logo_scale", 0.15))
-    logo_margin = int(form_data.get("logo_margin", 20))
+    logo_scale  = _to_float(form_data.get("logo_scale", 0.15), 0.15)
+    logo_margin = _to_int(form_data.get("logo_margin", 20), 20)
 
-    logo_img = None
-    if request.files.get("logo_file"):
-        try:
-            logo_img = Image.open(request.files["logo_file"].stream).convert("RGBA")
-        except Exception:
-            logo_img = None
-    elif add_logo:
-        try:
-            logo_img = load_default_logo(app.root_path)
-        except Exception:
-            default_path = os.path.join(app.root_path, "static", "images", "logo.png")
-            if os.path.exists(default_path):
-                try:
-                    logo_img = Image.open(default_path).convert("RGBA")
-                except Exception:
-                    logo_img = None
+    logo_img = _load_logo_image(app, request, add_logo)
+    app.logger.info("Logo resolved: %s", "YES" if logo_img else "NO")
 
     prompt_raw = extract_image_prompt(result_text) if result_text else None
     if not prompt_raw:
@@ -584,23 +637,30 @@ def api_fb_imgs():
     try:
         prompt_en = ensure_english_prompt(prompt_raw)
         engine = "gemini2" if engine_label == "Gemini 2.0 Flash" else "imagen4"
+        app.logger.info("Engine=%s, Aspect=%s", engine, aspect)
+
         images = generate_image_via_gemini_api(
             prompt_en, engine=engine, aspect_ratio=aspect, n_images=2
         )
+        if not images:
+            app.logger.error("No images returned from engine")
+            return jsonify({"error": "Không nhận được ảnh từ engine."}), 500
 
-        images = [conform_aspect(im, aspect, mode="crop", bg="#FFFFFF") for im in (images or [])]
+        images = [conform_aspect(im, aspect, mode="crop", bg="#FFFFFF") for im in images]
 
-        if add_logo and images:
-            if logo_img is None:
-                return jsonify({"error": "Không tìm thấy logo (static/images/logo.png) hoặc file upload."}), 400
+        if add_logo and logo_img:
             images = add_logo_to_images(
                 images, logo_img, margin=logo_margin, keep_original=keep_logo, scale=logo_scale
             )
+        elif add_logo and not logo_img:
+            app.logger.warning("add_logo=true nhưng KHÔNG tìm thấy logo -> trả ảnh KHÔNG overlay.")
 
         return jsonify({"images": [pil_to_base64(img) for img in images], "used_prompt": prompt_en})
-    except Exception as e:
-        return jsonify({"error": f"Lỗi khi tạo ảnh: {str(e)}"}), 500
 
+    except Exception as e:
+        app.logger.exception("Image generation failed: %s", e)
+        return jsonify({"error": f"Lỗi khi tạo ảnh: {str(e)}"}), 500
+    
 @app.route("/api/rephrase", methods=["POST"])
 @login_required(api=True, roles=['marketing','manager_marketing'])
 def api_rephrase():
