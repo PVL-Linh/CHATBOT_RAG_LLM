@@ -159,7 +159,7 @@ def login_required(view=None, *, api=False, roles=None):
             if not session.get('user'):
                 if api:
                     return jsonify({"error": "Unauthorized"}), 401
-                return redirect(url_for('login', next=request.path))
+                return redirect(url_for('auth.login', next=request.path))
 
             # Kiểm tra quyền
             if need:

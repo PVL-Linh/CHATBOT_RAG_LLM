@@ -21,7 +21,7 @@
     {# 0) Chatbot luôn hiện #}
     <a
       class="nav-item {{ 'active' if active=='chat' else '' }}"
-      href="{{ url_for('chat') }}"
+      href="{{ url_for('pages.chat') }}"
     >
       <i data-lucide="bot"></i><span>Tiximax Chatbot</span>
     </a>
@@ -29,47 +29,47 @@
     {# 1) Các mục ĐƯỢC PHÉP #} {% if can_marketing %}
     <a
       class="nav-item {{ 'active' if active=='marketing' else '' }}"
-      href="{{ url_for('marketing') }}"
+      href="{{ url_for('pages.marketing') }}"
     >
       <i data-lucide="megaphone"></i><span>Marketing</span>
     </a>
     {% endif %} {% if can_sales %}
     <a
       class="nav-item {{ 'active' if active=='sales' else '' }}"
-      href="{{ url_for('sales') }}"
+      href="{{ url_for('pages.sales') }}"
     >
       <i data-lucide="shopping-cart"></i><span>Sales</span>
     </a>
     {% endif %} {% if can_hr %}
     <a
       class="nav-item {{ 'active' if active=='hr' else '' }}"
-      href="{{ url_for('hr') }}"
+      href="{{ url_for('pages.hr') }}"
     >
       <i data-lucide="users"></i><span>Human Resources</span>
     </a>
     {% endif %} {% if can_admin %}
     <a
       class="nav-item {{ 'active' if active=='admin' else '' }}"
-      href="{{ url_for('admin') }}"
+      href="{{ url_for('pages.admin') }}"
     >
       <i data-lucide="user-star"></i><span>Admin</span>
     </a>
     {% endif %} {# 2) Mục chung #}
     <a
       class="nav-item {{ 'active' if active=='transcribe' else '' }}"
-      href="{{ url_for('transcribe') }}"
+      href="{{ url_for('stt.transcribe') }}"
     >
       <i data-lucide="mic"></i><span>Speech to Text</span>
     </a>
     <a
       class="nav-item {{ 'active' if active=='page_pdf_to_txt' else '' }}"
-      href="{{ url_for('page_pdf_to_txt') }}"
+      href="{{ url_for('pdf.page_pdf_to_txt') }}"
     >
       <i data-lucide="file-type"></i><span>PDF to Text</span>
     </a>
     <a
       class="nav-item {{ 'active' if active=='guide' else '' }}"
-      href="{{ url_for('guide') }}"
+      href="{{ url_for('pages.guide') }}"
     >
       <i data-lucide="book-open"></i><span>Use Instructions</span>
     </a>
@@ -110,7 +110,7 @@
       class="btn-logout"
       title="Đăng xuất"
       aria-label="Đăng xuất"
-      onclick="location.href='{{ url_for('logout') }}'"
+      onclick="location.href='{{ url_for('auth.logout') }}'"
     >
       <i data-lucide="log-out" aria-hidden="true"></i>
       <span>Đăng xuất</span>
