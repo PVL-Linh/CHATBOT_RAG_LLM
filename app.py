@@ -67,7 +67,15 @@ app = Flask(__name__,
 
 app.config.from_object('src.config.Config')  # SECRET_KEY etc.
 app.config.setdefault('SEND_FILE_MAX_AGE_DEFAULT', 31536000)
+Compress(app)  # Enable compression for better performance
 
+# Configuration
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
+
+# Environment variables for production
+DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+PORT = int(os.environ.get('PORT', 5000))
 try:
     from flask_compress import Compress
     Compress(app)
@@ -121,7 +129,8 @@ def _safe_gemini_generate(gclient, model, contents, config, retries=3, backoff=0
 # Constants & Settings
 # =====================================
 MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
-CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/chat_logs")
+CHAT_LOGS_DIR = os.environ.get('CHAT_LOGS_DIR', os.path.join(app.instance_path, "chat_logs"))
+os.makedirs(CHAT_LOGS_DIR, exist_ok=True)
 LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 
 # =====================================

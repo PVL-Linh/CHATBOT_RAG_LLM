@@ -1,32 +1,28 @@
 services:
   - type: web
-    name: your-flask-app
-    runtime: python3
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-      # Nếu cần OCR packages
-      # apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-vie poppler-utils
-    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app --workers 2 --timeout 120
-    plan: starter
+    name: tiximax-flask
     env: python
-    region: oregon
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --threads 8 --worker-class gthread --timeout 0
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.10
-      - key: FLASK_ENV
-        value: production
+        value: 3.11.9
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: FLASK_DEBUG
-        value: false
+        value: "false"
       - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: 2
-    # System packages nếu cần OCR
-    buildFilter:
-      paths:
-        - app.py
-        - requirements.txt
-        - src/**
-        - src/templates/**
-        - src/static/**
+        sync: false # điền trong Dashboard
+      - key: API_KEY_MKT # (Gemini/Imagen…)
+        sync: false
+      - key: LOCAL_TZ
+        value: Asia/Ho_Chi_Minh
+      - key: SEM_LLM
+        value: "24"
+      - key: MAX_HISTORY
+        value: "50"
+    disk:
+      name: app-instance
+      mountPath: /opt/render/project/src/instance
+      sizeGB: 2

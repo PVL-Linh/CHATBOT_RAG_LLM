@@ -1,3 +1,2 @@
-libtesseract-dev
-poppler-utils
 ffmpeg
+libmagic1
