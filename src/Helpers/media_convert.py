@@ -1,6 +1,9 @@
 # Helpers/media_convert.py
 import subprocess
-import imageio_ffmpeg
+try:
+    import imageio_ffmpeg
+except ImportError:
+    imageio_ffmpeg = None
 
 def convert_to_wav16k_mono(src_path: str, dst_path: str, timeout: int = 300) -> str:
     exe = imageio_ffmpeg.get_ffmpeg_exe()
