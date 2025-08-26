@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 import fitz
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file, Compress
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
@@ -57,6 +57,7 @@ from src.Model_LLM.model_llm import LLM_model
 from google.genai import types as genai_types
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from flask_compress import Compress
 load_dotenv()
 # =====================================
 # Flask setup
