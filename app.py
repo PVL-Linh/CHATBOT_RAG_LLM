@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 
 import fitz
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, stream_with_context, Response, send_file, Compress
 from sqlalchemy import text
 from werkzeug.security import check_password_hash, generate_password_hash
 import requests
@@ -76,11 +76,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
 # Environment variables for production
 DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 PORT = int(os.environ.get('PORT', 5000))
-try:
-    from flask_compress import Compress
-    Compress(app)
-except Exception:
-    pass
+# Bật compression
+Compress(app)
+
 
 # =====================================
 # Auth config
