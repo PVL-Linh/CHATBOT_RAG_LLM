@@ -37,3 +37,5 @@ anyio==4.8.0
 # Audio conversion (dùng ffmpeg hệ thống)
 imageio-ffmpeg==0.6.0
 speechrecognition==3.14.3
+psycopg2-binary
+supabase~=2.6

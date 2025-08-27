@@ -63,6 +63,10 @@ import os, csv, re
 from werkzeug.security import generate_password_hash
 from functools import wraps
 from flask import request, session, redirect, url_for, jsonify
+from sqlalchemy import create_engine, text
+import os
+_engine = create_engine(os.getenv("SUPABASE_DB_URL"))
+
 
 USERS_CSV = os.environ.get("USERS_CSV", "./src/users.csv")
 ALLOWED_ROLES = {"marketing", "manager_marketing", "sales", "hr", "admin"}
@@ -85,55 +89,61 @@ def _normalize_role_token(tok: str) -> str:
         return "manager_marketing"
     return t
 
+# def load_users():
+#     import csv, os
+#     from werkzeug.security import generate_password_hash
+
+#     users = {}
+#     if not os.path.exists(USERS_CSV):
+#         return users
+
+#     with open(USERS_CSV, newline='', encoding='utf-8') as f:
+#         reader = csv.DictReader(f)
+#         for row in reader:
+#             u  = (row.get('username') or '').strip()
+#             ph = (row.get('password_hash') or '').strip()
+#             pw = (row.get('password') or '').strip()
+#             role_raw = (row.get('role') or '').strip()
+#             if not u:
+#                 continue
+
+#             # === Chuẩn hoá role (đã có ở bạn, nhắc lại cho đầy đủ) ===
+#             def _split_roles(val):
+#                 import re
+#                 if val is None: return []
+#                 if isinstance(val, (list, tuple, set)):
+#                     return [str(x).strip().lower() for x in val if str(x).strip()]
+#                 toks = re.split(r"[,\s;|/]+", str(val))
+#                 return [t.strip().lower() for t in toks if t.strip()]
+
+#             def _normalize_role_token(tok: str) -> str:
+#                 t = (tok or "").strip().lower().replace("-", "_")
+#                 if t in {"managermarketing", "manager_marketing", "manager marketing"}:
+#                     return "manager_marketing"
+#                 return t
+
+#             tokens = [_normalize_role_token(x) for x in _split_roles(role_raw)]
+#             roles  = [r for r in tokens if r in ALLOWED_ROLES]
+#             primary_role = roles[0] if roles else ''
+
+#             # === Tạo hash nếu chưa có, nhưng vẫn giữ plain để fallback ===
+#             if not ph and pw:
+#                 ph = generate_password_hash(pw)
+
+#             users[u] = {
+#                 'password_hash': ph,        # có thể là hash
+#                 'password_plain': pw,       # giữ lại plain để tương thích
+#                 'role': primary_role,
+#                 'roles': roles
+#             }
+#     return users
 def load_users():
-    import csv, os
-    from werkzeug.security import generate_password_hash
-
-    users = {}
-    if not os.path.exists(USERS_CSV):
-        return users
-
-    with open(USERS_CSV, newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            u  = (row.get('username') or '').strip()
-            ph = (row.get('password_hash') or '').strip()
-            pw = (row.get('password') or '').strip()
-            role_raw = (row.get('role') or '').strip()
-            if not u:
-                continue
-
-            # === Chuẩn hoá role (đã có ở bạn, nhắc lại cho đầy đủ) ===
-            def _split_roles(val):
-                import re
-                if val is None: return []
-                if isinstance(val, (list, tuple, set)):
-                    return [str(x).strip().lower() for x in val if str(x).strip()]
-                toks = re.split(r"[,\s;|/]+", str(val))
-                return [t.strip().lower() for t in toks if t.strip()]
-
-            def _normalize_role_token(tok: str) -> str:
-                t = (tok or "").strip().lower().replace("-", "_")
-                if t in {"managermarketing", "manager_marketing", "manager marketing"}:
-                    return "manager_marketing"
-                return t
-
-            tokens = [_normalize_role_token(x) for x in _split_roles(role_raw)]
-            roles  = [r for r in tokens if r in ALLOWED_ROLES]
-            primary_role = roles[0] if roles else ''
-
-            # === Tạo hash nếu chưa có, nhưng vẫn giữ plain để fallback ===
-            if not ph and pw:
-                ph = generate_password_hash(pw)
-
-            users[u] = {
-                'password_hash': ph,        # có thể là hash
-                'password_plain': pw,       # giữ lại plain để tương thích
-                'role': primary_role,
-                'roles': roles
-            }
-    return users
-
+    with _engine.connect() as conn:
+        rows = conn.execute(text("""
+            select username, password_hash, password_plain, role
+            from users
+        """)).mappings().all()
+        return {r["username"]: dict(r) for r in rows}
 
 def _normalize_required(roles):
     return set(_split_roles(roles)) if roles else set()

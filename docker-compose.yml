@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    container_name: tiximax
+    ports: ["8000:8000"]
+    env_file: [.env]
+    restart: unless-stopped
+    volumes:
+      - tiximax-instance:/app/instance # lưu lịch sử/txt
+volumes:
+  tiximax-instance:

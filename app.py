@@ -58,6 +58,9 @@ from google.genai import types as genai_types
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from flask_compress import Compress
+from src.Helpers.db_supabase import supabase
+
+PDF_BUCKET = os.getenv("PDF_BUCKET", "pdf_txt")
 load_dotenv()
 # =====================================
 # Flask setup
@@ -1180,35 +1183,86 @@ def _is_in_dir(path: str, base_dir: str) -> bool:
     except Exception:
         return False
 
+# def _save_history_txt(username: str, raw_text: str, orig_pdf_name: str) -> str:
+#     userdir = _hist_user_dir(username)
+#     ts = datetime.now(timezone.utc).astimezone(ZoneInfo(LOCAL_TZ_NAME)).strftime("%Y%m%d_%H%M%S")
+#     base_pdf = os.path.splitext(os.path.basename(orig_pdf_name or "document.pdf"))[0]
+#     fname = f"{ts}__{secure_filename(base_pdf)}.txt"
+#     out_path = os.path.join(userdir, fname)
+#     with open(out_path, "w", encoding="utf-8") as f:
+#         f.write(raw_text or "")
+#     return out_path
+
+# def _list_history(username: str, limit: int = 50):
+#     userdir = _hist_user_dir(username)
+#     items = []
+#     for name in sorted(os.listdir(userdir), reverse=True):
+#         if not name.lower().endswith(".txt"):
+#             continue
+#         p = os.path.join(userdir, name)
+#         try:
+#             st = os.stat(p)
+#             items.append({
+#                 "name": name,
+#                 "path": p,
+#                 "size": st.st_size,
+#                 "mtime": datetime.fromtimestamp(st.st_mtime, tz=ZoneInfo(LOCAL_TZ_NAME)).isoformat(),
+#             })
+#         except Exception:
+#             pass
+#     return items[:max(1, min(limit, 200))]
+
+
+
+
 def _save_history_txt(username: str, raw_text: str, orig_pdf_name: str) -> str:
-    userdir = _hist_user_dir(username)
+    """
+    Lưu nội dung TXT lên Supabase Storage.
+    Trả về đường dẫn khóa (key) trong bucket (vd: 'vanli/20250826__abc.txt').
+    """
+    safe_user = secure_filename(username or "anon")
     ts = datetime.now(timezone.utc).astimezone(ZoneInfo(LOCAL_TZ_NAME)).strftime("%Y%m%d_%H%M%S")
     base_pdf = os.path.splitext(os.path.basename(orig_pdf_name or "document.pdf"))[0]
     fname = f"{ts}__{secure_filename(base_pdf)}.txt"
-    out_path = os.path.join(userdir, fname)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(raw_text or "")
-    return out_path
+    key = f"{safe_user}/{fname}"
+
+    data = (raw_text or "").encode("utf-8")
+    # upload (ghi đè nếu tồn tại)
+    supabase.storage.from_(PDF_BUCKET).upload(key, data, {"content-type": "text/plain"}, upsert=True)
+    return key
 
 def _list_history(username: str, limit: int = 50):
-    userdir = _hist_user_dir(username)
+    """
+    Đọc danh sách file của user trong bucket Supabase.
+    Trả về mảng item có name, size, mtime và signed download url (nếu private).
+    """
+    safe_user = secure_filename(username or "anon")
+    # liệt kê folder của user
+    objs = supabase.storage.from_(PDF_BUCKET).list(path=safe_user, limit=min(max(limit,1),200))
     items = []
-    for name in sorted(os.listdir(userdir), reverse=True):
-        if not name.lower().endswith(".txt"):
+    for o in objs or []:
+        if not (o.get("name","").lower().endswith(".txt")):
             continue
-        p = os.path.join(userdir, name)
+        name = o["name"]
+        size = o.get("metadata",{}).get("size") or o.get("size", 0)
+        # Supabase trả 'updated_at' dạng ISO
+        mtime = (o.get("updated_at") or o.get("created_at") or datetime.now(timezone.utc).isoformat())
+        # tạo signed URL 24h (nếu bucket private); nếu public thì có thể dùng public_url
         try:
-            st = os.stat(p)
-            items.append({
-                "name": name,
-                "path": p,
-                "size": st.st_size,
-                "mtime": datetime.fromtimestamp(st.st_mtime, tz=ZoneInfo(LOCAL_TZ_NAME)).isoformat(),
-            })
+            signed = supabase.storage.from_(PDF_BUCKET).create_signed_url(f"{safe_user}/{name}", 60*60*24)
+            download_url = signed.get("signedURL")
         except Exception:
-            pass
-    return items[:max(1, min(limit, 200))]
-
+            # public bucket:
+            download_url = supabase.storage.from_(PDF_BUCKET).get_public_url(f"{safe_user}/{name}")
+        items.append({
+            "name": name,
+            "size": size,
+            "mtime": mtime,
+            "download_url": download_url,
+        })
+    # sắp xếp mới nhất trước
+    items.sort(key=lambda x: x["mtime"], reverse=True)
+    return items[:min(len(items), limit)]
 # =============================== ROUTES (API) ===============================
 
 @app.route("/api/pdf_to_txt/history", methods=["GET"])
