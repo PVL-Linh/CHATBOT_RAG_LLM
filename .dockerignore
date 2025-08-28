@@ -1,0 +1,9 @@
+venv
+__pycache__/
+*.pyc
+.ingest_tmp/
+logs/
+.deploy_cache/
+.git
+.gitignore
+.env
