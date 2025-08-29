@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: tiximax-web
+    env: docker
+    plan: starter # free/starter/standard...
+    autoDeploy: true
+    region: singapore # gần VN
+    healthCheckPath: / # dùng "/" để khỏi thêm route /health
+    disk: # cache model để không phải tải lại mỗi deploy
+      name: models
+      mountPath: /var/lib/tiximax
+      sizeGB: 10
+    envVars:
+      - key: REPO_ROOT
+        value: /app
+      - key: PYTHONPATH
+        value: /app/src
+      - key: GEMINI_API_KEY # nhập secret trên dashboard
+        sync: false
+      - key: EMBED_MODEL_ID
+        value: intfloat/multilingual-e5-base
+      - key: EMBED_MODEL_PATH
+        value: /var/lib/tiximax/models/local_multilingual_e5_base
+      - key: EMBED_DEVICE
+        value: cpu
+      - key: HF_HUB_ENABLE_HF_TRANSFER
+        value: "1"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: WEB_THREADS
+        value: "8"

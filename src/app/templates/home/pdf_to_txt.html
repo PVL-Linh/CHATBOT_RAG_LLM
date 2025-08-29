@@ -1,0 +1,81 @@
+{% extends 'home/base.html' %} {% set active = 'page_pdf_to_txt' %} {% block
+title %}PDF → TXT · Tiximax{% endblock %} {% block page_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/pdf_to_txt.css') }}"
+/>
+{% endblock %} {% block topbar %}{% endblock %} {% block history_panel %}{%
+endblock %} {% block footer %}{% endblock %} {% block content %}
+<div class="pdf-layout">
+  <!-- LEFT: Form upload -->
+  <section class="card pdf-left pdf-panel has-local-loader" id="pdf_form_card">
+    <h1 class="pdf-page-title">PDF → TXT</h1>
+
+    <div class="local-loader hidden"><div class="spinner"></div></div>
+
+    <div class="pdf-form">
+      <div class="pdf-row">
+        <label for="pdf_file">Chọn PDF</label>
+        <div class="pdf-file">
+          <input type="file" id="pdf_file" accept=".pdf" />
+        </div>
+      </div>
+
+      <div class="pdf-row">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" id="pdf_convert" type="button">
+          Chuyển đổi
+        </button>
+      </div>
+
+      <div class="pdf-status" id="pdf_status" style="display: none"></div>
+      <div class="pdf-progress" aria-hidden="true">
+        <span id="pdf_progress"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Kết quả + Tabs -->
+  <section class="card pdf-right pdf-panel" id="pdf_result_card">
+    <div class="pdf-topbar">
+      <div class="pill-tabs" data-scope="pdf">
+        <button class="pill active" data-tab="result">Result</button>
+        <button class="pill" data-tab="history">History</button>
+      </div>
+
+      <div class="icon-actions">
+        <button class="icon-btn" id="pdf_copy" title="Copy">📋</button>
+        <button class="icon-btn" id="pdf_download" title="Download">📥</button>
+        <button class="icon-btn" id="pdf_save" title="Lưu vào lịch sử">
+          💾
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: Result -->
+    <div id="pdf_tab_result" class="tab-panel active">
+      <pre
+        id="pdf_out"
+        class="pdf-textarea result-scroll"
+        style="white-space: pre-wrap"
+      ></pre>
+    </div>
+
+    <!-- TAB: History -->
+    <div id="pdf_tab_history" class="tab-panel">
+      <div
+        class="hist-toolbar"
+        style="display: flex; justify-content: flex-end; gap: 8px"
+      >
+      </div>
+      <div id="pdf_history_list" class="pdf-history-list"></div>
+    </div>
+  </section>
+</div>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/pdf_to_txt.js', v='2') }}"
+></script>
+{% endblock %}

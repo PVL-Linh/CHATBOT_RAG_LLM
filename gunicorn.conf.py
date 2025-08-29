@@ -1,9 +1,14 @@
-bind = "0.0.0.0:8000"
-workers = 2          # VPS nhỏ: 2-3; tăng nếu RAM/CPU tốt
-threads = 4
-timeout = 180
-graceful_timeout = 30
-accesslog = "-"
-errorlog = "-"
-loglevel = "info"
-# Nếu dùng app factory: chạy gunicorn kèm --factory (đã set trong CMD)
+# gunicorn.conf.py (root)
+import os, multiprocessing
+
+bind = ":" + os.environ.get("PORT", "10000")
+workers = int(os.environ.get("WEB_CONCURRENCY", str(max(2, multiprocessing.cpu_count() * 2 + 1))))
+threads = int(os.environ.get("WEB_THREADS", "8"))
+timeout = int(os.environ.get("TIMEOUT", "180"))
+keepalive = 75
+worker_class = "gthread"
+preload_app = True
+
+loglevel = os.environ.get("LOGLEVEL", "info")
+accesslog = "-"   # stdout
+errorlog  = "-"   # stderr

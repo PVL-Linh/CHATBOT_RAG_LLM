@@ -1,0 +1,63 @@
+services:
+  app:
+    build: .
+    env_file: .env
+    container_name: app-1
+    environment:
+      - PYTHONPATH=/app/src
+    restart: unless-stopped
+    expose:
+      - "${PORT:-8000}"
+    volumes:
+      - ./logs:/app/logs
+      - ./ingest:/app/ingest
+    command: >
+      sh -lc 'gunicorn -w ${GUNICORN_WORKERS:-1}
+      -b 0.0.0.0:${PORT:-8000}
+      "app.app_factory:create_app()"
+      --timeout ${GUNICORN_TIMEOUT:-60} --access-logfile - --error-logfile -'
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://localhost:${PORT:-8000}/health || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  caddy:
+    image: caddy:2.8
+    env_file: .env
+    container_name: caddy-1
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  caddy_data:
+  caddy_config:
