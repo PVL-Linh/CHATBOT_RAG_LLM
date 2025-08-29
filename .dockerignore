@@ -1,0 +1,23 @@
+# Python/venv
+venv/
+__pycache__/
+*.pyc
+
+# Tài liệu nặng
+Documents/
+*.pdf
+
+# Logs, uploads runtime
+instance/
+src/chat_logs/
+src/uploads/
+
+# FAISS & Model (sẽ mount volume)
+src/FAISS_Vector/
+src/Model_LLM/models/local_multilingual_e5_large/
+
+# Git/IDE
+.git/
+.gitignore
+.vscode/
+.idea/

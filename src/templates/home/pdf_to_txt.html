@@ -68,6 +68,11 @@ endblock %} {% block footer %}{% endblock %} {% block content %}
         class="hist-toolbar"
         style="display: flex; justify-content: flex-end; gap: 8px"
       >
+        <div class="hist-actions">
+          <button class="btn-ghost" id="pdf_hist_refresh" title="Refresh">
+            🔄
+          </button>
+        </div>
       </div>
       <div id="pdf_history_list" class="pdf-history-list"></div>
     </div>
@@ -76,6 +81,25 @@ endblock %} {% block footer %}{% endblock %} {% block content %}
 {% endblock %} {% block extra_scripts %}
 <script
   defer
-  src="{{ url_for('static', filename='js/pdf_to_txt.js', v='2') }}"
+  src="{{ url_for('static', filename='js/pdf_to_txt.js') }}"
 ></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const pills = document.querySelectorAll(
+      '.pill-tabs[data-scope="pdf"] .pill'
+    );
+    const resultTab = document.getElementById("pdf_tab_result");
+    const historyTab = document.getElementById("pdf_tab_history");
+
+    function activate(tab) {
+      pills.forEach((p) => p.classList.toggle("active", p.dataset.tab === tab));
+      resultTab.classList.toggle("active", tab === "result");
+      historyTab.classList.toggle("active", tab === "history");
+    }
+
+    pills.forEach((p) =>
+      p.addEventListener("click", () => activate(p.dataset.tab))
+    );
+  });
+</script>
 {% endblock %}
