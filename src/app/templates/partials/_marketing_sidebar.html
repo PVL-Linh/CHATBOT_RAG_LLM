@@ -1,16 +1,15 @@
-{# templates/home/partials/_marketing_sidebar.html #}
 <aside id="sidebar-mkt" class="sidebar">
-  {# Chuẩn hoá roles như trên #} {% set r1 = (session.get('role') or '')|lower
+  {# Chuẩn hoá roles từ session #} {% set r1 = (session.get('role') or '')|lower
   %} {% set r2 = (session.get('roles') or [])|join(',')|lower %} {% set r_all =
   (',' ~ (r1|replace(';', ',')|replace('|', ',')|replace('/', ',')|replace(' ',
-  ',')) ~ ',' ~ r2 ~ ',') %} {% set can_admin = (',admin,' in r_all) %} {% set
-  can_channels = can_admin or (',manager_marketing,' in r_all) %}
+  ',')) ~ ',' ~ r2 ~ ',') %} {% set can_channels = (',admin,' in r_all) or
+  (',manager_marketing,' in r_all) or (',manager_sales,' in r_all) %}
 
   <nav>
     <a
       href="/marketing"
       class="{{ 'active' if request.path == '/marketing' else '' }}"
-      >📣 Facebook Ads</a
+      >📣 Facebook Content</a
     >
 
     <a
@@ -40,6 +39,9 @@
     >
       📅 Content Planner
     </a>
+    <a href="https://g.co/gemini/share/375cce72dd39" target="_blank"
+      >🤖 POD Mockup Studio</a
+    >
 
     {% if can_channels %}
     <a
@@ -48,7 +50,6 @@
     >
       📡 Marketing Channels
     </a>
-
     {% endif %}
   </nav>
 </aside>

@@ -2,7 +2,7 @@ import os, time, threading, json
 from flask import Blueprint, request, jsonify, session, Response, stream_with_context
 from langchain_core.messages import SystemMessage
 from app.Helpers.rate_limit import get_text_limiter
-from app.services.history import get_history, add_message
+from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
 from app.Model_LLM.model_llm import LLM_model
 from zoneinfo import ZoneInfo
@@ -73,16 +73,24 @@ def _to_gemini_history_no_system(history_msgs):
 
 @bp.route('/api/chat', methods=['POST'])
 def chat_api():
-
     embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
 
-
     data = request.get_json(force=True) or {}
-    user_text = (data.get('message') or "").strip()
+    user_text  = (data.get('message') or "").strip()
     session_id = (data.get('session_id') or "").strip()
     if not user_text:
         return jsonify({"error": "Missing message"}), 400
 
+    # Nếu client không gửi session_id -> server tạo phiên MỚI ngay bây giờ
+    if not session_id:
+        try:
+            info = create_new_session(session.get("user") or "", title="Cuộc trò chuyện mới")
+            session_id = info.get("session_id") or ""
+        except Exception:
+            # fallback: vẫn để rỗng, add_message sẽ tự tạo theo logic bạn đã sửa
+            pass
+
+    # Lưu user message (dùng đúng session_id vừa tạo ở trên)
     add_message("user", user_text, session_id=session_id)
     full_start = time.time()
     
@@ -113,6 +121,7 @@ def chat_api():
         search_time = time.time() - t0
     except Exception:
         pass
+
     context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
     system_prompt = f"""{SYSTEM_PRIMER}
 
@@ -131,20 +140,33 @@ def chat_api():
     [USER]
     {user_text}"""
     contents.append({"role": "user", "parts": [{"text": first_user_text}]})
+
     try:
         result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
     except Exception as e:
         result = f"Lỗi khi gọi Gemini API: {e}"
         llm_time = 0.0
+
     result = strip_source_citations(result)
+
+    # Lưu assistant message vào ĐÚNG session_id
     add_message("assistant", result, session_id=session_id)
     elapsed = time.time() - full_start
 
+    # ⇨ TRẢ VỀ session_id CHO UI
     return jsonify({
         "ok": True,
         "answer": result,
-        "timing": {"total": round(elapsed, 2), "embedding": round(embed_time, 2), "search": round(search_time, 2), "llm": round(llm_time, 2)}
+        "session_id": session_id,
+        "timing": {
+            "total": round(elapsed, 2),
+            "embedding": round(embed_time, 2),
+            "search": round(search_time, 2),
+            "llm": round(llm_time, 2)
+        }
     })
+
+
     
 @bp.route('/chat', methods=['POST'])
 def chat_api_alias():
@@ -155,11 +177,20 @@ def chat_stream():
     embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG = LLM_model()
 
     data = request.get_json(force=True) or {}
-    user_text = (data.get('message') or "").strip()
+    user_text  = (data.get('message') or "").strip()
     session_id = (data.get('session_id') or "").strip()
     if not user_text:
         return jsonify({"error": "Missing message"}), 400
 
+    # Nếu client không gửi session_id -> server tạo phiên MỚI ngay bây giờ
+    if not session_id:
+        try:
+            info = create_new_session(session.get("user") or "", title="Cuộc trò chuyện mới")
+            session_id = info.get("session_id") or ""
+        except Exception:
+            pass
+
+    # Lưu user message trước khi stream
     add_message("user", user_text, session_id=session_id)
 
     hist_msgs = [{"role": m["role"], "content": m["content"]} for m in get_history() if m["role"] in ("user", "assistant")]
@@ -177,29 +208,34 @@ def chat_stream():
     {user_text}"""
     contents.append({"role": "user", "parts": [{"text": first_user_text}]})
 
-
     limiter = get_text_limiter()
     tokens_est = _estimate_from_contents(contents, GEN_CFG.get("max_output_tokens", 1024))
     
     def gen():
-        yield "event: ready\ndata: {}\n\n"
-        try:
-            limiter.acquire(tokens_est)
-            with LLM_SEM:
-                resp = gclient.models.generate_content(model=GEMINI_MODEL, contents=contents, config=GEN_CFG, stream=True)
-                acc = []
-                for ev in resp:
-                    chunk = getattr(ev, "text", "") or ""
-                    if chunk:
-                        acc.append(chunk)
-                        yield f"data: {json.dumps({'delta': chunk})}\n\n"
-                    else:
-                        yield ": keep-alive\n\n"
-            limiter.on_success()
-            full_answer = "".join(acc).strip()
-            add_message("assistant", full_answer, session_id=session_id)
-            yield "event: done\ndata: {}\n\n"
-        except Exception as e:
-            limiter.on_429()
-            yield f"event: error\ndata: {json.dumps({'message': str(e)})}\n\n"
-    return Response(stream_with_context(gen()), mimetype="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+      # gửi ngay session_id để UI lưu
+      yield f"event: ready\ndata: {json.dumps({'session_id': session_id})}\n\n"
+      try:
+          limiter.acquire(tokens_est)
+          with LLM_SEM:
+              resp = gclient.models.generate_content(model=GEMINI_MODEL, contents=contents, config=GEN_CFG, stream=True)
+              acc = []
+              for ev in resp:
+                  chunk = getattr(ev, "text", "") or ""
+                  if chunk:
+                      acc.append(chunk)
+                      yield f"data: {json.dumps({'delta': chunk})}\n\n"
+                  else:
+                      yield ': keep-alive\n\n'
+          limiter.on_success()
+          full_answer = "".join(acc).strip()
+          add_message("assistant", full_answer, session_id=session_id)
+          yield "event: done\ndata: {}\n\n"
+      except Exception as e:
+          limiter.on_429()
+          yield f"event: error\ndata: {json.dumps({'message': str(e)})}\n\n"
+
+    return Response(
+        stream_with_context(gen()),
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    )

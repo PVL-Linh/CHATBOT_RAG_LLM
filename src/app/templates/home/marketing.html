@@ -1,154 +1,204 @@
-{# templates/home/marketing.html #} {% extends 'home/base.html' %} {% block title %}
-  Marketing · Tiximax
-{% endblock %} {# CSS riêng cho trang Marketing #}
+{# templates/home/marketing.html #} {% extends 'home/base.html' %} {% block
+title %} Marketing · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing.css') }}" />
-{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block topbar %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing.css') }}"
+/>
+{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
+topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
+footer %} {% endblock %} {% block content %}
+<main style="width: auto" id="marketing" class="chat-area">
+  <div class="layout">
+    {% include 'partials/_marketing_sidebar.html' %} {# Nội dung chính #}
+    <main class="content">
+      <div style="height: auto" class="grid-2">
+        <!-- LEFT: form + loader cục bộ -->
+        <section class="card has-local-loader" id="fb_form_card">
+          <h2 style="font-size: 30px; margin: 0">Facebook Content</h2>
+          <div class="local-loader hidden">
+            <div class="spinner"></div>
+          </div>
 
-{% endblock %} {% block history_panel %}
+          <h3>Nhập dữ liệu</h3>
 
-{% endblock %} {% block footer %}
+          <!-- Ngôn ngữ & Tone giọng chung 1 hàng -->
+          <div class="grid-2 tight" id="lang-tone-row">
+            <label>
+              Ngôn ngữ<select id="fb_lang">
+                <option>Tiếng Việt</option>
+                <option>English</option>
+              </select>
+            </label>
 
-{% endblock %} {% block content %}
-  <main style="width: auto" id="marketing" class="chat-area">
-    <div class="layout">
-      {% include 'partials/_marketing_sidebar.html' %} {# Nội dung chính #}
-      <main class="content">
-        <div style="height: auto" class="grid-2">
-          <!-- LEFT: form + loader cục bộ -->
-          <section class="card has-local-loader" id="fb_form_card">
-            <h2 style="font-size: 30px; margin: 0">Facebook Content</h2>
-            <div class="local-loader hidden">
-              <div class="spinner"></div>
+            <label>
+              Tone giọng<select id="fb_tone">
+                <option selected>Chuyên nghiệp</option>
+                <option>Thân thiện</option>
+                <option>Hài hước vừa phải</option>
+                <option>Sang trọng</option>
+                <option>Trẻ trung</option>
+                <option>Cấp bách</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Thương hiệu để riêng phía dưới -->
+          <label
+            >Thương hiệu<input
+              id="fb_brand"
+              placeholder="VD: Tiximax Logistics"
+          /></label>
+
+          <label
+            >Mô tả sản phẩm *<textarea
+              id="fb_product"
+              rows="5"
+              placeholder="Nhập mô tả sản phẩm…"
+            ></textarea>
+          </label>
+
+          <label
+            >Thông tin khách hàng *<textarea
+              id="fb_customer"
+              rows="4"
+              placeholder="Nhập chân dung khách hàng…"
+            ></textarea>
+          </label>
+
+          <hr />
+          <small>Tuỳ chọn ảnh</small>
+
+          <!-- Engine ảnh ↔ Tỉ lệ ảnh -->
+          <div class="grid-2 tight">
+            <label>
+              Engine ảnh<select id="fb_engine">
+                <option>Gemini 2.0 Flash</option>
+                <option>Imagen 4</option>
+              </select>
+            </label>
+            <label>
+              Tỉ lệ ảnh<select id="fb_aspect">
+                <option>1:1</option>
+                <option>16:9</option>
+                <option>4:3</option>
+                <option>9:16</option>
+                <option>3:4</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- Style ↔ Bố cục -->
+          <div class="grid-2 tight">
+            <label>
+              Style<select id="fb_style">
+                <option>Semi-realistic</option>
+                <option>Photoreal</option>
+                <option>3D render</option>
+                <option>Flat illustration</option>
+              </select>
+            </label>
+            <label>
+              Bố cục<select id="fb_comp">
+                <option>Centered product</option>
+                <option selected>Lifestyle scene</option>
+                <option>Festive crowd</option>
+                <option>Minimal poster</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="logo-box">
+            <!-- checkbox ngang + nhãn rút gọn -->
+            <div class="inline-checks">
+              <label
+                ><input
+                  type="checkbox"
+                  id="fb_add_logo"
+                  checked
+                  style="width: auto"
+                />Chèn logo</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  id="fb_keep_logo"
+                  checked
+                  style="width: auto"
+                />Giữ logo</label
+              >
             </div>
 
-            <h3>Nhập dữ liệu</h3>
-
-            <!-- Ngôn ngữ & Tone giọng chung 1 hàng -->
-            <div class="grid-2 tight" id="lang-tone-row">
-              <label>
-                Ngôn ngữ<select id="fb_lang">
-                  <option>Tiếng Việt</option>
-                  <option>English</option>
-                </select>
-              </label>
-
-              <label>
-                Tone giọng<select id="fb_tone">
-                  <option selected>Chuyên nghiệp</option>
-                  <option>Thân thiện</option>
-                  <option>Hài hước vừa phải</option>
-                  <option>Sang trọng</option>
-                  <option>Trẻ trung</option>
-                  <option>Cấp bách</option>
-                </select>
-              </label>
-            </div>
-
-            <!-- Thương hiệu để riêng phía dưới -->
-            <label>Thương hiệu<input id="fb_brand" placeholder="VD: Tiximax Logistics" /></label>
-
-            <label>Mô tả sản phẩm *<textarea id="fb_product" rows="5" placeholder="Nhập mô tả sản phẩm…"></textarea></label>
-
-            <label>Thông tin khách hàng *<textarea id="fb_customer" rows="4" placeholder="Nhập chân dung khách hàng…"></textarea></label>
-
-            <hr />
-            <small>Tuỳ chọn ảnh</small>
-
-            <!-- Engine ảnh ↔ Tỉ lệ ảnh -->
+            <!-- Kích thước ↔ Margin ngang nhau -->
             <div class="grid-2 tight">
-              <label>
-                Engine ảnh<select id="fb_engine">
-                  <option>Gemini 2.0 Flash</option>
-                  <option>Imagen 4</option>
-                </select>
-              </label>
-              <label>
-                Tỉ lệ ảnh<select id="fb_aspect">
-                  <option>1:1</option>
-                  <option>16:9</option>
-                  <option>4:3</option>
-                  <option>9:16</option>
-                  <option>3:4</option>
-                </select>
-              </label>
+              <label
+                >Kích thước logo (%)<input
+                  type="number"
+                  id="fb_logo_scale"
+                  value="15"
+                  min="5"
+                  max="30"
+              /></label>
+              <label
+                >Margin (px) từ góc trái-trên<input
+                  type="number"
+                  id="fb_logo_margin"
+                  value="20"
+                  min="0"
+                  max="200"
+              /></label>
             </div>
 
-            <!-- Style ↔ Bố cục -->
-            <div class="grid-2 tight">
-              <label>
-                Style<select id="fb_style">
-                  <option>Semi-realistic</option>
-                  <option>Photoreal</option>
-                  <option>3D render</option>
-                  <option>Flat illustration</option>
-                </select>
-              </label>
-              <label>
-                Bố cục<select id="fb_comp">
-                  <option>Centered product</option>
-                  <option selected>Lifestyle scene</option>
-                  <option>Festive crowd</option>
-                  <option>Minimal poster</option>
-                </select>
-              </label>
+            <label
+              >Tải logo PNG (nếu muốn thay mặc định)<input
+                type="file"
+                id="fb_logo_file"
+                accept="image/png"
+            /></label>
+          </div>
+
+          <button class="btn-primary" id="fb_generate">Tạo nội dung</button>
+        </section>
+
+        <!-- RIGHT: tabs -->
+        <section class="card">
+          <div class="tabs" data-scope="fb">
+            <button class="tab active" data-tab="result">Result</button>
+            <button class="tab" data-tab="images">Image</button>
+            <button class="tab" data-tab="saved">History</button>
+
+            <!-- Đổi tk_* thành fb_* và sửa chính tả "Copy" -->
+            <button class="btn-ghost" id="fb_copy" type="button">📋</button>
+            <button class="btn-ghost" id="fb_save" type="button">🔖</button>
+            <button class="btn-ghost" id="fb_download" type="button">📥</button>
+          </div>
+
+          <!-- Kết quả -->
+          <div id="fb_result" class="tab-panel active">
+            <div id="fb_result_md" class="markdown result-scroll"></div>
+            <div id="fb_meta" class="meta"></div>
+          </div>
+
+          <!-- Ảnh: xếp dọc, thu nhỏ, không lấn cột trái -->
+          <div id="fb_images" class="tab-panel">
+            <pre id="fb_used_prompt" class="used-prompt clamp-pre"></pre>
+            <div id="fb_img_wrap">
+              <div id="fb_img_grid" class="img-stack"></div>
             </div>
+          </div>
 
-            <div class="logo-box">
-              <!-- checkbox ngang + nhãn rút gọn -->
-              <div class="inline-checks">
-                <label><input type="checkbox" id="fb_add_logo" checked style="width: auto" />Chèn logo</label>
-                <label><input type="checkbox" id="fb_keep_logo" checked style="width: auto" />Giữ logo</label>
-              </div>
-
-              <!-- Kích thước ↔ Margin ngang nhau -->
-              <div class="grid-2 tight">
-                <label>Kích thước logo (%)<input type="number" id="fb_logo_scale" value="15" min="5" max="30" /></label>
-                <label>Margin (px) từ góc trái-trên<input type="number" id="fb_logo_margin" value="20" min="0" max="200" /></label>
-              </div>
-
-              <label>Tải logo PNG (nếu muốn thay mặc định)<input type="file" id="fb_logo_file" accept="image/png" /></label>
-            </div>
-
-            <button class="btn-primary" id="fb_generate">Tạo nội dung</button>
-          </section>
-
-          <!-- RIGHT: tabs -->
-          <section class="card">
-            <div class="tabs" data-scope="fb">
-              <button class="tab active" data-tab="result">Result</button>
-              <button class="tab" data-tab="images">Image</button>
-              <button class="tab" data-tab="saved">History</button>
-
-              <!-- Đổi tk_* thành fb_* và sửa chính tả "Copy" -->
-              <button class="btn-ghost" id="fb_copy" type="button">📋</button>
-              <button class="btn-ghost" id="fb_save" type="button">🔖</button>
-              <button class="btn-ghost" id="fb_download" type="button">📥</button>
-            </div>
-
-            <!-- Kết quả -->
-            <div id="fb_result" class="tab-panel active">
-              <div id="fb_result_md" class="markdown result-scroll"></div>
-              <div id="fb_meta" class="meta"></div>
-            </div>
-
-            <!-- Ảnh: xếp dọc, thu nhỏ, không lấn cột trái -->
-            <div id="fb_images" class="tab-panel">
-              <pre id="fb_used_prompt" class="used-prompt clamp-pre"></pre>
-              <div id="fb_img_wrap">
-                <div id="fb_img_grid" class="img-stack"></div>
-              </div>
-            </div>
-
-            <!-- Đã lưu -->
-            <div id="fb_saved" class="tab-panel">
-              <div id="fb_saved_list" class="saved-list"></div>
-            </div>
-          </section>
-        </div>
-      </main>
-    </div>
-  </main>
+          <!-- Đã lưu -->
+          <div id="fb_saved" class="tab-panel">
+            <div id="fb_saved_list" class="saved-list"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</main>
 {% endblock %} {% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/main_MKT.js', v='4') }}"></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/main_MKT.js', v='4') }}"
+></script>
 {% endblock %}

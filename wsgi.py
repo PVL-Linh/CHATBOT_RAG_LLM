@@ -7,7 +7,7 @@ os.environ.setdefault("PYTHONPATH", "/app/src")
 
 # Ưu tiên app factory nếu bạn có create_app()
 try:
-    from app.app_factory import create_app  # src/app/app_factory.py (nếu có)
+    from src.app.app_factory import create_app  # src/app/app_factory.py (nếu có)
     app = create_app()
 except Exception:
     # Fallback: app = Flask(...) nằm trong src/app/app.py

@@ -29,6 +29,8 @@ from dotenv import load_dotenv
 from flask_compress import Compress
 from app.routes import register_blueprints, register_error_handlers
 from werkzeug.middleware.proxy_fix import ProxyFix
+from app.tools.migrate_users_csv_to_sqlite import migrate
+from app.Login.login_required import init_auth_storage
 
 
 def create_app() -> Flask:
@@ -78,5 +80,7 @@ def create_app() -> Flask:
     # Register blueprints + error handlers (your existing code)
     register_blueprints(app)
     register_error_handlers(app)
+    migrate()
+    init_auth_storage()
 
     return app

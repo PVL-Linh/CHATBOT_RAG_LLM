@@ -1,5 +1,6 @@
 import os, time
 from flask import Blueprint, render_template, jsonify, request, session, current_app
+from flask import current_app as app
 from app.Login.login_required import login_required
 from app.Helpers.prompt_KT import persona_vi
 from app.Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
@@ -8,7 +9,6 @@ from app.Helpers.Content_generation import generate_facebook_ads_content, genera
 from app.Helpers.Marketing_Planner.Content_Planner import _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 from PIL import Image
 from langchain_core.messages import SystemMessage
-
 try:
     from app.Model_LLM.hybrid_retriever import rerank, TOP_K # not used here actually
     from app.Helpers.Marketing_Planner.channels_store import list_all_for_planner, load_channels, create_channel, update_channel, delete_channel, get_by_name
@@ -17,35 +17,41 @@ except Exception:
 
 bp = Blueprint('marketing', __name__)
 
+# ====== QUAN TRỌNG: quyền ======
+# Sales & Manager Sales được dùng toàn bộ tính năng Marketing:
+MKT_ROLES = ['marketing', 'sales', 'manager_marketing', 'manager_sales']
+# Quản trị Marketing Channels: 2 manager + admin
+QL_ROLES = ['admin', 'manager_marketing', 'manager_sales']
+
 # ===== Pages =====
 @bp.route("/marketing/rephrase")
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=MKT_ROLES)
 def page_rephrase():
     return render_template("marketing/rephrase.html")
 
 @bp.route("/marketing/tiktok")
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=MKT_ROLES)
 def page_tiktok():
     return render_template("marketing/tiktok.html")
 
 @bp.route("/marketing/fab")
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=MKT_ROLES)
 def page_fab():
     return render_template("marketing/fab.html")
 
 @bp.route("/marketing/planner")
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=MKT_ROLES)
 def marketing_planner():
     return render_template("marketing/planner.html", active="marketing")
 
 @bp.route("/marketing/channels")
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def marketing_channels():
     return render_template("marketing/channels.html", active="marketing")
 
 # ===== APIs =====
 @bp.route("/api/fbads/generate_text", methods=["POST"])
-@login_required(api=True, roles=['marketing','manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_fb_text():
     data = request.get_json() or {}
     product = data.get("product_desc", "")
@@ -63,11 +69,9 @@ def api_fb_text():
     Thương hiệu: {brand}
     Tone giọng/Brand voice: {tone}
 
-
     Thông tin đầu vào:
     - Mô tả sản phẩm: {product}
     - Chân dung khách hàng: {customer}
-
 
     YÊU CẦU:
     - Phản ánh đúng giọng thương hiệu (tone) đã nêu.
@@ -83,9 +87,9 @@ def api_fb_text():
         return jsonify({"text": text, "meta": {"latency_sec": round(latency, 2)}})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo nội dung: {str(e)}"}), 500
-    
+
 @bp.route("/api/fbads/generate_images", methods=["POST"])
-@login_required(api=True, roles=['marketing','manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_fb_imgs():
     form_data = request.form
     result_text = form_data.get("result_text", "")
@@ -122,7 +126,6 @@ def api_fb_imgs():
                 except Exception:
                     logo_img = None
 
-
     prompt_raw = extract_image_prompt(result_text) if result_text else None
     if not prompt_raw:
         subject = f"{brand} – {product} (audience: {customer})"
@@ -142,9 +145,9 @@ def api_fb_imgs():
         return jsonify({"images": [pil_to_base64(img) for img in images], "used_prompt": prompt_en})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo ảnh: {str(e)}"}), 500
-    
+
 @bp.route("/api/rephrase", methods=["POST"])
-@login_required(api=True, roles=['marketing','manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_rephrase():
     data = request.get_json() or {}
     text_src = data.get("text_src", "")
@@ -159,7 +162,7 @@ def api_rephrase():
         return jsonify({"error": f"Lỗi khi viết lại: {str(e)}"}), 500
 
 @bp.route("/api/tiktok", methods=["POST"])
-@login_required(api=True, roles=['marketing','manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_tiktok():
     data = request.get_json() or {}
     brief = data.get("brief", "")
@@ -173,9 +176,9 @@ def api_tiktok():
         return jsonify({"text": text})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo TikTok content: {str(e)}"}), 500
-    
+
 @bp.route("/api/fab", methods=["POST"])
-@login_required(api=True, roles=['marketing', 'manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_fab():
     data = request.get_json() or {}
     benefits = data.get("benefits", "")
@@ -188,7 +191,7 @@ def api_fab():
         return jsonify({"text": text})
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo FAB content: {str(e)}"}), 500
-    
+
 def _merge_channels_for_planner():
     try:
         builtin = list_all_for_planner() or []
@@ -210,18 +213,17 @@ def _merge_channels_for_planner():
     return merged
 
 @bp.route("/api/channels", methods=["GET"])
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=MKT_ROLES)
 def api_channels_list():
     return jsonify({"items": _merge_channels_for_planner()})
 
-
 @bp.route("/api/channels/custom", methods=["GET"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def api_channels_list_custom():
     return jsonify({"items": load_channels()})
 
 @bp.route("/api/channels", methods=["POST"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def api_channels_create():
     d = request.get_json(silent=True) or {}
     try:
@@ -229,9 +231,9 @@ def api_channels_create():
         return jsonify(item), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 @bp.route("/api/channels/<cid>", methods=["PUT","PATCH"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def api_channels_update(cid):
     d = request.get_json(silent=True) or {}
     try:
@@ -241,18 +243,18 @@ def api_channels_update(cid):
         return jsonify({"error": "Not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 @bp.route("/api/channels/<cid>", methods=["DELETE"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def api_channels_delete(cid):
     try:
         delete_channel(cid)
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 @bp.route("/api/channels/prompt", methods=["POST"])
-@login_required(roles=['admin', 'manager_marketing'])
+@login_required(roles=QL_ROLES)
 def api_channels_prompt():
     d = request.get_json(silent=True) or {}
     channel_in = d.get("channel", "")
@@ -291,14 +293,8 @@ def api_channels_prompt():
 
 # === Planner API ===
 @bp.route("/api/planner/generate", methods=["POST"])
-@login_required(api=True, roles=['marketing', 'manager_marketing'])
+@login_required(api=True, roles=MKT_ROLES)
 def api_planner_generate():
-    import time
-    from langchain_core.messages import SystemMessage
-    from Helpers.prompt_KT import persona_vi
-    from Helpers.LLM_client import apply_occasion_lock, call_gemini_flash
-    from flask import current_app as app
-
     d = request.get_json(silent=True) or {}
     goal       = d.get("goal") or (d.get("objectives") or [None])[0]
     channel_in = d.get("channel", "")
@@ -314,7 +310,6 @@ def api_planner_generate():
     try:
         text = call_gemini_flash(user_prompt, sys_inst, [SystemMessage(persona_vi)])
     except Exception as e:
-        # log ra console để dễ debug
         try:
             app.logger.exception("Planner LLM error: %s", e)
         except Exception:

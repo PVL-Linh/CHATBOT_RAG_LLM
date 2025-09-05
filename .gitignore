@@ -1,14 +1,18 @@
 # Bỏ models
 src/app/models/
+Documents/*
+ingest/*
 
 # Bỏ FAISS_Vector trong src
 src/FAISS_Vector/
 instance/
-
+*.db
+*.db-wal
+*.db-shm
+logs/
+ingest/
 # Bỏ Data trong src
 src/app/Data/
-src/app/Data_app/
-
 
 # Bỏ file tạm Python
 __pycache__/

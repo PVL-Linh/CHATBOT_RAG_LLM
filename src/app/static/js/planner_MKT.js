@@ -4,6 +4,7 @@ function mdRenderTo(el, text) {
   el.innerHTML = html;
   el.querySelectorAll("pre code").forEach((b) => hljs.highlightElement(b));
 }
+
 function attachTabs() {
   document.querySelectorAll(".tabs").forEach((t) => {
     const scope = t.dataset.scope;
@@ -20,6 +21,7 @@ function attachTabs() {
     );
   });
 }
+
 async function withLoader(card, fn) {
   const L = card?.querySelector?.(".local-loader");
   L && L.classList.remove("hidden");
@@ -29,6 +31,7 @@ async function withLoader(card, fn) {
     L && L.classList.add("hidden");
   }
 }
+
 function copyFrom(el) {
   const t = document.createElement("textarea");
   t.value = el?.innerText || el?.textContent || "";
@@ -52,6 +55,7 @@ function downloadTxt(filename, text) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
 function slug(s) {
   return (
     (s || "")
@@ -76,6 +80,7 @@ function showToast(msg, ttl = 2200) {
     setTimeout(() => el.remove(), 180);
   }, ttl);
 }
+
 async function loadSaved(type, targetId) {
   const r = await fetch(`/api/saves?type=${encodeURIComponent(type)}`);
   const d = await r.json();
@@ -158,6 +163,7 @@ function getCheckedValues(selector, limit = null) {
     .map((i) => i.value);
   return limit ? arr.slice(0, limit) : arr;
 }
+
 function getSelectedGoal() {
   return document.querySelector('input[name="pl_goal"]:checked')?.value || "";
 }
@@ -208,58 +214,98 @@ async function loadPlannerChannels() {
   }
 }
 
-// /** Tạo (hoặc lấy) khối preview prompt dưới form bên trái */
-// function ensurePromptPreviewBox() {
-//   let wrap = document.getElementById("pl_prompt_preview_wrap");
-//   if (wrap) return wrap;
-//   const formCard = document.getElementById("pl_form_card");
-//   if (!formCard) return null;
-//   wrap = document.createElement("div");
-//   wrap.id = "pl_prompt_preview_wrap";
-//   wrap.className = "card";
-//   formCard.appendChild(wrap);
-//   document.getElementById("pl_copy_prompt")?.addEventListener("click", () => {
-//     const txt = document.getElementById("pl_prompt_preview")?.textContent || "";
-//     if (!txt.trim()) return;
-//     navigator.clipboard.writeText(txt);
-//     showToast("Đã sao chép prompt.");
-//   });
-//   return wrap;
-// }
+/* ==================== FIXED: Clean AI Response ==================== */
+function cleanPlannerResponse(text) {
+  if (!text) return "";
 
-/** Gọi Gemini để sinh prompt theo kênh đã chọn và hiện preview */
-async function fetchPromptForChannel() {
-  const sel = document.getElementById("pl_channel");
-  const langSel = document.getElementById("pl_lang");
-  const wrap = ensurePromptPreviewBox();
-  const out = document.getElementById("pl_prompt_preview");
-  if (!sel || !out || !wrap) return;
+  let cleanContent = text.trim();
 
-  const channel = sel.value || "";
-  if (!channel) {
-    out.textContent = "";
-    return;
+  // 1. Tìm và chỉ lấy phần sau các marker nội dung
+  const contentMarkers = [
+    "**Bản thảo ngắn gọn:**",
+    "**Bản thảo:**",
+    "**Nội dung:**",
+    "**Content:**",
+    "**Nội dung bài viết:**",
+    "**Bài viết:**",
+  ];
+
+  for (const marker of contentMarkers) {
+    const index = cleanContent.indexOf(marker);
+    if (index !== -1) {
+      cleanContent = cleanContent.substring(index + marker.length).trim();
+      break;
+    }
   }
 
-  const tones = getCheckedValues("#pl_tones input[type=checkbox]", 2);
-  await withLoader(wrap, async () => {
-    try {
-      const r = await fetch("/api/channels/prompt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          channel,
-          lang: langSel?.value || "Tiếng Việt",
-          tones,
-        }),
-      });
-      const d = await r.json();
-      if (d.error) throw new Error(d.error);
-      out.textContent = d.generated || "";
-    } catch (e) {
-      out.textContent = "Không thể tạo prompt: " + e.message;
+  // 2. Loại bỏ metadata ở đầu (các dòng có dạng **Label:** value)
+  const lines = cleanContent.split("\n");
+  let contentStartIndex = 0;
+  let foundRealContent = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    // Bỏ qua dòng rỗng
+    if (!line) continue;
+
+    // Nếu là metadata (dạng **Label:** value)
+    if (line.match(/^\*\*[^*]+:\*\*/) || line.match(/^\*\*[^*]+\*\*/)) {
+      contentStartIndex = i + 1;
+      continue;
     }
-  });
+
+    // Nếu là bullet point dàn ý (*   text hoặc - text)
+    if (line.match(/^\s*[\*\-]\s+/) && !foundRealContent) {
+      contentStartIndex = i + 1;
+      continue;
+    }
+
+    // Nếu tìm thấy đoạn văn thực tế (dài hơn 30 ký tự, không bắt đầu bằng * hoặc **)
+    if (line.length > 30 && !line.startsWith("*") && !line.startsWith("**")) {
+      foundRealContent = true;
+      break;
+    }
+  }
+
+  // 3. Lấy nội dung từ vị trí đã tìm được
+  if (contentStartIndex > 0 && contentStartIndex < lines.length) {
+    cleanContent = lines.slice(contentStartIndex).join("\n").trim();
+  }
+
+  // 4. Loại bỏ các dòng metadata còn sót lại ở đầu
+  const finalLines = cleanContent.split("\n");
+  let finalStartIndex = 0;
+
+  for (let i = 0; i < finalLines.length; i++) {
+    const line = finalLines[i].trim();
+    if (!line) continue;
+
+    // Nếu vẫn còn metadata
+    if (
+      line.match(/^\*\*[^*]+:\*\*/) ||
+      line.includes("Mục tiêu:") ||
+      line.includes("Giai đoạn:") ||
+      line.includes("Kênh:") ||
+      line.includes("Định dạng:") ||
+      line.includes("Độ dài:") ||
+      line.includes("Giọng điệu:") ||
+      line.includes("Từ khoá:") ||
+      line.includes("Dàn ý:")
+    ) {
+      finalStartIndex = i + 1;
+      continue;
+    }
+
+    // Tìm thấy nội dung thực
+    break;
+  }
+
+  if (finalStartIndex > 0) {
+    cleanContent = finalLines.slice(finalStartIndex).join("\n").trim();
+  }
+
+  return cleanContent;
 }
 
 /* ==================== DOM Ready ==================== */
@@ -288,24 +334,13 @@ document.addEventListener("DOMContentLoaded", () => {
         checked.pop().checked = false;
         showToast("Chỉ chọn tối đa 2 giọng điệu.");
       }
-      const ch = document.getElementById("pl_channel")?.value;
-      if (ch) fetchPromptForChannel();
     });
   }
 
-  // Channels: nạp dropdown + bind preview khi đổi kênh/ngôn ngữ
-  loadPlannerChannels().then(() => {
-    const selCh = document.getElementById("pl_channel");
-    selCh && selCh.addEventListener("change", fetchPromptForChannel);
-  });
-  const selLang = document.getElementById("pl_lang");
-  selLang &&
-    selLang.addEventListener("change", () => {
-      const ch = document.getElementById("pl_channel")?.value;
-      if (ch) fetchPromptForChannel();
-    });
+  // Channels: nạp dropdown
+  loadPlannerChannels();
 
-  // Generate
+  // ==================== FIXED: Generate với content cleaning ====================
   document.getElementById("pl_generate")?.addEventListener("click", () =>
     withLoader(document.getElementById("pl_form_card"), async () => {
       const goal = getSelectedGoal();
@@ -328,40 +363,84 @@ document.addEventListener("DOMContentLoaded", () => {
         lang: document.getElementById("pl_lang").value,
       };
 
-      const r = await fetch("/api/planner/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!r.ok) {
-        alert("Lỗi tạo nội dung.");
-        return;
-      }
+      try {
+        const r = await fetch("/api/planner/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      const d = await r.json();
-      const out = document.getElementById("pl_out");
-      if (!out) return;
-      out.dataset.md = d.text || "";
-      mdRenderTo(out, d.text || "");
-      document
-        .querySelector('.tabs[data-scope="pl"] .tab[data-tab="result"]')
-        ?.click();
+        if (!r.ok) {
+          throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        }
+
+        const d = await r.json();
+        if (d.error) {
+          throw new Error(d.error);
+        }
+
+        const out = document.getElementById("pl_out");
+        if (!out) return;
+
+        // ========== CLEAN CONTENT HERE ==========
+        const rawContent = d.text || "";
+        const cleanedContent = cleanPlannerResponse(rawContent);
+
+        // Lưu cả raw và cleaned content
+        out.dataset.mdRaw = rawContent; // raw cho debug
+        out.dataset.md = cleanedContent; // cleaned cho display
+
+        // Render cleaned content
+        mdRenderTo(out, cleanedContent);
+
+        // Switch to result tab
+        document
+          .querySelector('.tabs[data-scope="pl"] .tab[data-tab="result"]')
+          ?.click();
+
+        showToast("Đã tạo nội dung thành công!");
+      } catch (error) {
+        console.error("Generate error:", error);
+        showToast("Lỗi tạo nội dung: " + error.message);
+      }
     })
   );
 
-  // Copy
-  document
-    .getElementById("pl_copy")
-    ?.addEventListener("click", () =>
-      copyFrom(document.getElementById("pl_out"))
-    );
+  // Copy - sử dụng cleaned content
+  document.getElementById("pl_copy")?.addEventListener("click", () => {
+    const outEl = document.getElementById("pl_out");
+    const cleanedText = outEl?.dataset?.md || outEl?.textContent || "";
 
-  // Save
+    if (!cleanedText.trim()) {
+      showToast("Chưa có nội dung để sao chép.");
+      return;
+    }
+
+    // Copy using modern clipboard API if available
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(cleanedText)
+        .then(() => {
+          showToast("Đã sao chép nội dung.");
+        })
+        .catch(() => {
+          // Fallback to old method
+          copyFrom(outEl);
+          showToast("Đã sao chép nội dung.");
+        });
+    } else {
+      copyFrom(outEl);
+      showToast("Đã sao chép nội dung.");
+    }
+  });
+
+  // Save - sử dụng cleaned content
   document.getElementById("pl_save")?.addEventListener("click", async () => {
     const outEl = document.getElementById("pl_out");
     const text = (outEl?.dataset?.md || "").trim();
+
     if (!text) {
-      alert("Chưa có nội dung để lưu.");
+      showToast("Chưa có nội dung để lưu.");
       return;
     }
 
@@ -373,26 +452,42 @@ document.addEventListener("DOMContentLoaded", () => {
       " / " +
       (getSelectedGoal() || "Mục tiêu?");
 
-    await fetch("/api/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "planner", text, input: { summary: sum } }),
-    });
-    showToast("Đã lưu (Planner).");
-    await loadSaved("planner", "pl_saved_list");
-    document
-      .querySelector('.tabs[data-scope="pl"] .tab[data-tab="saved"]')
-      ?.click();
+    try {
+      const response = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "planner",
+          text,
+          input: { summary: sum },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      showToast("Đã lưu (Planner).");
+      await loadSaved("planner", "pl_saved_list");
+      document
+        .querySelector('.tabs[data-scope="pl"] .tab[data-tab="saved"]')
+        ?.click();
+    } catch (error) {
+      console.error("Save error:", error);
+      showToast("Lỗi khi lưu: " + error.message);
+    }
   });
 
-  // Download .txt (Planner)
+  // Download .txt (Planner) - sử dụng cleaned content
   document.getElementById("pl_download")?.addEventListener("click", () => {
     const outEl = document.getElementById("pl_out");
     const text = (outEl?.dataset?.md || outEl?.textContent || "").trim();
+
     if (!text) {
-      alert("Chưa có nội dung để tải.");
+      showToast("Chưa có nội dung để tải.");
       return;
     }
+
     const sum =
       "Planner – " +
       (document.getElementById("pl_channel").value || "Kenh") +
@@ -400,24 +495,32 @@ document.addEventListener("DOMContentLoaded", () => {
       (document.getElementById("pl_format").value || "Dinh-dang") +
       " / " +
       (getSelectedGoal() || "Muc-tieu");
+
     const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     downloadTxt(`planner_${slug(sum)}_${stamp}.txt`, text);
     showToast("Đang tải file .txt…");
   });
 });
+
+// Load channels function (backup)
 async function loadChannels() {
-  const res = await fetch("/api/channels"); // phải là endpoint này
-  if (!res.ok) return;
-  const data = await res.json();
-  const sel = document.getElementById("pl_channel");
-  sel.innerHTML = '<option value="">Chọn kênh..</option>';
-  for (const ch of data.items || []) {
-    const id = ch.id || ch.name;
-    const name = ch.name || ch.title || id;
-    sel.insertAdjacentHTML(
-      "beforeend",
-      `<option value="${id}">${name}</option>`
-    );
+  try {
+    const res = await fetch("/api/channels");
+    if (!res.ok) return;
+    const data = await res.json();
+    const sel = document.getElementById("pl_channel");
+    if (!sel) return;
+
+    sel.innerHTML = '<option value="">Chọn kênh..</option>';
+    for (const ch of data.items || []) {
+      const id = ch.id || ch.name;
+      const name = ch.name || ch.title || id;
+      sel.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${id}">${name}</option>`
+      );
+    }
+  } catch (error) {
+    console.error("Load channels error:", error);
   }
 }
-document.addEventListener("DOMContentLoaded", loadChannels);

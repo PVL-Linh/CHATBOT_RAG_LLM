@@ -14,7 +14,7 @@ genai_old.configure(api_key=API_KEY_MKT)
 # TEXT_MODEL_MKT = "gemini-1.5-flash"
 TEXT_MODEL_MKT = "gemini-2.0-flash"
 TEMPERATURE_MKT = 0.6
-MAX_TOKENS_MKT = 3200
+MAX_TOKENS_MKT = 1600
 RETRY_MAX_MKT = 5
 
 # New SDK (image)

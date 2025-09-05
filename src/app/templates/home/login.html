@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Đăng nhập | Tiximax</title>
     <link rel="stylesheet" href="/static/css/login.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
   </head>
   <body class="bg bg--aurora">
     <div class="card">
@@ -14,7 +17,7 @@
       </div>
       <h2 class="title">Chào mừng đến Tiximax</h2>
       {% if error %}
-        <div class="alert">{{ error }}</div>
+      <div class="alert">{{ error }}</div>
       {% endif %}
       <form method="post" autocomplete="on">
         <input type="hidden" name="next" value="{{ next_url or '' }}" />
@@ -23,33 +26,69 @@
           <span class="icon">
             <!-- user icon -->
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5.33 0-8 2.67-8 5v1h16v-1c0-2.33-2.67-5-8-5Z" />
+              <path
+                d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5.33 0-8 2.67-8 5v1h16v-1c0-2.33-2.67-5-8-5Z"
+              />
             </svg>
           </span>
-          <input name="username" type="text" placeholder="Nhập tài khoản..." required />
+          <input
+            name="username"
+            type="text"
+            placeholder="Nhập tài khoản..."
+            required
+          />
         </label>
         <h4 class="label">Mật khẩu</h4>
         <label class="field">
           <span class="icon">
             <!-- lock icon -->
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-              <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-6 0V7a2 2 0 0 1 4 0v2Z" />
+              <path
+                d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-6 0V7a2 2 0 0 1 4 0v2Z"
+              />
             </svg>
           </span>
 
-          <input id="password" name="password" type="password" placeholder="Nhập mật khẩu..." required />
-          <button type="button" id="togglePwd" class="eye" aria-label="Hiện mật khẩu" title="Hiện mật khẩu">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Nhập mật khẩu..."
+            required
+          />
+          <button
+            type="button"
+            id="togglePwd"
+            class="eye"
+            aria-label="Hiện mật khẩu"
+            title="Hiện mật khẩu"
+          >
             <!-- Mặc định: đang ẨN mật khẩu -->
             <span id="icon-hide" class="emoji" aria-hidden="true">🙊</span>
             <!-- Khi HIỆN mật khẩu -->
-            <span id="icon-show" class="emoji" aria-hidden="true" style="display:none;">🙈</span>
+            <span
+              id="icon-show"
+              class="emoji"
+              aria-hidden="true"
+              style="display: none"
+              >🙈</span
+            >
           </button>
         </label>
         <div class="pwd-meta">
           <div class="meter" aria-hidden="true">
             <span id="meter-bar"></span>
           </div>
-          <div id="caps" class="caps" role="status" aria-live="polite" aria-atomic="true" style="opacity:0">Caps Lock đang bật</div>
+          <div
+            id="caps"
+            class="caps"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            style="opacity: 0"
+          >
+            Caps Lock đang bật
+          </div>
         </div>
 
         <div class="row">
@@ -57,7 +96,12 @@
             <input type="checkbox" name="remember" />
             <span>Ghi nhớ tôi</span>
           </label>
-          <a class="link" href="#" onclick="alert('Liên hệ admin để đặt lại mật khẩu.'); return false;">Quên mật khẩu?</a>
+          <a
+            class="link"
+            href="#"
+            onclick="alert('Liên hệ admin để đặt lại mật khẩu.'); return false;"
+            >Quên mật khẩu?</a
+          >
         </div>
         <button class="btn" type="submit">Đăng nhập</button>
       </form>
@@ -66,7 +110,9 @@
     <div class="orbs" aria-hidden="true">
       <i class="o1"></i><i class="o2"></i><i class="o3"></i>
     </div>
-    <button id="bgToggle" class="bg-toggle" type="button" title="Đổi nền">🎨</button>
+    <button id="bgToggle" class="bg-toggle" type="button" title="Đổi nền">
+      🎨
+    </button>
     <script src="/static/js/login.js"></script>
   </body>
 </html>
