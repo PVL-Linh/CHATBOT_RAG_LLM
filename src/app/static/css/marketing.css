@@ -703,7 +703,7 @@
 
 /* FAB: chỉ cuộn phần Kết quả */
 #fab #fab_result .markdown.result-scroll {
-  max-height: 37vh;
+  max-height: 50vh;
   /* chỉnh theo ý: 60–80vh */
   overflow-y: auto;
   padding-right: 8px;

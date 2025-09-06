@@ -1,16 +1,16 @@
 import os, time
-from flask import Blueprint, render_template, jsonify, request, current_app
+from flask import Blueprint, render_template, jsonify, request, session, current_app
 from flask import current_app as app
 from app.Login.login_required import login_required
 from app.Helpers.prompt_KT import persona_vi
-from app.Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, call_gemini_flash_planner, extract_image_prompt, ensure_english_prompt
+from app.Helpers.LLM_client import apply_occasion_lock, call_gemini_flash, extract_image_prompt, ensure_english_prompt
 from app.Helpers.Image_generation_and_processing import build_image_prompt, generate_image_via_gemini_api, add_logo_to_images, pil_to_base64, load_default_logo, conform_aspect, ALLOWED_ASPECTS
-from app.Helpers.Content_generation import generate_rephrase_content, generate_tiktok_content, generate_fab_content
+from app.Helpers.Content_generation import generate_facebook_ads_content, generate_rephrase_content, generate_tiktok_content, generate_fab_content
 from app.Helpers.Marketing_Planner.Content_Planner import _describe_builtin_channel, _describe_custom_channel, _normalize_channel, _build_system_prompt_ifelse, build_user_prompt_body
 from PIL import Image
 from langchain_core.messages import SystemMessage
 try:
-    from app.Model_LLM.hybrid_retriever import TOP_K # not used here actually
+    from app.Model_LLM.hybrid_retriever import rerank, TOP_K # not used here actually
     from app.Helpers.Marketing_Planner.channels_store import list_all_for_planner, load_channels, create_channel, update_channel, delete_channel, get_by_name
 except Exception:
     from app.Helpers.Marketing_Planner.channels_store import list_all_for_planner, load_channels, create_channel, update_channel, delete_channel, get_by_name
@@ -64,22 +64,20 @@ def api_fb_text():
         return jsonify({"error": "Thiếu dữ liệu bắt buộc."}), 400
 
     user_prompt = f"""
-    Create marketing content using the fixed template below for a Facebook Ads campaign.
-    Language: {lang}
-    Brand: {brand}
-    Tone/Brand voice: {tone}
+    Tạo nội dung truyền thông theo mẫu cố định bên dưới cho chiến dịch Facebook Ads.
+    Ngôn ngữ: {lang}.
+    Thương hiệu: {brand}
+    Tone giọng/Brand voice: {tone}
 
-    Input:
+    Thông tin đầu vào:
+    - Mô tả sản phẩm: {product}
+    - Chân dung khách hàng: {customer}
 
-    * Product description: {product}
-    * Customer persona: {customer}
-
-    REQUIREMENTS:
-
-    * Faithfully reflect the specified brand voice (tone).
-    * Do not invent promotions/prices if none are provided.
-    * Output only ONE complete piece following the template (Analysis → Campaign Idea → Facebook Post → IMAGE\_PROMPT).
-
+    YÊU CẦU:
+    - Phản ánh đúng giọng thương hiệu (tone) đã nêu.
+    - Không bịa khuyến mãi/giá nếu không có.
+    - Chỉ xuất MỘT bài hoàn chỉnh đúng template (Phân tích → Ý tưởng chiến dịch → Kịch bản video → Bài viết cho Facebook → IMAGE_PROMPT).
+    
     """.strip()
     u_prompt, sys_inst = apply_occasion_lock(user_prompt, persona_vi)
 
@@ -289,7 +287,7 @@ def api_channels_prompt():
     """.strip()
 
     try:
-        result = call_gemini_flash_planner(sys_ask, "", [])
+        result = call_gemini_flash(sys_ask, "", [])
     except Exception as e:
         return jsonify({"error": f"Lỗi gọi Gemini: {e}"}), 500
     return jsonify({"channel": channel, "generated": result})
@@ -311,7 +309,7 @@ def api_planner_generate():
 
     t0 = time.time()
     try:
-        text = call_gemini_flash_planner(user_prompt, sys_inst, [SystemMessage(persona_vi)])
+        text = call_gemini_flash(user_prompt, sys_inst, [SystemMessage(persona_vi)])
     except Exception as e:
         try:
             app.logger.exception("Planner LLM error: %s", e)
