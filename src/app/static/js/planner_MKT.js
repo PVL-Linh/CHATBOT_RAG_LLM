@@ -217,95 +217,54 @@ async function loadPlannerChannels() {
 /* ==================== FIXED: Clean AI Response ==================== */
 function cleanPlannerResponse(text) {
   if (!text) return "";
+  let s = (text || "").trim();
 
-  let cleanContent = text.trim();
+  // 0) Cắt YAML front-matter nếu có
+  s = s.replace(/^\s*---[\s\S]*?---\s*/m, "");
 
-  // 1. Tìm và chỉ lấy phần sau các marker nội dung
-  const contentMarkers = [
-    "**Bản thảo ngắn gọn:**",
-    "**Bản thảo:**",
-    "**Nội dung:**",
-    "**Content:**",
-    "**Nội dung bài viết:**",
-    "**Bài viết:**",
-  ];
+  // 1) Phân tách dòng để xử lý "preamble"
+  const lines = s.split(/\r?\n/);
+  let i = 0;
 
-  for (const marker of contentMarkers) {
-    const index = cleanContent.indexOf(marker);
-    if (index !== -1) {
-      cleanContent = cleanContent.substring(index + marker.length).trim();
-      break;
-    }
-  }
+  // 1a) Bỏ các heading đầu (H1/H2/...) nếu có
+  while (i < lines.length && /^#{1,6}\s/.test(lines[i].trim())) i++;
 
-  // 2. Loại bỏ metadata ở đầu (các dòng có dạng **Label:** value)
-  const lines = cleanContent.split("\n");
-  let contentStartIndex = 0;
-  let foundRealContent = false;
+  // 1b) Bỏ dòng trống ngay sau heading
+  while (i < lines.length && !lines[i].trim()) i++;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+  // 1c) Bỏ block metadata đầu bài (VN + EN)
+  const metaHeadRe =
+    /^(?:\*\*)?(?:Mục tiêu|Giai đoạn|Kênh|Định dạng|Độ dài|Giọng ?điệu|Từ ?kho[áa]|Từ khoá chiến lược|Khuyến mãi|Ưu đãi|Kêu gọi hành động|CTA|Ngôn ngữ|Goal|Stage|Channel|Format|Content length|Tone|Keywords|Promotion|Offer|Call(?:-| )?to(?:-| )?Action|Language)(?:\*\*)?\s*:/i;
 
-    // Bỏ qua dòng rỗng
-    if (!line) continue;
-
-    // Nếu là metadata (dạng **Label:** value)
-    if (line.match(/^\*\*[^*]+:\*\*/) || line.match(/^\*\*[^*]+\*\*/)) {
-      contentStartIndex = i + 1;
+  let metaFound = false;
+  let j = i;
+  while (j < lines.length) {
+    const t = lines[j].trim();
+    if (!t) {
+      j++;
+      continue;
+    } // cho phép lẫn dòng trống trong block meta
+    if (metaHeadRe.test(t)) {
+      metaFound = true;
+      j++;
       continue;
     }
-
-    // Nếu là bullet point dàn ý (*   text hoặc - text)
-    if (line.match(/^\s*[\*\-]\s+/) && !foundRealContent) {
-      contentStartIndex = i + 1;
-      continue;
-    }
-
-    // Nếu tìm thấy đoạn văn thực tế (dài hơn 30 ký tự, không bắt đầu bằng * hoặc **)
-    if (line.length > 30 && !line.startsWith("*") && !line.startsWith("**")) {
-      foundRealContent = true;
-      break;
-    }
+    break; // gặp dòng không phải meta => kết thúc block meta
   }
+  if (metaFound) i = j; // cắt bỏ preamble (heading + meta)
 
-  // 3. Lấy nội dung từ vị trí đã tìm được
-  if (contentStartIndex > 0 && contentStartIndex < lines.length) {
-    cleanContent = lines.slice(contentStartIndex).join("\n").trim();
-  }
+  // 2) Phần còn lại là nội dung
+  s = lines.slice(i).join("\n").trim();
 
-  // 4. Loại bỏ các dòng metadata còn sót lại ở đầu
-  const finalLines = cleanContent.split("\n");
-  let finalStartIndex = 0;
+  // 3) Xóa mọi dòng metadata còn sót ở BẤT KỲ đâu (phòng model in lẫn trong nội dung)
+  const stripAllParamsRe =
+    /^(?:\s*(?:\*\*)?(?:Mục tiêu|Giai đoạn|Kênh|Định dạng|Độ dài|Giọng ?điệu|Từ ?kho[áa]|Từ khoá chiến lược|Khuyến mãi|Ưu đãi|Kêu gọi hành động|CTA|Ngôn ngữ|Goal|Stage|Channel|Format|Content length|Tone|Keywords|Promotion|Offer|Call(?:-| )?to(?:-| )?Action|Language)(?:\*\*)?\s*[:\-].*)$/gim;
+  s = s.replace(stripAllParamsRe, "");
 
-  for (let i = 0; i < finalLines.length; i++) {
-    const line = finalLines[i].trim();
-    if (!line) continue;
+  // 4) Thu gọn khoảng trắng
+  s = s.replace(/\n{3,}/g, "\n\n").trim();
 
-    // Nếu vẫn còn metadata
-    if (
-      line.match(/^\*\*[^*]+:\*\*/) ||
-      line.includes("Mục tiêu:") ||
-      line.includes("Giai đoạn:") ||
-      line.includes("Kênh:") ||
-      line.includes("Định dạng:") ||
-      line.includes("Độ dài:") ||
-      line.includes("Giọng điệu:") ||
-      line.includes("Từ khoá:") ||
-      line.includes("Dàn ý:")
-    ) {
-      finalStartIndex = i + 1;
-      continue;
-    }
-
-    // Tìm thấy nội dung thực
-    break;
-  }
-
-  if (finalStartIndex > 0) {
-    cleanContent = finalLines.slice(finalStartIndex).join("\n").trim();
-  }
-
-  return cleanContent;
+  return s;
 }
 
 /* ==================== DOM Ready ==================== */
@@ -385,7 +344,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // ========== CLEAN CONTENT HERE ==========
         const rawContent = d.text || "";
         const cleanedContent = cleanPlannerResponse(rawContent);
-
+        if (!cleanedContent || cleanedContent.replace(/\s/g, "").length < 30) {
+          cleanedContent = rawContent.trim();
+        }
         // Lưu cả raw và cleaned content
         out.dataset.mdRaw = rawContent; // raw cho debug
         out.dataset.md = cleanedContent; // cleaned cho display

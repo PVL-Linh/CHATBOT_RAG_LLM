@@ -1065,3 +1065,46 @@ body {
   cursor: default;
   pointer-events: none;
 }
+
+/* ===== Planner Result Scroll ===== */
+.result-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* khung cuộn cho phần kết quả */
+.result-scroll {
+  max-height: clamp(320px, 60vh, 720px); /* tự co theo màn hình */
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+}
+
+/* thanh cuộn: Firefox */
+.result-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb, #c7cdd6) var(--scroll-track, #f3f4f6);
+}
+
+/* thanh cuộn: WebKit (Chrome/Edge/Safari) */
+.result-scroll::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.result-scroll::-webkit-scrollbar-track {
+  background: var(--scroll-track, #f3f4f6);
+  border-radius: 10px;
+}
+.result-scroll::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb, #c7cdd6);
+  border-radius: 10px;
+  border: 2px solid var(--scroll-track, #f3f4f6);
+}
+.result-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--scroll-thumb-hover, #aeb6c2);
+}

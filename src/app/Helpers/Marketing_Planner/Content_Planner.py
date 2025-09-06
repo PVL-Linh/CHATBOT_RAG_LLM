@@ -22,13 +22,17 @@ def _normalize_channel(s: str) -> str:
 def _build_system_prompt_ifelse(channel: str, goal: str, tones: list[str], lang: str) -> str:
     tones_line = ", ".join(tones) if tones else "Chuyên nghiệp, rõ ràng"
     base = f"""
-        Bạn là chiến lược gia nội dung cho **Tiximax Logistics**.
-        Ngôn ngữ đầu ra: {lang}.
-        Giọng điệu ưu tiên: {tones_line}.
-        Nguyên tắc:
-        - Không bịa số liệu/giá/ưu đãi.
-        - Bám mục tiêu & giai đoạn hành trình khách hàng.
-        - Viết đúng cấu trúc yêu cầu của kênh.
+        You are the content strategist for Tiximax Logistics.
+        Output language: {lang}.
+        Preferred tone: {tones_line}.
+
+        Principles:
+
+        Do not fabricate any data, prices, or promotions.
+
+        Stay aligned with the objective and the customer journey stage.
+
+        Follow the structure required by the channel.
         """.strip()
 
     if channel == "Facebook":
@@ -49,7 +53,7 @@ def _build_system_prompt_ifelse(channel: str, goal: str, tones: list[str], lang:
         ch_block = f"""
         ĐẦU RA (markdown):
 
-        Tiêu đề/Hook (≤12 từ)
+        Tiêu đề/Hook
 
         Mục tiêu: …
         Giai đoạn: … Kênh: {channel or "Không chỉ định"} Định dạng: … Độ dài: …
@@ -80,36 +84,38 @@ def build_user_prompt_body(d: dict) -> str:
 
     # >>> DÒNG BẠN YÊU CẦU: gắn đúng Kênh truyền thông: {channel or "Không chỉ định"}
     return f"""
-        Ngôn ngữ: {lang}
-        Mục tiêu truyền thông chính: {goal or "Không chỉ định"}
-        Giai đoạn hành trình khách hàng: {stage or "Không chỉ định"}
-        Kênh truyền thông: {channel or "Không chỉ định"}
-        Định dạng: {format or "Không chỉ định"}
-        Độ dài nội dung: {length or "Không chỉ định"}
-        Giọng điệu: {tone_line}
-        Từ khoá chiến lược: {keywords or "Không có"}
-        Chương trình ưu đãi (nếu có): {offer or "Không có"}
-        Call-to-Action: {cta or "Không có"}
+        Language: {lang}
+        Primary communication objective: {goal or "Not specified"}
+        Customer journey stage: {stage or "Not specified"}
+        Channel: {channel or "Not specified"}
+        Format: {format or "Not specified"}
+        Content length: {length or "Not specified"}
+        Tone: {tone_line}
+        Strategic keywords: {keywords or "None"}
+        Promotion (if any): {offer or "None"}
+        Call-to-Action: {cta or "None"}
 
-        Hãy xuất đúng format trong system prompt (markdown).
+        Please output in the exact format specified in the system prompt (markdown).
+
         """.strip()
 
 # --- Helpers: mô tả kênh cho Gemini / built-in spec ---
 def _describe_custom_channel(ch: dict, lang: str) -> str:
     return f"""
-    Tên kênh: {ch.get('name','')}
-    Nền tảng: {ch.get('platform','')}
-    Đối tượng: {ch.get('audience','')}
-    Giọng điệu: {ch.get('tone','')}
-    Hướng dẫn nội dung: {ch.get('content_guide','')}        # <-- NEW
-    Phong cách visual: {ch.get('visual_guide','')}
-    Định dạng ưu tiên: {ch.get('formats','')}
-    Giới hạn độ dài: {ch.get('length','')}
-    Hashtag: {ch.get('hashtags','')}
+    Channel name: {ch.get('name','')}
+    Platform: {ch.get('platform','')}
+    Audience: {ch.get('audience','')}
+    Tone: {ch.get('tone','')}
+    Content guidelines: {ch.get('content_guide','')}  # <-- NEW
+    Visual style: {ch.get('visual_guide','')}
+    Preferred formats: {ch.get('formats','')}
+    Length limits: {ch.get('length','')}
+    Hashtags: {ch.get('hashtags','')}
     Call-to-Action: {ch.get('cta','')}
-    Rủi ro/Ghi chú: {ch.get('risk_notes','')}
-    Chỉ dẫn đặc biệt: {ch.get('special','')}
-    Ngôn ngữ đầu ra: {lang}
+    Risks/Notes: {ch.get('risk_notes','')}
+    Special instructions: {ch.get('special','')}
+    Output language: {lang}
+
     """.strip()
 
 def _describe_builtin_channel(channel: str, lang: str) -> str:

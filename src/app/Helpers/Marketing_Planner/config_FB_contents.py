@@ -1,27 +1,3 @@
-# import os
-# from dotenv import load_dotenv
-# import google.generativeai as genai_old
-# from google import genai as genai_new
-
-# load_dotenv()
-
-# API_KEY_MKT = os.getenv("GEMINI_API_KEY")
-# if not API_KEY_MKT:
-#     raise RuntimeError("Không tìm thấy GEMINI_API_KEY trong .env")
-
-# # Old SDK (text)
-# genai_old.configure(api_key=API_KEY_MKT)
-# # TEXT_MODEL_MKT = "gemini-1.5-flash"
-# TEXT_MODEL_MKT = "gemini-2.5-flash"
-# TEMPERATURE_MKT = 0.6
-# MAX_TOKENS_MKT = 2000
-# RETRY_MAX_MKT = 5
-
-# # New SDK (image)
-# CLIENT_MKT = genai_new.Client(api_key=API_KEY_MKT)
-# GEMINI_IMAGE_MODEL_MKT = "gemini-2.0-flash-preview-image-generation"  # nhanh, experimental
-# IMAGEN_MODEL_MKT      = "imagen-4.0-generate-preview-06-06"           # chất lượng cao
-
 import os, time, random
 from dotenv import load_dotenv
 import google.generativeai as genai_old
@@ -29,8 +5,8 @@ from google import genai as genai_new
 
 load_dotenv()
 
-API_KEY_MKT = os.getenv("GEMINI_API_KEY")
-if not API_KEY_MKT:
+API_KEY_MKT_FB = os.getenv("GEMINI_API_KEY_FB")
+if not API_KEY_MKT_FB:
     raise RuntimeError("Không tìm thấy GEMINI_API_KEY trong .env")
 
 # =========================
@@ -41,9 +17,9 @@ FREE_ONLY = os.getenv("GEMINI_FREE_ONLY", "1") == "1"  # 1 = chỉ dùng model f
 # =========================
 # TEXT (Old SDK) — FREE
 # =========================
-genai_old.configure(api_key=API_KEY_MKT)
+genai_old.configure(api_key=API_KEY_MKT_FB)
 
-TEXT_MODEL_MKT  = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.5-flash")  # FREE
+TEXT_MODEL_MKT_FB  = os.getenv("GEMINI_TEXT_MODEL_FB", "gemini-2.5-flash")  # FREE
 TEMPERATURE_MKT = float(os.getenv("GEMINI_TEMPERATURE", "0.6"))
 RETRY_MAX_MKT   = int(os.getenv("GEMINI_RETRY_MAX", "5"))
 
@@ -59,7 +35,7 @@ RESPONSE_MIME_TYPE_MKT = os.getenv("GEMINI_RESPONSE_MIME", "text/markdown")
 # =========================
 # IMAGE (New SDK) — FREE
 # =========================
-CLIENT_MKT = genai_new.Client(api_key=API_KEY_MKT)
+CLIENT_MKT = genai_new.Client(api_key=API_KEY_MKT_FB)
 
 if FREE_ONLY:
     GEMINI_IMAGE_MODEL_MKT = os.getenv(
@@ -98,7 +74,7 @@ def call_text(prompt: str,
     temp = TEMPERATURE_MKT if temperature is None else float(temperature)
 
     model = genai_old.GenerativeModel(
-        model_name=TEXT_MODEL_MKT,
+        model_name=TEXT_MODEL_MKT_FB,
         system_instruction=(system_instruction or None),
     )
 

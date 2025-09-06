@@ -1,12 +1,12 @@
 import os, time, threading, json
 from flask import Blueprint, request, jsonify, session, Response, stream_with_context
-from langchain_core.messages import SystemMessage
+# from langchain_core.messages import SystemMessage
 from app.Helpers.rate_limit import get_text_limiter
 from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
 from app.Model_LLM.model_llm import LLM_model
-from zoneinfo import ZoneInfo
-from app.Helpers.LLM_client import apply_occasion_lock # imported only when needed
+# from zoneinfo import ZoneInfo
+# from app.Helpers.LLM_client import apply_occasion_lock # imported only when needed
 from app.Helpers.prompt_KT import persona_vi
 from app.Model_LLM.hybrid_retriever import rerank, TOP_K
 bp = Blueprint('chat', __name__)
@@ -124,11 +124,6 @@ def chat_api():
 
     context_hint = f"Context (trích từ tài liệu):\n{docs_text}" if docs_text else "(Không tìm thấy dữ liệu context phù hợp.)"
     system_prompt = f"""{SYSTEM_PRIMER}
-
-
-    - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp.
-    - Nếu thông tin không có trong context, hãy nói 'không có trong dữ liệu'.
-    - Trích dẫn ngắn nguồn (source, chunk) khi có thể.
     {context_hint}
     """
 
@@ -197,7 +192,6 @@ def chat_stream():
     contents = _to_gemini_history_no_system(hist_msgs)
     context_hint = "(Stream mode - context omitted)"
     system_prompt = f"""{SYSTEM_PRIMER}
-    - Bạn là trợ lý trả lời dựa trên ngữ cảnh được cung cấp (nếu có).
     {context_hint}
     """
     first_user_text = f"""[SYSTEM]

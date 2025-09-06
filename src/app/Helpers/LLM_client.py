@@ -3,11 +3,12 @@ import os, re, time, threading
 from typing import List, Optional, Tuple
 
 import google.generativeai as genai_old
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 
 from .prompt_KT import persona_vi  # nếu cần
 from .Occasion_Classifier import classify_occasion_1
-from .config_MKT import TEXT_MODEL_MKT, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
+from .Marketing_Planner.config_FB_contents import TEXT_MODEL_MKT_FB, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
+from .config_MKT import TEXT_MODEL_MKT    #, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
 from .rate_limit import get_text_limiter
 
 # ===================== Semaphore (đồng thời cho LLM)
@@ -28,6 +29,43 @@ def _estimate_tokens(prompt: str, out_tokens: int) -> int:
 
 # ===================== LLM (TEXT)
 def call_gemini_flash(user_prompt: str, system_instruction: str, history_msgs: List[object] = None) -> str:
+    """
+    Gọi Gemini Flash có: limiter (RPM/TPM) + semaphore + retry/backoff.
+    API giữ nguyên chữ ký để các route cũ dùng được.
+    """
+    if history_msgs is None:
+        history_msgs = []
+
+    gen_cfg = {"temperature": TEMPERATURE_MKT, "max_output_tokens": MAX_TOKENS_MKT}
+    model = genai_old.GenerativeModel(model_name=TEXT_MODEL_MKT_FB, system_instruction=system_instruction)
+    chat = model.start_chat(history=to_gemini_history(history_msgs))
+
+    limiter = get_text_limiter()
+    tokens_est = _estimate_tokens(user_prompt, MAX_TOKENS_MKT)
+    back = 0.4
+    last_err = None
+
+    for _ in range(RETRY_MAX_MKT):
+        try:
+            limiter.acquire(tokens_est)
+            with LLM_SEM:
+                resp = chat.send_message(user_prompt, generation_config=gen_cfg)
+            limiter.on_success()
+            return (resp.text or "").strip()
+        except Exception as e:
+            last_err = e
+            msg = str(e).lower()
+            if ("429" in msg or "quota" in msg or "rate" in msg) and back <= 10:
+                limiter.on_429()
+                time.sleep(back)
+                back *= 2
+                continue
+            limiter.on_429()
+            break
+    raise RuntimeError(f"Quá số lần retry khi gọi Gemini. Chi tiết: {last_err}")
+
+
+def call_gemini_flash_planner(user_prompt: str, system_instruction: str, history_msgs: List[object] = None) -> str:
     """
     Gọi Gemini Flash có: limiter (RPM/TPM) + semaphore + retry/backoff.
     API giữ nguyên chữ ký để các route cũ dùng được.
@@ -72,7 +110,7 @@ def ensure_english_prompt(text: str) -> str:
         limiter.acquire(tokens_est)
         with LLM_SEM:
             model = genai_old.GenerativeModel(
-                model_name=TEXT_MODEL_MKT,
+                model_name=TEXT_MODEL_MKT_FB,
                 system_instruction=(
                     "You are a precise translator/editor for text-to-image prompts. "
                     "Rewrite concisely for SD/MJ/Imagen/Gemini image; keep proper nouns; "

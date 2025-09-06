@@ -23,15 +23,15 @@ persona_vi = (
     “Buying international goods is as easy as shopping in Vietnam – fast, safe, and cost-effective.”
 
     4. Desired Action
-    Call readers to message the fanpage or visit the Tiximax website to place an order.
+    Call readers to message the fanpage or visit the website to place an order.
 
     5. Mandatory Info & Hashtags at the end of the post
 
-    #1 INDONESIA–VIETNAM BUYING & SHIPPING SERVICE
+    #1 branch–VIETNAM BUYING & SHIPPING SERVICE
 
     📞 Hotline: +84 90 183 42 83
 
-    #brand Indonesia #LogisticsIndoVietnam #brand Shipping #OrderIndoVietnam #TwoWayShipping
+    #brand branch #LogisticsIndoVietnam #brand Shipping #OrderIndoVietnam #TwoWayShipping
 
     IMAGE_PROMPT: Write in concise English, one paragraph. Must include:
 

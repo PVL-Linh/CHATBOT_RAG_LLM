@@ -366,7 +366,7 @@ body {
     rgba(255, 255, 255, 0.95),
     rgba(255, 255, 255, 0.75)
   );
-  backdrop-filter: saturate(1.2) blur(4px);
+  /* backdrop-filter: saturate(1.2) blur(4px); */
   border-top: 1px solid white;
 }
 

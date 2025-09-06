@@ -1,22 +1,20 @@
 from langchain_core.messages import SystemMessage
-from .LLM_client import call_gemini_flash, apply_occasion_lock
+from .LLM_client import call_gemini_flash_planner, apply_occasion_lock, call_gemini_flash
 from .prompt_KT import persona_vi
 from .prompts_extra import prompt_rephrase_vi, prompt_fab_vi, prompt_tiktok_vi
 def generate_facebook_ads_content(
     product_desc: str, 
     customer: str, 
     lang: str = "Tiếng Việt"
-) -> str:
+    ) -> str:
     """Generate Facebook Ads content using Gemini Flash"""
     user_prompt = f"""
-Tạo nội dung truyền thông theo mẫu cố định bên dưới cho chiến dịch Facebook Ads.
-Ngôn ngữ: {lang}.
-Thông tin đầu vào:
-- Mô tả sản phẩm: {product_desc}
-- Chân dung khách hàng: {customer}
-Chỉ xuất MỘT bài hoàn chỉnh đúng template (Phân tích → Ý tưởng chiến dịch → Kịch bản video → Bài viết cho Facebook → IMAGE_PROMPT).
-"""
-    
+    Create marketing content following the fixed template below for a Facebook contents campaign.
+    Language: {lang}.
+    Input information:
+    - Product description: {product_desc}
+    - Customer persona: {customer}
+    """
     user_prompt, system_instruction = apply_occasion_lock(user_prompt, persona_vi)
     return call_gemini_flash(user_prompt, system_instruction, [SystemMessage(persona_vi)])
 
@@ -29,13 +27,13 @@ def generate_rephrase_content(
     system_prompt = prompt_rephrase_vi.strip()
     
     user_prompt = f"""
-Ngôn ngữ: {lang}
-Giọng điệu: {tone}
-Văn bản gốc: ```{text_src.strip()}```
-Hãy xuất đúng định dạng theo system prompt.
-"""
+    Ngôn ngữ: {lang}
+    Giọng điệu: {tone}
+    Văn bản gốc: ```{text_src.strip()}```
+    Hãy xuất đúng định dạng theo system prompt.
+    """
     
-    return call_gemini_flash(user_prompt, system_prompt, [])
+    return call_gemini_flash_planner(user_prompt, system_prompt, [])
 
 def generate_tiktok_content(
     brief: str, 
@@ -54,7 +52,7 @@ Tóm tắt: {brief}
 Hãy xuất đúng cấu trúc IDEAS theo system prompt (không hướng dẫn quay).
 """
     
-    return call_gemini_flash(user_prompt, system_prompt, [])
+    return call_gemini_flash_planner(user_prompt, system_prompt, [])
 
 def generate_fab_content(
     benefits: str, 
@@ -65,10 +63,10 @@ def generate_fab_content(
     system_prompt = prompt_fab_vi.strip()
     
     user_prompt = f"""
-Ngôn ngữ: {lang}
-Lợi ích: {benefits}
-Thông tin bổ sung: {extra or 'Không có'}
-Xuất đúng khung FAB theo system prompt.
-"""
+    Ngôn ngữ: {lang}
+    Lợi ích: {benefits}
+    Thông tin bổ sung: {extra or 'Không có'}
+    Xuất đúng khung FAB theo system prompt.
+    """
     
-    return call_gemini_flash(user_prompt, system_prompt, [])
+    return call_gemini_flash_planner(user_prompt, system_prompt, [])
