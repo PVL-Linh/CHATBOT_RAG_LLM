@@ -54,7 +54,7 @@ def strip_source_citations(text: str) -> str:
         return text
     text = _SOURCE_TAG_PAT.sub("", text)
     text = re.sub(r"[ \t]{2,}", " ", text)
-    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    text = re.sub(r"\s+([,.;:!?])", r"\\1", text)
     return text.strip()
 
 def _to_gemini_history_no_system(history_msgs):

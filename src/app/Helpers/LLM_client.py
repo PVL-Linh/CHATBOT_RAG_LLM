@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 import google.generativeai as genai_old
 from langchain_core.messages import HumanMessage, AIMessage
 
-from .prompt_KT import persona_vi  # nếu cần
+# from .prompt_KT import persona_vi  # nếu cần
 from .Occasion_Classifier import classify_occasion_1
 from .Marketing_Planner.config_FB_contents import TEXT_MODEL_MKT_FB, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
 from .config_MKT import TEXT_MODEL_MKT    #, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
@@ -154,4 +154,5 @@ def apply_occasion_lock(user_prompt: str, system_instruction: str) -> Tuple[str,
         )
 
     return user_prompt, system_instruction
+
 

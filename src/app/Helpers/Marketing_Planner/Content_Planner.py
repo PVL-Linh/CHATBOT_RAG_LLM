@@ -1,4 +1,4 @@
-from .promt_planner import (Prompt_Blog_Website_Planner, 
+from .prompt_planner import (Prompt_Blog_Website_Planner, 
                             Prompt_FaceBook_Planner, 
                             Prompt_Instagram_Planner, 
                             Prompt_LinkedIn_Planner, 
@@ -35,54 +35,68 @@ def _build_system_prompt_ifelse(channel: str, goal: str, tones: list[str], lang:
         Follow the structure required by the channel.
         """.strip()
 
-    if channel == "Facebook":
+    if channel == "Facebook Fanpage Chính Thức":
         ch_block = Prompt_FaceBook_Planner.strip()
-    elif channel == "TikTok":
+    elif channel == "TikTok Short Video":
         ch_block = Prompt_TikTok_Planner.strip()
-    elif channel == "Instagram":
+    elif channel == "Instagram Reels":
         ch_block = Prompt_Instagram_Planner.strip()
-    elif channel == "Blog Website":
+    elif channel == "Blog Website SEO":
         ch_block = Prompt_Blog_Website_Planner.strip()
-    elif channel == "Zalo OA":
+    elif channel == "Zalo Official Account":
         ch_block = Prompt_Zalo_OA_Planner.strip()
-    elif channel == "YouTube":
+    elif channel == "YouTube Shorts":
         ch_block = Prompt_YouTube_Planner.strip()
-    elif channel == "LinkedIn":
+    elif channel == "LinkedIn Business":
         ch_block = Prompt_LinkedIn_Planner.strip()
-    else:
-        ch_block = f"""
-        ĐẦU RA (markdown):
+    # else:
+    #     ch_block = f"""
+    #     ĐẦU RA (markdown):
 
-        Tiêu đề/Hook
+    #     Tiêu đề/Hook
 
-        Mục tiêu: …
-        Giai đoạn: … Kênh: {channel or "Không chỉ định"} Định dạng: … Độ dài: …
-        Giọng điệu: … Từ khoá chiến lược: …
+    #     Mục tiêu: …
+    #     Giai đoạn: … Kênh: {channel or "Không chỉ định"} Định dạng: … Độ dài: …
+    #     Giọng điệu: … Từ khoá chiến lược: …
 
-        Dàn ý nội dung
+    #     Dàn ý nội dung
 
-        3–6 bullet phù hợp kênh
+    #     3–6 bullet phù hợp kênh
 
-        Bản thảo ngắn gọn
-
-        Viết phần nội dung mẫu ngắn gọn theo kênh/định dạng được chọn""".strip()
+    #     Viết phần nội dung mẫu ngắn gọn theo kênh/định dạng được chọn""".strip()
     return base + "\n\n" + ch_block
 
 def build_user_prompt_body(d: dict) -> str:
-    goal = d.get("goal") or (d.get("objectives") or [None])[0]
-    stage = d.get("stage", "")
-    channel = _normalize_channel(d.get("channel", ""))
-    print(f"Normalized channel: {channel}")  # Debug log
-    format = d.get("format", "")
-    length = d.get("length", "")
-    tones = d.get("tones", [])
+    goal     = d.get("goal") or (d.get("objectives") or [None])[0]
+    stage    = d.get("stage", "")
+    channel  = (d.get("channel") or "").strip()
+    format   = d.get("format", "")
+    length   = d.get("length", "")
+    tones    = d.get("tones", [])
     keywords = d.get("keywords", "")
-    offer = d.get("offer", "")
-    cta = d.get("cta", "")
-    lang = d.get("lang", "Tiếng Việt")
+    offer    = d.get("offer", "")
+    cta      = d.get("cta", "")
+    lang     = d.get("lang", "Tiếng Việt")
+    include_toc = bool(d.get("include_toc", False))
+
+    meta_title = d.get("meta_title", "").strip()
+    meta_desc  = d.get("meta_description", "").strip()
+    slug       = d.get("slug", "").strip()
+
     tone_line = ", ".join(tones) if tones else "Trung tính/chuyên nghiệp"
 
-    # >>> DÒNG BẠN YÊU CẦU: gắn đúng Kênh truyền thông: {channel or "Không chỉ định"}
+    fixed_meta_lines = []
+    if meta_title:
+        fixed_meta_lines.append(f"- Meta Title (dùng đúng, không tự tạo lại): {meta_title}")
+    if meta_desc:
+        fixed_meta_lines.append(f"- Meta Description (dùng đúng, không tự tạo lại): {meta_desc}")
+    if slug:
+        fixed_meta_lines.append(f"- URL Slug (dùng đúng, không tự tạo lại): {slug}")
+    if not include_toc:
+        fixed_meta_lines.append("- KHÔNG tạo Mục lục (TOC) trong đầu ra.")
+
+    fixed_meta_txt = "\n".join(fixed_meta_lines) if fixed_meta_lines else "- (Không có meta cố định)"
+
     return f"""
         Language: {lang}
         Primary communication objective: {goal or "Not specified"}
@@ -95,9 +109,13 @@ def build_user_prompt_body(d: dict) -> str:
         Promotion (if any): {offer or "None"}
         Call-to-Action: {cta or "None"}
 
-        Please output in the exact format specified in the system prompt (markdown).
+        Ràng buộc đầu ra thêm:
+        {fixed_meta_txt}
 
+        Hãy xuất đúng **cấu trúc** đã được định nghĩa trong SYSTEM PROMPT (markdown). 
+        Nếu có meta ở trên thì **dùng nguyên văn**, **không** tự tạo lại. 
         """.strip()
+
 
 # --- Helpers: mô tả kênh cho Gemini / built-in spec ---
 def _describe_custom_channel(ch: dict, lang: str) -> str:
