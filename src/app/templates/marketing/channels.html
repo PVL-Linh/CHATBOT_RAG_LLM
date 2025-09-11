@@ -2,7 +2,7 @@
 Tiximax{% endblock %} {# dùng đúng CSS như planner #} {% block page_css %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
+  href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
 />
 <style>
   /* bổ sung rất nhẹ để hiển thị chips + lưới thẻ */
@@ -194,6 +194,6 @@ endblock %} {% block content %}
 {% endblock %} {% block extra_scripts %}
 <script
   defer
-  src="{{ url_for('static', filename='js/channels.js', v='1') }}"
+  src="{{ url_for('static', filename='js/marketing/channels.js', v='1') }}"
 ></script>
 {% endblock %}

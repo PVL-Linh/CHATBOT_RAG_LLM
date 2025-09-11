@@ -1,0 +1,232 @@
+/* ===== Tổng thể ===== */
+html, body { height: 100%; }
+body.bg {
+  min-height: 100dvh;               /* fix 100vh trên iOS */
+  overflow: hidden;
+  position: relative;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #0f172a;
+}
+.login-card{
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  padding: clamp(16px, 2vw + 8px, 28px) !important;
+  box-shadow: 0 12px 30px rgba(2,6,23,.10), 0 1px 0 rgba(255,255,255,.6) inset;
+}
+.brand img{ height: 48px; }
+
+/* ===== Tokens & theme (Bootstrap 5.3 aware) ===== */
+:root{
+  --tixi-radius: 12px;
+  --tixi-bg: #f8fafc;
+  --tixi-sep: var(--bs-border-color);
+  --tixi-focus-border: var(--bs-success);
+  --tixi-focus-ring: rgba(var(--bs-success-rgb), .16);
+  --tixi-text: #0f172a;
+}
+
+/* ===== Field 3-cột: icon | input | eye ===== */
+.tixi-field{
+  display: flex; align-items: center; gap: 6px;
+  background: var(--tixi-bg);
+  border: 1px solid var(--tixi-sep);
+  border-radius: var(--tixi-radius);
+  padding-inline: 6px;
+  min-height: 46px;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.tixi-field:hover{ border-color: rgba(148,163,184,.7); }
+.tixi-field:focus-within{
+  background: #fff;
+  border-color: var(--tixi-focus-border);
+  box-shadow: 0 0 0 .25rem var(--tixi-focus-ring);
+}
+
+/* icon trái */
+.tixi-ig-icon{
+  width: 44px; min-width: 44px; height: 44px;
+  display: grid; place-items: center;
+  color: var(--tixi-text); opacity: .82;
+}
+.tixi-ig-icon svg{ display:block; }
+
+/* input chính */
+.tixi-input{
+  flex: 1 1 auto;
+  border: 0 !important; outline: none !important; background: transparent;
+  padding: 10px 8px;
+  font-size: 15px; line-height: 1.25;
+  box-shadow: none !important;
+}
+.tixi-input::placeholder{ color: #94a3b8; }
+
+/* nút 🙊/🙈 dính liền bên phải */
+.tixi-eye{
+  height: 42px; min-width: 46px;
+  border: 0; background: transparent; cursor: pointer;
+  display: grid; place-items: center;
+  color: var(--tixi-text); opacity: .78;
+  border-left: 1px solid var(--tixi-sep);
+  border-top-right-radius: calc(var(--tixi-radius) - 1px);
+  border-bottom-right-radius: calc(var(--tixi-radius) - 1px);
+  transition: background .15s ease, opacity .15s ease;
+}
+.tixi-eye:hover{ background: #f1f5f9; opacity: .95; }
+.emoji{ font-size: 20px; line-height: 1; }
+
+/* progress mảnh & bo tròn */
+.progress-thin{ height: 5px; background: #eef2f7; border-radius: 999px; }
+.progress-thin .progress-bar{ border-radius: 999px; }
+
+/* màu cho meter (JS sẽ set class) */
+#meter-bar.bg-weak    { background-color: #ef4444 !important; }
+#meter-bar.bg-ok      { background-color: #f59e0b !important; }
+#meter-bar.bg-good    { background-color: #22c55e !important; }
+#meter-bar.bg-strong  { background-color: #10b981 !important; }
+
+/* Nút đăng nhập: gradient nhẹ, bóng mềm */
+.btn-login{
+  --c1: #2e9e86; --c2: #2b8f7a;
+  background-image: linear-gradient(180deg, var(--c1), var(--c2));
+  border: 0; color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(39,154,132,.18);
+}
+.btn-login:hover{ filter: brightness(1.03); }
+.btn-login:active{ transform: translateY(.5px); box-shadow: 0 6px 14px rgba(39,154,132,.18); }
+
+/* ===== Orbs nền mềm ===== */
+.orbs { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.orbs i {
+  position: absolute; border-radius: 50%;
+  filter: blur(40px) saturate(1.1); opacity: .20;
+  mix-blend-mode: screen; will-change: transform;
+  animation: orbFloat 18s ease-in-out infinite alternate;
+}
+.orbs .o1 { width: 420px; height: 420px; left: -120px; top: -80px;
+  background: radial-gradient(circle at 30% 30%, #60a5fa 0%, transparent 60%); animation-delay: 0s; }
+.orbs .o2 { width: 520px; height: 520px; right: -160px; bottom: -120px;
+  background: radial-gradient(circle at 70% 70%, #34d399 0%, transparent 60%); animation-delay: .6s; }
+.orbs .o3 { width: 380px; height: 380px; left: 50%; top: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 50% 50%, #22d3ee 0%, transparent 60%); animation-delay: 1.2s; }
+@keyframes orbFloat { 0%{ transform: translateY(0) translateX(0) scale(1); }
+  100%{ transform: translateY(-30px) translateX(20px) scale(1.03); } }
+@media (max-width: 576px){
+  .orbs .o1{ width: 260px; height: 260px; }
+  .orbs .o2{ width: 320px; height: 320px; }
+  .orbs .o3{ width: 220px; height: 220px; top: 70%; }
+}
+@media (prefers-reduced-motion: reduce) { .orbs { display:none; } }
+
+/* ===== Nút đổi preset nền ===== */
+.bg-toggle{
+  position: fixed; top: 12px; right: 12px; z-index: 5;
+  border-radius: 999px; padding: 8px 10px;
+  box-shadow: 0 6px 16px rgba(2,6,23,.15);
+}
+@media (max-width: 576px){
+  .bg-toggle{
+    top: auto;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== Preset nền động ===== */
+body.bg::before{
+  content:""; position: fixed; inset: 0; z-index: -1;
+}
+@media (prefers-reduced-motion: reduce){ body.bg::before{ animation: none !important; } }
+
+/* AURORA (mặc định) */
+body.bg.bg--aurora::before{
+  background:
+    radial-gradient(800px 800px at 0% 0%, #4ade80 0%, transparent 40%),
+    radial-gradient(900px 900px at 100% 100%, #22d3ee 0%, transparent 45%),
+    linear-gradient(135deg, #2f8f95 0%, #37a58a 40%, #37b06d 100%);
+  background-size: 200% 200%, 200% 200%, 300% 300%;
+  background-position: 0% 50%, 100% 50%, 0% 50%;
+  filter: hue-rotate(0deg) saturate(1.05);
+  animation: auroraMove 18s ease-in-out infinite alternate,
+             auroraHue 60s linear infinite;
+}
+@keyframes auroraMove{
+  0%{ background-position: 0% 50%, 100% 50%, 0% 50%; }
+  100%{ background-position: 100% 50%, 0% 50%, 100% 50%; }
+}
+@keyframes auroraHue{ to{ filter: hue-rotate(360deg) saturate(1.05);} }
+
+/* MESH */
+body.bg.bg--mesh::before{
+  background:
+    radial-gradient(600px 600px at 15% 20%, rgba(56,189,248,.55), transparent 60%),
+    radial-gradient(700px 700px at 85% 30%, rgba(34,197,94,.45), transparent 60%),
+    radial-gradient(800px 800px at 40% 80%, rgba(59,130,246,.45), transparent 60%),
+    linear-gradient(120deg, #0e7490, #0f766e 35%, #047857);
+  background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%;
+  animation: meshDrift 22s ease-in-out infinite alternate;
+  filter: saturate(1.05);
+}
+@keyframes meshDrift{
+  0%{ background-position: 10% 20%, 80% 30%, 30% 70%, 50% 50%; }
+  100%{ background-position: 30% 10%, 60% 50%, 70% 90%, 55% 55%; }
+}
+
+/* GRID */
+body.bg.bg--grid::before{
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,.08) 1px, transparent 1.2px) 0 0/22px 22px,
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  animation: gridPan 18s linear infinite;
+}
+@keyframes gridPan{ to{ background-position: 22px 22px, 100% 0; } }
+
+/* STRIPES */
+body.bg.bg--stripes::before{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.06) 0 2px, transparent 2px 12px),
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  animation: stripesSlide 20s linear infinite;
+}
+@keyframes stripesSlide{ to{ background-position: 200px 0, 0 0; } }
+
+/* BLOBS */
+body.bg.bg--blobs::before{
+  background:
+    radial-gradient(50% 40% at 15% 20%, rgba(34,197,94,.35), transparent 60%),
+    radial-gradient(45% 45% at 85% 30%, rgba(56,189,248,.35), transparent 60%),
+    radial-gradient(60% 50% at 40% 80%, rgba(59,130,246,.3), transparent 60%),
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  background-size: 160% 160%, 160% 160%, 160% 160%, 100% 100%;
+  animation: blobsFloat 16s ease-in-out infinite alternate;
+  filter: saturate(1.05);
+}
+@keyframes blobsFloat{
+  0%{ background-position: 12% 18%, 80% 30%, 35% 82%, 50% 50%; }
+  100%{ background-position: 22% 26%, 68% 40%, 45% 72%, 50% 50%; }
+}
+
+/* Caps Lock text mượt */
+.opacity-0 { opacity: 0; transition: opacity .18s ease; }
+.opacity-1 { opacity: 1; transition: opacity .18s ease; }
+
+/* Nút submit loading (giữ behavior cũ) */
+.btn.loading { position: relative; color: transparent !important; }
+.btn.loading::after {
+  content:""; position:absolute; inset:0; margin:auto;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.9); border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to{ transform: rotate(360deg);} }
+
+/* Touch target & mobile */
+button, .btn, .tixi-eye{ touch-action: manipulation; }
+@media (max-width: 576px){
+  .tixi-input{ font-size: 16px; padding: 12px 10px; } /* tránh iOS auto-zoom */
+  .tixi-eye{ height: 46px; }
+  .tixi-ig-icon{ width: 48px; min-width: 48px; height: 46px; }
+  .tixi-field{ min-height: 48px; }
+}

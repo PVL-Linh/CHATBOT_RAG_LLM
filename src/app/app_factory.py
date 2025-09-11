@@ -1,37 +1,11 @@
-# import os
-# from flask import Flask
-# from dotenv import load_dotenv
-# from flask_compress import Compress
-# from .routes import register_blueprints, register_error_handlers
-
-# def create_app() -> Flask:
-#     # Load env early
-#     load_dotenv()
-
-#     # Keep template/static roots identical to your current layout
-#     app = Flask(__name__, template_folder="templates", static_folder="static")
-#     app.config.from_object('app.config.Config')
-#     app.config.setdefault('SEND_FILE_MAX_AGE_DEFAULT', 31536000)
-
-#     # Optional compression (same as before)
-#     Compress(app)
-
-#     # Register blueprints + error handlers
-#     register_blueprints(app)
-#     register_error_handlers(app)
-
-#     return app
-
-
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from dotenv import load_dotenv
 from flask_compress import Compress
 from app.routes import register_blueprints, register_error_handlers
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.tools.migrate_users_csv_to_sqlite import migrate
 from app.Login.login_required import init_auth_storage
-
 
 def create_app() -> Flask:
     # Load env early
@@ -43,14 +17,25 @@ def create_app() -> Flask:
     # Production configuration
     app.config.update(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-key-change-in-production'),
-        DEBUG=os.environ.get('FLASK_DEBUG', 'False').lower() == 'true',
-        SEND_FILE_MAX_AGE_DEFAULT=31536000,  # 1 year cache
+        DEBUG=os.environ.get('FLASK_DEBUG', '1').lower() == '1',
+        SEND_FILE_MAX_AGE_DEFAULT=0, 
         MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max file size
         JSON_SORT_KEYS=False,
         JSONIFY_PRETTYPRINT_REGULAR=False,
         PREFERRED_URL_SCHEME="https",
     )
-    
+    @app.after_request
+    def _no_cache_static(resp):
+        # Chỉ áp cho CSS/JS trong /static
+        p = request.path
+        if p.startswith("/static/") and (p.endswith(".css") or p.endswith(".js")):
+            resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            resp.headers["Pragma"] = "no-cache"
+            resp.headers["Expires"] = "0"
+            # (tuỳ chọn) bỏ ETag/Last-Modified để ép tải lại
+            resp.headers.pop("ETag", None)
+            resp.headers.pop("Last-Modified", None)
+        return resp
     # Try to load from your existing config.py if it exists
     try:
         app.config.from_object('app.config.Config')

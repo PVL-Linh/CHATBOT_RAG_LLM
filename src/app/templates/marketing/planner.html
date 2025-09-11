@@ -3,7 +3,7 @@ title %} Marketing · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #
 {% block page_css %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
+  href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
 />
 {% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
 topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
@@ -222,6 +222,6 @@ footer %} {% endblock %} {% block content %}
 {% endblock %} {% block extra_scripts %}
 <script
   defer
-  src="{{ url_for('static', filename='js/planner_MKT.js', v='4') }}"
+  src="{{ url_for('static', filename='js/marketing/planner_MKT.js', v='4') }}"
 ></script>
 {% endblock %}

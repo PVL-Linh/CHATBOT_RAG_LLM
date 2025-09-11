@@ -1,77 +1,70 @@
-{% extends "home/base.html" %} {% block title %}Tiximax Chatbot{% endblock %} {%
-block topbar %}
-<header class="topbar">
-  <div class="tb-right">
-    <!-- Nút mở lịch sử chat -->
-    <button id="historyBtn" class="btn-outline">
-      <i data-lucide="history"></i> Lịch sử
-    </button>
-  </div>
-</header>
-{% endblock %} {% block history_panel %}
-<div id="overlay" class="overlay" aria-hidden="true"></div>
-<aside id="historyPanel" class="history-panel" aria-label="Lịch sử chat">
-  <div class="hp-toolbar">
-    <button id="newSessionTop" class="btn-block" title="Tạo đoạn chat mới">
-      <i data-lucide="plus"></i> Thêm đoạn chat
-    </button>
-  </div>
-  <div class="hp-header">
-    <div class="hp-actions">
-      <button id="newSession" class="btn-sm" title="Tạo đoạn chat mới">
-        <i data-lucide="square-pen"></i> New Chat
-      </button>
-      <button id="closeHistory" class="icon-btn" title="Đóng">
-        <i data-lucide="x"></i>
-      </button>
+{% extends "home/base.html" %}
+{% block title %}Tiximax Chatbot{% endblock %}
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat/chat.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat/history-chat.css') }}" />
+<style>
+  .chat-preview {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<!-- History Toggle Button -->
+<button class="history-toggle" id="historyToggle">
+  <i data-lucide="message-square"></i>
+</button>
+<button class="newchat-toggle" id="newChatBtn" title="Cuộc trò chuyện mới">
+  <i data-lucide="plus"></i>
+</button>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Chat History Sidebar -->
+<div class="chat-sidebar slim" id="chatSidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">
+      <i data-lucide="history"></i>
+      Chat History
     </div>
   </div>
-  <ul id="historyList" class="hp-list"></ul>
-  <div class="hp-footer">
-    <small>Mẹo: bấm tên để mở. Dùng ✏️ để đổi tên, 🗑️ để xóa.</small>
+
+  <div class="search-container">
+    <input type="text" class="search-input" placeholder="Tìm kiếm cuộc trò chuyện..." id="searchInput">
   </div>
-</aside>
-{% endblock %} {% block content %}
-<main class="chat-area">
-  <div class="chat-container">
-    <ul id="chatList" class="chat-list"></ul>
-    <!-- Greeting card -->
-    <div id="greeting" class="greeting"></div>
+
+  <div class="chat-history" id="chatHistory">
+    <!-- Chat items will be dynamically inserted here -->
+  </div>
+</div>
+
+<main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
+  <div class="row justify-content-center flex-grow-1 h-100">
+    <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">
+      <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
+        <ul id="chatList" class="chat-list mb-3"></ul>
+        <div id="greeting" class="greeting"></div>
+      </div>
+      <footer class="composer position-sticky bottom-0">
+        <form id="chatForm" class="composer-inner">
+          <div class="input-wrap">
+            <textarea id="chatInput" rows="1" placeholder="Ask anything about Tiximax Company" autocomplete="off"></textarea>
+            <button id="sendBtn" class="send-btn" type="submit" title="Gửi">
+              <i data-lucide="send"></i>
+            </button>
+          </div>
+        </form>
+      </footer>
+    </div>
   </div>
 </main>
-
-<!-- Composer -->
-<footer class="composer">
-  <form id="chatForm" class="composer-inner">
-    <div class="left-tools">
-      <button type="button" class="icon-btn" id="attachBtn" title="Đính kèm">
-        <i data-lucide="plus"></i>
-      </button>
-      <div class="chips">
-        <button type="button" class="chip" data-action="search">
-          <i data-lucide="globe"></i><span>Search</span>
-        </button>
-        <button type="button" class="chip" data-action="deep">
-          <i data-lucide="layers"></i><span>Deep Research</span>
-        </button>
-        <button type="button" class="chip" data-action="image">
-          <i data-lucide="image-plus"></i><span>Create Images</span>
-        </button>
-        <button type="button" class="icon-btn" title="Thêm">
-          <i data-lucide="ellipsis"></i>
-        </button>
-      </div>
-    </div>
-    <div class="input-wrap">
-      <textarea
-        id="chatInput"
-        rows="1"
-        placeholder="Enter Question..."
-      ></textarea>
-      <button id="sendBtn" class="send-btn" type="submit" title="Gửi">
-        <i data-lucide="send"></i>
-      </button>
-    </div>
-  </form>
-</footer>
+{% endblock %}
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/chat/chat.js') }}"></script>
 {% endblock %}
