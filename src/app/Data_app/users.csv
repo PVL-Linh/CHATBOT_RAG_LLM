@@ -1,4 +1,4 @@
-username,password,password_hash,role
+﻿username,password,password_hash,role
 hr01,hr01pass,,hr
 admin,admin,,admin
 mkt01,mkt01pass,,managerMarketing

@@ -83,7 +83,7 @@ services:
       - key: USERS_DB
         value: /var/lib/tiximax/data/users.db
       - key: CHAT_DB_PATH
-        value: /var/lib/tiximax/data/app.db
+        value: /var/lib/tiximax/data/chat.db
 
       # ---- Gunicorn (SQLite => 1 worker) ----
       - key: WEB_CONCURRENCY

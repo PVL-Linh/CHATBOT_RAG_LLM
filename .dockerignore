@@ -1,15 +1,27 @@
+# chung
 .git
-.gitignore
-venv
-__pycache__
+.vscode
+venv/
+__pycache__/
 *.pyc
-*.pyo
-*.pyd
-.mypy_cache
-.pytest_cache
 .env
-.DS_Store
-*.log
-node_modules
-dist
-.build
+Documents/
+ingest/
+
+# KHÔNG copy DB & model cache vào image (ta sẽ mount khi run)
+src/app/Data_app/**
+
+# Hugging Face hub/cache + file nặng
+src/app/models/cache/**
+src/app/models/hub/**
+**/snapshots/**
+**/.locks/**
+
+# Các tensor/model nặng (nếu thật sự cần copy file .pt/.bin thì bỏ các dòng dưới)
+*.safetensors
+*.bin
+*.pt
+*.onnx
+
+# (tuỳ) nếu vectorstore mount từ host thì cũng ignore để build nhanh
+# src/vectorstore/FAISS_Vector/**

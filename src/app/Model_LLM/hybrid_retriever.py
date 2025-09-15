@@ -5,7 +5,7 @@ from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.ensemble import EnsembleRetriever
 
 # ==== Tham số hybrid / rerank (bạn có thể chỉnh) ====
-TOP_K = 12              # k cuối cùng dùng làm context
+TOP_K = 22              # k cuối cùng dùng làm context
 K_SEM = 20              # k semantic (FAISS) trước khi hợp nhất
 K_LEX = 20              # k lexical (BM25) trước khi hợp nhất
 MMR_FETCH_K = 80        # số lượng fetch để MMR đa dạng

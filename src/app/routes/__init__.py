@@ -11,7 +11,7 @@ def register_blueprints(app: Flask) -> None:
     from .transcribe import bp as stt_bp
     from .errors import init_error_handlers as _eh
     from app.routes.api_fbads_imagefirst import bp as fbads_bp
-
+    
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(pages_bp)
@@ -22,7 +22,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(pdf_bp)
     app.register_blueprint(stt_bp)
     app.register_blueprint(fbads_bp)
-
+    
 
 
 def register_error_handlers(app: Flask) -> None:

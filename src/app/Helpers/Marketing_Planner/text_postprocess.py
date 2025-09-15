@@ -105,24 +105,22 @@ def sanitize_blog_article(s: str) -> str:
     """
     if not s:
         return s
-    s = _remove_debug_lines(s)
-    s = _remove_all_meta_blocks(s)
+    orig = (s or "").strip()            # <--- giữ bản gốc
 
-    # Giữ 1 block FAQ
+    s = _remove_debug_lines(s)           # gỡ FINISH/TOKENS/WORD_COUNT  :contentReference[oaicite:0]{index=0}
+    s = _remove_all_meta_blocks(s)       # gỡ META rác                 :contentReference[oaicite:1]{index=1}
+
+    # Giữ 1 block FAQ/Kết luận, chặn lặp heading, nén khoảng trắng
     faq_re = re.compile(r'(?im)^\s*(?:#{1,6}\s*)?(?:phần\s*hỏi[\-–]\s*đáp|faq)\b.*$')
-    s = _keep_only_first_section(s, faq_re)
-
-    # Giữ 1 block Kết luận
-    kl_re = re.compile(r'(?im)^\s*(?:#{1,6}\s*)?(?:kết\s*luận|kết\s*luận\s*\+\s*cta)\b.*$')
-    s = _keep_only_first_section(s, kl_re)
-
-    # Chặn lặp heading lớn
-    s = cut_on_repeated_headings(s, max_repeat=2)
-
-    # Nén dòng trống
+    s = _keep_only_first_section(s, faq_re)                                # :contentReference[oaicite:2]{index=2}
+    kl_re  = re.compile(r'(?im)^\s*(?:#{1,6}\s*)?(?:kết\s*luận|kết\s*luận\s*\+\s*cta)\b.*$')
+    s = _keep_only_first_section(s, kl_re)                                 # :contentReference[oaicite:3]{index=3}
+    s = cut_on_repeated_headings(s, max_repeat=2)                          # :contentReference[oaicite:4]{index=4}
     s = re.sub(r'[ \t]+\n', '\n', s)
     s = re.sub(r'\n{3,}', '\n\n', s)
-    return s.strip()
+    s = s.strip()
+    return s or orig
+
 
 def strip_toc_from_output(s: str) -> str:
     """
