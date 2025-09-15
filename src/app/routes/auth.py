@@ -9,7 +9,7 @@
 #         if session.get('user'):
 #             return redirect(url_for('pages.chat'))
 #         next_url = request.args.get("next", "")
-#         return render_template("home/login.html", next_url=next_url)
+#         return render_template("login/login.html", next_url=next_url)
 
 
 #     username = (request.form.get("username") or "").strip()
@@ -26,7 +26,7 @@
 #         return s.startswith(("pbkdf2:", "scrypt:", "argon2:", "bcrypt:"))
     
 #     if (not user) or (not password):
-#         return render_template("home/login.html", error="Tên đăng nhập hoặc mật khẩu không đúng.", next_url=request.form.get("next",""))
+#         return render_template("login/login.html", error="Tên đăng nhập hoặc mật khẩu không đúng.", next_url=request.form.get("next",""))
 
 
 #     stored_hash = user.get("password_hash") or ""
@@ -43,7 +43,7 @@
 #         ok = (password == stored_plain)
 
 #     if not ok:
-#         return render_template("home/login.html", error="Tên đăng nhập hoặc mật khẩu không đúng.", next_url=request.form.get("next",""))
+#         return render_template("login/login.html", error="Tên đăng nhập hoặc mật khẩu không đúng.", next_url=request.form.get("next",""))
 #     session.clear()
 #     session.permanent = remember
 #     session['user'] = username
@@ -73,7 +73,7 @@ def login():
         if session.get('user'):
             return redirect(url_for('pages.chat'))
         next_url = request.args.get("next", "")
-        return render_template("home/login.html", next_url=next_url)
+        return render_template("login/login.html", next_url=next_url)
 
     # --- POST ---
     username = (request.form.get("username") or "").strip()
@@ -85,7 +85,7 @@ def login():
 
     if (not user) or (not password):
         return render_template(
-            "home/login.html",
+            "login/login.html",
             error="Tên đăng nhập hoặc mật khẩu không đúng.",
             next_url=request.form.get("next", "")
         )
@@ -100,7 +100,7 @@ def login():
 
     if not ok:
         return render_template(
-            "home/login.html",
+            "login/login.html",
             error="Tên đăng nhập hoặc mật khẩu không đúng.",
             next_url=request.form.get("next", "")
         )

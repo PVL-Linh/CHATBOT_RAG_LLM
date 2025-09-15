@@ -1,62 +1,103 @@
-{# templates/home/marketing.html #} {% extends 'home/base.html' %} 
+{# templates/home/marketing_tiktok.html #}
+{% extends 'home/base.html' %}
 {% set active = 'marketing' %}
-{% block
-title %} TIKTOK · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
+{% block title %}
+  TIKTOK · Tiximax
+{% endblock %}
+
+{# CSS giống Planner #}
 {% block page_css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
-/>
-{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
-topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
-footer %} {% endblock %} {% block content %}
-  <main style="width: auto;" id="marketing" class="chat-area">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/marketing.css') }}" />
+  <style>
+    /* Cho phép cuộn toàn bộ nội dung TikTok khi màn hình nhỏ */
+    #marketing .content {
+      height: 100vh; /* full chiều cao màn hình */
+      overflow-y: auto; /* bật cuộn dọc */
+      box-sizing: border-box;
+      scrollbar-gutter: stable;
+    }
+    
+    /* Fix cho grid không bị dãn xấu khi cuộn */
+    #marketing .content > .grid-2 {
+      align-items: flex-start;
+    }
+  </style>
+{% endblock %}
+
+{# Ẩn Topbar/History/Footer trên trang Marketing #}
+{% block topbar %}
+{% endblock %}
+{% block history_panel %}
+{% endblock %}
+{% block footer %}
+{% endblock %}
+
+{% block content %}
+  <main id="marketing" class="chat-area" style="width:auto;">
     <div class="layout">
       {% include 'partials/_marketing_sidebar.html' %}
-      <div class="grid-2">
-        <section class="card has-local-loader" id="tk_form_card">
-          <h1 style="font-size: 30px; margin: 0;">TikTok Script (Kịch bản TikTok)</h1>
-          <div class="local-loader hidden">
-            <div class="spinner"></div>
-          </div>
-          <label>
-            Ngôn ngữ<select id="tk_lang">
-              <option>Tiếng Việt</option>
-              <option>English</option>
-            </select>
-          </label>
-          <label>Nội dung kịch bản *<textarea id="tk_brief" rows="8" placeholder="Insight/SP/ưu thế…"></textarea></label>
-          <div class="grid-2">
-            <label>Thời lượng mục tiêu (giây)<input type="number" id="tk_duration" value="20" min="15" max="60" /></label>
+
+      {# GIỐNG PLANNER: bọc nội dung bằng .content #}
+      <main class="content">
+        <div class="grid-2">
+          <!-- LEFT -->
+          <section class="card has-local-loader" id="tk_form_card" style="height: 100vh;">
+            <h1 style="font-size:30px;margin:0;">TikTok Script (Kịch bản TikTok)</h1>
+            <div class="local-loader hidden">
+              <div class="spinner"></div>
+            </div>
+
             <label>
-              Mục tiêu<select id="tk_objective">
-                <option>Nhận biết</option>
-                <option selected>Chuyển đổi inbox</option>
-                <option>Chốt đơn</option>
-                <option>Giáo dục thị trường</option>
+              Ngôn ngữ<select id="tk_lang">
+                <option>Tiếng Việt</option>
+                <option>English</option>
               </select>
             </label>
-          </div>
-          <button class="btn-primary" id="tk_generate">Tạo nội dung</button>
-        </section>
 
-        <section id="tiktok" class="card">
-          <div class="tabs" data-scope="tk">
-            <button class="tab active" data-tab="result">Result</button>
-            <button class="tab" data-tab="saved">History</button>
-            <button class="btn-ghost" id="tk_copy">📋</button>
-            <button class="btn-ghost" id="tk_save">🔖</button>
-            <button class="btn-ghost" id="tk_download" type="button">📥</button>
-          </div>
+            <label>Nội dung kịch bản *<textarea id="tk_brief" rows="8" placeholder="Insight/SP/ưu thế…"></textarea></label>
 
-          <div id="tk_result" class="tab-panel active">
-            <div id="tk_out" class="markdown result-scroll"></div>
-          </div>
-          <div id="tk_saved" class="tab-panel">
-            <div id="tk_saved_list" class="saved-list"></div>
-          </div>
-        </section>
-      </div>
+            <div class="grid-2 tight">
+              <label>Thời lượng mục tiêu (giây)<input type="number" id="tk_duration" value="20" min="15" max="60" /></label>
+              <label>
+                Mục tiêu<select id="tk_objective">
+                  <option>Nhận biết</option>
+                  <option selected>Chuyển đổi inbox</option>
+                  <option>Chốt đơn</option>
+                  <option>Giáo dục thị trường</option>
+                </select>
+              </label>
+            </div>
+
+            <button class="btn-primary" id="tk_generate">Tạo nội dung</button>
+          </section>
+
+          <!-- RIGHT -->
+          <section id="tiktok" class="card">
+            <div class="tabs" data-scope="tk">
+              <button class="tab active" data-tab="result">Result</button>
+              <button class="tab" data-tab="saved">History</button>
+              <button class="btn-ghost" id="tk_copy">📋</button>
+              <button class="btn-ghost" id="tk_save">🔖</button>
+              <button class="btn-ghost" id="tk_download" type="button">📥</button>
+            </div>
+
+            <div id="tk_result" class="tab-panel active">
+              {# Khung kết quả như Planner #}
+              <div class="result-box">
+                <div class="result-scroll" aria-label="Kết quả sinh nội dung (cuộn được)">
+                  <div id="tk_out" class="markdown"></div>
+                </div>
+              </div>
+              <div id="tk_meta" class="meta"></div>
+            </div>
+
+            <div id="tk_saved" class="tab-panel">
+              <div id="tk_saved_list" class="saved-list"></div>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   </main>
 {% endblock %}

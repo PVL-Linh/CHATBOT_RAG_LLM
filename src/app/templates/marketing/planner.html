@@ -1,17 +1,44 @@
 {# templates/home/marketing.html #} {% extends 'home/base.html' %} {% block
-title %} Marketing · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
+title %} Planner · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
 {% block page_css %}
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
 />
+<style>
+/* Luôn cuộn trong thẻ trái, mọi breakpoint */
+#pl_form_card{
+  position: sticky;
+  top: 12px;
+  max-height: calc(100dvh - 24px);   /* dvh cho mobile */
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Đảm bảo con trong grid cho phép cuộn */
+#marketing .content, 
+#marketing .grid-2 { min-height: 0; }
+#pl_tones {
+  display: flex;
+  flex-wrap: wrap;     /* cho phép xuống dòng */
+  gap: 12px;           /* khoảng cách giữa các label */
+}
+
+#pl_tones label {
+  flex: 1 1 auto;      /* co giãn theo không gian */
+  min-width: 220px;    /* cỡ nhỏ nhất trước khi xuống dòng */
+}
+
+</style>
 {% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
 topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
 footer %} {% endblock %} {% block content %}
 <main style="width: auto" id="marketing" class="chat-area">
   <div class="layout">
     {% include 'partials/_marketing_sidebar.html' %}
-
+    
     <main class="content">
       <div style="height: auto" class="grid-2">
         <!-- LEFT -->
