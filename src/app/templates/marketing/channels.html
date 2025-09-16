@@ -2,51 +2,16 @@
 Tiximax{% endblock %} {# dùng đúng CSS như planner #} {% block page_css %}
 <link
   rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/chanels.css') }}"
+/>
+<link
+  rel="stylesheet"
   href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
 />
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}"
 />
-<style>
-    /* ============ phần bạn đã có (chips, cards-grid) ============ */
-    .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-    .chip{background:#ffc940;color:#222;border:none;border-radius:999px;padding:4px 10px;font-size:12px}
-    .chip .x{margin-left:6px;cursor:pointer;font-weight:700}
-    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-
-    /* ============ Responsive layout với Bootstrap mindset ============ */
-    /* Sidebar | Content: tự co giãn từ 56px → 260px; content co giãn 1fr */
-    #marketing .layout{
-      display:grid;
-      grid-template-columns: clamp(56px, 18vw, 260px) minmax(0,1fr);
-      gap:2px;
-    }
-    /* Sidebar bám theo viewport nhưng không che phủ */
-    #sidebar-mkt{ position: sticky; top:12px; width:100% }
-
-    /* Mobile: chỉ icon (giữ nguyên HTML hiện tại có <span> chữ) */
-    @media (max-width:575.98px){
-      #sidebar-mkt .mkt-link{ justify-content:center; padding:10px 8px }
-      #sidebar-mkt .mkt-link span{ display:none } /* ẩn chữ, giữ icon */
-    }
-
-    /* Cột nội dung có thanh cuộn riêng khi dài */
-    #marketing .content{
-      min-width:0;
-      max-height: 100dvh;           /* chiều cao theo viewport di động */
-      overflow:auto;                 /* xuất hiện scrollbar */
-      -webkit-overflow-scrolling:touch;
-      scrollbar-gutter: stable both-edges;           /* chừa rãnh scrollbar */
-    }
-
-    /* Nếu form Editor quá dài: cuộn trong card, không kéo cả trang */
-    #editor{
-      max-height: calc(100dvh - 220px); /* chừa phần header + margin */
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-  </style>
 {% endblock %} {# ẩn topbar/history/footer như planner #} {% block topbar %}{%
 endblock %} {% block history_panel %}{% endblock %} {% block footer %}{%
 endblock %} {% block content %}
