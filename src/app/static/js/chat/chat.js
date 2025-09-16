@@ -28,8 +28,8 @@
     overlay: document.getElementById("overlay") || document.getElementById("sidebarOverlay"),
     panel: document.getElementById("historyPanel") || document.getElementById("chatSidebar"),
     closeBtn: document.getElementById("closeHistory") || document.getElementById("closeSidebar"),
-    list: document.getElementById("historyList") || document.getElementById("chatHistory") || 
-          document.querySelector(".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"),
+    list: document.getElementById("historyList") || document.getElementById("chatHistory") ||
+      document.querySelector(".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"),
     search: document.getElementById("searchInput")
   };
 
@@ -54,7 +54,7 @@
   function nowTS() { return new Date().toISOString(); }
   function genId() { return Math.random().toString(36).slice(2, 10); }
   function msgKey(id) { return MSG_KEY_PREFIX + id; }
-  
+
   function htmlEscape(s) {
     if (!s) return "";
     const d = document.createElement("div");
@@ -88,24 +88,24 @@
   // =========================
   function loadSessions() {
     try { return JSON.parse(localStorage.getItem(SESS_KEY) || "[]"); }
-    catch(_) { return []; }
+    catch (_) { return []; }
   }
 
   function saveSessions(list) {
     try { localStorage.setItem(SESS_KEY, JSON.stringify(list)); }
-    catch(_) {}
+    catch (_) { }
   }
 
   function loadMsgs(id) {
     try { return JSON.parse(localStorage.getItem(msgKey(id)) || "[]"); }
-    catch(_) { return []; }
+    catch (_) { return []; }
   }
 
   function saveMsgs(id, msgs) {
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch(_) {}
+    } catch (_) { }
   }
 
   function anyLocalMessagesExist() {
@@ -125,7 +125,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch(_) {}
+    } catch (_) { }
   }
 
   function ensureLocalSchema() {
@@ -152,12 +152,12 @@
   // Session Management Functions
   // =========================
   function exposeCurrentSessionId() {
-    try { window.currentSessionId = currentSessionId; } catch(_) {}
+    try { window.currentSessionId = currentSessionId; } catch (_) { }
   }
 
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
-    try { window.sessionHistory = sessionHistory; } catch(_) {}
+    try { window.sessionHistory = sessionHistory; } catch (_) { }
   }
 
   // FIXED: Proper session adoption without message merging
@@ -169,9 +169,10 @@
       localStorage.setItem(CURR_KEY, newSid);
       ensureLocalSessionEntry(newSid);
       exposeCurrentSessionId();
+      useIdle(markActiveSessionInList);
       return;
     }
-    
+
     if (currentSessionId === newSid) return;
 
     // FIXED: Don't merge sessions - just switch
@@ -179,6 +180,7 @@
     localStorage.setItem(CURR_KEY, newSid);
     ensureLocalSessionEntry(newSid);
     exposeCurrentSessionId();
+    useIdle(markActiveSessionInList);
   }
 
   async function createServerSession(title) {
@@ -193,7 +195,7 @@
         adoptServerSid(data.session_id);
         return data.session_id;
       }
-    } catch(e) {
+    } catch (e) {
       console.warn("Server session creation failed:", e);
     }
     throw new Error("Không tạo được session_id từ server");
@@ -231,16 +233,16 @@
   // FIXED: Proper message persistence with session isolation
   function persistMessage(role, content) {
     if (!content) return;
-    
+
     if (!currentSessionId && role === "user") {
       ensureSession(true);
     }
-    
+
     if (!currentSessionId) return;
 
     const msgs = loadMsgs(currentSessionId);
     const last = msgs[msgs.length - 1];
-    
+
     if (last && last.role === role && last.content === content) return;
 
     msgs.push({ role, content, at: nowTS() });
@@ -283,7 +285,7 @@
 
     if (window.hljs) {
       wrapper.querySelectorAll("pre code").forEach((block) => {
-        try { hljs.highlightElement(block); } catch(_) {}
+        try { hljs.highlightElement(block); } catch (_) { }
       });
     }
     return wrapper;
@@ -315,7 +317,7 @@
     if (opts.persist) {
       sessionHistory.push({ role, content });
       persistMessage(role, content);
-      try { window.sessionHistory = sessionHistory; } catch(_) {}
+      try { window.sessionHistory = sessionHistory; } catch (_) { }
     }
   }
 
@@ -473,10 +475,29 @@
         setTimeout(pump, 0);
       } else {
         lucideRefresh();
+        markActiveSessionInList();
         const took = Math.round(performance.now() - start);
         console.debug(`[history] rendered ${list.length} items in ~${took}ms`);
       }
     })();
+  }
+  function markActiveSessionInList() {
+    if (!els.list) return;
+    try {
+      // gỡ cờ cũ
+      els.list.querySelectorAll('.chat-item.active, .hp-item.active')
+        .forEach(n => n.classList.remove('active'));
+
+      if (!currentSessionId) return;
+      const id = (window.CSS && CSS.escape) ? CSS.escape(String(currentSessionId)) : String(currentSessionId);
+
+      // tìm item theo data-id
+      const node = els.list.querySelector(`.chat-item[data-id="${id}"], .hp-item[data-id="${id}"]`);
+      if (node) {
+        node.classList.add('active');
+        node.scrollIntoView({ block: 'nearest' });
+      }
+    } catch (_) { }
   }
 
   function renderItemNode(s) {
@@ -484,16 +505,17 @@
       // Panel item
       const li = document.createElement("li");
       li.className = "hp-item";
+      li.setAttribute("data-id", String(s.id));
       const row = document.createElement("div");
       row.className = "row";
       row.innerHTML = `
-        <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-        <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""}</div>`;
+          <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
+          <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""}</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
       acts.innerHTML = `
-        <button class="icon-btn act-rename" title="Đổi tên"><i data-lucide="pencil"></i></button>
-        <button class="icon-btn act-delete" title="Xóa"><i data-lucide="trash-2"></i></button>`;
+          <button class="icon-btn act-rename" title="Đổi tên"><i data-lucide="pencil"></i></button>
+          <button class="icon-btn act-delete" title="Xóa"><i data-lucide="trash-2"></i></button>`;
       li.append(row, acts);
 
       li.addEventListener("click", (e) => {
@@ -516,19 +538,19 @@
     wrap.className = "chat-item p-3 p-md-4";
     wrap.setAttribute("data-id", String(s.id));
     wrap.innerHTML = `
-      <div class="chat-content gap-2 gap-md-3">
-        <div class="chat-avatar"><i data-lucide="user"></i></div>
-        <div class="chat-text">
-          <div class="chat-title">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-          <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
-          <div class="chat-time">${formatTime(s.last_ts)}</div>
+        <div class="chat-content gap-2 gap-md-3">
+          <div class="chat-avatar"><i data-lucide="user"></i></div>
+          <div class="chat-text">
+            <div class="chat-title">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
+            <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
+            <div class="chat-time">${formatTime(s.last_ts)}</div>
+          </div>
         </div>
-      </div>
-      <div class="chat-actions">
-        <button class="action-btn" data-action="rename" title="Đổi tên"><i data-lucide="edit-3"></i></button>
-        <button class="action-btn delete" data-action="delete" title="Xóa"><i data-lucide="trash-2"></i></button>
-      </div>
-    `;
+        <div class="chat-actions">
+          <button class="action-btn" data-action="rename" title="Đổi tên"><i data-lucide="edit-3"></i></button>
+          <button class="action-btn delete" data-action="delete" title="Xóa"><i data-lucide="trash-2"></i></button>
+        </div>
+      `;
     wrap.addEventListener("click", (e) => {
       if (e.target.closest(".chat-actions")) return;
       openSessionAndRender(s.id);
@@ -574,7 +596,7 @@
         body: JSON.stringify({ session_id: id, title: newTitle })
       });
     } catch { }
-    
+
     // Update local mirrors
     updateLocalSession(id, (s) => { s.name = newTitle; });
     await startRenderSessions();
@@ -582,7 +604,8 @@
 
   async function onDelete(id) {
     if (!confirm("Bạn có chắc chắn muốn xóa cuộc trò chuyện này?")) return;
-    
+
+    // 1) Gọi server xóa (nếu có)
     let serverOk = false;
     try {
       const r = await fetch("/api/history/delete_session", {
@@ -592,24 +615,47 @@
       });
       const d = await r.json().catch(() => ({}));
       serverOk = r.ok && d.ok;
-    } catch { }
-    
-    // Clean local mirrors
+    } catch { /* bỏ qua */ }
+
+    // 2) Xóa bản local (session list + messages)
     clearLocal(id);
 
-    // If deleting current session → reset and create new
-    if (currentSessionId && String(currentSessionId) === String(id)) {
+    // 3) Nếu đang xóa CHÍNH phiên làm việc hiện tại → chọn phiên gần nhất và chuyển sang
+    const deletingCurrent = currentSessionId && String(currentSessionId) === String(id);
+    if (deletingCurrent) {
+      // Lấy danh sách còn lại (ưu tiên server, fallback local), loại id vừa xóa
+      let candidateId = null;
+      try {
+        const list = await getSessions(); // {id, title, preview, last_ts}
+        const filtered = (list || []).filter(s => String(s.id) !== String(id));
+        // Sắp theo thời gian giảm dần và chọn cái "gần nhất" (mới nhất còn lại)
+        filtered.sort((a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0));
+        if (filtered.length) candidateId = filtered[0].id;
+      } catch { /* bỏ qua */ }
+
+      // Reset trạng thái current trước khi chuyển
       localStorage.removeItem(CURR_KEY);
       currentSessionId = null;
       exposeCurrentSessionId();
+
+      // Làm sạch UI hiện tại
       resetUIToEmpty();
-      setSessionHistoryRef([]);
-      try { await createNewSession(); } catch { }
+
+      if (candidateId) {
+        // Mở phiên gần nhất còn lại
+        await openSessionAndRender(candidateId);
+      } else {
+        // Không còn phiên nào -> tạo phiên mới
+        try { await createNewSession(); } catch { }
+      }
     }
 
+    // 4) Cập nhật lại list ở thanh lịch sử
     await startRenderSessions();
+
     if (!serverOk) console.warn("Server delete failed; cleared locally only.");
   }
+
 
   async function createNewSession() {
     // Try server first
@@ -651,17 +697,17 @@
   // FIXED: Open session with proper session switching
   async function openSessionAndRender(sessionId) {
     if (!sessionId) return;
-    
+
     try {
       const r = await fetch(`/api/history/by_session?session_id=${encodeURIComponent(sessionId)}`);
       if (r.ok) {
         const data = await r.json();
         const items = data.items || [];
-        
+
         // Clean session switch
         if (els.chatList) els.chatList.innerHTML = "";
         if (els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
-        
+
         // Set new current session
         adoptServerSid(data.session_id || sessionId);
 
@@ -671,13 +717,13 @@
 
         // Save to local storage
         if (currentSessionId) {
-          const msgs = items.map((m) => ({ 
-            role: m.role, 
-            content: m.content, 
-            at: m.ts || nowTS() 
+          const msgs = items.map((m) => ({
+            role: m.role,
+            content: m.content,
+            at: m.ts || nowTS()
           }));
           saveMsgs(currentSessionId, msgs);
-          
+
           const firstUser = items.find((x) => x.role === "user");
           if (firstUser) setSessionTitleFromFirstUser(firstUser.content);
         }
@@ -686,7 +732,7 @@
         return;
       }
     } catch { }
-    
+
     // Local fallback
     openLocalSession(sessionId);
     closeContainer();
@@ -701,11 +747,11 @@
         if (msgs.length) {
           if (els.chatList) els.chatList.innerHTML = "";
           if (els.greeting) els.greeting.style.display = "none";
-          
+
           currentSessionId = id;
           localStorage.setItem(CURR_KEY, id);
           exposeCurrentSessionId();
-          
+          useIdle(markActiveSessionInList);
           msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
           setSessionHistoryRef(msgs.map(m => ({ role: m.role, content: m.content })));
         }
@@ -748,8 +794,8 @@
       const filtered = loadSessions().filter((s) => String(s.id) !== String(id));
       saveSessions(filtered);
     } catch { }
-    try { 
-      localStorage.removeItem(MSG_KEY_PREFIX + id); 
+    try {
+      localStorage.removeItem(MSG_KEY_PREFIX + id);
     } catch { }
   }
 
@@ -784,13 +830,13 @@
       setSessionHistoryRef(items.map(({ role, content }) => ({ role, content })));
 
       if (currentSessionId) {
-        const msgs = items.map((m) => ({ 
-          role: m.role, 
-          content: m.content, 
-          at: m.ts || nowTS() 
+        const msgs = items.map((m) => ({
+          role: m.role,
+          content: m.content,
+          at: m.ts || nowTS()
         }));
         saveMsgs(currentSessionId, msgs);
-        
+
         const firstUser = items.find((x) => x.role === "user");
         if (firstUser) setSessionTitleFromFirstUser(firstUser.content);
       }
@@ -816,7 +862,7 @@
             setSessionHistoryRef(msgs.map((m) => ({ role: m.role, content: m.content })));
           }
         }
-      } catch(_) {}
+      } catch (_) { }
     }
   }
 
@@ -859,10 +905,10 @@
 
         if (data.timing && els.timingEl) {
           const t = data.timing;
-          const total  = Number(t.total ?? 0);
-          const emb    = Number(t.embedding ?? 0);
+          const total = Number(t.total ?? 0);
+          const emb = Number(t.embedding ?? 0);
           const search = Number(t.search ?? 0);
-          const llm    = Number(t.llm ?? 0);
+          const llm = Number(t.llm ?? 0);
           els.timingEl.textContent =
             `Tổng: ${total.toFixed(2)}s | Embedding: ${emb.toFixed(2)}s | ` +
             `Tìm kiếm: ${search.toFixed(2)}s | LLM: ${llm.toFixed(2)}s`;
@@ -909,8 +955,8 @@
   // Close handlers
   if (els.overlay) els.overlay.addEventListener("click", closeContainer);
   if (els.closeBtn) els.closeBtn.addEventListener("click", closeContainer);
-  window.addEventListener("keydown", (e) => { 
-    if (e.key === "Escape") closeContainer(); 
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeContainer();
   });
 
   // Search filter
@@ -949,7 +995,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch(_) {}
+  } catch (_) { }
 
   // =========================
   // Initialization
@@ -957,16 +1003,16 @@
   document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) lucide.createIcons();
     ensureLocalSchema();
-    
+
     // Load current session from localStorage if exists
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch(_) {}
-    
+    } catch (_) { }
+
     // Bootstrap from server, fallback to local
     bootstrapFromLocalThenServer();
-    
+
     // Auto-render history if container is visible
     useIdle(startRenderSessions);
   });
