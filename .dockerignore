@@ -25,3 +25,4 @@ src/app/models/hub/**
 
 # (tuỳ) nếu vectorstore mount từ host thì cũng ignore để build nhanh
 # src/vectorstore/FAISS_Vector/**
+shopee_state.json
