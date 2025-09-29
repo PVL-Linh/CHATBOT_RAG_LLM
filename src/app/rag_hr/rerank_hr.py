@@ -1,44 +1,40 @@
-import time
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from langchain_core.documents import Document
-from .config_hr import USE_RERANK, RERANK_CANDIDATES, RERANK_TOP_K, RERANK_MODEL, METRICS
-from .utils_hr import select_device
+from .config_hr import USE_RERANK_HR, RERANK_MODEL_HR, RERANK_CANDIDATES_HR, RERANK_TOP_K_HR, METRICS_HR
 
-_ce_model_cache = None
+_ce_model = None
 
-def rerank(question: str, docs: List[Document], top_k: Optional[int] = None) -> List[Tuple[Document, Optional[float]]]:
-    if top_k is None:
-        top_k = RERANK_TOP_K
-    if not USE_RERANK or not docs:
+def rerank(question: str, docs: List[Document], top_k: int = RERANK_TOP_K_HR) -> List[Tuple[Document, float]]:
+    if not USE_RERANK_HR or not docs:
         return [(d, None) for d in docs[:top_k]]
     try:
-        from sentence_transformers import CrossEncoder  # type: ignore
+        from sentence_transformers import CrossEncoder
     except Exception as e:
-        print(f"[WARN] Không thể nạp sentence-transformers ({e}). Bỏ qua rerank.")
+        print(f"[WARN] sentence-transformers chưa sẵn: {e}")
         return [(d, None) for d in docs[:top_k]]
 
-    global _ce_model_cache
-    if _ce_model_cache is None:
-        device = select_device()
+    global _ce_model
+    if _ce_model is None:
         try:
-            _ce_model_cache = CrossEncoder(RERANK_MODEL, device=device)
-            if METRICS:
-                print(f"[DBG] Load CrossEncoder '{RERANK_MODEL}' on {device}")
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        except Exception:
+            device = "cpu"
+        try:
+            _ce_model = CrossEncoder(RERANK_MODEL_HR, device=device)
+            if METRICS_HR:
+                print(f"[DBG] Load CrossEncoder '{RERANK_MODEL_HR}' on {device}")
         except Exception as e:
-            print(f"[WARN] Không thể khởi tạo CrossEncoder '{RERANK_MODEL}': {e}. Bỏ qua rerank.")
+            print(f"[WARN] Không khởi tạo CrossEncoder: {e}")
             return [(d, None) for d in docs[:top_k]]
 
-    pairs = [(question, d.page_content) for d in docs[:RERANK_CANDIDATES]]
-    t0 = time.time()
+    pairs = [(question, d.page_content) for d in docs[:RERANK_CANDIDATES_HR]]
     try:
-        scores = _ce_model_cache.predict(pairs)
+        scores = _ce_model.predict(pairs)
         scores = scores.tolist() if hasattr(scores, "tolist") else list(scores)
     except Exception as e:
-        print(f"[WARN] CrossEncoder.predict lỗi: {e}. Bỏ qua rerank.")
+        print(f"[WARN] CrossEncoder.predict lỗi: {e}")
         return [(d, None) for d in docs[:top_k]]
-    t1 = time.time()
 
-    ranked = sorted(list(zip(docs[:RERANK_CANDIDATES], scores)), key=lambda x: x[1], reverse=True)
-    if METRICS:
-        print(f"[DBG] rerank {len(pairs)} pairs → {top_k} kept ({t1-t0:.3f}s)")
+    ranked = sorted(list(zip(docs[:RERANK_CANDIDATES_HR], scores)), key=lambda x: x[1], reverse=True)
     return ranked[:top_k]

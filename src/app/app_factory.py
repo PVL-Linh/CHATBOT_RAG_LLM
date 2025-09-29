@@ -31,7 +31,7 @@ from app.routes import register_blueprints, register_error_handlers
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.tools.migrate_users_csv_to_sqlite import migrate
 from app.Login.login_required import init_auth_storage
-
+from app.routes.hr_rag import bp_hr_rag
 
 def create_app() -> Flask:
     # Load env early
@@ -39,7 +39,7 @@ def create_app() -> Flask:
 
     # Keep template/static roots identical to your current layout
     app = Flask(__name__, template_folder="templates", static_folder="static")
-    
+    app.register_blueprint(bp_hr_rag)
     # Production configuration
     app.config.update(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-key-change-in-production'),

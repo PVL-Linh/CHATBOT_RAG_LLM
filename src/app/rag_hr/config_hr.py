@@ -1,13 +1,13 @@
 import os
-import os as _os
 from dotenv import load_dotenv, find_dotenv
 
-# Load .env từ CWD trở lên
+# Load .env (GHI ĐÈ để tránh dính env cũ từ hệ điều hành)
 _DOTENV_PATH = os.getenv("DOTENV_PATH") or find_dotenv(usecwd=True)
 if _DOTENV_PATH:
-    load_dotenv(_DOTENV_PATH, override=False)
+    load_dotenv(_DOTENV_PATH, override=True)
 
 def resolve_path(p: str) -> str:
+    import os as _os
     if not p:
         return p
     if _os.path.isabs(p):
@@ -15,99 +15,97 @@ def resolve_path(p: str) -> str:
     base = _os.path.dirname(_DOTENV_PATH) if _DOTENV_PATH else _os.getcwd()
     return _os.path.abspath(_os.path.join(base, p))
 
-# ---------- Helpers: đọc env với ưu tiên _HR ----------
-def _env_get(keys, default=None):
-    if isinstance(keys, str):
-        keys = [keys]
-    for k in keys:
-        v = os.environ.get(k)
-        if v is not None:
-            return v
-    return default
-
-def _env_bool(keys, default="0"):
-    v = str(_env_get(keys, default)).strip().lower()
-    return v not in ("0", "false", "no", "off", "")
-
-def _env_int(keys, default="0"):
-    try:
-        return int(str(_env_get(keys, default)).strip())
-    except Exception:
-        return int(default)
-
-def _env_float(keys, default="0.0"):
-    try:
-        return float(str(_env_get(keys, default)).strip())
-    except Exception:
-        return float(default)
-
-# ---------- Paths & models ----------
+# === HR-only config (không fallback sang biến không _HR) ===
 INDEX_DIR_HR = resolve_path(os.environ.get("INDEX_DIR_HR", "./src/app/vectorstore/FAISS_Vector_HR"))
 DATA_DIR_HR  = resolve_path(os.environ.get("DATA_DIR_HR",  "./src/app/Data/HR"))
-EMBED_MODEL_NAME_HR = os.environ.get("EMBED_MODEL_NAME_HR", "./src/app/models/local_multilingual_e5_base")
 FAISS_DIR_HR = resolve_path(os.environ.get("FAISS_DIR_HR", INDEX_DIR_HR))
 
+EMBED_MODEL_NAME_HR = os.environ.get("EMBED_MODEL_NAME_HR", "./src/app/models/local_multilingual_e5_base")
 
-GEMINI_MODEL_ANSWER = _env_get(["GEMINI_MODEL_ANSWER_HR", "GEMINI_MODEL_ANSWER_HR"], "gemini-2.0-flash")
-GEMINI_MODEL_JUDGE  = _env_get(["GEMINI_MODEL_JUDGE_HR",  "GEMINI_MODEL_JUDGE_HR"],  "gemini-2.0-flash")
-RERANK_MODEL        = _env_get(["RERANK_MODEL_HR", "RERANK_MODEL_HR"], "cross-encoder/ms-marco-MiniLM-L-6-v2")
+GEMINI_MODEL_ANSWER_HR = os.environ.get("GEMINI_MODEL_ANSWER_HR", "gemini-2.0-flash")
+GEMINI_MODEL_JUDGE_HR  = os.environ.get("GEMINI_MODEL_JUDGE_HR",  "gemini-2.0-flash")
 
-# ---------- Retrieval params ----------
-TOP_K        = _env_int(["RAG_TOPK_HR", "RAG_TOPK"], "20")
-K_SEM        = _env_int(["K_SEM_HR", "K_SEM"], "20")
-K_LEX        = _env_int(["K_LEX_HR", "K_LEX"], "20")
-MMR_FETCH_K  = _env_int(["MMR_FETCH_K_HR", "MMR_FETCH_K"], "80")
-MMR_LAMBDA   = _env_float(["MMR_LAMBDA_HR", "MMR_LAMBDA"], "0.45")
+TOP_K_HR       = int(os.environ.get("RAG_TOPK_HR", "20"))
+K_SEM_HR       = int(os.environ.get("K_SEM_HR", "20"))
+K_LEX_HR       = int(os.environ.get("K_LEX_HR", "20"))
+MMR_FETCH_K_HR = int(os.environ.get("MMR_FETCH_K_HR", "80"))
+MMR_LAMBDA_HR  = float(os.environ.get("MMR_LAMBDA_HR", "0.45"))
 
-USE_RERANK        = _env_bool(["USE_RERANK_HR", "USE_RERANK"], "1")
-RERANK_CANDIDATES = _env_int (["RERANK_CANDIDATES_HR", "RERANK_CANDIDATES"], "80")
-RERANK_TOP_K      = _env_int (["RERANK_TOP_K_HR", "RERANK_TOP_K"], str(TOP_K))
+USE_RERANK_HR        = os.environ.get("USE_RERANK_HR", "1").lower() not in ("0", "false")
+RERANK_CANDIDATES_HR = int(os.environ.get("RERANK_CANDIDATES_HR", "80"))
+RERANK_TOP_K_HR      = int(os.environ.get("RERANK_TOP_K_HR", str(TOP_K_HR)))
+RERANK_MODEL_HR      = os.environ.get("RERANK_MODEL_HR", "cross-encoder/ms-marco-MiniLM-L-12-v2")
 
-USE_BM25     = _env_bool(["USE_BM25_HR", "USE_BM25"], "1")
-FAST_MODE    = _env_bool(["FAST_MODE_HR", "FAST_MODE"], "0")
-ENABLE_JUDGE = _env_bool(["ENABLE_JUDGE_HR", "ENABLE_JUDGE"], "0")
-METRICS      = _env_bool(["METRICS_HR", "METRICS"], "0")
+USE_BM25_HR     = os.environ.get("USE_BM25_HR", "1").lower() not in ("0", "false")
+FAST_MODE_HR    = os.environ.get("FAST_MODE_HR", "0").lower() not in ("0", "false")
+ENABLE_JUDGE_HR = os.environ.get("ENABLE_JUDGE_HR", "0").lower() not in ("0", "false")
+METRICS_HR      = os.environ.get("METRICS_HR", "0").lower() not in ("0", "false")
 
-# ---------- Context & formatting ----------
-MAX_CHARS_CTX = _env_int(["CTX_CHARS_HR", "CTX_CHARS"], "2200")
+MAX_CHARS_CTX_HR = int(os.environ.get("CTX_CHARS_HR", "2200"))
 
-CASE_NORM = (_env_get(["CASE_NORM_HR", "CASE_NORM"], "lower") or "lower").strip().lower()
-if CASE_NORM not in ("lower", "upper"):
-    CASE_NORM = "lower"
 
-PROFILE   = (_env_get(["PROFILE_HR", "PROFILE"], "HR") or "HR").strip().upper()
-HR_TONE   = (_env_get(["HR_TONE_HR", "HR_TONE"], "chuyên nghiệp, rõ ràng, súc tích") or "").strip()
-HR_OUTPUT = (_env_get(["HR_OUTPUT_HR", "HR_OUTPUT"], "AUTO") or "AUTO").strip().upper()
+CASE_NORM_HR = os.environ.get("CASE_NORM_HR", "lower").strip().lower()
+if CASE_NORM_HR not in ("lower", "upper"):
+    CASE_NORM_HR = "lower"
 
-CHAT_HISTORY_TURNS = _env_int(["CHAT_HISTORY_TURNS_HR", "CHAT_HISTORY_TURNS"], "6")
-CONTINUE_RETRIEVE  = _env_bool(["CONTINUE_RETRIEVE_HR", "CONTINUE_RETRIEVE"], "0")
+PROFILE_HR   = os.environ.get("PROFILE_HR", "HR").strip().upper()
+HR_TONE      = os.environ.get("HR_TONE", "chuyên nghiệp, rõ ràng, súc tích").strip()
+HR_OUTPUT    = os.environ.get("HR_OUTPUT", "AUTO").strip().upper()
 
-# ---------- BM25 corpus ----------
-# FAISS_DIR   = resolve_path(_env_get(["FAISS_DIR_HR", "FAISS_DIR", "INDEX_DIR_HR", "INDEX_DIR"], INDEX_DIR_HR))
-CORPUS_PATH = os.path.join(FAISS_DIR_HR, "corpus.jsonl")
+CHAT_HISTORY_TURNS_HR = int(os.environ.get("CHAT_HISTORY_TURNS_HR", "6"))
+CONTINUE_RETRIEVE_HR  = os.environ.get("CONTINUE_RETRIEVE_HR", "0").lower() not in ("0", "false")
 
-# ---------- LLM Query Rewrite ----------
-USE_QR_LLM     = _env_bool(["USE_QR_LLM_HR", "USE_QR_LLM"], "1")
-QR_LLM_MODEL   = _env_get (["QR_LLM_MODEL_HR", "QR_LLM_MODEL"], "gemini-2.0-flash")
-QR_NUM_ALIASES = _env_int (["QR_NUM_ALIASES_HR", "QR_NUM_ALIASES"], "5")
+# Query rewrite / PRF
+def _env_bool(keys, default="0"):
+    for k in keys:
+        if k in os.environ:
+            return os.environ[k].lower() not in ("0","false","no")
+    return default.lower() not in ("0","false","no")
 
-# ---------- PRF ----------
-USE_PRF           = _env_bool (["USE_PRF_HR", "USE_PRF"], "1")
-PRF_K_SEM         = _env_int  (["PRF_K_SEM_HR", "PRF_K_SEM"], "6")
-PRF_NGRAMS_STR    = _env_get  (["PRF_NGRAMS_HR", "PRF_NGRAMS"], "2,3,4") or "2,3,4"
-PRF_NGRAMS        = [int(x) for x in PRF_NGRAMS_STR.split(",") if x.strip().isdigit()]
-PRF_TOP_PHRASES   = _env_int  (["PRF_TOP_PHRASES_HR", "PRF_TOP_PHRASES"], "3")
-PRF_MIN_LEN_CHARS = _env_int  (["PRF_MIN_LEN_CHARS_HR", "PRF_MIN_LEN_CHARS"], "5")
+def _env_int(keys, default="0"):
+    for k in keys:
+        if k in os.environ:
+            try: return int(os.environ[k])
+            except: break
+    return int(default)
 
-# ---------- Hybrid weighting ----------
-W_SEM = _env_float(["W_SEM_HR", "W_SEM"], "0.5")
-W_LEX = _env_float(["W_LEX_HR", "W_LEX"], "0.5")
+def _env_float(keys, default="0"):
+    for k in keys:
+        if k in os.environ:
+            try: return float(os.environ[k])
+            except: break
+    return float(default)
 
-# ---------- Boost lặp phrase cho BM25 ----------
-PHRASE_BOOST_TIMES = _env_int(["PHRASE_BOOST_TIMES_HR", "PHRASE_BOOST_TIMES"], "2")
+def _env_get(keys, default=""):
+    for k in keys:
+        if k in os.environ:
+            return os.environ[k]
+    return default
 
-# ---------- Output post-process ----------
-STRIP_CITATIONS = _env_bool(["STRIP_CITATIONS_HR", "STRIP_CITATIONS"], "1")
+USE_QR_LLM_HR     = _env_bool (["USE_QR_LLM_HR","USE_QR_LLM"], "1")
+QR_LLM_MODEL_HR   = _env_get  (["QR_LLM_MODEL_HR","QR_LLM_MODEL"], "gemini-2.0-flash")
+QR_NUM_ALIASES_HR = _env_int  (["QR_NUM_ALIASES_HR","QR_NUM_ALIASES"], "5")
 
-# ---------- Debug ----------
-DEBUG_QE = _env_bool(["DEBUG_QE_HR", "DEBUG_QE"], "1")
+USE_PRF_HR           = _env_bool(["USE_PRF_HR","USE_PRF"], "1")
+PRF_K_SEM_HR         = _env_int (["PRF_K_SEM_HR","PRF_K_SEM"], "6")
+PRF_NGRAMS_STR       = _env_get (["PRF_NGRAMS_HR","PRF_NGRAMS"], "2,3,4")
+PRF_NGRAMS_HR        = [int(x) for x in PRF_NGRAMS_STR.split(",") if x.strip().isdigit()]
+PRF_TOP_PHRASES_HR   = _env_int (["PRF_TOP_PHRASES_HR","PRF_TOP_PHRASES"], "3")
+PRF_MIN_LEN_CHARS_HR = _env_int (["PRF_MIN_LEN_CHARS_HR","PRF_MIN_LEN_CHARS"], "5")
+
+W_SEM_HR = _env_float(["W_SEM_HR","W_SEM"], "0.5")
+W_LEX_HR = _env_float(["W_LEX_HR","W_LEX"], "0.5")
+
+PHRASE_BOOST_TIMES_HR = _env_int(["PHRASE_BOOST_TIMES_HR","PHRASE_BOOST_TIMES"], "2")
+
+FORM_FULLCOPY_HR = _env_bool(["FORM_FULLCOPY_HR"], "1")
+STRIP_CITATIONS_HR = _env_bool(["STRIP_CITATIONS_HR"], "1")
+DEBUG_QE_HR = _env_bool(["DEBUG_QE_HR"], "1")
+
+ORG_FULLCOPY_HR    = _env_bool(["ORG_FULLCOPY_HR"], "1")
+
+# Log cấu hình chính (hữu ích để chắc chắn không bị trỏ sang FAISS_Vector_All)
+print("[CFG] DOTENV_PATH     =", _DOTENV_PATH)
+print("[CFG] INDEX_DIR_HR    =", INDEX_DIR_HR)
+print("[CFG] FAISS_DIR_HR    =", FAISS_DIR_HR)
+print("[CFG] DATA_DIR_HR     =", DATA_DIR_HR)

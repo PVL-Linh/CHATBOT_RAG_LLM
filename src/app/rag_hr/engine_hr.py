@@ -1,95 +1,230 @@
-import re
-import time
+import os, time, re
 from typing import Tuple, List, Dict, Any
 from langchain_core.documents import Document
 
 from .config_hr import (
-    TOP_K, K_SEM, K_LEX, MAX_CHARS_CTX, ENABLE_JUDGE,
-    GEMINI_MODEL_ANSWER, GEMINI_MODEL_JUDGE, METRICS,
-    CONTINUE_RETRIEVE, W_SEM, W_LEX, PHRASE_BOOST_TIMES, DEBUG_QE, MMR_FETCH_K, MMR_LAMBDA
+    MAX_CHARS_CTX_HR, GEMINI_MODEL_ANSWER_HR, PROFILE_HR,
+    USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR,
+    USE_PRF_HR, PRF_K_SEM_HR, PRF_NGRAMS_HR, PRF_TOP_PHRASES_HR, PRF_MIN_LEN_CHARS_HR,
+    PHRASE_BOOST_TIMES_HR, FORM_FULLCOPY_HR, STRIP_CITATIONS_HR, METRICS_HR, ORG_FULLCOPY_HR
 )
-from .faiss_store_hr import load_faiss_vs
-from .hybrid_hr import hybrid_retrieve
-from .rerank_hr import rerank
-from .context_hr import build_context
-from .gemini_client_hr import init_gemini, ask_gemini
 from .prompts_hr import get_system_prompt
-from .utils_hr import clip
-from .prf import prf_expand_from_semantic
-from .query_rewrite_llm import llm_expand_query
 from .postprocess import strip_citations
+from .hybrid_hr import load_vs, hybrid_retrieve, build_lex_query
+from .rerank_hr import rerank
+from .bm25_hr import prepare_bm25_docs
+from .config_hr import DATA_DIR_HR
 
-_LAST: Dict[str, Any] = {"question": "", "answer": "", "trace": [], "lex_query": ""}
+_LAST: Dict[str, Any] = {"question": "", "answer": "", "trace": []}
 
-def _dedup_quoted_phrases(s: str) -> str:
-    phrases = [m.strip() for m in re.findall(r'"([^"]+)"', s)]
-    seen = set(); uniq = []
-    for p in phrases:
-        if p and p not in seen:
-            seen.add(p); uniq.append(f'"{p}"')
-    base = re.sub(r'"[^"]+"', ' ', s)
-    base = re.sub(r'\s+', ' ', base).strip()
-    out = (base + ' ' + ' '.join(uniq)).strip()
-    return re.sub(r'\s+', ' ', out)
+# ====== LLM helpers ======
+def _init_gemini():
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        raise RuntimeError("Thiếu GEMINI_API_KEY / GOOGLE_API_KEY")
+    import google.generativeai as genai
+    genai.configure(api_key=api_key)
+    return genai
 
-def build_lex_query(question: str, vs=None) -> Dict[str, str]:
-    # 1) LLM rewrite
-    qexp_llm = llm_expand_query(question)
-    lex_q = qexp_llm["lex_query"]
-    canonical = qexp_llm["canonical"]
+def ask_gemini(genai, model_name: str, sys_prompt: str, user_prompt: str):
+    model = genai.GenerativeModel(model_name, system_instruction=sys_prompt)
+    resp = model.generate_content(user_prompt)
+    return (resp.text or "").strip()
 
-    # 2) PRF
-    if vs is None:
-        vs = load_faiss_vs()
-    q_sem = f"query: {question}"
-    sem_docs_small = vs.max_marginal_relevance_search(q_sem, k=6, fetch_k=MMR_FETCH_K, lambda_mult=MMR_LAMBDA)
-    prf_phrases = prf_expand_from_semantic(sem_docs_small)
-    if prf_phrases:
-        boosted = []
-        for p in prf_phrases:
-            boosted.extend([f"\"{p}\""] * max(1, PHRASE_BOOST_TIMES))
-        lex_q = " ".join([lex_q] + boosted)
+# ====== QR-LLM & PRF ======
+def _norm(s: str) -> str:
+    s = (s or "").lower()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
 
-    lex_q = _dedup_quoted_phrases(lex_q)
-    if DEBUG_QE:
-        print(f"[LEX_QUERY] {lex_q}")
-    return {"lex_query": lex_q, "canonical": canonical}
+ORG_PATTERNS = [
+    r"\bsơ\s*đồ\s*tổ\s*chức\b",
+    r"\bsơ\s*đồ\s*nhân\s*sự\b",
+    r"\borg(?:anizational)?\s*chart\b",
+    r"\bsơ\s*đồ\s*công\s*ty\b",
+]
+def is_org_request(question: str) -> bool:
+    q = _norm(question)
+    return any(re.search(p, q) for p in ORG_PATTERNS)
 
+def pick_org_source(ranked_pairs):
+    # Ưu tiên file tên chứa "so_do_to_chuc" / "to_chuc_nhan_vien" / "tree"
+    for d, _ in ranked_pairs:
+        src = (d.metadata or {}).get("source", "") or ""
+        sn = _norm(src)
+        if any(k in sn for k in ["so_do_to_chuc", "to_chuc_nhan_vien", "to_chuc", "tree", "org_chart"]):
+            return src
+    # nếu không, xét nội dung có chữ 'sơ đồ tổ chức'
+    for d, _ in ranked_pairs:
+        if "sơ đồ tổ chức" in _norm(d.page_content) or "organizational chart" in _norm(d.page_content):
+            return (d.metadata or {}).get("source")
+    return (ranked_pairs[0][0].metadata or {}).get("source") if ranked_pairs else None
+def _qr_llm_aliases(question: str) -> List[str]:
+    if not USE_QR_LLM_HR:
+        return []
+    try:
+        genai = _init_gemini()
+        model = genai.GenerativeModel(QR_LLM_MODEL_HR)
+        prompt = f"""Sinh tối đa {QR_NUM_ALIASES_HR} cách diễn đạt/alias ngắn (<=5 từ) cho câu sau, tiếng Việt hoặc Anh:
+CÂU: "{question}"
+Chỉ in ra danh sách dạng mỗi dòng 1 alias, không giải thích."""
+        resp = model.generate_content(prompt)
+        text = (resp.text or "").strip()
+        al = []
+        for line in text.splitlines():
+            line = line.strip("-*• \t").strip()
+            if line:
+                al.append(line)
+        # lược bớt trùng
+        seen, uniq = set(), []
+        for a in al:
+            n = _norm(a)
+            if n and n not in seen:
+                uniq.append(a)
+                seen.add(n)
+        if uniq:
+            print(f"[QR-LLM] aliases={uniq}")
+        return uniq[:QR_NUM_ALIASES_HR]
+    except Exception as e:
+        print(f"[WARN] QR-LLM lỗi: {e}")
+        return []
+
+def _prf_phrases(vs, question: str) -> List[str]:
+    if not USE_PRF_HR:
+        return []
+    # Lấy vài doc semantic và trích n-gram có ý nghĩa
+    docs = vs.similarity_search(f"query: {_norm(question)}", k=PRF_K_SEM_HR)
+    txt = " ".join(d.page_content for d in docs)
+    tokens = re.findall(r"[a-zA-Z0-9À-ỹ]+", _norm(txt))
+    phrases = {}
+    for n in PRF_NGRAMS_HR:
+        for i in range(0, max(0, len(tokens) - n + 1)):
+            gram = " ".join(tokens[i:i+n]).strip()
+            if len(gram) >= PRF_MIN_LEN_CHARS_HR:
+                phrases[gram] = phrases.get(gram, 0) + 1
+    # pick top
+    cand = sorted(phrases.items(), key=lambda x: x[1], reverse=True)
+    out = [w for w,_ in cand[:PRF_TOP_PHRASES_HR]]
+    if out:
+        print(f"[PRF] phrases={out}")
+    return out
+
+# ====== Context builder ======
+def build_context(pairs: List[Tuple[Document, float]], max_chars: int = MAX_CHARS_CTX_HR) -> str:
+    blocks, used = [], 0
+    for d, score in pairs:
+        meta = d.metadata or {}
+        tag = f"[{meta.get('source','?')}|{meta.get('chunk_id',-1)}]"
+        text = (d.page_content or '').strip()
+        piece = (f"{tag}\n{text}\n").strip() + "\n"
+        if used + len(piece) > max_chars and blocks:
+            break
+        blocks.append(piece)
+        used += len(piece)
+    return "\n---\n".join(blocks)
+
+# ====== “biên bản bàn giao” full-form ======
+FORM_PATTERNS = [
+    r"\bbiên\s*bản\s*bàn\s*giao\b",
+    r"\bmẫu\s*biên\s*bản\s*bàn\s*giao\b",
+    r"\bbàn\s*giao\s*tài\s*sản\b",
+    r"\bbàn\s*giao\s*công\s*cụ\b",
+    r"\bhandover\b",
+    r"\bcụ thể\b",
+]
+
+def is_form_request(question: str) -> bool:
+    q = _norm(question)
+    strong = any(k in q for k in ["mẫu", "biên bản", "form", "template", "cụ thể", "cu the", "bàn giao"])
+    if not strong:
+        return False
+    return any(re.search(p, q) for p in FORM_PATTERNS)
+
+def pick_handover_source(ranked_pairs):
+    # Ưu tiên theo tên file
+    for d, _ in ranked_pairs:
+        src = (d.metadata or {}).get("source","") or ""
+        sn = _norm(src)
+        if any(k in sn for k in ["ban_giao", "ban giao", "bien_ban_ban_giao", "bb_ban_giao"]):
+            return src
+    # Sau đó xét nội dung
+    for d, _ in ranked_pairs:
+        if "biên bản bàn giao" in _norm(d.page_content) or "bien ban ban giao" in _norm(d.page_content):
+            return (d.metadata or {}).get("source")
+    return (ranked_pairs[0][0].metadata or {}).get("source") if ranked_pairs else None
+
+def read_full_source_text(source_rel: str) -> str | None:
+    if not source_rel:
+        return None
+    import os
+    full = os.path.join(DATA_DIR_HR, source_rel)
+    try:
+        with open(full, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+    except Exception:
+        return None
+
+# ====== Public API ======
 def answer_with_rag(question: str) -> Tuple[str, List[Dict[str, Any]]]:
-    vs = load_faiss_vs()
+    vs = load_vs()
 
-    # 0) lex_query
-    qexp = build_lex_query(question, vs=vs)
-    lex_q = qexp["lex_query"]
+    # QE
+    aliases = _qr_llm_aliases(question)
+    phrases = _prf_phrases(vs, question)
+    # Nhân thêm trọng số phrase (bằng cách lặp lại)
+    boosted = []
+    for p in (phrases or []):
+        boosted += [p] * max(1, PHRASE_BOOST_TIMES_HR)
+    if boosted:
+        phrases = boosted
 
-    # 1) Retrieve
-    t0 = time.time()
-    docs = hybrid_retrieve(
-        vs, question, k_sem=K_SEM, k_lex=K_LEX, top_k=TOP_K,
-        lex_query=lex_q, w_sem=W_SEM, w_lex=W_LEX
-    )
-    t1 = time.time()
+    # build lex query
+    lexinfo = build_lex_query(question, aliases=aliases, phrases=phrases)
+    if os.environ.get("DEBUG_QE_HR","1").lower() not in ("0","false"):
+        print(f"[Expanded] {lexinfo['lex_query']}")
 
-    # 2) Rerank
-    ranked = rerank(question, docs, top_k=TOP_K)
-    t2 = time.time()
+    # retrieve
+    docs = hybrid_retrieve(vs, question, lex_query=lexinfo["lex_query"])
+    ranked = rerank(question, docs)
 
-    # 3) Context + trace
-    ctx = build_context(ranked, max_chars=MAX_CHARS_CTX)
-    trace: List[Dict[str, Any]] = []
+    # FULL-FORM branch
+    if ORG_FULLCOPY_HR and is_org_request(question):
+        src = pick_org_source(ranked)
+        raw = read_full_source_text(src) if src else None
+        if not raw:
+            # fallback: ghép tất cả chunk cùng source để giữ số mục
+            if src:
+                raw = "\n".join(d.page_content for d, _ in ranked
+                                if (d.metadata or {}).get("source") == src)
+            else:
+                raw = "\n".join(d.page_content for d, _ in ranked)
+        answer = raw or "Không tìm thấy trong tài liệu."
+        if STRIP_CITATIONS_HR:
+            answer = strip_citations(answer)
+        # build trace như hiện tại
+        trace = []
+        for d, score in ranked:
+            m = d.metadata or {}
+            trace.append({
+                "source": m.get("source","?"),
+                "chunk_id": m.get("chunk_id",-1),
+                "score": float(score) if score is not None else None,
+                "text": d.page_content,
+            })
+        _LAST.update(question=question, answer=answer, trace=trace)
+        return answer, trace
+
+    # Build context
+    ctx = build_context(ranked, max_chars=MAX_CHARS_CTX_HR)
+    trace = []
     for d, score in ranked:
         m = d.metadata or {}
-        trace.append({
-            "source": m.get("source", "?"),
-            "chunk_id": m.get("chunk_id", -1),
-            "score": float(score) if score is not None else None,
-            "text": d.page_content,
-        })
-    t3 = time.time()
+        trace.append({"source": m.get("source","?"), "chunk_id": m.get("chunk_id",-1),
+                      "score": float(score) if score is not None else None, "text": d.page_content})
 
-    # 4) LLM trả lời
-    genai = init_gemini()
-    sys_prompt = get_system_prompt(for_continue=False)
+    # Ask Gemini
+    genai = _init_gemini()
+    sys_prompt = get_system_prompt(PROFILE_HR)
     user_prompt = f"""
 Câu hỏi: {question}
 
@@ -102,64 +237,15 @@ Yêu cầu:
 3) Khi dẫn chứng, gắn thẻ [source|chunk_id] ngay sau câu/ý tương ứng.
 """.strip()
 
-    t4 = time.time()
-    answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER, sys_prompt, user_prompt, json_mode=False)
-    t5 = time.time()
+    t0 = time.time()
+    answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys_prompt, user_prompt)
+    t1 = time.time()
+    if METRICS_HR:
+        print(f"[METRIC] t_llm={t1-t0:.3f}s")
 
-    answer = strip_citations(answer_raw)  # ← loại thẻ citation ở đầu ra
-
-    if METRICS:
-        print(
-            "[METRIC] t_retrieve={:.3f}s | t_rerank={:.3f}s | t_build={:.3f}s | t_llm={:.3f}s | t_total={:.3f}s".format(
-                (t1 - t0), (t2 - t1), (t3 - t2), (t5 - t4), (t5 - t0)
-            )
-        )
-
-    _LAST.update({"question": question, "answer": answer, "trace": trace, "lex_query": lex_q})
+    answer = strip_citations(answer_raw) if STRIP_CITATIONS_HR else answer_raw
+    _LAST.update(question=question, answer=answer, trace=trace)
     return answer, trace
 
-def continue_with_last(followup_text: str = "") -> Tuple[str, List[Dict[str, Any]]]:
-    if not _LAST.get("trace"):
-        raise RuntimeError("Không có ngữ cảnh trước để 'viết tiếp'. Hãy hỏi một câu trước.")
-
-    vs = load_faiss_vs()
-
-    if CONTINUE_RETRIEVE:
-        combined_q = f"{_LAST.get('question','')} {followup_text}".strip()
-        docs = hybrid_retrieve(vs, combined_q, k_sem=K_SEM, k_lex=K_LEX, top_k=TOP_K,
-                               lex_query=build_lex_query(combined_q, vs=vs)["lex_query"],
-                               w_sem=W_SEM, w_lex=W_LEX)
-        ranked = rerank(combined_q, docs, top_k=TOP_K)
-    else:
-        ranked = []
-        for d in _LAST["trace"]:
-            doc = Document(page_content=d["text"], metadata={"source": d["source"], "chunk_id": d["chunk_id"]})
-            ranked.append((doc, d.get("score")))
-
-    ctx = build_context(ranked, max_chars=MAX_CHARS_CTX)
-    genai = init_gemini()
-    sys_prompt = get_system_prompt(for_continue=True)
-
-    prev = clip(_LAST.get("answer", ""), 1500)
-    user_prompt = f"""
-Phần trả lời trước (rút gọn):
-{prev}
-
-Yêu cầu viết tiếp / hướng dẫn thêm từ người dùng:
-{followup_text or '(không có)'}
-
-Ngữ cảnh (mỗi đoạn kèm thẻ [source|chunk_id]):
-{ctx}
-
-Yêu cầu:
-- Viết tiếp mạch nội dung ở trên, tránh lặp lại. Chỉ dùng thông tin có trong Ngữ cảnh.
-- Giữ chuẩn trích dẫn [source|chunk_id].
-""".strip()
-
-    answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER, sys_prompt, user_prompt, json_mode=False)
-    answer = strip_citations(answer_raw)
-    _LAST["answer"] = (_LAST.get("answer", "") + "\n" + answer).strip()
-    return answer, _LAST["trace"]
-
-def get_last_debug() -> Dict[str, Any]:
-    return {"lex_query": _LAST.get("lex_query"), "question": _LAST.get("question")}
+# Expose build_lex_query cho route debug
+__all__ = ["answer_with_rag", "build_lex_query"]
