@@ -28,7 +28,7 @@ def _extract_text(page: fitz.Page) -> str:
         pass
     return page.get_text() or ""
 
-def process_pdf_documents(input_folder: str, output_folder: str = "src/app/Data") -> Dict[str, str]:
+def process_pdf_documents(input_folder: str, output_folder: str = "src/app/Data/Data_All") -> Dict[str, str]:
     """
     Trích xuất toàn bộ PDF -> TXT (có lọc header/footer + xử lý bảng).
     Trả về dict {txt_filename: content}.

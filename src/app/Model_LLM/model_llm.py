@@ -246,9 +246,9 @@ def LLM_model() -> Tuple[
       - FAISS_HUB_REPO / FAISS_HUB_REPO_TYPE / FAISS_HUB_SUBDIR (tuỳ chọn)
       - GEMINI_*
     """
-    EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")
+    EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-base")
     EMBED_REVISION = os.getenv("EMBED_REVISION")  # chỉ dùng khi local
-    EMBED_MODEL_PATH = os.getenv("EMBED_MODEL_PATH", "./src/app/models/local_multilingual_e5_large")
+    EMBED_MODEL_PATH = os.getenv("EMBED_MODEL_PATH", "./src/app/models/local_multilingual_e5_base")
 
     # ——— Chế độ remote mặc định trên Spaces
     force_remote_env = (os.getenv("EMBED_FORCE_REMOTE", "auto").strip().lower())
@@ -282,7 +282,7 @@ def LLM_model() -> Tuple[
 
     # ====== FAISS ======
     # Ưu tiên dùng /data nếu tồn tại (Persistent Storage trên Spaces)
-    default_faiss_dir = "/data/faiss" if os.path.isdir("/data") else "./src/app/vectorstore/FAISS_Vector"
+    default_faiss_dir = "/data/faiss" if os.path.isdir("/data") else "./src/app/vectorstore/FAISS_Vector_All"
     FAISS_DIR = _abs(os.getenv("FAISS_DIR") or default_faiss_dir)
     # Nếu không có thư mục FAISS local → thử tải từ Hub (nếu có config)
     faiss_load_dir = _maybe_download_faiss_from_hub(FAISS_DIR)

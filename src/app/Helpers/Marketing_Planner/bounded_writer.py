@@ -425,7 +425,7 @@ def _micro_conclusion(context_md: str) -> str:
 - Dài khoảng 2–3 câu, súc tích, có CTA rõ ràng phù hợp ngữ cảnh.
 - Không lặp lại toàn bộ nội dung trước đó, chỉ chốt lại 1–2 ý chính.
 - Trả về Markdown hợp lệ.
-
+- thêm icon hợp lý
 [ Bài viết ]
 {context_md}
 """
@@ -621,7 +621,7 @@ def _shrink_to_target(md: str, target_words: int) -> str:
 
 def _expand_to_target(md: str, target_words: int) -> str:
     prompt = f"""Mở rộng nội dung về gần {target_words} từ (±6%).
-- Bổ sung ví dụ/ý cụ thể, không lan man, không lặp.
+- Bổ sung ý cụ thể, không lan man, không lặp.
 - Trả về Markdown hợp lệ.
 
 [ Nội dung ]

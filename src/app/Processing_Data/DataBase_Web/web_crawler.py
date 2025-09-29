@@ -313,7 +313,7 @@ def crawl_site(base: str, out_root: str, max_pages: int, workers: int, delay: fl
     if not base.endswith("/"): base += "/"
     base = normalize_url(base)
     base_netloc = urlparse(base).netloc
-    domain_dir = os.path.join("src", "Data", out_root, _canon_host(base_netloc))
+    domain_dir = os.path.join("src","app","Data", out_root, _canon_host(base_netloc))
     ensure_dir(domain_dir)
     ensure_dir(os.path.join(domain_dir, "pages"))
 
@@ -420,11 +420,11 @@ def read_url_file(path: str) -> List[str]:
     return urls
 
 # ---------- main ----------
-def web_crawler():
+def web_crawler(path_web =""):
     ap = argparse.ArgumentParser(description="Crawl multiple sites into per-site folders (each page = one file).")
     ap.add_argument("--base", type=str, help="Single base URL (e.g., https://tiximax.net/)")
     ap.add_argument("--url-file", type=str, help="Path to sites.txt (one base URL per line)")
-    ap.add_argument("--out", type=str, default="crawl_out", help="Output group folder under src/Data/")
+    ap.add_argument("--out", type=str, default= path_web, help="Output group folder under src/app/Data/Data_All")
     ap.add_argument("--max-pages", type=int, default=10000)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--delay", type=float, default=0.5)

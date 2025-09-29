@@ -13,7 +13,8 @@
 
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font: 16px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
 }
 
 #marketing *,
@@ -130,7 +131,9 @@
   font-weight: 700;
   cursor: pointer;
 }
-#marketing .btn-primary:hover { opacity: 0.95; }
+#marketing .btn-primary:hover {
+  opacity: 0.95;
+}
 
 /* Meta */
 #marketing .meta {
@@ -161,8 +164,12 @@
   border-color: #c7d2fe;
 }
 
-#marketing .tab-panel { display: none; }
-#marketing .tab-panel.active { display: block; }
+#marketing .tab-panel {
+  display: none;
+}
+#marketing .tab-panel.active {
+  display: block;
+}
 
 /* ======================= */
 /* Tiện ích hiển thị       */
@@ -182,7 +189,9 @@
 }
 
 /* Loader cục bộ dùng chung */
-#marketing .has-local-loader { position: relative; }
+#marketing .has-local-loader {
+  position: relative;
+}
 #marketing .local-loader {
   position: absolute;
   inset: 0;
@@ -193,7 +202,9 @@
   border-radius: 12px;
   z-index: 10;
 }
-#marketing .local-loader.hidden { display: none; }
+#marketing .local-loader.hidden {
+  display: none;
+}
 
 #marketing .spinner {
   width: 36px;
@@ -203,7 +214,11 @@
   border-top-color: #2563eb;
   animation: marketing-spin 1s linear infinite;
 }
-@keyframes marketing-spin { to { transform: rotate(360deg); } }
+@keyframes marketing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Toolbar & nút ghost (dùng chung) */
 #marketing .result-toolbar {
@@ -229,23 +244,33 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, .03), 0 1px 2px rgba(0, 0, 0, .04);
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.05s ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-#marketing .btn-ghost:hover { background: var(--soft); border-color: #d1d5db; }
-#marketing .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
+#marketing .btn-ghost:hover {
+  background: var(--soft);
+  border-color: #d1d5db;
+}
+#marketing .btn-ghost:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
 #marketing .btn-ghost:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
   outline-offset: 2px;
 }
 #marketing .btn-ghost[disabled],
 #marketing .btn-ghost.is-loading {
-  opacity: .6;
+  opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
 }
 #marketing .btn-ghost i,
-#marketing .btn-ghost svg { width: 18px; height: 18px; }
+#marketing .btn-ghost svg {
+  width: 18px;
+  height: 18px;
+}
 
 /* Placeholder chung */
 #marketing input::placeholder,
@@ -257,14 +282,25 @@
   opacity: 1;
   letter-spacing: 0.1px;
 }
-#marketing #fb_product::placeholder { color: #6b7280; }     /* giữ nguyên nếu bạn còn dùng lớp này ngoài FB */
-#marketing #fb_customer::placeholder { color: #94a3b8; }
+#marketing #fb_product::placeholder {
+  color: #6b7280;
+} /* giữ nguyên nếu bạn còn dùng lớp này ngoài FB */
+#marketing #fb_customer::placeholder {
+  color: #94a3b8;
+}
 
 /* Markdown spacing – siết khoảng cách */
-#marketing .markdown p { margin: 6px 0; }
+#marketing .markdown p {
+  margin: 6px 0;
+}
 #marketing .markdown ul,
-#marketing .markdown ol { margin: 8px 0 8px 18px; }
-#marketing .markdown li { margin: 2px 0; line-height: 1.4; }
+#marketing .markdown ol {
+  margin: 8px 0 8px 18px;
+}
+#marketing .markdown li {
+  margin: 2px 0;
+  line-height: 1.4;
+}
 
 /* Topbar chung của trang */
 #marketing .topbar {
@@ -294,15 +330,26 @@
   padding: 10px 12px;
   cursor: pointer;
 }
-#marketing .saved-list .item-title { font-weight: 700; }
-#marketing .saved-list .item-time { color: var(--muted); font-size: 12px; margin-left: 8px; }
-#marketing .saved-list .item-actions { display: flex; gap: 8px; }
+#marketing .saved-list .item-title {
+  font-weight: 700;
+}
+#marketing .saved-list .item-time {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 8px;
+}
+#marketing .saved-list .item-actions {
+  display: flex;
+  gap: 8px;
+}
 #marketing .saved-list .item-body {
   display: none;
   border-top: 1px solid var(--bd);
   padding: 12px;
 }
-#marketing .saved-list .item.open .item-body { display: block; }
+#marketing .saved-list .item.open .item-body {
+  display: block;
+}
 
 /* Toast chung */
 #marketing .toast {
@@ -313,13 +360,16 @@
   color: #fff;
   padding: 10px 14px;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity .2s, transform .2s;
+  transition: opacity 0.2s, transform 0.2s;
   z-index: 9999;
 }
-#marketing .toast.show { opacity: 1; transform: translateY(0); }
+#marketing .toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* Lưới ảnh & item dùng chung (không riêng FB) */
 .img-stack {
@@ -338,9 +388,13 @@
 /* ======================= */
 
 /* Spacing nhỏ */
-#pl_form_card > * + * { margin-top: 10px; }
+#pl_form_card > * + * {
+  margin-top: 10px;
+}
 #pl_result > * + *,
-#pl_saved > * + * { margin-top: 10px; }
+#pl_saved > * + * {
+  margin-top: 10px;
+}
 
 #pl_form_card h2 {
   font-weight: 800;
@@ -356,7 +410,9 @@
   min-width: 0;
 }
 @media (max-width: 900px) {
-  #pl_goals { grid-template-columns: minmax(0, 1fr); }
+  #pl_goals {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 #pl_goals .goal-card {
   display: block;
@@ -388,12 +444,17 @@
   font-size: 19px;
   line-height: 1;
 }
-#pl_goals .gtext { flex: 1 1 auto; min-width: 0; line-height: 1.4; }
+#pl_goals .gtext {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.4;
+}
 #pl_goals .goal-card > input[type="radio"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
-  width: 0; height: 0;
+  width: 0;
+  height: 0;
 }
 #pl_goals .goal-card:hover {
   background: #f8fafc;
@@ -404,7 +465,9 @@
   background: #eef6ff;
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
 }
-#pl_goals .goal-card.is-active .gicon { background: #dbeafe; }
+#pl_goals .goal-card.is-active .gicon {
+  background: #dbeafe;
+}
 
 /* Tones */
 #pl_tones {
@@ -423,10 +486,14 @@
   background: #fff;
   width: 70%;
 }
-#pl_tones input { width: auto; }
+#pl_tones input {
+  width: auto;
+}
 
 /* Form controls chung (bổ sung) */
-#marketing .grid-2.tight { align-items: start; }
+#marketing .grid-2.tight {
+  align-items: start;
+}
 #marketing .grid-2.tight label {
   display: flex;
   flex-direction: column;
@@ -438,7 +505,9 @@
 }
 #marketing .grid-2.tight label.tight > select,
 #marketing .grid-2.tight label.tight > input,
-#marketing .grid-2.tight label.tight > textarea { margin-top: 8px; }
+#marketing .grid-2.tight label.tight > textarea {
+  margin-top: 8px;
+}
 #marketing .grid-2.tight select,
 #marketing .grid-2.tight input,
 #marketing .grid-2.tight textarea {
@@ -454,7 +523,9 @@
   min-width: 0;
 }
 .tabs[data-scope="pl"] .tab,
-.tabs[data-scope="pl"] .btn-ghost { min-width: 0; }
+.tabs[data-scope="pl"] .btn-ghost {
+  min-width: 0;
+}
 #marketing .card:has(.tabs[data-scope="pl"]) {
   display: flex;
   flex-direction: column;
@@ -485,10 +556,20 @@
 }
 
 /* Nội dung kết quả chung */
-#pl_out { word-break: break-word; overflow-wrap: anywhere; }
+#pl_out {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 #pl_out pre,
-#pl_out code { white-space: pre-wrap; max-width: 100%; }
-#pl_out img { max-width: 100%; height: auto; display: block; }
+#pl_out code {
+  white-space: pre-wrap;
+  max-width: 100%;
+}
+#pl_out img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
 
 /* ======================= */
 /* Rephrase (re_*)         */
@@ -509,7 +590,9 @@
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
-#rephrase .tab-panel { min-height: 0; }
+#rephrase .tab-panel {
+  min-height: 0;
+}
 
 /* ======================= */
 /* TikTok (tk_*)           */
@@ -530,7 +613,9 @@
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
-#tiktok .tab-panel { min-height: 0; }
+#tiktok .tab-panel {
+  min-height: 0;
+}
 
 /* ======================= */
 /* FAB (fab_*)             */
@@ -551,4 +636,28 @@
   scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
-#fab .tab-panel { min-height: 0; }
+#fab .tab-panel {
+  min-height: 0;
+}
+#fb_result_md .fb-block > strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+#fb_result_md .fb-lines {
+  display: block;
+}
+#fb_result_md .fb-lines > div {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.15rem 0;
+}
+#fb_result_md .hashtags {
+  margin-top: 0.35rem;
+  color: #16a34a;
+  font-weight: 600;
+}
+#fb_result_md p {
+  white-space: normal !important;
+}

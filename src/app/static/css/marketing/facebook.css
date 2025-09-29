@@ -1,30 +1,26 @@
-/* static/css/marketing/facebook.css */
-/* ===== CHỈ cho module Facebook ===== */
+/* ===== Chỉ cho module Facebook ===== */
 
-/* Tabs panel phải (riêng scope fb) */
+/* Card có tabs (cột phải) */
 #marketing .card:has(.tabs[data-scope="fb"]) {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
-
 #marketing .card:has(.tabs[data-scope="fb"]) .tabs {
   flex: 0 0 auto;
 }
-
 #marketing .card:has(.tabs[data-scope="fb"]) .tab-panel {
   flex: 1 1 auto;
   min-height: 0;
   display: none;
 }
-
 #marketing .card:has(.tabs[data-scope="fb"]) .tab-panel.active {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-/* Result panel (Facebook) */
+/* Result panel */
 #fb_result {
   max-height: 90vh;
   display: flex;
@@ -32,7 +28,6 @@
   overflow: hidden;
   min-height: 0;
 }
-
 #fb_result_md {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -40,13 +35,17 @@
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
 }
+/* Ép hiển thị xuống dòng khi trong <p> có \n (fallback) */
+#fb_result_md p {
+  white-space: pre-line !important;
+}
 
 #fb_meta {
   flex: 0 0 auto;
   margin-top: 8px;
 }
 
-/* Images panel (Facebook) */
+/* Images panel */
 #marketing #fb_images {
   overflow: auto;
   padding-right: 8px;
@@ -54,7 +53,6 @@
   border-radius: 12px;
   background: #fff;
 }
-
 #fb_used_prompt.used-prompt {
   background: #f3f4f6;
   border-radius: 10px;
@@ -64,7 +62,6 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
-
 #fb_img_wrap {
   flex: 1 1 auto;
   min-height: 0;
@@ -73,32 +70,11 @@
   width: 100%;
   padding: 10px;
 }
-
 #fb_img_grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  /* tự chia cột */
-  gap: 16px;
-  /* khoảng cách giữa ảnh */
-}
-
-#fb_img_grid img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  display: block;
-}
-
-#fb_img_grid.img-stack {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  padding-right: 8px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
 }
-
 #marketing .img-card {
   border: 1px solid var(--bd);
   border-radius: 10px;
@@ -108,7 +84,6 @@
   width: 100%;
   max-width: 520px;
 }
-
 #marketing .img-card img {
   width: 100%;
   height: auto;
@@ -116,7 +91,7 @@
   display: block;
 }
 
-/* Saved panel (Facebook) */
+/* Saved panel */
 #fb_saved {
   max-height: 90vh;
   display: flex;
@@ -124,7 +99,6 @@
   overflow: hidden;
   min-height: 0;
 }
-
 #fb_saved_list {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -133,122 +107,57 @@
   scrollbar-gutter: stable;
 }
 
-/* Logo options (Facebook form) */
+/* Logo options */
 #marketing .logo-box {
   border: 1px dashed var(--bd);
   border-radius: 10px;
   padding: 10px;
   margin: 10px 0;
 }
-
 #marketing .inline-checks {
   display: flex;
   gap: 18px;
   align-items: center;
   flex-wrap: wrap;
 }
-
 #marketing .inline-checks label {
   margin: 0;
   font-weight: 600;
 }
-
 #marketing .inline-checks input {
   width: auto;
 }
 
-/* Responsive riêng Facebook */
+/* ——— Hiển thị Facebook Post đã rebuild ——— */
+#fb_result_md .fb-block > strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+#fb_result_md .fb-lines {
+  display: block;
+}
+#fb_result_md .fb-lines > div {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.15rem 0;
+}
+#fb_result_md .hashtags {
+  margin-top: 0.35rem;
+  color: #16a34a; /* xanh lá */
+  font-weight: 600;
+}
+
+/* Responsive */
 @media (max-width: 992px) {
   #fb_result {
     max-height: 60vh;
   }
-
   #fb_saved {
     max-height: 60vh;
   }
-
   #fb_img_wrap {
     max-height: 60vh;
   }
-}
-
-/* Layout full màn hình */
-#marketing {
-  display: flex;
-  height: 100vh;
-  /* Chiều cao = 1 viewport */
-  overflow: hidden;
-  /* Ẩn scroll của toàn bộ */
-}
-
-/* Sidebar luôn cố định */
-.layout>aside {
-  flex-shrink: 0;
-  height: 100vh;
-  overflow-y: auto;
-  /* Nếu sidebar dài quá thì vẫn cuộn riêng */
-}
-
-/* Content có thanh cuộn */
-.content {
-  flex: 1;
-  height: 100vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  /* mượt trên mobile */
-  padding: 1rem;
-}
-
-/* Khu vực kết quả sinh nội dung */
-.result-scroll {
-  height: 87vh;
-  /* trừ header/tab để vừa khung */
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-/* Scrollbar gọn nhẹ */
-.content::-webkit-scrollbar,
-.result-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.content::-webkit-scrollbar-thumb,
-.result-scroll::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-
-.content::-webkit-scrollbar-thumb:hover,
-.result-scroll::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
-}
-
-/* Ẩn thanh cuộn ngang toàn trang */
-html,
-body {
-  overflow-x: hidden;
-}
-
-/* Layout content không cho tràn ngang */
-#marketing,
-.content,
-.layout {
-  max-width: 100%;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  /* Cho phép tự xuống hàng */
-  gap: 6px;
-  /* Khoảng cách giữa các nút */
-  align-items: center;
-}
-
-.tabs button {
-  flex-shrink: 0;
-  /* Giữ kích thước nút, không bị bóp lại */
 }

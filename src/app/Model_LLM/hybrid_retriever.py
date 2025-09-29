@@ -33,9 +33,9 @@ def normalize_query(q: str) -> str:
     return _normalize_case(q or "")
 
 # Vị trí data .txt (fallback nếu chưa có corpus.jsonl)
-DATA_DIR = os.environ.get("DATA_DIR", "./src/app/Data")
+DATA_DIR = os.environ.get("DATA_DIR", "./src/app/Data/Data_All")
 # Nơi lưu index FAISS đang dùng
-FAISS_DIR = os.environ.get("FAISS_DIR", "./src/app/vectorstore/FAISS_Vector")
+FAISS_DIR = os.environ.get("FAISS_DIR", "./src/app/vectorstore/FAISS_Vector_All")
 # Nơi lưu corpus JSONL để lần sau không phải load TXT lại
 CORPUS_PATH = os.path.join(FAISS_DIR, "corpus.jsonl")
 

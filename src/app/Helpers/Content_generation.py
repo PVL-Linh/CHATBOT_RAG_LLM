@@ -226,6 +226,7 @@ def generate_rephrase_content(
     Giọng điệu: {tone}
     Văn bản gốc: ```{(text_src or '').strip()}```
     Hãy xuất đúng định dạng theo system prompt.
+    **Mỗi câu là 1 dòng** (ONE SENTENCE PER LINE).
     """
     if call_gemini_flash_planner is not None:
         try:

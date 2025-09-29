@@ -5,15 +5,12 @@ from typing import Dict, List
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings 
-from pdf_to_text import process_pdf_documents
-
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from .pdf_to_text_HR import processing_Data_doclinkToText
 try:
-    from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
-    from .DataBase_Web.web_crawler import web_crawler
+    from ..DataBase_Web.web_crawler import web_crawler
 except ImportError:
     from DataBase_Web.web_crawler import web_crawler
-    from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
 # =======================
 # Tham số
 # =======================
@@ -23,16 +20,13 @@ if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
-DOCS_DIR = "./Documents/Data_All"  # thư mục PDF gốc (sẽ convert -> txt)
 
 # =======================
-# Đường dẫn Data all
+# Đường dẫn
 # =======================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))          # nơi chứa .txt/.csv sau khi convert
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All")) # nơi lưu FAISS index
-
-
+DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, r"E:\ChatAll\src\app\Data\HR"))          # nơi chứa .txt/.csv sau khi convert
+INDEX_DIR = os.path.abspath(os.path.join("", "./src/app/vectorstore/FAISS_Vector_HR")) # nơi lưu FAISS index
 
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_base")
 
@@ -112,14 +106,15 @@ def _load_text_files(folder: str) -> Dict[str, str]:
 # =======================
 # Main
 # =======================
-def main_All():
+def main_HR():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
 
     # B1) Convert PDF -> TXT (luôn chạy trước khi build FAISS)
     #    - pdf_to_text sẽ xử lý header/footer, table_mode theo bạn cấu hình ở đó.
-    process_pdf_documents(DOCS_DIR, DATA_DIR)
-    web_crawler("Data_All")
+    processing_Data_doclinkToText()
+    web_crawler("HR")
+
     # B2) Load TXT/CSV để embed
     raw = _load_text_files(DATA_DIR)
     if not raw:
