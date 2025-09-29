@@ -14,7 +14,7 @@ except Exception:
 
 # --- infra: rate limit + history ---
 from app.Helpers.rate_limit import get_text_limiter
-from app.services.history import get_history, add_message, create_new_session
+from app.services.history import add_message, create_new_session
 
 # --- HR RAG modules ---
 from app.rag_hr.engine_hr import build_lex_query, answer_with_rag

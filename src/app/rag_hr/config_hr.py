@@ -42,13 +42,15 @@ def _env_float(keys, default="0.0"):
         return float(default)
 
 # ---------- Paths & models ----------
-INDEX_DIR = resolve_path(_env_get(["INDEX_DIR_HR", "INDEX_DIR"], r"e:\Chatbot\Chatbot\vectorstore\FAISS_Vector"))
-DATA_DIR  = resolve_path(_env_get(["DATA_DIR_HR",  "DATA_DIR"],  r"./src/app/Data"))
-EMBED_MODEL_NAME = _env_get(["EMBED_MODEL_NAME_HR", "EMBED_MODEL_NAME"], r"./models/multilingual-e5-base")
+INDEX_DIR_HR = resolve_path(os.environ.get("INDEX_DIR_HR", "./src/app/vectorstore/FAISS_Vector_HR"))
+DATA_DIR_HR  = resolve_path(os.environ.get("DATA_DIR_HR",  "./src/app/Data/HR"))
+EMBED_MODEL_NAME_HR = os.environ.get("EMBED_MODEL_NAME_HR", "./src/app/models/local_multilingual_e5_base")
+FAISS_DIR_HR = resolve_path(os.environ.get("FAISS_DIR_HR", INDEX_DIR_HR))
 
-GEMINI_MODEL_ANSWER = _env_get(["GEMINI_MODEL_ANSWER_HR", "GEMINI_MODEL_ANSWER"], "gemini-2.0-flash")
-GEMINI_MODEL_JUDGE  = _env_get(["GEMINI_MODEL_JUDGE_HR",  "GEMINI_MODEL_JUDGE"],  "gemini-2.0-flash")
-RERANK_MODEL        = _env_get(["RERANK_MODEL_HR", "RERANK_MODEL"], "cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+GEMINI_MODEL_ANSWER = _env_get(["GEMINI_MODEL_ANSWER_HR", "GEMINI_MODEL_ANSWER_HR"], "gemini-2.0-flash")
+GEMINI_MODEL_JUDGE  = _env_get(["GEMINI_MODEL_JUDGE_HR",  "GEMINI_MODEL_JUDGE_HR"],  "gemini-2.0-flash")
+RERANK_MODEL        = _env_get(["RERANK_MODEL_HR", "RERANK_MODEL_HR"], "cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 # ---------- Retrieval params ----------
 TOP_K        = _env_int(["RAG_TOPK_HR", "RAG_TOPK"], "20")
@@ -81,8 +83,8 @@ CHAT_HISTORY_TURNS = _env_int(["CHAT_HISTORY_TURNS_HR", "CHAT_HISTORY_TURNS"], "
 CONTINUE_RETRIEVE  = _env_bool(["CONTINUE_RETRIEVE_HR", "CONTINUE_RETRIEVE"], "0")
 
 # ---------- BM25 corpus ----------
-FAISS_DIR   = resolve_path(_env_get(["FAISS_DIR_HR", "FAISS_DIR", "INDEX_DIR_HR", "INDEX_DIR"], INDEX_DIR))
-CORPUS_PATH = os.path.join(FAISS_DIR, "corpus.jsonl")
+# FAISS_DIR   = resolve_path(_env_get(["FAISS_DIR_HR", "FAISS_DIR", "INDEX_DIR_HR", "INDEX_DIR"], INDEX_DIR_HR))
+CORPUS_PATH = os.path.join(FAISS_DIR_HR, "corpus.jsonl")
 
 # ---------- LLM Query Rewrite ----------
 USE_QR_LLM     = _env_bool(["USE_QR_LLM_HR", "USE_QR_LLM"], "1")

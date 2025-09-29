@@ -3,7 +3,7 @@ import json
 from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
-from .config_hr import DATA_DIR, CASE_NORM, CORPUS_PATH
+from .config_hr import DATA_DIR_HR, CASE_NORM, CORPUS_PATH
 from .utils_hr import clean_text, split_text, normalize_case
 
 _bm25_docs_cache: List[Document] = []
@@ -62,7 +62,7 @@ def prepare_bm25_docs() -> List[Document]:
         _bm25_docs_cache = docs
         return docs
 
-    raw = _load_txt_folder(DATA_DIR)
+    raw = _load_txt_folder(DATA_DIR_HR)
     out_docs: List[Document] = []
     chunk_id = 0
     for fname, text in raw.items():
@@ -83,7 +83,7 @@ def prepare_bm25_docs() -> List[Document]:
         _save_corpus_jsonl(out_docs)
         print(f"[DBG] Build corpus.jsonl mới: chunks={len(out_docs)} → {CORPUS_PATH}")
     else:
-        print(f"[WARN] DATA_DIR rỗng: {DATA_DIR} — BM25 sẽ bị tắt (fallback semantic-only).")
+        print(f"[WARN] DATA_DIR rỗng: {DATA_DIR_HR} — BM25 sẽ bị tắt (fallback semantic-only).")
 
     _bm25_docs_cache = out_docs
     return out_docs
