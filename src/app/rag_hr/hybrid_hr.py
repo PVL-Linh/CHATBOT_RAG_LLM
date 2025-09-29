@@ -1,11 +1,13 @@
+from __future__ import annotations
 import time
-from typing import List, Tuple, Dict, Any as _Any
+from typing import List, Tuple, Dict, Any as _Any, Optional
 from langchain_core.documents import Document
-
-from .config_hr import K_SEM, K_LEX, TOP_K, MMR_FETCH_K, MMR_LAMBDA, FAST_MODE, USE_BM25, METRICS
+from .config_hr import (
+    K_SEM, K_LEX, TOP_K, MMR_FETCH_K, MMR_LAMBDA,
+    FAST_MODE, USE_BM25, METRICS, CASE_NORM
+)
 from .bm25_hr import get_bm25_retriever
 from .utils_hr import normalize_case
-from .config_hr import CASE_NORM
 
 def _wrrf_merge(list_a: List[Document], list_b: List[Document], w_a: float, w_b: float, c: int = 60) -> List[Document]:
     def _key(d: Document) -> Tuple[_Any, _Any, _Any]:
@@ -27,33 +29,44 @@ def _wrrf_merge(list_a: List[Document], list_b: List[Document], w_a: float, w_b:
     merged = sorted(order.keys(), key=lambda k: scores[k], reverse=True)
     return [order[k] for k in merged]
 
-def hybrid_retrieve(vs, question: str, k_sem: int = K_SEM, k_lex: int = K_LEX, top_k: int = TOP_K) -> List[Document]:
+def hybrid_retrieve(
+    vs,
+    question: str,
+    k_sem: int = K_SEM,
+    k_lex: int = K_LEX,
+    top_k: int = TOP_K,
+    *,
+    lex_query: Optional[str] = None,   # BM25 dùng câu mở rộng
+    w_sem: float = 0.65,
+    w_lex: float = 0.35
+) -> List[Document]:
     t0 = time.time()
-    q_norm = normalize_case(question, CASE_NORM)
-    q_sem = f"query: {q_norm.strip()}"
 
-    # FAISS: dùng MMR để đa dạng
+    # 1) Semantic (FAISS)
+    q_norm_sem = normalize_case(question, CASE_NORM)
+    q_sem = f"query: {q_norm_sem.strip()}"
     sem_docs = vs.max_marginal_relevance_search(q_sem, k=k_sem, fetch_k=MMR_FETCH_K, lambda_mult=MMR_LAMBDA)
     t1 = time.time()
 
-    # FAST_MODE: bỏ BM25 để tối ưu tốc độ
+    # 2) Lexical (BM25)
     if FAST_MODE or not USE_BM25:
         if METRICS:
-            print(f"[DBG] FAST_MODE={FAST_MODE} → FAISS(MMR) sem={len(sem_docs)} | {t1-t0:.3f}s")
+            print(f"[DBG] FAST_MODE={FAST_MODE} → chỉ FAISS sem={len(sem_docs)} | {t1-t0:.3f}s")
         return sem_docs[:top_k]
 
-    # BM25
     lex_docs: List[Document] = []
     bm25 = get_bm25_retriever(k_lex)
     if bm25 is not None:
         try:
-            lex_docs = bm25.get_relevant_documents(q_norm)
+            q_lex_norm = normalize_case(lex_query if lex_query else question, CASE_NORM)
+            lex_docs = bm25.get_relevant_documents(q_lex_norm)
         except Exception as e:
             print(f"[WARN] BM25.get_relevant_documents lỗi: {e} → fallback semantic-only.")
             lex_docs = []
     t2 = time.time()
 
-    merged = sem_docs if not lex_docs else _wrrf_merge(sem_docs, lex_docs, w_a=0.65, w_b=0.35, c=60)
+    # 3) Hợp nhất (WRRF)
+    merged = sem_docs if not lex_docs else _wrrf_merge(sem_docs, lex_docs, w_a=w_sem, w_b=w_lex, c=60)
     t3 = time.time()
 
     if METRICS:

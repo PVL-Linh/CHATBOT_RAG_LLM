@@ -3,7 +3,6 @@ import json
 from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
-
 from .config_hr import DATA_DIR, CASE_NORM, CORPUS_PATH
 from .utils_hr import clean_text, split_text, normalize_case
 

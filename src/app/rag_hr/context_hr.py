@@ -4,7 +4,7 @@ from .config_hr import MAX_CHARS_CTX
 
 def build_context(pairs: List[Tuple[Document, Optional[float]]], max_chars: int = MAX_CHARS_CTX) -> str:
     blocks, used = [], 0
-    for d, score in pairs:
+    for d, _score in pairs:
         meta = d.metadata or {}
         tag = f"[{meta.get('source', '?')}|{meta.get('chunk_id', -1)}]"
         text = (d.page_content or '').strip()

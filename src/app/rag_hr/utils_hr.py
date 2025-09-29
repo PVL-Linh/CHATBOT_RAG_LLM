@@ -1,6 +1,5 @@
 import re
 import unicodedata
-from typing import Any
 
 def select_device() -> str:
     try:

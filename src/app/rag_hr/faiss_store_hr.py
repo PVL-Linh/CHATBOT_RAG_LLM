@@ -9,7 +9,7 @@ def load_faiss_vs():
     index_path = os.path.join(INDEX_DIR, "index.faiss")
     if not os.path.isfile(index_path):
         raise RuntimeError(
-            f"Không tìm thấy FAISS index: {index_path}\n→ Kiểm tra INDEX_DIR (hiện tại: {INDEX_DIR}) hoặc build index trước."
+            f"Không tìm thấy FAISS index: {index_path}\n→ Kiểm tra INDEX_DIR hoặc build index trước."
         )
     try:
         idx = faiss.read_index(index_path)
@@ -24,7 +24,7 @@ def load_faiss_vs():
             f"Không suy ra model embedding cho dim={dim}. Set EMBED_MODEL_NAME trong .env hoặc dùng 1 trong {model_by_dim}"
         )
 
-    print(f"🔤 Embedding model: {model_id} (suy theo index.d={dim})")
+    print(f"🔤 Embedding model: {model_id} (index.d={dim})")
 
     device = select_device()
     emb = HuggingFaceEmbeddings(
@@ -37,6 +37,6 @@ def load_faiss_vs():
         vs = FAISS.load_local(INDEX_DIR, emb, allow_dangerous_deserialization=True)
     except Exception as e:
         raise RuntimeError(
-            f"FAISS.load_local thất bại tại {INDEX_DIR}. Kiểm tra cặp file index.faiss/index.pkl. Chi tiết: {e}"
+            f"FAISS.load_local thất bại tại {INDEX_DIR}. Kiểm tra index.faiss/index.pkl. Chi tiết: {e}"
         )
     return vs
