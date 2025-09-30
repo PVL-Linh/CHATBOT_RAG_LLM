@@ -102,7 +102,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch {}
+    } catch { }
   }
 
   function lockScroll(on) {
@@ -138,7 +138,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function loadMsgs(id) {
@@ -153,7 +153,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function anyLocalMessagesExist() {
@@ -173,7 +173,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function ensureLocalSchema() {
@@ -204,14 +204,14 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // FIXED: Proper session adoption without message merging
@@ -315,6 +315,112 @@
       useIdle(startRenderSessions);
     }
   }
+  // ===== PATCH: Outline/Tree → TXT (remove numbers & connectors) =====
+  const ENABLE_OUTLINE_TREE = true;
+
+  // Chấp nhận: "2 Giám...", "2.1 Team...", "I. Phòng...", "A) Nhóm..."
+  const RX_OUTLINE = /^\s*((?:\d+(?:\.\d+)*|[IVXLCDM]+|[A-Z]))(?:[.)\-])?\s+(.*)$/i;
+  // Phát hiện có ký tự cây hộp để xử lý tree
+  const TREE_CHARS = /[│├┝┞┟┠┡┢┣└┕┖┗─━┄┅┈┉]/;
+
+  // Chuẩn hoá khoảng trắng lạ (NBSP/ZWSP) → space
+  function normSpaces(s) {
+    return (s || "").replace(/[\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000\u200B]/g, " ");
+  }
+
+  function depthFromToken(tok) {
+    if (!tok) return 1;
+    if (/^\d+(?:\.\d+)*$/.test(tok)) return tok.split(".").length;
+    return 1;
+  }
+  function depthFromPrefix(prefix) {
+    if (!prefix) return 1;
+    const bars = (prefix.match(/[│┃║]/g) || []).length;
+    const spaces = prefix.replace(/[│┃║]/g, "").length;
+    return Math.max(1, 1 + bars + Math.floor(spaces / 2));
+  }
+
+  // Gỡ sạch nhánh + số thứ tự (có hoặc KHÔNG có ký tự kết thúc)
+  function stripLeadingArtifacts(s) {
+    s = normSpaces(s)
+      .replace(/^[│┃║\s]+/, "")                                  // cột dọc + khoảng trắng
+      .replace(/^(?:[├┝┞┟┠┡┢┣└┕┖┗]\s*[─━┄┅┈┉]+\s*)/, "");        // đầu nhánh + ngang
+    // Bỏ các token số/thứ tự ở đầu: "2", "2.1", "I", "A", có thể kèm ".", ")", "-" rồi cách
+    return s.replace(/^((?:\(?\d+(?:\.\d+)*\)?|[IVXLCDM]+|[A-Z])(?:[.)\-])?\s+)+/, "").trim();
+  }
+
+  // ===== FORCE PATCH: Outline/Tree → TXT (no numbers, no connectors) =====
+  function toTreeNoNums(md) {
+    if (!md) return md;
+
+    const src = normSpaces(md).replace(/\r\n?/g, "\n");
+    const lines = src.split("\n");
+    const out = [];
+
+    // 1) Điều kiện nhận diện 1 dòng thuộc “cây/mục lục”
+    const isCandidate = (s) =>
+      /^\s*[│┃║]/.test(s) ||                                            // có ký tự vẽ nhánh
+      /^\s*\(?\d+(?:\.\d+)*\)?(?:[.)-])?\s+/.test(s) ||                 // 1 , 1.2 , (1.2) , 2) …
+      /^\s*[IVXLCDM]+(?:[.)-])?\s+/i.test(s) ||                         // La Mã: I. II) …
+      /^\s*[A-Z](?:[.)-])\s+/.test(s);                                  // A) B. …
+
+    // 2) Tính bậc thụt theo nhánh “│… ” hoặc theo số 1.2.3
+    function depthFromPrefix(prefix) {
+      if (!prefix) return 1;
+      const bars = (prefix.match(/[│┃║]/g) || []).length;
+      const spaces = prefix.replace(/[│┃║]/g, "").length;
+      return Math.max(1, 1 + bars + Math.floor(spaces / 2));
+    }
+
+    function depthFromTokenChunk(chunk) {
+      const m = chunk.match(/^\s*\(?(\d+(?:\.\d+)*)\)?/);
+      return m ? m[1].split(".").length : 1;
+    }
+
+    // 3) Gỡ sạch ký tự nhánh + số thứ tự ở đầu
+    function stripAllLead(s) {
+      return s
+        .replace(/^[│┃║\s]+/, "")                                       // cột dọc + space
+        .replace(/^(?:[├┝┞┟┠┡┢┣└┕┖┗]\s*[─━┄┅┈┉]+\s*)/, "")             // đầu nhánh + ngang
+        .replace(/^((?:\(?\d+(?:\.\d+)*\)?|[IVXLCDM]+|[A-Z])(?:[.)-])?\s+)+/i, "")
+        .trim();
+    }
+
+    let i = 0;
+    while (i < lines.length) {
+      if (!isCandidate(lines[i])) {
+        out.push(lines[i]);
+        i++;
+        continue;
+      }
+
+      // Gom block liên tiếp là “cây/mục lục”
+      const block = [];
+      while (i < lines.length && isCandidate(lines[i])) {
+        block.push(lines[i++]);
+      }
+
+      // Chuyển cả block thành cây TXT
+      out.push("```text");
+      for (const ln of block) {
+        const m = ln.match(/^\s*([│┃║ \t]*)(?:[├┝┞┟┠┡┢┣└┕┖┗]?\s*[─━┄┅┈┉]*\s*)?(.*)$/);
+        const prefix = m ? m[1] : "";
+        const restRaw = m ? m[2] : ln;
+
+        const d1 = depthFromPrefix(prefix);
+        const d2 = depthFromTokenChunk(restRaw);
+        const depth = Math.max(d1, d2);
+
+        const text = stripAllLead(restRaw);
+        const indent = "  ".repeat(Math.max(0, depth - 1));
+        out.push(`${indent}- ${text}`);
+      }
+      out.push("```");
+    }
+
+    return out.join("\n");
+  }
+
 
   // =========================
   // Markdown Rendering
@@ -329,7 +435,8 @@
   }
 
   function renderMarkdown(md) {
-    const raw = (window.marked ? marked.parse(md || "") : md || "").toString();
+    const md0 = toTreeNoNums(md);
+    const raw = (window.marked ? marked.parse(md0 || "") : md0 || "").toString();
     const clean = window.DOMPurify ? DOMPurify.sanitize(raw) : raw;
 
     const wrapper = document.createElement("div");
@@ -348,7 +455,7 @@
       wrapper.querySelectorAll("pre code").forEach((block) => {
         try {
           hljs.highlightElement(block);
-        } catch (_) {}
+        } catch (_) { }
       });
     }
     return wrapper;
@@ -382,7 +489,7 @@
       persistMessage(role, content);
       try {
         window.sessionHistory = sessionHistory;
-      } catch (_) {}
+      } catch (_) { }
     }
   }
 
@@ -576,7 +683,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function renderItemNode(s) {
@@ -589,9 +696,8 @@
       row.className = "row";
       row.innerHTML = `
           <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-          <div class="meta">${
-            s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
-          }</div>`;
+          <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+        }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
       acts.innerHTML = `
@@ -625,8 +731,8 @@
           <div class="chat-avatar"><i data-lucide="user"></i></div>
           <div class="chat-text">
             <div class="chat-title">${htmlEscape(
-              s.title || "Cuộc trò chuyện"
-            )}</div>
+      s.title || "Cuộc trò chuyện"
+    )}</div>
             <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
             <div class="chat-time">${formatTime(s.last_ts)}</div>
           </div>
@@ -693,7 +799,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch {}
+    } catch { }
 
     // Update local mirrors
     updateLocalSession(id, (s) => {
@@ -757,7 +863,7 @@
         // Không còn phiên nào -> tạo phiên mới
         try {
           await createNewSession();
-        } catch {}
+        } catch { }
       }
     }
 
@@ -775,7 +881,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch {}
+    } catch { }
 
     // Try API directly
     try {
@@ -795,7 +901,7 @@
           return;
         }
       }
-    } catch {}
+    } catch { }
 
     // Local fallback
     ensureSession(true);
@@ -844,7 +950,7 @@
         closeContainer();
         return;
       }
-    } catch {}
+    } catch { }
 
     // Local fallback
     openLocalSession(sessionId);
@@ -873,7 +979,7 @@
           );
         }
       }
-    } catch {}
+    } catch { }
   }
 
   function showMessages(messages) {
@@ -904,7 +1010,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch {}
+    } catch { }
   }
 
   function clearLocal(id) {
@@ -913,10 +1019,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch {}
+    } catch { }
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch {}
+    } catch { }
   }
 
   // =========================
@@ -990,7 +1096,7 @@
             );
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     }
   }
 
@@ -1130,7 +1236,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch (_) {}
+  } catch (_) { }
 
   // =========================
   // Initialization
@@ -1143,7 +1249,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch (_) {}
+    } catch (_) { }
 
     // Bootstrap from server, fallback to local
     bootstrapFromLocalThenServer();
