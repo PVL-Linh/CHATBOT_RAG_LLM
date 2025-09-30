@@ -187,7 +187,7 @@ def LLM_model() -> Tuple[
         "EMBED_MODEL_PATH",
         "./src/app/models/local_multilingual_e5_large",
     )
-    FAISS_DIR = _abs("./src/app/vectorstore/FAISS_Vector")
+    FAISS_DIR = _abs("./src/app/vectorstore/FAISS_Vector_All")
 
     # Auto-download nếu thiếu
     EMBED_MODEL_PATH = ensure_local_hf_model(

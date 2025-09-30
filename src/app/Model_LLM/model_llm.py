@@ -203,7 +203,7 @@ def _maybe_download_faiss_from_hub(default_dir: str) -> str:
         return local_dir
 
     repo_type = os.getenv("FAISS_HUB_REPO_TYPE", "dataset")
-    subdir = os.getenv("FAISS_HUB_SUBDIR", "vectorstore/FAISS_Vector").strip().strip("/")
+    subdir = os.getenv("FAISS_HUB_SUBDIR", "vectorstore/FAISS_Vector_All").strip().strip("/")
 
     print(f"[model_llm] Tải FAISS index từ Hub: {repo_type}:{repo_id}/{subdir}")
     snap_path = snapshot_download(
@@ -246,9 +246,9 @@ def LLM_model() -> Tuple[
       - FAISS_HUB_REPO / FAISS_HUB_REPO_TYPE / FAISS_HUB_SUBDIR (tuỳ chọn)
       - GEMINI_*
     """
-    EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-base")
+    EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")
     EMBED_REVISION = os.getenv("EMBED_REVISION")  # chỉ dùng khi local
-    EMBED_MODEL_PATH = os.getenv("EMBED_MODEL_PATH", "./src/app/models/local_multilingual_e5_base")
+    EMBED_MODEL_PATH = os.getenv("EMBED_MODEL_PATH", "./src/app/models/local_multilingual_e5_large")
 
     # ——— Chế độ remote mặc định trên Spaces
     force_remote_env = (os.getenv("EMBED_FORCE_REMOTE", "auto").strip().lower())
