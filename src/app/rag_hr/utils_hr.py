@@ -23,7 +23,7 @@ def clean_text(s: str) -> str:
     s = re.sub(r"[ \t]{2,}", " ", s)
     return s.strip()
 
-def split_text(text: str, chunk_size=1200, overlap=300):
+def split_text(text: str, chunk_size=1000, overlap=200):
     parts = []
     paragraphs = re.split(r"\n{2,}", text)
     for p in paragraphs:

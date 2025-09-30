@@ -3,8 +3,9 @@ from typing import List
 from langchain_core.documents import Document
 from .faiss_store_hr import load_vectorstore
 from .bm25_hr import get_bm25
-from .config_hr import (K_SEM_HR, K_LEX_HR, TOP_K_HR, MMR_FETCH_K_HR, MMR_LAMBDA_HR,
-                     FAST_MODE_HR, W_SEM_HR, W_LEX_HR, DEBUG_QE_HR)
+from .config_hr import (DEBUG_QE_HR, K_SEM_HR, K_LEX_HR, RAG_TOPK_HR as TOP_K_HR, MMR_FETCH_K_HR, MMR_LAMBDA_HR, 
+                        W_SEM_HR, W_LEX_HR, USE_BM25_HR, FAST_MODE_HR, CASE_NORM_HR, FAISS_DIR_HR)
+
 
 def _norm(s: str) -> str:
     s = re.sub(r"\s+", " ", (s or "")).strip().lower()

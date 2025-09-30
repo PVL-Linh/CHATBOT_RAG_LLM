@@ -14,8 +14,8 @@ except ImportError:
 # =======================
 # Tham số
 # =======================
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1200))       # khuyến nghị
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))  # khuyến nghị
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))       # khuyến nghị
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 200))  # khuyến nghị
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, r"E:\ChatAll\src\app\Data\HR"))          # nơi chứa .txt/.csv sau khi convert
 INDEX_DIR = os.path.abspath(os.path.join("", "./src/app/vectorstore/FAISS_Vector_HR")) # nơi lưu FAISS index
 
-EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_base")
+EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_NAME_HR", "./src/app/models/local_multilingual_e5_large")
 
 # =======================
 # Helpers
@@ -113,7 +113,7 @@ def main_HR():
     # B1) Convert PDF -> TXT (luôn chạy trước khi build FAISS)
     #    - pdf_to_text sẽ xử lý header/footer, table_mode theo bạn cấu hình ở đó.
     processing_Data_doclinkToText()
-    web_crawler("HR")
+    # web_crawler("HR")
 
     # B2) Load TXT/CSV để embed
     raw = _load_text_files(DATA_DIR)
