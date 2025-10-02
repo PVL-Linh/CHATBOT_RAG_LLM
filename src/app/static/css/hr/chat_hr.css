@@ -1,15 +1,12 @@
 /* =========================================================
-   Tiximax HR Chat — FULL CSS (unified typography & wrapping)
-   - Mọi nội dung (text, bảng, code, sơ đồ tree) tự xuống dòng
-   - Font thống nhất: text dùng var(--chat-font), tree/code dùng var(--mono-font)
-   - Giữ giao diện & bố cục từ bản của bạn, dọn trùng lặp và ghi đè cuối file
+   Tiximax HR Chat — FULL CSS (Segoe UI only + TREE bold depth 1–2)
    ========================================================= */
 
 /* ---------- Theme & typography tokens ---------- */
 :root {
-  /* Font giống phong cách ChatGPT (system stack); đổi 'Times New Roman' nếu muốn */
-  --chat-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* fonts */
+  --chat-font: "Segoe UI", "SegoeUI", "Segoe UI Variable", sans-serif;
+  --mono-font: "Segoe UI", "SegoeUI", "Segoe UI Variable", sans-serif;
 
   /* sizes */
   --chat-font-size: 14.5px;
@@ -35,10 +32,8 @@
 main.container-fluid.d-flex {
   min-height: 100vh;
   min-height: 100dvh;
-  /* dynamic viewport height (mobile) */
 }
 
-/* Bảo đảm chuỗi cha cho phép flex grow đúng */
 main.container-fluid.d-flex .row.flex-grow-1 {
   min-height: 0;
   flex: 1 1 auto;
@@ -101,14 +96,14 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 .msg .bubble {
   background: #bbd7f2;
   /* bot bubble */
-  border: 1px solid var(--border);
   border-radius: 16px;
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  max-width: min(var(--bubble-max-w), 100%);
+  max-width: 90%;
   min-width: 0;
-  /* === Unified typography & wrapping === */
+
+  /* unified typography */
   font-family: var(--chat-font);
   font-size: var(--chat-font-size);
   line-height: var(--chat-line-height);
@@ -119,7 +114,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 
 .msg.user .bubble {
   background: #ffd062;
-  /* user bubble */
   border-color: #c7d2fe;
   border-radius: 16px;
 }
@@ -149,7 +143,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 }
 
 .msg .bubble p+p {
-  margin-top: 0.5em;
+  margin-top: .5em;
 }
 
 /* ---------- Greeting ---------- */
@@ -194,7 +188,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(0deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .75));
   border-top: 1px solid white;
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
@@ -237,7 +230,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   height: 36px;
   border-radius: 50%;
   border: 0;
-  background: #ffffff;
+  background: #fff;
   color: #4044f5;
   display: inline-flex;
   align-items: center;
@@ -257,7 +250,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   margin: 6px auto;
 }
 
-@media (max-width: 576px) {
+@media (max-width:576px) {
   .composer-inner {
     margin-bottom: 0;
   }
@@ -392,7 +385,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   border-top: 1px solid rgba(0, 0, 0, .08);
 }
 
-@media (max-width: 768px) {
+@media (max-width:768px) {
   .history-panel {
     width: 92vw;
   }
@@ -454,11 +447,9 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   width: 100% !important;
   min-width: 0 !important;
   table-layout: fixed !important;
-  /* ép cột co đều */
   border-collapse: collapse;
 }
 
-/* WebKit scrollbar (Chrome/Edge/Safari) */
 .msg .bubble .table-scroll::-webkit-scrollbar {
   height: 10px;
 }
@@ -472,17 +463,13 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   background: rgba(0, 0, 0, .08);
 }
 
-/* Bảng rộng tự nhiên nhưng vẫn wrap text đẹp */
 .msg .bubble .table-scroll>table {
   width: max-content;
-  /* cho phép rộng hơn khung */
   min-width: 100%;
-  /* ít nhất lấp đầy khung */
   border-collapse: collapse;
   table-layout: auto;
 }
 
-/* Ô dữ liệu bẻ dòng; font gọn hơn cho bảng */
 .msg .bubble .table-scroll th,
 .msg .bubble .table-scroll td {
   white-space: normal !important;
@@ -500,7 +487,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   background: none !important;
 }
 
-/* canh phải cột số, cột đầu canh trái */
 .msg .bubble .table-scroll td:not(:first-child),
 .msg .bubble .table-scroll th:not(:first-child) {
   text-align: center;
@@ -517,8 +503,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 }
 
 /* ---------- Code & TREE blocks ---------- */
-/* Quan trọng: cho <pre>/<code> tự xuống dòng nhưng vẫn giữ monospace thẳng cột */
-
 .msg .bubble pre,
 .msg .bubble .txm-tree,
 .msg .bubble pre code,
@@ -527,20 +511,42 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   font-size: var(--chat-font-size);
   line-height: var(--chat-line-height);
   white-space: pre-wrap;
-  /* <— TỰ XUỐNG DÒNG */
+  /* tự xuống dòng */
   word-break: break-word;
   overflow-wrap: anywhere;
   max-width: 100%;
 }
 
-.msg .bubble .txm-tree {
-  margin: 6px 0;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, .06);
+/* TREE mạnh ở nhãn depth ≤2 (đã wrap <strong> bằng JS) */
+.txm-tree strong {
+  font-weight: 700;
 }
 
-/* ---------- Floating mini button (giữ nguyên) ---------- */
+/* Nền highlight.js không phá bố cục */
+.msg .bubble .hljs {
+  background: transparent !important;
+}
+
+/* Fix khoảng trống dưới tree/code trong bubble */
+.msg .bubble pre {
+  margin: 0 !important;
+}
+
+.msg .bubble> :first-child {
+  margin-top: 0 !important;
+}
+
+.msg .bubble> :last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Bubble chứa tree/code hiển thị block để tránh kênh chiều cao */
+.msg .bubble:has(pre),
+.msg .bubble:has(.txm-tree) {
+  display: block;
+}
+
+/* ---------- Floating mini button ---------- */
 .floating-shop {
   position: fixed;
   right: 16px;
@@ -562,3 +568,96 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   width: 20px;
   height: 20px;
 }
+
+/* ===== Typing: shimmer text + elegant bouncing dots ===== */
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.typing .label {
+  font-weight: 600;
+  letter-spacing: .2px;
+  background: linear-gradient(90deg, rgba(17, 24, 39, .92) 0%, rgba(17, 24, 39, .68) 40%, rgba(17, 24, 39, .92) 80%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: txm-shimmer 2.4s linear infinite;
+}
+
+@keyframes txm-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.typing .dots3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing .dots3 span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, .65);
+  animation: txm-dot 1.2s ease-in-out infinite;
+}
+
+.typing .dots3 span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing .dots3 span:nth-child(2) {
+  animation-delay: .15s;
+}
+
+.typing .dots3 span:nth-child(3) {
+  animation-delay: .30s;
+}
+
+@keyframes txm-dot {
+
+  0%,
+  70%,
+  100% {
+    transform: translateY(0) scale(.9);
+    opacity: .55;
+  }
+
+  35% {
+    transform: translateY(-3px) scale(1.05);
+    opacity: 1;
+  }
+}
+
+#typingRow .bubble {
+  padding: 8px 14px;
+}
+:root{
+  /* chỉ thay cho block TREE/CODE */
+  --mono-font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* dùng monospace + khóa metrics để cột thẳng và liền nhau */
+.msg .bubble .txm-tree,
+.msg .bubble pre.code,
+.msg .bubble pre {
+  font-family: var(--mono-font) !important;
+  letter-spacing: 0;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  line-height: 1.28;          /* giảm hở dọc giữa các “│” */
+  white-space: pre;            /* KHÔNG wrap ở tree để mạch nối luôn liền */
+  margin: 0 !important;        /* bỏ khoảng trống dưới/ trên */
+}
+
+/* tiêu đề bậc 1-2 vẫn đậm */
+.txm-tree strong{ font-weight: 700; }

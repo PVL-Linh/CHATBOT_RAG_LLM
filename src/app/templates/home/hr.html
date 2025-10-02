@@ -3,8 +3,8 @@
   Tiximax Chatbot HR
 {% endblock %}
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css', v="1") }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css', v="1") }}" />
 {% endblock %}
 {% block content %}
   <!-- History Toggle Button -->
@@ -55,5 +55,5 @@
   </main>
 {% endblock %}
 {% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/hr/human.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/hr/human.js', v="1") }}"></script>
 {% endblock %}

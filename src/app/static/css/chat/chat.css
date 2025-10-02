@@ -28,13 +28,12 @@
 
 .msg .bubble {
   background: #bbd7f2;
-  border: 1px solid var(--border);
   border-radius: 16px;
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
   line-height: 2;
-  max-width: min(var(--bubble-max-w), 100%);
+  max-width: 90%;
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -111,7 +110,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(0deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .75));
   border-top: 1px solid white;
 }
 
@@ -526,3 +524,54 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 @media (max-width: 576px){
   .composer-inner{ margin-bottom: 0; }
 }
+/* ===== Typing: shimmer text + elegant bouncing dots ===== */
+.typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.typing .label {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  /* shimmer nhẹ trên chữ */
+  background: linear-gradient(90deg,
+      rgba(17, 24, 39, .92) 0%,
+      rgba(17, 24, 39, .68) 40%,
+      rgba(17, 24, 39, .92) 80%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: txm-shimmer 2.4s linear infinite;
+}
+
+@keyframes txm-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* 3 chấm tròn “thở” nhịp nhàng */
+.typing .dots3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.typing .dots3 span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, .65);         /* hợp với nền xanh bubble */
+  animation: txm-dot 1.2s ease-in-out infinite;
+}
+.typing .dots3 span:nth-child(1) { animation-delay: 0s; }
+.typing .dots3 span:nth-child(2) { animation-delay: .15s; }
+.typing .dots3 span:nth-child(3) { animation-delay: .30s; }
+
+@keyframes txm-dot {
+  0%, 70%, 100% { transform: translateY(0) scale(.9); opacity: .55; }
+  35%          { transform: translateY(-3px) scale(1.05); opacity: 1; }
+}
+
+/* tinh chỉnh trong bubble để luôn căn giữa đẹp */
+#typingRow .bubble { padding: 8px 14px; }
