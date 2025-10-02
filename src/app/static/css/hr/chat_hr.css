@@ -540,11 +540,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   border: 1px solid rgba(0, 0, 0, .06);
 }
 
-/* Nếu có highlight.js thì nền không phá bố cục */
-.msg .bubble .hljs {
-  background: transparent !important;
-}
-
 /* ---------- Floating mini button (giữ nguyên) ---------- */
 .floating-shop {
   position: fixed;

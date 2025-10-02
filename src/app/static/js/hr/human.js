@@ -202,7 +202,7 @@
   // Bắt đầu vẽ nhánh từ cấp này trở đi (1 = root -> không vẽ; 2 trở lên vẽ)
   const CONNECTED_DRAW_FROM_LEVEL = 2;
   // Giữ số thứ tự trước nhãn (true) hoặc ẩn (false)
-  const CONNECTED_KEEP_NUM = false;
+  const CONNECTED_KEEP_NUM = true;
 
   // Chuẩn hoá khoảng trắng lạ
   function _normSpaces(s) {
