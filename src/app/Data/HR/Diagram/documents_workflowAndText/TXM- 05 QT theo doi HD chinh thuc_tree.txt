@@ -1,0 +1,48 @@
+FORMAT_VERSION: TREE_V2
+FILE: TXM- 05 QT theo doi HD chinh thuc.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\TXM- 05 QT theo doi HD chinh thuc.pdf
+TITLE: TXM- 05 QT theo doi HD chinh thuc
+LANG: vi
+
+STEPS:
+- STEP 1
+  - ITEM: BP
+  - ITEM: NS CN soạn HĐ theo mẫu, in 2 bản chuyển BP
+  - ITEM: PC CN
+- STEP 2
+  - ITEM: BP
+  - ITEM: PC CN nhận HĐ, kiểm tra, rà soát lại nội dung, đảm bảo đúng mẫu HĐ mới nhất cũng như tính pháp lý của bản HĐ rồi trả lại BP
+  - ITEM: NS CN
+- STEP 3
+  - ITEM: BP
+  - ITEM: NS CN chuyển HĐ cho NV đọc, ký xác nhận và thu lại
+  - ITEM: TH sai, thiếu NV thông báo lại BP
+- STEP 4
+  - ITEM: BP
+  - ITEM: NS CN trình hợp đồng đã được BP
+  - ITEM: PC CN kiểm tra và NV ký xác nhận cho GĐCN xem xet ký xác nhận và thu lại
+- STEP 5
+  - ITEM: BP
+  - ITEM: NS nhận bản cứng HĐ đã có chữ ký của NV, BP
+  - ITEM: PC CN, GĐCN
+- STEP 6
+  - ITEM: BP
+  - ITEM: PC Trụ sở sau khi nhận HĐ tiến hành đóng dấu 2 bản, sau đó chuyển lại cho BP
+  - ITEM: NS Trụ sở
+- STEP 7
+  - ITEM: BP
+  - ITEM: NS Trụ sở nhận HĐ, lưu giữ 1 bản và chuyển lại BP
+  - ITEM: NS CN 1 bản
+- STEP 8
+  - ITEM: BP
+  - ITEM: NS CN nhận lại HĐ từ Trụ sở, trả lại 1 bản cho NV và theo dõi thời hạn HĐ trên hệ thống
+- STEP 9
+  - ITEM: TH NV chưa hết hạn HĐ đã nghỉ, BP
+  - ITEM: NS sẽ thanh lý và hủy HĐ
+  - ITEM: TH NV đã hết hạn HĐ vẫn tiếp tục làm việc cho công ty BP
+
+TIMELINE:
+- (none)
+
+FORMS:
+- 1 → 9. HĐ

@@ -1,0 +1,80 @@
+FORMAT_VERSION: TREE_V2
+FILE: TÀI LIỆU QUY TRÌNH TRIỂN KHAI TUYỂN DỤNG.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\TÀI LIỆU QUY TRÌNH TRIỂN KHAI TUYỂN DỤNG.pdf
+TITLE: TÀI LIỆU QUY TRÌNH TRIỂN KHAI TUYỂN DỤNG
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- QUY TRÌNH TRIỂN KHAI TUYỂN DỤNG
+- Người thực hiện: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ
+- Số hồ sơ:TXM.QT 10
+- P. NS
+- CB chuyên môn/ GĐ
+- 1. Thông báo tuyển dụng
+- 2. Tiếp nhận, sàng lọc HS
+- Không phù hợp
+- Phù hợp
+- 3.2. Lưu vào CSDL
+- 3.1. Mời PV
+- Không PV
+- Có PV
+- Không đồng ý
+- 4. Tổ chức PV
+- 6.1. Thông báo kết quả
+- Loại
+- 5. Lựa chọn ứng viên
+- 6.2. Thông báo kết quả,
+- đàm phán chính sách
+- Chọn
+- Đồng ý
+- 7. Gửi thư mời nhận việc
+- Mô tả chi tiết
+- 1. P.NS đăng thông báo những vị trí cần tuyển dụng lên các kênh thông tin khác nhau để thu hút hồ sơ ứng viên: các trang web
+- tuyển dụng chuyên nghiệp mà công ty đang sử dụng, landing page tuyển dụng của công ty, các Page tuyển dụng trên mạng xã hội
+- của công ty, thông báo chương trình tuyển dụng đến toàn thế NV trong công ty để giới thiệu ứng viên, và tiến hành các chương
+- trình thu hút ứng viên khác theo kế hoạch (như tham gia các hội chợ việc làm, tham gia các ngày hội tuyển dụng của các trường
+- đại học, hoặc sử dụng dịch vụ của các công ty headhunter).
+- 2. P.NS tiếp nhận HS ứng viên, tiến hành sàng lọc sơ bộ các thông tin và tiêu chí cơ bản, đảm bảo ứng viên đáp ứng đúng và đủ
+- nhưng tiêu chí đã đề ra (không đánh giá trình độ, chuyên môn).
+- 3.1. TH có những HS phù hợp, P. NS tiến hành gửi thư mới PV qua email để thông báo, sắp xếp lịch PV với ứng viên, đồng thời
+- thông báo lịch, gửi hồ sơ ứng viên đến CB chịu trách nhiệm PV chuyên môn để họ sắp xếp phối hợp cùng tham gia PV.
+- 3.2. TH HS không đáp ứng đúng, đủ các tiêu chí/ứng viên không đi phỏng vấn/ứng viên không vượt qua vòng PV/ứng viên vượt
+- qua vòng PV nhưng đàm phán không thành công về chính sách lương, P. NS sẽ lưu giữ lại hồ sơ vào kho cơ sở dữ liệu của công
+- ty để phục vụ cho những kế hoạch tuyển dụng trong tương lai.
+- Lưu ý: Cần ghi rõ lý do vì sao HS ứng viên bị loại bỏ.
+- 4. TH ứng viên tham gia PV, P. NS cùng CB chuyên môn tiến hành PV ứng viên. Trong quá trình PV, phải ghi chép lại nội dung
+- đánh giá ứng viên. Đối với từng vị trí, trình độ tuyển dụng khác nhau quy trình tuyền dụng cũng sẽ khác nhau:
+- Đối với ứng viên là cấp nhân viên, lao động phổ thông, lao động khối văn phòng (kinh doanh, hành chính, nhân sự, kế toán,
+- CSKH, ...) chỉ cần PV 1 vòng với CB chuyên môn.
+- Đối với ứng viên là quản lý từ cấp Trưởng/Phó phòng trở lên phải phỏng vấn 2 vòng, vòng 1 PV với CB chuyên môn, vòng 2
+- PV với GĐ.
+- Đối với một số vị trí cần trình độ chuyên môn, kỹ thuật sẽ phải làm một số bài test kỹ thuật.
+- 5. Sau khi đã PV hết tất cả các ứng viên của 1 vị trí, P. NS cùng CB chuyên môn/GĐ dựa vào những chi chép đánh giá và những
+- tiêu chí trong hồ sơ để lựa chọn ứng viên phù hợp.
+- 6.1. Đối với những ứng viên không vượt qua vòng PV, P. NS sẽ gửi thư phản hồi qua email để thông tin đến ứng
+- 6.2. Đối với những ứng viên vượt qua vòng PV, P. NS sẽ liên lạc gửi email và trao đổi trực tiếp với ứng viên về kết quả PV và
+- đàm phán về chính sách lương thưởng, chế độ, phúc lợi của công ty khi ứng viên đồng ý nhận việc.
+- 7. TH ứng viên đồng ý với chính sách lương, thưởng và chính sách phúc lợi của công ty, P. NS sẽ chốt nhận ứng viên, gửi thư
+- mời nhận việc qua email cho ứng viên.
+- Thời gian
+- 2. 24h
+- 6.1. 24h
+- 6.2. 48h
+- 7. 24h
+- Biểu mẫu
+- 1. Mẫu nội dung thông báo tuyển dụng qua các kênh khác nhau
+- 2. HS ứng viên DS ứng viên
+- 3.1. HS ứng viên
+- 3.2. Thư mới PV DS ứng viên
+- 4+5. HS ứng viên DS ứng viên
+- Bảng đánh giá kết quả PV
+- 6.1. Thư cảm ơn
+- 6.2. Thư cảm ơn
+- Lương và chế độ phúc lợi
+- 7. Thư mời nhận việc

@@ -1,0 +1,180 @@
+{% extends 'home/base.html' %} {% block title %}Quản lý cấu hình kênh ·
+Tiximax{% endblock %} {# dùng đúng CSS như planner #} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/chanels.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}"
+/>
+{% endblock %} {# ẩn topbar/history/footer như planner #} {% block topbar %}{%
+endblock %} {% block history_panel %}{% endblock %} {% block footer %}{%
+endblock %} {% block content %}
+<main id="marketing" class="chat-area" style="width: auto">
+  <div class="layout">
+    {% include 'partials/_marketing_sidebar.html' %}
+
+    <main class="content">
+      <!-- Header -->
+      <section class="card">
+        <div
+          class="flex-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+          "
+        >
+          <div>
+            <h2 style="font-size: 30px; margin: 0">Quản lý cấu hình kênh</h2>
+            <div class="muted" style="opacity: 0.75">
+              Tuỳ chỉnh đặc điểm từng kênh để AI tạo nội dung phù hợp.
+            </div>
+          </div>
+          <button id="btn_new" class="btn-primary" type="button">
+            + Tạo kênh mới
+          </button>
+        </div>
+      </section>
+
+      <!-- Editor (ẩn khi chưa tạo/sửa) -->
+      <section id="editor" class="card" style="display: none">
+        <div
+          class="flex-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <h3 id="ed_title" style="margin: 0">Tạo kênh mới</h3>
+          <div class="actions" style="display: flex; gap: 8px">
+            <button id="ed_cancel" class="btn-ghost" type="button">Huỷ</button>
+            <button id="ed_save" class="btn-primary" type="button">Lưu</button>
+          </div>
+        </div>
+
+        <input type="hidden" id="f_id" />
+
+        <div class="grid-2 tight">
+          <label class="tight"
+            >Tên kênh hiển thị
+            <input
+              id="f_name"
+              placeholder="VD: Facebook Fanpage Chính Thức"
+              required
+            />
+          </label>
+          <label class="tight"
+            >Loại nền tảng
+            <select id="f_platform">
+              <option>Social Media</option>
+              <option>Video Sharing</option>
+              <option>Blog/Website</option>
+              <option>Professional Network</option>
+              <option>Messaging Platform</option>
+            </select>
+          </label>
+        </div>
+
+        <label
+          >Đặc điểm đối tượng người dùng
+          <textarea
+            id="f_audience"
+            rows="2"
+            placeholder="VD: Millennials + Gen X Việt Nam"
+          ></textarea>
+        </label>
+
+        <label
+          >Tone of Voice ưu tiên
+          <input id="tone_input" placeholder="Thêm tone..." />
+          <div id="tone_chips" class="chips"></div>
+        </label>
+
+        <label
+          >Hướng dẫn nội dung
+          <textarea
+            id="f_content_guide"
+            rows="2"
+            placeholder="VD: Trung tính 200–500 từ"
+          ></textarea>
+        </label>
+
+        <label
+          >Hướng dẫn phong cách visual
+          <textarea
+            id="f_visual_guide"
+            rows="2"
+            placeholder="VD: Ảnh chất lượng cao"
+          ></textarea>
+        </label>
+
+        <label
+          >Định dạng phổ biến
+          <input id="format_input" placeholder="Thêm định dạng..." />
+          <div id="format_chips" class="chips"></div>
+        </label>
+
+        <div class="grid-2 tight">
+          <label class="tight"
+            >Chiến lược hashtags
+            <input
+              id="f_hashtags"
+              placeholder="VD: 3–5 hashtag brand/location"
+            />
+          </label>
+          <label class="tight"
+            >Preference Call-to-Action
+            <input id="f_cta" placeholder='VD: "Inbox tư vấn miễn phí""' />
+          </label>
+        </div>
+
+        <div class="tight">
+          <label class="tight"
+            >Giới hạn ký tự (mỗi bài)
+            <input id="f_length" placeholder="VD: 200–500 từ" />
+          </label>
+        </div>
+
+        <label
+          >Hướng dẫn rủi ro
+          <textarea
+            id="f_risk_notes"
+            rows="2"
+            placeholder="VD: Tránh claim nhạy cảm"
+          ></textarea>
+        </label>
+
+        <label
+          >Ghi chú đặc biệt cho kênh này
+          <textarea
+            id="f_special"
+            rows="2"
+            placeholder="VD: Tối thứ 7 tương tác cao"
+          ></textarea>
+        </label>
+      </section>
+
+      <!-- List -->
+      <section class="card" id="list_card">
+        <h3 style="margin-top: 0">Danh sách kênh</h3>
+        <div id="cards" class="cards-grid"></div>
+      </section>
+    </main>
+  </div>
+</main>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/marketing/channels.js', v='1') }}"
+></script>
+{% endblock %}

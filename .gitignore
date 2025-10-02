@@ -1,23 +1,29 @@
 # Bỏ models
-src/models/
-TRASH/
-src/chat_logs/
+src/app/models/
+Trash/
+Documents/
+ingest/
+
+
 # Bỏ FAISS_Vector trong src
-src/FAISS_Vector/
+# src/app/Data/
 instance/
-# Bỏ Data trong src
-src/Data/
-src/test.py
-src/uploads/
+*.db
+*.db-wal
+*.db-shm
+logs/
+ingest/
+
+
 # Bỏ file tạm Python
 __pycache__/
 *.pyc
 *.pyo
 
-# Bỏ file môi trường
 
 # Bỏ thư mục venv
 venv/
+.env
 
 # Bỏ file tạm IDE
 .vscode/

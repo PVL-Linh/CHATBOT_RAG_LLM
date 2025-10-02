@@ -1,0 +1,105 @@
+{# templates/home/marketing_rephrase.html #}
+{% extends 'home/base.html' %}
+{% set active = 'marketing' %}
+
+{% block title %}
+  REPHRASE · Tiximax
+{% endblock %}
+
+{# CSS giống các trang Marketing khác #}
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/marketing.css') }}" />
+  <style>
+    /* Cho phép cuộn toàn bộ nội dung khi màn hình nhỏ */
+    #marketing .content {
+      padding: 1px;
+      height: 100%;
+      overflow-y: auto; /* thêm */
+      scrollbar-gutter: stable;
+    }
+    
+    /* Đảm bảo card không bị bóp khi cuộn */
+    #marketing .content > .grid-2 {
+      align-items: flex-start;
+    }
+  </style>
+{% endblock %}
+
+{# Ẩn khu vực chung #}
+{% block topbar %}
+
+{% endblock %}
+{% block history_panel %}
+
+{% endblock %}
+{% block footer %}
+
+{% endblock %}
+
+{% block content %}
+  <main id="marketing" class="chat-area" style="width:auto;">
+    <div class="layout">
+      {% include 'partials/_marketing_sidebar.html' %}
+
+      {# GIỐNG PLANNER: bọc nội dung bằng .content #}
+      <main class="content">
+        <div class="grid-2">
+          <!-- LEFT -->
+          <section class="card has-local-loader" id="re_form_card" style="height: auto;">
+            <h1 style="font-size:30px;margin:0;">Rephrase Content (Tóm tắt nội dung)</h1>
+            <div class="local-loader hidden">
+              <div class="spinner"></div>
+            </div>
+
+            <div class="grid-2 tight">
+              <label>
+                Ngôn ngữ<select id="re_lang">
+                  <option>Tiếng Việt</option>
+                  <option>English</option>
+                </select>
+              </label>
+
+              <label>
+                Giọng điệu<select id="re_tone">
+                  <option>Trung tính</option>
+                  <option selected>Chuyên nghiệp</option>
+                  <option>Thân thiện</option>
+                  <option>Thuyết phục</option>
+                  <option>Hài hước</option>
+                </select>
+              </label>
+            </div>
+
+            <label>Đoạn văn cần viết lại *<textarea id="re_text" rows="10" placeholder="Dán nội dung cần rephrase…"></textarea></label>
+
+            <button class="btn-primary" id="re_generate">Tạo nội dung</button>
+          </section>
+
+          <!-- RIGHT -->
+          <section id="rephrase" class="card">
+            <div class="tabs" data-scope="re">
+              <button class="tab active" data-tab="result">Result</button>
+              <button class="tab" data-tab="saved">History</button>
+              <button class="btn-ghost" id="re_copy">📋</button>
+              <button class="btn-ghost" id="re_save">🔖</button>
+              <button class="btn-ghost" id="re_download" type="button">📥</button>
+            </div>
+
+            <div id="re_result" class="tab-panel active">
+              <div id="re_out" class="markdown result-scroll"></div>
+            </div>
+
+            <div id="re_saved" class="tab-panel">
+              <div id="re_saved_list" class="saved-list"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </main>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/main_MKT.js') }}"></script>
+{% endblock %}

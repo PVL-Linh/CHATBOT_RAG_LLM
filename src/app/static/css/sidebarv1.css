@@ -1,0 +1,255 @@
+/* === TOKENS/ANIMATION CHO SIDEBAR === */
+:root {
+  --icon-size: 22px;
+  --icon-size-collapsed: 35px;
+  --pad-x: 10px;
+  --sidebar-w: 200px;
+  /* chiều rộng khi ẩn (dựa trên icon) */
+  --sb-collapsed: clamp(calc(var(--icon-size-collapsed) + 2*var(--pad-x)), 48px, 80px);
+
+  --sb-ease: cubic-bezier(.22,.61,.36,1);
+  --sb-anim-ms: 380ms;
+  --sb-anim-delay: 20ms;
+  --toggle-size: 38px;
+  --logo-h: 22px;
+  --logo-h-collapsed: 18px;
+}
+
+/* ====== CƠ BẢN CHO SIDEBAR ====== */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  height: calc(var(--vh, 1vh) * 100);
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  container-type: inline-size;
+  width: var(--sidebar-w);
+  overflow: visible;
+  box-shadow: none;
+}
+
+.s-header { padding: 16px; border-bottom: 1px solid white; }
+.logo { height: 48px; object-fit: contain; }
+
+@container (max-width: 120px) {
+  .s-header .logo { max-height: 40px; width: clamp(28px, calc(100% - 24px), 64px); }
+}
+@container (min-width: 200px) {
+  .s-header .logo { max-height: 60px; width: clamp(80px, calc(100% - 24px), 180px); }
+}
+
+/* Nav */
+.s-nav { display: flex; flex-direction: column; gap: 4px; padding: 8px; overflow: auto; min-height: 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; text-decoration: none; color: inherit;
+  border: 0; background: transparent; cursor: pointer; transition: background .15s ease;
+}
+.nav-item:hover { background: #f6f7f8; }
+.nav-item.active { background: #eef5ff; color: var(--accent); }
+.nav-item i { width: 20px; height: 20px; flex: 0 0 20px; }
+.nav-item span { opacity: 1; width: auto; margin-left: 6px; transform: none; }
+
+.nav-group { padding: 6px 8px; }
+.nav-group-title { display: flex; align-items: center; gap: 10px; color: var(--muted); font-weight: 600; padding: 8px 10px; }
+
+.badge { margin-left: auto; background: #e0f2fe; color: #0369a1; font-size: 11px; border-radius: 999px; padding: 2px 6px; }
+
+.nav-admin { margin-top: auto; padding: 8px 12px; }
+.admin-row { display: flex; align-items: center; gap: 8px; }
+.pill { background: #111827; color: #fff; font-size: 10px; padding: 4px 6px; border-radius: 6px; }
+.count { margin-left: auto; background: #f1f5f9; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+.btn-mini { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+
+.s-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid white; padding: 12px; gap: 8px; }
+.account-row { display: inline-flex; align-items: center; gap: 8px; }
+.user-name {
+  max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  padding: 8px 12px; color: var(--text); font-weight: 600; font-size: 16px;
+}
+
+/* Khoá mục menu (roles) */
+.sidebar .s-nav > a.nav-item { display: flex; align-items: center; gap: .6rem; width: 100%; }
+.sidebar .s-nav > a.nav-item .lock-ico { margin-left: auto; width: 18px; height: 18px; flex-shrink: 0; opacity: .85; }
+.sidebar .s-nav > a.nav-item.locked { opacity: .5 !important; cursor: default !important; pointer-events: none !important; }
+.sidebar .s-nav > a.nav-item.locked i[data-lucide] { color: inherit; }
+
+/* ====== ANIMATION / TRANSITION ====== */
+.layout{ transition: grid-template-columns var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay); }
+@media (min-width: 992px){
+  aside.sidebar{ transition: width var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important; }
+  .topbar{ transition: left var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important; }
+}
+.sidebar .nav-item span,
+.sidebar .s-footer .user-name,
+.sidebar .btn-logout span{
+  transition:
+    opacity 500ms var(--sb-ease) var(--sb-anim-delay),
+    transform 500ms var(--sb-ease) var(--sb-anim-delay),
+    margin 500ms var(--sb-ease) var(--sb-anim-delay);
+}
+.sidebar .nav-item i,
+.sidebar .nav-item svg,
+.sidebar .s-footer i,
+.sidebar .s-footer svg { width: var(--icon-size) !important; height: var(--icon-size) !important; }
+
+@media (prefers-reduced-motion: reduce){
+  aside.sidebar, .topbar{ transition: none !important; }
+}
+
+/* ====== DESKTOP (>=992px): mặc định ẨN; hover/ghim để MỞ ====== */
+@media (min-width:992px) {
+
+  /* mặc định ẩn */
+  body:not(.sb-pinned):not(.sb-hover) .layout {
+    grid-template-columns: var(--sb-collapsed) 1fr !important;
+  }
+  body:not(.sb-pinned):not(.sb-hover) aside.sidebar {
+    width: var(--sb-collapsed) !important;
+    min-width: var(--sb-collapsed) !important;
+    max-width: var(--sb-collapsed) !important;
+  }
+  /* Topbar dịch theo chiều rộng ẩn */
+  body:not(.sb-pinned):not(.sb-hover) .topbar {
+    left: var(--sb-collapsed) !important;
+  }
+
+  /* item căn giữa icon, ẩn label */
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-header { padding: 8px var(--pad-x) !important; }
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item {
+    padding-left: var(--pad-x) !important; padding-right: var(--pad-x) !important;
+    height: max(36px, calc(var(--icon-size-collapsed) + 12px));
+    justify-content: center;
+  }
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item span,
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer .user-name { display: none !important; }
+
+  /* logo fit */
+  body:not(.sb-pinned):not(.sb-hover) aside.sidebar .logo {
+    max-width: calc(var(--sb-collapsed) - 2*var(--pad-x));
+    max-height: var(--icon-size-collapsed);
+  }
+
+  /* tăng size icon khi ẩn */
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item i,
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item svg,
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer i,
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer svg{
+    width: var(--icon-size-collapsed) !important;
+    height: var(--icon-size-collapsed) !important;
+  }
+
+  /* vùng đệm mép phải, tránh “giật” khi hover ra vào */
+  body:not(.sb-pinned) aside.sidebar::after {
+    content: ""; position: absolute; top: 0; right: -12px; width: 12px; height: 100%;
+    background: transparent; pointer-events: auto;
+  }
+
+  /* Ẩn nút logout khi ẩn */
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .btn-logout { display: none !important; }
+}
+
+/* ====== MOBILE/TABLET (<992px): toggle ẩn/hiện ====== */
+@media (max-width:991.98px) {
+  body.sb-collapsed .layout {
+    grid-template-columns: var(--sb-collapsed) 1fr !important;
+  }
+  body.sb-collapsed aside.sidebar {
+    width: var(--sb-collapsed) !important;
+    min-width: var(--sb-collapsed) !important;
+    max-width: var(--sb-collapsed) !important;
+  }
+  body.sb-collapsed .topbar { left: var(--sb-collapsed) !important; }
+
+  /* icon to khi ẩn */
+  body.sb-collapsed .sidebar .nav-item i,
+  body.sb-collapsed .sidebar .nav-item svg,
+  body.sb-collapsed .sidebar .s-footer i,
+  body.sb-collapsed .sidebar .s-footer svg{
+    width: var(--icon-size-collapsed) !important;
+    height: var(--icon-size-collapsed) !important;
+  }
+  body.sb-collapsed .sidebar .nav-item{
+    height: max(44px, calc(var(--icon-size-collapsed) + 16px));
+    justify-content: center;
+  }
+  body.sb-collapsed .sidebar .nav-item span,
+  body.sb-collapsed .sidebar .s-footer .user-name { display: none !important; }
+
+  body.sb-collapsed aside.sidebar .logo{
+    max-width: calc(var(--sb-collapsed) - 2*var(--pad-x));
+    max-height: var(--icon-size-collapsed);
+  }
+
+  /* Ẩn nút logout khi ẩn */
+  body.sb-collapsed .sidebar .btn-logout { display: none !important; }
+}
+
+/* === TOGGLE BUTTON (hiện trên thiết bị nhỏ) === */
+.sb-toggle i, .sb-toggle svg, .sb-handle i, .sb-handle svg {
+  width: var(--icon-size) !important; height: var(--icon-size) !important;
+}
+
+/* Desktop: ẩn toggle */
+@media (min-width: 992px) { .sb-toggle, .sb-handle { display: none !important; } }
+
+/* Mobile: luôn hiện toggle trong header của sidebar */
+@media (max-width: 991.98px){
+  aside.sidebar{ position: relative; z-index: 3000 !important; }
+  aside.sidebar .s-header{
+    position: sticky; top: 0; z-index: 3001 !important;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px var(--pad-x, 10px);
+    background: var(--sidebar-bg, #fff);
+    border-bottom: 1px solid var(--bd, rgba(15,23,42,.12));
+  }
+  aside.sidebar .s-header > button.sb-toggle.sb-handle{
+    display: inline-flex !important;
+    position: static !important; right: auto !important; top: auto !important; transform: none !important;
+    margin-left: auto !important;
+    width: var(--toggle-size, 38px) !important;
+    height: var(--toggle-size, 38px) !important;
+    border-radius: 999px;
+    border: 1px solid var(--bd, rgba(15,23,42,.12));
+    background: var(--sidebar-bg, #fff);
+    box-shadow: 0 6px 18px rgba(15,23,42,.16);
+    align-items: center; justify-content: center;
+    z-index: 3002 !important;
+    visibility: visible !important; opacity: 1 !important;
+  }
+  aside.sidebar .s-header > button.sb-toggle.sb-handle i[data-lucide],
+  aside.sidebar .s-header > button.sb-toggle.sb-handle svg{
+    width: var(--icon-size, 22px) !important;
+    height: var(--icon-size, 22px) !important;
+  }
+
+  /* Sidebar ẩn: ẩn logo, chỉ để lại nút */
+  body.sb-collapsed aside.sidebar .s-header .logo{ display: none !important; }
+  /* Sidebar mở: hiện logo */
+  body:not(.sb-collapsed) aside.sidebar .s-header .logo{
+    display: block !important;
+    height: var(--logo-h, 22px) !important; max-height: var(--logo-h, 22px) !important;
+    width: auto; object-fit: contain;
+  }
+
+  /* Khi sidebar MỞ thì hiện label + canh trái */
+  body:not(.sb-collapsed) .sidebar .nav-item,
+  body:not(.sb-collapsed) .sidebar .s-footer .user {
+    justify-content: flex-start !important;
+  }
+  body:not(.sb-collapsed) .sidebar .nav-item span,
+  body:not(.sb-collapsed) .sidebar .s-footer .user-name,
+  body:not(.sb-collapsed) .sidebar .btn-logout span {
+    display: inline !important;
+    opacity: 1 !important;
+    width: auto !important;
+    margin-left: 10px !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+}

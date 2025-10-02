@@ -1,0 +1,63 @@
+FORMAT_VERSION: TREE_V2
+FILE: QUY TRÌNH HOÀN TẤT HỒ SƠ NHÂN SỰ.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\QUY TRÌNH HOÀN TẤT HỒ SƠ NHÂN SỰ.pdf
+TITLE: QUY TRÌNH HOÀN TẤT HỒ SƠ NHÂN SỰ
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- QUY TRÌNH HOÀN TẤT HỒ SƠ NHÂN SỰ
+- Người thực hiện: NHÂN VIÊN CÁC PHÒNG BAN
+- Số hồ sơ:TXM.QT 02
+- QUY TRÌNH HOÀN TẤT HỒ SƠ NHÂN SỰ
+- Nhân viên Nhân Sự
+- Giám Đốc
+- NV mới
+- 1. Chuẩn bị chào mừng NV
+- mới
+- 2. Chào mừng NV mới
+- 4. Làm HĐ thử việc
+- 6. Lưu trữ HS
+- 3. Nộp HS, hoàn thiện thông tin
+- 5. Ký HĐ
+- Mô tả chi tiết
+- 1. NV. NS thông báo cho NV mới là sẽ thu đầy đủ hồ sơ ngay trong ngày đầu tiên đi làm: Sơ yếu lý lịch
+- (bản chính), Giấy khám sức khỏe (bản chính), CMTND/CCCD (bản công chứng), Sổ hộ khẩu (bản công
+- chứng).
+- TH NV mới đã xác nhận nhận việc nhưng không đi làm sẽ loại bỏ NV đó, và lưu vào cơ sở dữ liệu của
+- công ty (ghi rõ lý do loại bỏ).
+- 2. Ngày đầu NV mới đi làm, Nhân sự hỗ trợ NV mới và làm 1 số công việc:
+- Thông báo chào mừng NV trên toàn hệ thống (gửi email toàn hệ thống)
+- Giới thiệu NV mới tới toàn công ty/văn phòng.
+- Tạo email công ty và tài khoản đăng nhập hệ thống quản trị.
+- Thêm NV mới vào các group trao đổi thông tin. ,Hệ thống quản trị.
+- 3. Ngày đầu đi làm, NV mới sẽ thực hiện 1 số nội dung sau:
+- Đọc tài liệu về nội quy, quy định, văn hóa của công ty
+- Trao đổi và hỏi đáp những vấn đề chưa rõ với Nhân sự.
+- Cập nhật tất cả các trường thông tin cá nhân lên hệ thống để Nhân Sự có thông tin làm hợp đồng:
+- Email công ty, Username hệ thống quản trị, Ngày, tháng, năm sinh, Nơi sinh, Số CCCD-Ngày cấp- Nơi
+- cấp.
+- Địa chỉ thường trú (trong hộ khẩu, ghi đầy đủ đường, phường/xã, quận/huyện, thành phố/tỉnh), STK
+- Ngân hàng, Mã số thuế (nếu có), Số BHXH (nếu có).
+- Nộp đầy đủ HS đã được Nhân sự thông báo trước đó.
+- 4. Sau khi có đầy đủ thông tin của NV mới . NS soạn thảo HĐ thử việc, in 2 bản chuyển tuần tự qua các
+- đối tượng sau ký và thu lại: NV mới, GĐ.
+- 6. Sau khi HĐ đã có đầy đủ chữ ký của Nhân Viên mới, ký nháy của Nhân Viên, chữ ký của Giám Đốc.
+- sẽ gửi lại 1 bản trả NV mới và lưu giữ 1 bản.
+- Thời gian
+- 1. Thông báo trước ngày làm đầu tiên 7 ngày
+- 3. Trước 12:00
+- TH chưa nộp đủ HS, NV mới phải hoàn thiện trong 3 ngày tiếp theo
+- 4+5. Trong ngày đầu NV mới đi làm:
+- Soan, in HĐ:
+- NV. Pháp chế check
+- Biểu mẫu
+- 1. Email thông báo
+- 3. Nội quy, quy định
+- Các giấy tờ để hoàn thiện HS
+- 4+5+6. HĐ thử việc
