@@ -1,15 +1,77 @@
-/* ====== Chat layout vùng cuộn ====== */
-#chatShell {
-  min-height: 0;
+/* =========================================================
+   Tiximax HR Chat — FULL CSS (unified typography & wrapping)
+   - Mọi nội dung (text, bảng, code, sơ đồ tree) tự xuống dòng
+   - Font thống nhất: text dùng var(--chat-font), tree/code dùng var(--mono-font)
+   - Giữ giao diện & bố cục từ bản của bạn, dọn trùng lặp và ghi đè cuối file
+   ========================================================= */
+
+/* ---------- Theme & typography tokens ---------- */
+:root {
+  /* Font giống phong cách ChatGPT (system stack); đổi 'Times New Roman' nếu muốn */
+  --chat-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* sizes */
+  --chat-font-size: 14.5px;
+  --chat-line-height: 1.55;
+
+  /* colors */
+  --bg: #f8fafc;
+  --border: rgba(0, 0, 0, .08);
+  --muted: #6b7280;
+  --bubble-bg: #f9fbff;
+
+  /* bubbles & tables */
+  --tbl-blue: #bbd7f2;
+  --tbl-border-blue: #9fbfe0;
+  --bubble-max-w: 620px;
+  --bubble-max-w-table: 660px;
+  --tbl-font: 13px;
+  /* chữ trong bảng */
+  --tbl-pad: 6px 8px;
 }
 
+/* === Fill viewport so chatScroll + composer cân nhau === */
+main.container-fluid.d-flex {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* dynamic viewport height (mobile) */
+}
+
+/* Bảo đảm chuỗi cha cho phép flex grow đúng */
+main.container-fluid.d-flex .row.flex-grow-1 {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+#chatShell {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Scroll area ---------- */
 #chatScroll {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ====== Chat list & message bubble ====== */
+#chatScroll,
+.chat-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#chatScroll::-webkit-scrollbar,
+.chat-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ---------- Chat list & bubble ---------- */
 .chat-list {
   list-style: none;
   margin: 0;
@@ -19,6 +81,12 @@
   gap: 12px;
 }
 
+.chat-list::before {
+  content: "";
+  display: block;
+  height: 50px;
+}
+
 .msg {
   display: flex;
   align-items: flex-start;
@@ -26,25 +94,32 @@
   min-width: 0;
 }
 
+.msg.user {
+  justify-content: flex-end;
+}
+
 .msg .bubble {
   background: #bbd7f2;
+  /* bot bubble */
   border: 1px solid var(--border);
   border-radius: 16px;
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  line-height: 2;
   max-width: min(var(--bubble-max-w), 100%);
   min-width: 0;
+  /* === Unified typography & wrapping === */
+  font-family: var(--chat-font);
+  font-size: var(--chat-font-size);
+  line-height: var(--chat-line-height);
   overflow-wrap: anywhere;
-}
-
-.msg.user {
-  justify-content: flex-end;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .msg.user .bubble {
   background: #ffd062;
+  /* user bubble */
   border-color: #c7d2fe;
   border-radius: 16px;
 }
@@ -61,15 +136,23 @@
   font-size: 12px;
 }
 
-.msg .bubble p {
+/* paragraphs & inline text also wrap nicely */
+.msg .bubble p,
+.msg .bubble li,
+.msg .bubble td,
+.msg .bubble th,
+.msg .bubble div {
   margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .msg .bubble p+p {
   margin-top: 0.5em;
 }
 
-/* Greeting */
+/* ---------- Greeting ---------- */
 .greeting {
   position: absolute;
   left: 50%;
@@ -105,7 +188,7 @@
   display: inline-block;
 }
 
-/* Composer (input) */
+/* ---------- Composer ---------- */
 .composer {
   position: sticky;
   bottom: 0;
@@ -113,6 +196,7 @@
   right: 0;
   background: linear-gradient(0deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .75));
   border-top: 1px solid white;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
 
 .composer-inner {
@@ -173,7 +257,13 @@
   margin: 6px auto;
 }
 
-/* ====== History Drawer (chỉ trang chat dùng) ====== */
+@media (max-width: 576px) {
+  .composer-inner {
+    margin-bottom: 0;
+  }
+}
+
+/* ---------- History Drawer (panel + sidebar) ---------- */
 .overlay {
   position: fixed;
   inset: 0;
@@ -184,7 +274,9 @@
   z-index: 40;
 }
 
-.overlay.is-open {
+.overlay.is-open,
+.sidebar-overlay.open,
+.sidebar-overlay.active {
   opacity: 1;
   visibility: visible;
 }
@@ -306,7 +398,7 @@
   }
 }
 
-/* ====== Table-as-cards (mobile) ====== */
+/* ---------- Table-as-cards (mobile) ---------- */
 .table-as-cards {
   display: none;
 }
@@ -347,17 +439,7 @@
   }
 }
 
-/* ====== Bubble tables + ngang ====== */
-/* ===== Chat tables: show all columns ===== */
-:root {
-  --tbl-blue: #bbd7f2;
-  --tbl-border-blue: #9fbfe0;
-  --bubble-max-w: 620px;
-  --bubble-max-w-table: 660px;
-  --tbl-font: 13px;          /* thu nhỏ chữ trong bảng */
-  --tbl-pad: 6px 8px;
-}
-
+/* ---------- Tables inside bubble ---------- */
 .msg .bubble.is-table {
   display: block;
   overflow: visible;
@@ -368,10 +450,11 @@
   overflow-x: hidden !important;
 }
 
-.msg .bubble .table-scroll > table{
+.msg .bubble .table-scroll>table {
   width: 100% !important;
   min-width: 0 !important;
-  table-layout: fixed !important;   /* ép cột co đều */
+  table-layout: fixed !important;
+  /* ép cột co đều */
   border-collapse: collapse;
 }
 
@@ -389,85 +472,80 @@
   background: rgba(0, 0, 0, .08);
 }
 
-/* Bảng rộng tự nhiên, tối thiểu bằng khung để không bị co méo */
+/* Bảng rộng tự nhiên nhưng vẫn wrap text đẹp */
 .msg .bubble .table-scroll>table {
   width: max-content;
   /* cho phép rộng hơn khung */
   min-width: 100%;
-  /* nhưng ít nhất lấp đầy khung */
+  /* ít nhất lấp đầy khung */
   border-collapse: collapse;
   table-layout: auto;
 }
 
-/* Ô dữ liệu có thể xuống dòng (không bị cắt mất chữ) */
+/* Ô dữ liệu bẻ dòng; font gọn hơn cho bảng */
 .msg .bubble .table-scroll th,
-.msg .bubble .table-scroll td{
+.msg .bubble .table-scroll td {
   white-space: normal !important;
   word-break: break-word;
+  overflow-wrap: anywhere;
   padding: var(--tbl-pad);
+  font-family: var(--chat-font);
   font-size: var(--tbl-font);
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
-/* Màu + sticky header khi cuộn dọc */
-.msg .bubble .table-scroll thead th{
-  position: static !important;  /* bỏ sticky khi không cuộn ngang */
+.msg .bubble .table-scroll thead th {
+  position: static !important;
   box-shadow: none !important;
   background: none !important;
 }
 
-/* Sticky cột đầu (Khu vực nhận hàng) để đọc ngang */
-.msg .bubble .table-scroll th:first-child,
-.msg .bubble .table-scroll td:first-child{
-  position: static !important;
-  left: auto !important;
-  box-shadow: none !important;
-}
-/* Canh phải các cột số, cột đầu canh trái cho dễ đọc */
+/* canh phải cột số, cột đầu canh trái */
 .msg .bubble .table-scroll td:not(:first-child),
-.msg .bubble .table-scroll th:not(:first-child){
+.msg .bubble .table-scroll th:not(:first-child) {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+
 .msg .bubble .table-scroll td:first-child,
-.msg .bubble .table-scroll th:first-child{ text-align: left; }
-/* Dòng kẻ & padding cơ bản */
-.table-scroll th,
-.table-scroll td {
-  padding: 8px 10px;
+.msg .bubble .table-scroll th:first-child {
   text-align: left;
-  vertical-align: top;
 }
 
 .table-scroll tbody tr:nth-child(odd) {
   background: rgba(0, 0, 0, .03);
 }
 
-/* ====== Scrollbar ẩn cho chat ====== */
-.chat-list::before {
-  content: "";
-  display: block;
-  height: 50px;
+/* ---------- Code & TREE blocks ---------- */
+/* Quan trọng: cho <pre>/<code> tự xuống dòng nhưng vẫn giữ monospace thẳng cột */
+
+.msg .bubble pre,
+.msg .bubble .txm-tree,
+.msg .bubble pre code,
+.msg .bubble code {
+  font-family: var(--mono-font);
+  font-size: var(--chat-font-size);
+  line-height: var(--chat-line-height);
+  white-space: pre-wrap;
+  /* <— TỰ XUỐNG DÒNG */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }
 
-#chatScroll,
-.chat-list {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.msg .bubble .txm-tree {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, .06);
 }
 
-#chatScroll::-webkit-scrollbar,
-.chat-list::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
+/* Nếu có highlight.js thì nền không phá bố cục */
+.msg .bubble .hljs {
+  background: transparent !important;
 }
 
-#chatScroll {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ====== Tiện ích nhỏ của chat ====== */
+/* ---------- Floating mini button (giữ nguyên) ---------- */
 .floating-shop {
   position: fixed;
   right: 16px;
@@ -488,41 +566,4 @@
 .floating-shop i {
   width: 20px;
   height: 20px;
-}
-/* === Fill viewport so chatScroll + composer cân nhau === */
-main.container-fluid.d-flex {
-  /* fallback -> modern browsers */
-  min-height: 100vh;
-  min-height: 100dvh;   /* dynamic viewport height (mobile) */
-}
-
-/* Bảo đảm chuỗi cha cho phép flex grow đúng */
-main.container-fluid.d-flex .row.flex-grow-1 {
-  min-height: 0;       /* rất quan trọng khi là flex child */
-  flex: 1 1 auto;
-}
-#chatShell {
-  min-height: 0;       /* bạn đã có, nhắc lại để chắc chắn */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Vùng cuộn chiếm phần còn lại */
-#chatScroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Composer luôn hiển thị đầy đủ ở đáy, tôn trọng safe-area iOS */
-.composer {
-  position: sticky;               /* giữ như bạn dùng */
-  bottom: 0;
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
-}
-
-/* Tránh composer bị “tụt” vì margin dưới quá lớn trên màn nhỏ */
-@media (max-width: 576px){
-  .composer-inner{ margin-bottom: 0; }
 }
