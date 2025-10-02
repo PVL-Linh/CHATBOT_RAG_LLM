@@ -1,0 +1,64 @@
+FORMAT_VERSION: TREE_V2
+FILE: TÀI LIỆU QUY TRÌNH SA THẢI NHÂN VIÊN.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\TÀI LIỆU QUY TRÌNH SA THẢI NHÂN VIÊN.pdf
+TITLE: TÀI LIỆU QUY TRÌNH SA THẢI NHÂN VIÊN
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- QUY TRÌNH SA THẢI NHÂN VIÊN
+- Người thực hiện: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ
+- Số hồ sơ:TXM.QT 03
+- HĐKL
+- NV. NS
+- P. NS/P. KT
+- GĐ
+- 1. Xác nhận sai phạm
+- 2. Ký XN BB vi phạm
+- 3. Tổ chức họp kỉ luật
+- 4. Ra QĐ kỷ luật
+- 5. Ra quyết định sa thải
+- 6. Bàn giao công
+- việc và tài sản
+- 7. Thanh toán lương, trả giấy tờ
+- 8. Cập nhât và lưu trữ HS
+- Mô tả chi tiết
+- 1. Công ty chỉ được áp dụng hình thức kỷ luật sa thải nếu NV mắc sai phạm được quy định trong Điều 126 Bộ luật Lao động số 10/2012/QH13.
+- Khi xác định được sai phạm P. NS phải lập BB vi phạm ngay và chuyển NV ký xác nhận, trước khi đánh giá mức độ nghiêm trọng của vi phạm trong
+- cuộc họp xử lý kỷ luật.
+- 2. NV vi phạm nhận BB vi phạm ký xác nhận sai lỗi của mình, nếu không đồng ý với nội dung BB chuyển trả lại P.NS, QL trực tiếp xác nhận sai lỗi
+- bằng cách ký vào BB vi phạm của NV.
+- 3. Sau khi đã lập BB vi phạm, P.NS sắp xếp tổ chức họp kỷ luật để cùng nhau phân tích, đánh giá mức độ nhiêm trọng của hành vi vi phạm (TH NV
+- không chịu ký xác nhận BB vi phạm P. NS vẫn mời họp kỷ luật bình thường), yêu cầu cuộc họp phải đảm bảo được các nội dung:
+- Đưa ra các bằng chứng để chứng minh được lỗi của NV
+- Cuộc họp phải có sự tham gia của tổ chức đại diện tập thể lao động tại cơ sở
+- NV cũng phải có mặt và có quyền tự bào chữa hoặc nhờ người khác bào chữa.
+- Việc xử lý kỷ luật bằng hình thức sa thải phải được lập thành BB có đầy đủ chữ ký của thành phần tham dự.
+- 4. P. NS tiến hành soạn thảo và trình GĐ xem xét và ký xác nhận quyết định kỷ luật để ban hành toàn hệ thống và lưu giữ vào HS nhân sự và
+- chuyển cho NV vi phạm.
+- 5. P. NS căn cứ theo BB họp kỷ luật soạn thảo quyết định cho thôi việc trình GĐ xem xét, ký xác nhận để ban hành toàn hệ thống và lưu giữ vào HS
+- nhân sự và chuyển cho NV vi phạm.
+- 6. NV vi phạm thi hành quyết định sa thải, tiến hành bàn giao tất cả công việc lại cho QL trực tiếp và bàn giao tất cả những tài sản, công cụ, dụng
+- cụ được cấp phát cho P.NS.
+- QL trực tiếp và P. NS khi nhận bàn giao phải tiến hành lập BB bàn giao ghi nhận đầy đủ những nội dung bàn giao, ký xác nhận đầy đủ với NV vi
+- phạm.
+- P.NS xóa toàn bộ email, tài khoản hệ thống nội bộ và mạng xã hội (facebook, zalo, skype, ...) của
+- NV ra khỏi hệ thống của công ty, xóa vân tay.
+- 7. Sau khi P. NS và QL đã nhận bàn giao đầy đủ từ NV và xác định là NV vi phạm không còn vướng mắc gì với công ty nữa, P. NS sẽ hoàn trả sổ
+- BHXH và một số giấy tờ đã giữ của NV như hồ sơ, lý lịch gốc, bằng cấp, chứng chỉ gốc, ... Lập BB xác nhận bàn giao với NV.
+- P. KT tiến hành chi trả lương và tất toán các khoản chi phí cho NV.
+- 8. P. NS, tập hợp tất cả những chứng từ, giấy tờ, BB bàn giao đã làm việc với NV thành 1 bộ chứng từ để lưu giữ.
+- Biểu mẫu
+- 1+2. BB vi phạm
+- 3. Thông báo mời họp kỷ luật
+- BB họp kỷ luật
+- 4. Quyết định kỷ luật
+- 5. Quyết định sa thải
+- 6. BB bàn giao công việc
+- BB bàn giao tài sản
+- 7. BB bàn giao chứng từ

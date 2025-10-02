@@ -1,0 +1,153 @@
+CÔNG TY CỔ PHẦN TIXIMAX TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH SOCIAL MEDIA
+
+Người thực hiện: THỰC TẬP SINH SOCIAL MEDIA Số hồ sơ:TXM.QT 03
+
+LỘ TRÌNH ĐÀO TẠO THỰC TẬP SINH SEO WEBSITE.
+
+Giới thiệu về công ty & dịch vụ TIXIMAX TIXIMAX là ai?
+
+Lịch sử hình thành & phát triển.
+
+Tầm nhìn – Sứ mệnh – Giá trị cốt lõi.
+
+Công việc chính trong bộ phận Marketing:
+
+Giúp thực tập sinh hiểu rõ lĩnh vực Logistics để triển khai SEO đúng ngữ cảnh và khách hàng mục tiêu.
+
+Văn hóa làm việc:
+
+Sáng tạo, chuyên nghiệp, tập trung vào giá trị khách hàng.
+
+Tôn trọng thương hiệu và giữ hình ảnh tích cực trên mọi nền tảng.
+
+ Giới thiệu ngành Logistics Khái niệm & vai trò của Logistics trong chuỗi cung ứng.
+
+Các dịch vụ chính: Vận tải quốc tế, khai báo hải quan, kho bãi, phân phối hàng hóa, logistics thương mại điện tử.
+
+ Đối tượng khách hàng:
+
+Doanh nghiệp xuất nhập khẩu.
+
+Công ty sản xuất, phân phối.
+
+Thương mại điện tử.
+
+ Từ khóa ngành đặc thù:
+
+Vận chuyển hàng Nhật- Việt, Giao nhận hàng Nhật – Việt, Vận chuyển hàng Hàn- Việt, Vận chuyển hàng Mỹ - Việt, Vận chuyển hàng Indo- Việt.
+
+Hướng dẫn sử dụng các công cụ SEO & Wordpress
+
+ Công cụ SEO cơ bản:
+
+Google Keyword Planner → nghiên cứu từ khóa.
+
+Ubersuggest/Ahrefs/SEMrush → phân tích đối thủ & từ khóa.
+
+Google Search Console (GSC) → theo dõi index, CTR, lỗi website.
+
+Google Analytics (GA4) → phân tích hành vi người dùng.
+
+ Sử dụng Wordpress:
+
+Đăng nhập Dashboard & giới thiệu các module cơ bản.
+
+Tạo bài viết (Post) → nhập tiêu đề, nội dung, hình ảnh.
+
+Cách tối ưu permalink, meta title, meta description.
+
+Quản lý Category, Tag.
+
+Kết quả đạt được:
+
++ Làm quen với công cụ SEO, biết cách quản trị website bằng Wordpress.
+
++ Biết đăng bài và tối ưu on-page SEO cơ bản trên Wordpress.
+
+Training kiến thức về SEO Content.
+
+ Nguyên tắc viết bài SEO:
+
+Cấu trúc chuẩn: Tiêu đề (H1) → đoạn mở đầu → H2, H3 → kết luận.
+
+Từ khóa chính & phụ: Mật độ hợp lý (1-2% từ khóa chính).
+
+Meta title & description: Ngắn gọn, chứa từ khóa, hấp dẫn.
+
+Internal link & External link: Liên kết bài viết liên quan và nguồn uy tín.
+
+ Checklist bài viết chuẩn SEO:
+
+ | Tiêu đề < 60 ký tự. | Meta description < 155 ký tự.
+
+Có ít nhất 1 ảnh có thẻ alt chứa từ khóa.
+
+Nội dung ≥ 1000 từ, unique ≥ 95%.
+
+Vậy “Unique là gì” : Một bài viết unique content → do bạn tự viết, sáng tạo, không copy/paste từ website khác. Google đánh giá cao nội dung unique vì nó mang lại giá trị mới mẻ cho người dùng. Nếu nội dung trùng lặp (duplicate content) → website dễ bị tụt hạng hoặc không được index.
+
+ Ví dụ chủ đề bài viết ngành Logistics:
+
+"So sánh vận tải hàng không và vận tải biển: Lựa chọn nào tối ưu chi phí?" "Top 5 lưu ý quan trọng khi khai báo hải quan cho hàng xuất khẩu"
+
+Viết được bài chuẩn SEO cho ngành Logistics.
+
+Viết được bài chuẩn SEO tối thiểu 1000 từ, đúng kỹ thuật và ngữ cảnh ngành.
+
+Training quy chuẩn thiết kế hình ảnh & viết bài
+
+ Quy chuẩn hình ảnh:
+
+Kích thước chuẩn cho Blog: 1200x628 px hoặc 800x600 px.
+
+Đặt tên file ảnh có chứa từ khóa (vd: van-tai-bien-quoc-te.jpg).
+
+Tối ưu dung lượng ảnh (TinyPNG, Squoosh) trước khi upload.
+
+Thêm Alt text chứa từ khóa.
+
+ Quy chuẩn viết bài:
+
+Giữ giọng văn chuyên nghiệp, dễ hiểu.
+
+Viết cho khách hàng doanh nghiệp → trọng tâm là lợi ích, giải pháp.
+
+Không copy nội dung.
+
+Có CTA (Call to Action) cuối bài → liên hệ, báo giá, tư vấn.
+
++ Giữ đồng bộ hình ảnh thương hiệu và chuẩn SEO hình ảnh.
+
++ Bài viết vừa đúng chuẩn SEO, vừa giữ hình ảnh chuyên nghiệp của doanh nghiệp logistics.
+
+Nguyên tắc khi đăng:
+
+Đúng giờ theo kế hoạch ngày/tuần/ tháng.
+
+Có thể chỉnh sửa nội dung sau khi đã public.
+
+Theo dõi hiệu quả (reach, engagement) sau 24h.
+
+Bài tập thực hành Ngày 1: Lên kế hoạch nội dung cho từng trang website Nhật – Hàn- Mỹ - Indo trong 1 tuần.
+
+Ngày 2: Viết tối đa 2 bài/1 ngày/1 trang website + hình ảnh đi kèm.
+
+Ngày 3: Đăng bài, theo dõi và báo cáo số liệu.
+
+Ngày 4: Thuyết trình về kết quả & đề xuất cải tiến.
+
+CÔNG TY CỔ PHẦN TIXIMAX
+
+TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH SOCIAL MEDIA
+
+Người thực hiện:
+
+THỰC TẬP SINH SOCIAL MEDIA
+
+Số hồ sơ:
+
+TXM.QT 03
+
+CÔNG TY CỔ PHẦN TIXIMAX	TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH SOCIAL MEDIA	TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH SOCIAL MEDIA
+
+TXM.QT 03

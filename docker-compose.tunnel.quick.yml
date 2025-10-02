@@ -1,0 +1,8 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: tiximax-tunnel
+    restart: unless-stopped
+    depends_on:
+      - tiximax
+    command: tunnel --no-autoupdate --url http://tiximax:10000

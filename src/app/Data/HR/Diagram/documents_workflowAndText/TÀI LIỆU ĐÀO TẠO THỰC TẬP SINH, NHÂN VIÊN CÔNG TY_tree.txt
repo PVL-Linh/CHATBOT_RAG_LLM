@@ -1,0 +1,67 @@
+FORMAT_VERSION: TREE_V2
+FILE: TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH, NHÂN VIÊN CÔNG TY.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH, NHÂN VIÊN CÔNG TY.pdf
+TITLE: TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH, NHÂN VIÊN CÔNG TY
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- ĐÀO TẠO THỰC TẬP SINH, NHÂN VIÊN CÔNG TY
+- Người thực hiện: THỰC TẬP SINH – NHÂN VIÊN CÁC PHÒNG BAN
+- Số hồ sơ:TXM.QT 01
+- GĐ
+- P.ĐT
+- Đối tượng có nhu cầu
+- 1.1 Tổng hợp nhu cầu đào tạo
+- 1.2 Làm đề xuất đào tạo
+- Không Duyệt
+- Ngoài QuanHệ
+- 2. Xét duyệt
+- Trong QuanHệ
+- 3.1 Xét duyệt
+- 3.2 Xét duyệt
+- Không duyệt
+- Duyệt
+- 4. Lên Kế Hoạch Đào Tạo
+- 5. Xét duyệt
+- Không Duyệt
+- Duyệt
+- 6. Triển khai Đào Tạo
+- 7. Tổng kết báo cáo
+- CÔNG TY CỔ PHẦN TIXIMAX
+- TÀI LIỆU ĐÀO TẠO THỰC TẬP SINH, NHÂN VIÊN CÔNG TY
+- Người thực hiện: THỰC TẬP SINH – NHÂN VIÊN CÁC PHÒNG BAN
+- Số hồ sơ:TXM.QT 01
+- Mô tả chi tiết
+- 1.1. Xuất phát từ nhu cầu Đào Tạo theo kế hoạch hoặc theo quy trình của công ty như tổ chức Đào Tạo cập nhật kiến thức mới,
+- Đào Tạo cho nhân viên mới, ... Trưởng Bộ phận cần tổng hợp để chuẩn bị lên KH Đào Tạo.
+- 1.2. Các đối tượng có nhu cần Đào Tạo sẽ làm phiếu đề xuất ĐT gửi P.HCNS xem xét, yêu cầu đào tạo có thể là Đào Tạo nội bộ,
+- cử đi Đào Tạo hoặc thuê chuyên gia về Đào Tạo.
+- 2. Sau khi tổng hợp nhu cầu, P.HCNS tiến hành phân loại yêu cầu Đào Tạo:
+- Những loại Đào Tạo nằm trong quyền hạn: cầu Đào Tạo nội bộ.
+- Nhưng loại ĐT không nằm trong quyền hạn: nhu cầu ĐT cần phải thuê chuyên gia bên ngoài, hoặc nhu cầu cần cử người đi ĐT
+- bên ngoài.
+- 3.1. Với những đề xuất nằm trong quyền hạn,Trưởng Bộ Phận tiến hành xem xét, phê duyệt, căn cứ vào mức độ cần thiết và số
+- lượng người có nhu cầu đào tạo để cân nhắc xây dựng, triển khai chương trình ĐT.
+- 3.2. Với những đề xuất nằm ngoài quyền hạn của Trưởng Bộ Phận, P.ĐT sẽ chuyển lên cho GĐ xem xét, phê duyệt. Nếu GĐ từ
+- chối yêu cầu ĐT sẽ thông tin phản hồi lại cho nhân viên đã đề xuất được biết lý do.
+- 4. Trường hợp GĐ phê duyệt yêu cầu ĐT, P.ĐT lên Kế Hoạch Đào Tạo bao gồm các nội dung sau:
+- Xác định đầy đủ đối tượng học viên và giảng viên giảng dạy.
+- Sắp xếp lịch trình Đào Tạo đảm bảo học viên và giảng viên tham gia đầy đủ nhất các buổi Đào Tạo,
+- Chuẩn bị đầy đủ cơ sở vật chất, tài liệu học tập: phòng học, slides giảng dạy, giáo trình bài học.
+- Kinh phí cho khóa học
+- 5. Giám Đốc tiếp nhận và xem xét mức độ hợp lý, tính khả thi của KH ĐT rồi đưa ra quyết định. Nếu Giám Đốc không đồng ý với
+- kế hoạch Đào Tạo thì P. Đào Tạo có trách nhiệm điều chỉnh hoặc làm mới lại trình lại đề GĐ xem xét.
+- 6. P. HCNS tiến hành tổ chức triển khai kế hoạch đào tạo theo:
+- QT Triển khai ĐT nội bộ , - QT Triển khai ĐT thuê ngoài
+- Đối với với loại hình cử đi ĐT: người được cử đi ĐT phải cam kết gắn bó và làm việc với công ty tối thiểu 2 năm.
+- 7. Kết thúc chương trình ĐT.
+- 1.2 + 2 + 3.1 +3.2 Phiếu đề xuất Đào Tạo
+- 4. KH ĐT
+- 7. Báo cáo
+- Biểu mẫu

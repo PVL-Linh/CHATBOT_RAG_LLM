@@ -1,0 +1,131 @@
+{% set page_title = "Đăng nhập | Tiximax" %}
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page_title }}</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='bootstrap-5.3.8-dist/css/bootstrap.min.css') }}">
+    <!-- CSS riêng -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login/login.css') }}?v=10" />
+  </head>
+
+  <body class="bg bg--aurora">
+    <!-- Orbs nền mềm -->
+    <div class="orbs" aria-hidden="true">
+      <i class="o1"></i><i class="o2"></i><i class="o3"></i>
+    </div>
+
+    <!-- Nút đổi preset nền -->
+    <button id="bgToggle" class="bg-toggle btn btn-light btn-sm" type="button" title="Đổi nền">🎨</button>
+
+    <!-- Layout giữa màn hình -->
+    <div class="container-fluid py-4 py-md-5 min-vh-100 d-flex align-items-center">
+      <div class="row justify-content-center flex-grow-1 w-100">
+        <div class="col-12 col-sm-11 col-md-8 col-lg-5 col-xl-4 mx-auto">
+          <div class="card shadow-lg border-0 rounded-4 p-3 p-sm-4 login-card">
+            <div class="text-center mb-2 brand">
+              <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Tiximax" height="48" />
+            </div>
+            <h1 class="h5 fw-bold text-center mb-3">Chào mừng đến Tiximax</h1>
+
+            {% if error %}
+              <div class="alert alert-danger py-2" role="alert">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" autocomplete="on" novalidate>
+              <input type="hidden" name="next" value="{{ next_url or '' }}" />
+
+              <!-- Tài khoản -->
+              <label class="form-label mt-2 mb-1">Tài khoản</label>
+              <div class="tixi-field mb-3">
+                <span class="tixi-ig-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-5.33 0-8 2.67-8 5v1h16v-1c0-2.33-2.67-5-8-5Z"/>
+                  </svg>
+                </span>
+                <input
+                  class="tixi-input form-control"
+                  name="username"
+                  type="text"
+                  placeholder="Nhập tài khoản..."
+                  required
+                  autocomplete="username"
+                />
+              </div>
+
+              <!-- Mật khẩu -->
+              <label class="form-label mb-1">Mật khẩu</label>
+              <div class="tixi-field mb-2">
+                <span class="tixi-ig-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20">
+                    <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-6 0V7a2 2 0 0 1 4 0v2Z"/>
+                  </svg>
+                </span>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  class="tixi-input form-control"
+                  placeholder="Nhập mật khẩu..."
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  id="togglePwd"
+                  class="tixi-eye"
+                  aria-label="Hiện mật khẩu"
+                  title="Hiện mật khẩu"
+                >
+                  <span id="icon-hide" class="emoji" aria-hidden="true">🙊</span>
+                  <span id="icon-show" class="emoji d-none" aria-hidden="true">🙈</span>
+                </button>
+              </div>
+
+              <!-- Meter & Caps -->
+              <div class="pwd-meta mb-3">
+                <div class="progress progress-thin">
+                  <div id="meter-bar" class="progress-bar" role="progressbar" style="width:0%"></div>
+                </div>
+                <small id="caps" class="form-text text-warning opacity-0">Caps Lock đang bật</small>
+              </div>
+
+              <!-- Remember + forgot -->
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" />
+                  <label class="form-check-label" for="rememberMe">Ghi nhớ tôi</label>
+                </div>
+                <a class="link-primary text-decoration-underline" href="#"
+                   onclick="alert('Liên hệ admin để đặt lại mật khẩu.'); return false;">
+                  Quên mật khẩu?
+                </a>
+              </div>
+
+              <!-- Submit -->
+              <button class="btn btn-login w-100 py-2 fw-bold" type="submit">Đăng nhập</button>
+            </form>
+
+            <p class="text-center text-secondary small mt-3 mb-0">
+              Chưa có tài khoản? Liên hệ admin để được cấp quyền.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script defer src="{{ url_for('static', filename='bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js') }}"></script>
+    <!-- JS riêng -->
+    <script src="{{ url_for('static', filename='js/login/login.js') }}?v=10"></script>
+  </body>
+</html>

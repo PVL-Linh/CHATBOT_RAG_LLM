@@ -1,0 +1,98 @@
+# services:
+#   - type: web
+#     name: tiximax-web
+#     env: docker
+#     plan: starter # free/starter/standard...
+#     autoDeploy: true
+#     region: singapore # gần VN
+#     healthCheckPath: / # dùng "/" để khỏi thêm route /health
+#     disk: # cache model để không phải tải lại mỗi deploy
+#       name: models
+#       mountPath: /var/lib/tiximax
+#       sizeGB: 10
+#     envVars:
+#       - key: REPO_ROOT
+#         value: /app
+#       - key: PYTHONPATH
+#         value: /app/src
+#       - key: GEMINI_API_KEY # nhập secret trên dashboard
+#         sync: false
+#       - key: EMBED_MODEL_ID
+#         value: intfloat/multilingual-e5-base
+#       - key: EMBED_MODEL_PATH
+#         value: /var/lib/tiximax/models/local_multilingual_e5_base
+#       - key: EMBED_DEVICE
+#         value: cpu
+#       - key: HF_HUB_ENABLE_HF_TRANSFER
+#         value: "1"
+#       - key: WEB_CONCURRENCY
+#         value: "2"
+#       - key: WEB_THREADS
+#         value: "8"
+services:
+  - type: web
+    name: tiximax-web
+    env: docker
+    plan: starter
+    autoDeploy: true
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+
+    disk:
+      name: tiximax-persistent
+      mountPath: /var/lib/tiximax
+      sizeGB: 10
+
+    envVars:
+      - key: REPO_ROOT
+        value: /app
+      - key: PYTHONPATH
+        value: /app/src
+
+      # ---- Security / Session ----
+      - key: SECRET_KEY
+        sync: false
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_ROLES
+        value: admin,manager_marketing
+
+      # ---- LLM / Cache ----
+      - key: HF_HUB_ENABLE_HF_TRANSFER
+        value: "1"
+      - key: HF_HOME
+        value: /var/lib/tiximax/models
+      - key: TRANSFORMERS_CACHE
+        value: /var/lib/tiximax/models/cache
+      - key: EMBED_MODEL_ID
+        value: intfloat/multilingual-e5-base
+      - key: EMBED_MODEL_PATH
+        value: /var/lib/tiximax/models/local_multilingual_e5_base
+      - key: EMBED_DEVICE
+        value: cpu
+
+      # ---- SQLite paths ----
+      - key: DATA_DIR
+        value: /var/lib/tiximax/data
+      - key: SQLITE_PATH
+        value: /var/lib/tiximax/data/users.db
+      - key: USERS_DB
+        value: /var/lib/tiximax/data/users.db
+      - key: CHAT_DB_PATH
+        value: /var/lib/tiximax/data/chat.db
+
+      # ---- Gunicorn (SQLite => 1 worker) ----
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: WEB_THREADS
+        value: "8"
+      - key: GUNICORN_TIMEOUT
+        value: "120"
+
+      # ---- API keys ----
+      - key: GEMINI_API_KEY
+        sync: false

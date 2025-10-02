@@ -1,0 +1,580 @@
+KIẾN THỨC THỊ TRƯỜNG
+Thủ Tục Nhập Khẩu Pin Lithium Từ Mỹ
+Posted on
+02/08/2025
+02/08/2025
+by
+Nguyên Hạnh
+02
+Aug
+Pin lithium là một trong những mặt hàng được sử dụng rộng rãi trong thiết bị điện tử, xe điện và các ứng dụng công nghiệp. Tuy nhiên, việc
+nhập khẩu pin lithium từ Mỹ
+về Việt Nam không đơn giản do đây là sản phẩm có tính chất nguy hiểm, chịu sự quản lý nghiêm ngặt từ nhiều cơ quan. Doanh nghiệp cần nắm rõ
+thủ tục nhập khẩu pin lithium
+, bao gồm tra mã HS, chuẩn bị hồ sơ, kiểm tra chất lượng,
+công bố hợp quy pin lithium
+nếu cần, đồng thời tuân thủ quy định đóng gói – vận chuyển an toàn. Bài viết dưới đây sẽ giúp bạn hiểu rõ toàn bộ quy trình và lưu ý quan trọng khi nhập khẩu mặt hàng này.
+Contents
+hide
+I. Pin lithium là hàng gì ? Có được nhập khẩu vào Việt Nam không ?
+II. Mã HS pin lithium và chính sách nhập khẩu từ Mỹ
+II. Quy định nhập khẩu pin lithium tại Việt Nam
+IV. Hồ sơ & thủ tục nhập khẩu pin lithium chi tiết
+V. Yêu cầu kiểm tra chất lượng và chứng nhận pin lithium
+VI. Công bố hợp quy pin lithium – Có bắt buộc không ?
+VII. Yêu cầu đóng gói và vận chuyển pin lithium an toàn
+VIII. Một số lưu ý quan trọng khi nhập khẩu pin lithium từ Mỹ
+Kết luận
+I. Pin lithium là hàng gì ? Có được nhập khẩu vào Việt Nam không ?
+Pin lithium
+(còn gọi là
+pin Li-ion
+,
+Li-metal
+) là loại pin sạc hoặc không sạc sử dụng kim loại lithium làm vật liệu cực dương. Nhờ hiệu suất cao, tuổi thọ dài và trọng lượng nhẹ, pin lithium được ứng dụng rộng rãi trong nhiều lĩnh vực công nghiệp và tiêu dùng.
+Pin lithium là hàng gì ?
+1. Các loại pin lithium phổ biến hiện nay
+Pin lithium-ion (Li-ion)
+: Là loại có thể sạc lại, được dùng phổ biến trong điện thoại, laptop, xe điện, máy ảnh…
+Pin lithium polymer (Li-Po)
+: Cũng là dạng sạc lại nhưng nhẹ hơn, mỏng hơn, được ứng dụng trong thiết bị bay không người lái (drone), thiết bị di động cao cấp…
+Pin lithium kim loại (Li-metal)
+: Là loại pin không sạc lại, có mật độ năng lượng cao, thường dùng trong đồng hồ, thiết bị y tế, cảm biến…
+2. Phân loại theo công dụng
+Pin lithium dân dụng
+: Dùng cho các thiết bị điện tử tiêu dùng như điện thoại, máy ảnh, laptop, đồng hồ, điều khiển từ xa…
+Pin lithium công nghiệp
+: Sử dụng trong lĩnh vực năng lượng, xe điện, lưu trữ điện mặt trời, thiết bị y tế, sản xuất…
+Pin lithium tích hợp sẵn trong thiết bị
+: Ví dụ : pin đi kèm trong điện thoại, máy tính bảng, thiết bị thông minh…
+3. Pin lithium có được nhập khẩu vào Việt Nam không ?
+Có.
+Pin lithium được phép nhập khẩu vào Việt Nam
+, tuy nhiên cần tuân thủ đầy đủ các quy định liên quan đến kiểm tra chất lượng,
+công bố hợp quy
+, an toàn cháy nổ, đóng gói và vận chuyển theo quy chuẩn quốc tế.
+Vì pin lithium được xếp vào nhóm
+hàng hóa nguy hiểm (Dangerous Goods – DG)
+theo quy định của Tổ chức Hàng không Dân dụng Quốc tế (ICAO) và Hiệp hội Vận tải Hàng không Quốc tế (IATA), nên quy trình vận chuyển, đặc biệt là bằng đường hàng không, phải được kiểm soát nghiêm ngặt.
+II. Mã HS pin lithium và chính sách nhập khẩu từ Mỹ
+1. Hướng dẫn tra mã HS pin lithium theo phân loại
+Pin lithium được xếp dưới chương 85 trong biểu thuế Việt Nam, gồm hai nhóm chính
+HS 85065000
+– pin nguyên sơ lithium (Primary lithium batteries)
+HS 85076000
+– ắc quy điện lithium (Electric accumulators), trong đó có các mã phụ :
+85076010
+: pin cho laptop, notebook
+85076020
+: pin dùng trong hàng không
+85076090
+: các loại pin lithium khác không thuộc hai loại trên
+Khi khai HS code, doanh nghiệp cần xác định chính xác loại pin (dân dụng, công nghiệp, tích hợp trong thiết bị…) để áp mã phù hợp.
+2. Chính sách nhập khẩu từ Mỹ
+Mỹ và Việt Nam có Hiệp định Thương mại tự do (EVFTA)
+và Việt Nam là đối tác CPTPP, do đó
+hàng pin lithium nhập từ Mỹ vào Việt Nam có cơ hội hưởng thuế ưu đãi
+, thường là
+0% thuế nhập khẩu nếu đáp ứng quy tắc xuất xứ
+Vì vậy, nếu pin lithium được sản xuất ở Mỹ hoặc có chứng từ chứng minh xuất xứ phù hợp, doanh nghiệp
+được miễn thuế nhập khẩu
+hoặc áp mức
+0% ưu đãi
+theo EVFTA/CPTPP.
+Lưu ý cần xuất trình
+C/O (Certificate of Origin)
+hợp lệ để được hưởng ưu đãi.
+3. Thuế nhập khẩu và thuế VAT/GTGT
+Theo quy định hải quan Việt Nam, pin lithium thuộc mã HS
+85076090 hoặc 85076010…
+thường có mức thuế nhập khẩu thông thường từ
+5%
+(thuế MFN), nhưng nếu đáp ứng FTA thì
+0%
+Thuế GTGT (VAT)
+hiện áp dụng là
+10%
+tính trên giá trị hải quan đã cộng thuế nhập khẩu (nếu có).
+Doanh nghiệp nên tính toán tổng chi phí bao gồm :
+Chi phí hàng hóa (FOB)
+Thuế nhập khẩu (nếu không đủ điều kiện FTA)
+Thuế GTGT 10%
+Phí vận chuyển, bảo hiểm, Logistics.
+II. Quy định nhập khẩu pin lithium tại Việt Nam
+Việc
+nhập khẩu pin lithium
+vào Việt Nam chịu sự quản lý chặt chẽ của nhiều cơ quan chức năng nhằm đảm bảo
+chất lượng, an toàn cháy nổ và bảo vệ môi trường
+. Dưới đây là các quy định và văn bản pháp luật cần lưu ý :
+1. Văn bản pháp luật áp dụng
+Khi làm
+thủ tục nhập khẩu pin lithium
+, doanh nghiệp cần căn cứ vào các văn bản pháp lý quan trọng sau :
+Thông tư số 11/2021/TT-BKHCN
+(ngày 11/12/2021 của Bộ Khoa học và Công nghệ) :
+→ Quy định danh mục sản phẩm, hàng hóa nhóm 2 bắt buộc phải
+kiểm tra chất lượng và công bố hợp quy
+trước khi lưu thông trên thị trường.
+→ Pin lithium thuộc nhóm hàng hóa này, cụ thể là các loại
+ắc quy, pin dùng cho thiết bị điện – điện tử
+.
+Nghị định số 132/2008/NĐ-CP
+(sửa đổi bởi Nghị định 74/2018/NĐ-CP) :
+→ Quy định chi tiết thi hành một số điều của Luật Tiêu chuẩn và Quy chuẩn kỹ thuật.
+→ Là căn cứ pháp lý để cơ quan kiểm tra chuyên ngành thực hiện
+kiểm tra chất lượng pin lithium nhập khẩu
+.
+Thông tư 44/2023/TT-BGTVT
+và
+Công ước ICAO – IATA về hàng hóa nguy hiểm
+(áp dụng với pin vận chuyển bằng đường hàng không):
+→ Hướng dẫn
+vận chuyển pin lithium an toàn
+, phân loại hàng nguy hiểm và đóng gói theo chuẩn quốc tế.
+2. Danh mục quản lý chuyên ngành liên quan đến pin lithium
+Tùy vào loại pin và mục đích sử dụng, khi nhập khẩu, doanh nghiệp cần lưu ý những yêu cầu sau :
+Pin lithium dạng rời
+(pin sạc, pin dự phòng, cell pin chưa lắp ráp) :
+Phải kiểm tra chất lượng theo QCVN
+do Bộ KH&CN ban hành.
+Bắt buộc
+có chứng nhận hợp quy hoặc công bố hợp quy
+trước khi lưu hành.
+Pin lithium tích hợp trong thiết bị
+(laptop, smartphone, thiết bị y tế…) :
+Không bắt buộc kiểm tra riêng
+nếu pin không tách rời thiết bị.
+Tuy nhiên, toàn bộ thiết bị vẫn có thể bị kiểm tra theo tiêu chuẩn khác.
+Pin nhập khẩu để sản xuất / OEM
+:
+Có thể được miễn kiểm nếu chứng minh được
+không lưu thông thương mại
+.
+Vẫn phải đảm bảo tiêu chuẩn về
+vận chuyển pin lithium
+và đóng gói đúng quy cách.
+Danh mục quản lý chuyên ngành liên quan đến pin lithium
+IV. Hồ sơ & thủ tục nhập khẩu pin lithium chi tiết
+Việc nhập khẩu pin lithium không chỉ đòi hỏi doanh nghiệp chuẩn bị
+đầy đủ hồ sơ chứng từ
+, mà còn cần thực hiện đúng
+quy trình khai báo hải quan
+và kiểm tra chuyên ngành. Dưới đây là hướng dẫn cụ thể cho doanh nghiệp đang làm
+thủ tục nhập khẩu pin lithium
+:
+1. Danh sách hồ sơ cần chuẩn bị
+Khi làm thủ tục hải quan, doanh nghiệp cần chuẩn bị
+bộ hồ sơ đầy đủ
+bao gồm :
+Hồ sơ
+Mô tả
+Hợp đồng thương mại (Contract)
+Thể hiện thông tin mua bán giữa bên xuất và bên nhập
+Hóa đơn thương mại (Invoice)
+Giá trị hàng hóa, điều kiện giao hàng
+Phiếu đóng gói (Packing list)
+Chi tiết đóng gói, trọng lượng, số kiện
+Tờ khai hải quan nhập khẩu
+Khai báo trên hệ thống VNACCS
+Chứng nhận xuất xứ hàng hóa (C/O – nếu có)
+Ưu đãi thuế (đặc biệt khi nhập từ Mỹ)
+Chứng nhận chất lượng (CQ)
+Do nhà sản xuất cung cấp
+Chứng nhận hợp quy / công bố hợp quy (nếu bắt buộc)
+Đối với pin lithium thuộc danh mục quản lý
+Vận đơn (Bill of Lading / Airway Bill)
+Chứng từ vận chuyển
+Phiếu tiếp nhận kiểm tra chất lượng (nếu áp dụng)
+Do Trung tâm đo lường chất lượng cấp
+2. Các bước khai báo và làm thủ tục hải quan
+Doanh nghiệp thực hiện
+thủ tục nhập khẩu pin lithium
+theo trình tự sau :
+Bước 1 : Chuẩn bị hồ sơ chứng từ đầy đủ như trên
+Tập hợp đầy đủ các tài liệu gồm :
+Hợp đồng thương mại (Sale Contract)
+Hóa đơn thương mại (Invoice)
+Phiếu đóng gói (Packing List)
+Vận đơn (Bill of Lading hoặc AWB)
+Chứng nhận xuất xứ (C/O form tương ứng – nếu có)
+Chứng nhận chất lượng (CQ), MSDS, ảnh chụp sản phẩm, tài liệu kỹ thuật…
+Tờ khai hải quan nháp
+Giấy đăng ký kiểm tra chất lượng (nếu thuộc diện)
+Bước 2 : Đăng ký kiểm tra chất lượng hàng hóa (nếu thuộc danh mục)
+Nộp hồ sơ tại
+Trung tâm kỹ thuật Tiêu chuẩn Đo lường Chất lượng 1, 2, 3
+tùy khu vực.
+Nhận phiếu tiếp nhận và chờ kết quả kiểm tra.
+Bước 3 : Khai báo hải quan điện tử
+Truy cập hệ thống
+VNACCS/VCIS
+để khai báo.
+Đính kèm chứng từ điện tử theo yêu cầu (Invoice, PL, C/O…).
+Bước 4 : Mở tờ khai – kiểm tra hàng hóa
+Nếu phân luồng
+Xanh
+: thông quan tự động.
+Luồng
+Vàng/Đỏ
+: xuất trình hồ sơ, có thể kiểm hóa thực tế.
+Bước 5 : Nộp thuế nhập khẩu và thuế GTGT (nếu có)
+Nộp thuế qua hệ thống ngân hàng điện tử kết nối hải quan.
+Bước 6 : Nhận hàng và hoàn tất thủ tục thông quan
+Sau khi thông quan thành công, doanh nghiệp tiến hành nhận hàng từ kho CFS hoặc cảng/sân bay, kiểm tra lại số lượng và chất lượng.
+3. Thời gian xử lý và cơ quan liên quan
+Nội dung
+Thời gian xử lý
+Cơ quan thực hiện
+Kiểm tra chất lượng
+3–7 ngày làm việc (tùy trung tâm)
+Trung tâm Kỹ thuật Tiêu chuẩn Đo lường Chất lượng
+Thông quan hàng hóa
+1–3 ngày làm việc
+Chi cục Hải quan cửa khẩu
+Công bố hợp quy (nếu có)
+5–10 ngày
+Sở Khoa học & Công nghệ địa phương
+V. Yêu cầu kiểm tra chất lượng và chứng nhận pin lithium
+Khi làm
+thủ tục nhập khẩu pin lithium
+, doanh nghiệp cần lưu ý rằng mặt hàng này
+thuộc danh mục sản phẩm nhóm 2
+, bắt buộc phải thực hiện
+kiểm tra chất lượng và chứng nhận hợp quy
+theo quy định hiện hành. Đây là yêu cầu bắt buộc nhằm đảm bảo an toàn cháy nổ, bảo vệ người tiêu dùng và môi trường.
+1. Pin lithium có bắt buộc kiểm tra chất lượng không ?
+Có.
+Theo
+Thông tư 11/2021/TT-BKHCN
+, pin lithium được phân loại là
+sản phẩm nhóm 2 thuộc trách nhiệm quản lý của Bộ Khoa học & Công nghệ
+, cụ thể là các loại :
+Pin lithium rời
+(sạc dự phòng, pin OEM, pin năng lượng…).
+Pin lithium tích hợp nhưng có thể tháo rời
+khỏi thiết bị.
+Pin dùng cho thiết bị điện – điện tử
+có công suất lớn (dùng trong công nghiệp, thiết bị y tế…).
+Các mặt hàng này
+bắt buộc phải kiểm tra chất lượng tại cửa khẩu nhập khẩu
+, trước khi được phép thông quan và đưa ra thị trường.
+2. Thủ tục kiểm tra chất lượng pin lithium nhập khẩu
+Hồ sơ đăng ký kiểm tra chất lượng bao gồm :
+Giấy đăng ký kiểm tra chất lượng (mẫu do trung tâm cung cấp)
+Invoice, Packing list, Hợp đồng
+CO/CQ (nếu có)
+Catalog kỹ thuật hoặc thông số sản phẩm
+Vận đơn và tờ khai hải quan
+Nơi nộp hồ sơ :
+Doanh nghiệp nộp hồ sơ tại các
+Trung tâm Kỹ thuật Tiêu chuẩn Đo lường Chất lượng (QUATEST)
+theo khu vực :
+QUATEST 1
+– miền Bắc
+QUATEST 2
+– miền Nam
+QUATEST 3
+– miền Trung
+Thời gian xử lý từ
+3–7 ngày làm việc
+, tùy theo lượng hàng và trung tâm kiểm tra.
+Thủ tục kiểm tra chất lượng pin lithium nhập khẩu
+3. Chứng nhận pin lithium (hợp quy / hợp chuẩn)
+Sau khi kết quả kiểm tra đạt yêu cầu, doanh nghiệp sẽ nhận được :
+Phiếu kết quả kiểm tra chất lượng
+Giấy chứng nhận hợp quy
+(nếu đăng ký công bố hợp quy)
+Biên bản chấp thuận thông quan
+Các tài liệu này được sử dụng để hoàn tất
+thủ tục nhập khẩu pin lithium
+, đồng thời là căn cứ để phân phối sản phẩm tại Việt Nam một cách hợp pháp.
+4. Trường hợp không đạt chất lượng – Xử lý thế nào ?
+Nếu pin lithium nhập khẩu
+không đạt tiêu chuẩn kiểm tra chất lượng
+, doanh nghiệp có thể đối mặt với các hướng xử lý sau:
+Trường hợp không đạt
+Hướng xử lý
+Không phù hợp QCVN
+Làm đơn xin
+tái xuất hoặc tiêu hủy
+tại chỗ
+Thiếu chứng từ, sai thông số
+Nộp bổ sung hoặc
+làm lại hồ sơ kiểm tra
+Có nguy cơ cháy nổ cao
+Không được phép thông quan
+, bắt buộc xử lý theo chỉ đạo hải quan
+Do đó, doanh nghiệp nên kiểm tra kỹ từ đầu, lựa chọn nhà cung cấp uy tín, có đủ chứng nhận CQ, test report và tài liệu kỹ thuật rõ ràng.
+VI. Công bố hợp quy pin lithium – Có bắt buộc không ?
+Trong hoạt động
+nhập khẩu pin lithium
+, bên cạnh việc kiểm tra chất lượng theo quy định, doanh nghiệp còn cần lưu ý đến
+thủ tục công bố hợp quy
+. Đây là bước quan trọng nhằm đảm bảo hàng hóa phù hợp với
+Quy chuẩn kỹ thuật quốc gia (QCVN)
+và được phép lưu thông hợp pháp tại Việt Nam.
+1. Trường hợp bắt buộc công bố hợp quy
+Việc
+công bố hợp quy pin lithium
+là
+bắt buộc
+trong các trường hợp sau :
+Pin lithium
+thuộc nhóm sản phẩm nhóm 2
+quy định tại
+Thông tư 11/2021/TT-BKHCN
+, gồm :
+Pin dân dụng sử dụng trong thiết bị điện – điện tử (điện thoại, laptop, sạc dự phòng…)
+Pin công nghiệp có khả năng sạc, tích điện lớn
+Pin dùng độc lập, không tích hợp sẵn trong thiết bị nhập khẩu
+Sản phẩm
+nhập khẩu để bán ra thị trường
+hoặc
+phân phối thương mại
+Riêng
+pin lithium tích hợp trong thiết bị
+(ví dụ như pin đi kèm trong laptop, camera, máy móc) và
+không tháo rời được
+thì có thể
+miễn công bố hợp quy riêng biệt
+, tuy nhiên vẫn chịu kiểm tra chất lượng nếu toàn bộ thiết bị thuộc danh mục quản lý chuyên ngành.
+2. Trình tự, hồ sơ và thời gian thực hiện công bố hợp quy
+Trình tự thực hiện :
+Thử nghiệm mẫu
+tại trung tâm đo lường (QUATEST hoặc đơn vị được chỉ định)
+Nộp hồ sơ đăng ký công bố hợp quy
+tại Sở Khoa học & Công nghệ địa phương
+Chờ phê duyệt hồ sơ
+và cấp giấy tiếp nhận công bố hợp quy
+Nộp hồ sơ kèm kết quả để hoàn tất thông quan hàng hóa (nếu chưa thông quan trước đó)
+Hồ sơ công bố hợp quy gồm :
+Bản công bố hợp quy theo mẫu (do Bộ KH&CN ban hành)
+Bản sao chứng nhận hợp quy hoặc kết quả kiểm nghiệm đạt QCVN
+Bản sao giấy phép kinh doanh của doanh nghiệp
+Giấy ủy quyền công bố (nếu không phải chủ hàng đứng tên)
+Tài liệu kỹ thuật sản phẩm (catalog, hình ảnh, thông số)
+Thời gian xử lý :
+Thử nghiệm mẫu: 3–7 ngày làm việc
+Phê duyệt công bố hợp quy : 5–10 ngày làm việc (tùy từng địa phương)
+3. Mẫu hợp quy & nơi nộp hồ sơ
+Mẫu công bố hợp quy
+ban hành kèm theo
+Thông tư 28/2012/TT-BKHCN
+(đính kèm: mẫu số 1 – dành cho sản phẩm nhập khẩu)
+Nơi tiếp nhận hồ sơ
+:
+Sở Khoa học và Công nghệ nơi doanh nghiệp đặt trụ sở
+Một số địa phương cho phép nộp trực tuyến qua cổng dịch vụ công (tuỳ tỉnh)
+Sau khi được tiếp nhận, hồ sơ công bố hợp quy là căn cứ để :
+Làm thủ tục thông quan nhanh hơn (nếu chưa xong bước này)
+Hợp pháp hóa sản phẩm khi phân phối ra thị trường Việt Nam
+VII. Yêu cầu đóng gói và vận chuyển pin lithium an toàn
+Do đặc tính dễ cháy nổ và sinh nhiệt khi va chạm hoặc bị chập mạch,
+pin lithium
+được xếp vào nhóm
+hàng hóa nguy hiểm (Dangerous Goods – DG)
+theo phân loại của
+ICAO/IATA
+và
+Liên Hợp Quốc
+. Vì vậy, doanh nghiệp nhập khẩu cần đặc biệt chú trọng đến
+quy trình đóng gói và vận chuyển pin lithium
+đúng chuẩn, đảm bảo an toàn và tránh bị từ chối thông quan.
+Yêu cầu đóng gói và vận chuyển pin lithium an toàn.
+1. Quy định đóng gói theo chuẩn UN3480, UN3481
+Căn cứ theo quy định của IATA và ICAO,
+pin lithium được phân loại và đánh mã như sau
+:
+Loại pin
+Mã UN
+Mô tả
+Pin lithium ion rời
+UN3480
+Pin độc lập, không đi kèm thiết bị
+Pin lithium ion đi kèm hoặc tích hợp trong thiết bị
+UN3481
+Ví dụ: pin kèm theo laptop, điện thoại
+Pin lithium kim loại rời
+UN3090
+Pin không sạc được, sử dụng 1 lần
+Pin lithium kim loại đi kèm thiết bị
+UN3091
+Pin dùng trong đồng hồ, thiết bị y tế nhỏ
+Yêu cầu đóng gói chung :
+Mỗi cell hoặc pin phải
+bảo vệ khỏi chạm mạch
+(dùng túi chống tĩnh điện, ống nhựa…)
+Đặt trong
+bao bì cứng
+, có lớp cách nhiệt, chèn lót chống va đập
+Không để pin
+tiếp xúc kim loại
+, chất dẫn điện hoặc chất lỏng
+2. Hướng dẫn dán nhãn cảnh báo và chuẩn bị tài liệu vận chuyển
+Khi vận chuyển pin lithium (đặc biệt bằng đường hàng không hoặc đường biển), cần tuân thủ yêu cầu dán nhãn & khai báo như sau :
+Nhãn bắt buộc :
+Biểu tượng cảnh báo pin lithium cháy nổ
+(hình pin cháy kèm mã UN)
+Nhãn
+“Cargo Aircraft Only”
+nếu không được phép bay hành khách
+Ghi rõ
+UN code (UN3480, UN3481…)
+trên bao bì
+Ghi
+số điện thoại liên hệ khẩn cấp quốc tế
+(nếu vận chuyển quốc tế)
+Tài liệu vận chuyển :
+Shipper’s Declaration for Dangerous Goods
+(bản khai hàng nguy hiểm)
+MSDS (Material Safety Data Sheet)
+: Phiếu an toàn hóa chất
+Hóa đơn thương mại, vận đơn, packing list đầy đủ
+Việc thiếu nhãn hoặc khai báo không chính xác có thể khiến hàng bị
+trả lại
+,
+giữ lại tại kho hàng
+, hoặc
+bị phạt nặng
+theo quy định hàng không quốc tế.
+3. Hạn chế khi vận chuyển pin lithium bằng đường hàng không
+Pin lithium, nhất là
+pin rời (UN3480)
+, bị kiểm soát nghiêm ngặt khi vận chuyển bằng máy bay :
+Nội dung
+Chi tiết
+Vận chuyển đường hàng không
+Bị hạn chế hoặc cấm vận chuyển theo
+IATA DGR
+nếu vượt ngưỡng công suất hoặc không đóng gói đúng quy cách
+Pin tích hợp trong thiết bị
+Được vận chuyển với điều kiện giới hạn công suất và số lượng
+Không được vận chuyển bằng chuyến bay chở hành khách
+Trong nhiều trường hợp, pin chỉ được gửi qua
+Cargo Aircraft Only
+Do đó, doanh nghiệp nên làm việc với
+hãng vận chuyển chuyên xử lý hàng nguy hiểm
+để đảm bảo tuân thủ đầy đủ các yêu cầu quốc tế.
+VIII. Một số lưu ý quan trọng khi nhập khẩu pin lithium từ Mỹ
+Pin lithium tuy là sản phẩm công nghệ phổ biến, nhưng khi nhập khẩu về Việt Nam lại thuộc nhóm
+hàng hóa quản lý đặc biệt
+, liên quan đến an toàn kỹ thuật, môi trường và phòng cháy nổ. Đặc biệt với hàng nhập từ thị trường Mỹ – nơi có quy cách đóng gói, nhãn mác và tiêu chuẩn khác biệt – doanh nghiệp cần lưu ý các yếu tố sau để tránh rủi ro và tốn kém chi phí.
+Những lưu ý quan trọng khi nhập khẩu pin lithium từ Mỹ.
+1. Rủi ro thường gặp khi nhập khẩu pin lithium
+Một số vấn đề mà doanh nghiệp thường gặp khi làm thủ tục nhập khẩu pin lithium từ Mỹ bao gồm:
+Hỏng hóc trong quá trình vận chuyển
+do đóng gói sai chuẩn (không theo quy định UN3480, UN3481)
+Thiếu chứng từ hợp lệ
+như MSDS, CQ, Shipper’s Declaration → dẫn đến không được thông quan
+Không đạt yêu cầu kiểm tra chất lượng
+theo
+QCVN
+tại Việt Nam → bị yêu cầu tái xuất hoặc tiêu hủy
+Không có công bố hợp quy
+, trong khi sản phẩm thuộc diện bắt buộc → vi phạm quy định nhập khẩu pin lithium
+Khai sai mã HS pin lithium
+→ bị truy thu thuế hoặc phạt hành chính
+Lưu ý :
+Pin tích hợp sẵn trong thiết bị điện tử có thể không bị yêu cầu công bố hợp quy, nhưng vẫn phải khai đúng mã HS và dán nhãn đúng quy chuẩn.
+2. Kinh nghiệm làm việc với đơn vị logistics chuyên hàng nguy hiểm
+Pin lithium được phân loại là
+Dangerous Goods (DG)
+– hàng hóa nguy hiểm. Vì vậy, không phải đơn vị vận chuyển nào cũng có khả năng xử lý đúng quy định.
+Một số lời khuyên khi làm việc với đơn vị logistics :
+Chọn đơn vị có chứng chỉ vận chuyển hàng nguy hiểm (IATA DGR)
+và từng xử lý mặt hàng pin lithium
+Yêu cầu họ
+tư vấn cách đóng gói, dán nhãn, khai báo MSDS
+đúng quy định quốc tế
+Kiểm tra kỹ
+lịch trình – phương thức vận chuyển – hãng bay/cảng
+có chấp nhận pin lithium không
+Với hàng air cargo, phải đảm bảo pin không vượt
+giới hạn công suất
+hoặc bị xếp loại
+Cargo Aircraft Only
+Làm việc với logistics không chuyên về hàng pin lithium có thể khiến hàng bị từ chối vận chuyển hoặc gặp rắc rối nghiêm trọng tại sân bay/cảng biển.
+3. Gợi ý lựa chọn nhà cung cấp Mỹ uy tín
+Doanh nghiệp nhập khẩu pin lithium nên ưu tiên các
+nhà sản xuất – nhà phân phối tại Mỹ
+đáp ứng đủ điều kiện pháp lý và có kinh nghiệm xuất khẩu vào thị trường Việt Nam.
+Tiêu chí chọn nhà cung cấp uy tín :
+Có
+chứng nhận chất lượng – CQ
+, MSDS đầy đủ
+Đóng gói hàng hóa theo
+UN/IATA
+tiêu chuẩn
+Hiểu rõ
+yêu cầu kiểm tra chất lượng pin lithium
+và hỗ trợ giấy tờ cần thiết
+Có kinh nghiệm xuất khẩu sang Việt Nam (có CO – Certificate of Origin nếu cần ưu đãi thuế)
+Được đánh giá tốt trên các nền tảng như
+Alibaba, ThomasNet, Made-in-USA.com
+hoặc các hội chợ thương mại điện tử B2B
+Nếu nhập khẩu qua hình thức thương mại điện tử hoặc sàn trung gian, nên kiểm tra kỹ về
+tiêu chuẩn đóng gói
+, giấy tờ pháp lý đi kèm và yêu cầu họ cung cấp trước khi đặt hàng.
+Kết luận
+Việc nhập khẩu pin lithium – dù rời hay tích hợp trong thiết bị – yêu cầu doanh nghiệp nắm rõ
+quy định nhập khẩu
+, từ
+tra mã HS
+,
+chuẩn bị hồ sơ
+,
+kiểm tra chất lượng
+, đến
+công bố hợp quy
+(nếu cần) và tuân thủ
+quy định đóng gói – vận chuyển an toàn
+.
+Vì pin lithium là hàng nguy hiểm, dễ cháy nổ nếu xử lý sai cách, doanh nghiệp nên hợp tác với
+logistics chuyên hàng nguy hiểm
+và chọn nhà cung cấp Mỹ uy tín, đảm bảo có đủ chứng từ như
+MSDS, CQ, CO
+.
+Nếu là doanh nghiệp mới hoặc chưa từng nhập khẩu pin lithium
+, bạn nên cân nhắc
+sử dụng dịch vụ tư vấn và làm thủ tục hải quan chuyên nghiệp
+. Điều này không chỉ giúp tiết kiệm thời gian, hạn chế rủi ro mà còn tối ưu chi phí nhờ xử lý đúng quy trình ngay từ đầu.
+Bạn cần hỗ trợ làm
+thủ tục nhập khẩu pin lithium
+? Liên hệ ngay để được tư vấn chi tiết và miễn phí !
+This entry was posted in
+KIẾN THỨC THỊ TRƯỜNG
+. Bookmark the
+permalink
+.
+Nguyên Hạnh
+Thủ Tục Nhập Khẩu Máy Móc Mới & Cũ 2025
+Hướng Dẫn Thủ Tục Nhập Khẩu Đồ Chơi Trẻ Em Từ Mỹ
+Leave a Reply
+Cancel reply
+Your email address will not be published.
+Required fields are marked
+*
+Comment
+*
+Name
+*
+Email
+*
+Website
+Save my name, email, and website in this browser for the next time I comment.
+Recent Posts
+20
+Aug
+Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
+19
+Aug
+Forwarder vs Carrier : Nên Chọn Ai Để Tối Ưu Vận Tải Quốc Tế ?
+18
+Aug
+Forwarder Là Gì ? Tất Tần Tật Về Forwarder Logistics
+17
+Aug
+Dropshipping Trên Shopee : Hướng Dẫn Cho Người Mới
+16
+Aug
+Dropship Aliexpress : Hướng Dẫn Cho Người Mới Bắt Đầu
