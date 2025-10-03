@@ -1,12 +1,12 @@
 # Bỏ models
-src/models/
+src/app/models/
 TRASH/
-src/chat_logs/
+src/app/chat_logs/
 # Bỏ FAISS_Vector trong src
-src/FAISS_Vector/
+src/app/FAISS_Vector/
 instance/
 # Bỏ Data trong src
-src/Data/
+src/app/Data/
 src/test.py
 src/uploads/
 # Bỏ file tạm Python
