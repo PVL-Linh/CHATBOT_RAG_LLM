@@ -1,0 +1,35 @@
+﻿SƠ ĐỒ TỔ CHỨC NHÂN VIÊN CÔNG TY CỔ PHẦN TIXIMAX( sơ đồ nhân viên công ty, sơ đồ nhân sự, sơ đồ tổng )
+1 Giám đốc điều hành (CEO)
+├─ 1.1 Giám đốc KD PTTT
+│  ├─ 1.1.1 NV CRM
+│  └─ 1.1.2 Chuyên viên đối ngoại
+├─ 1.2 Giám đốc kinh doanh
+│  ├─ 1.2.1 Sales Leader Indo
+│  │  ├─ 1.2.1.1 Sales
+│  │  └─ 1.2.1.2 Sales Admin
+│  ├─ 1.2.2 Sales Leader Hàn
+│  │  ├─ 1.2.2.1 Sales
+│  │  └─ 1.2.2.2 Sales Admin
+│  ├─ 1.2.3 Sales Leader Nhật
+│  │  ├─ 1.2.3.1 Sales
+│  │  └─ 1.2.3.2 Sales Admin
+│  ├─ 1.2.4 Sales Leader US
+│  │  ├─ 1.2.4.1 Sales
+│  │  └─ 1.2.4.2 Sales Admin
+│  ├─ 1.2.5 Nhân viên IT
+│  └─ 1.2.6 NV Kho
+├─ 1.3 Trưởng phòng Marketing
+│  └─ 1.3.1 Marketing Leader
+│     ├─ 1.3.1.1 Social content
+│     │  └─ 1.3.1.1.1 TTS Marketing
+│     ├─ 1.3.1.2 Design và video
+│     ├─ 1.3.1.3 Thiết kế website
+│     │  └─ 1.3.1.3.1 TTS SEO Web
+│     ├─ 1.3.1.4 NV ADS
+│     └─ 1.3.1.5 CRM
+│        ├─ 1.3.1.5.1 AI Prompter
+│        └─ 1.3.1.5.2 Phân tích Data
+└─ 1.4 HCNS - Kế toán
+   ├─ 1.4.1 HNCS
+   │  └─ 1.4.1.1 Nhân viên pháp chế
+   └─ 1.4.2 Kế toán tổng hợp

@@ -1,0 +1,21 @@
+docker compose down --remove-orphans
+docker compose up -d --build
+
+# kiểm tra cả 2 service đã có
+
+docker compose config --services
+
+# phải thấy: tiximax cloudflared
+
+docker compose ps
+
+docker compose logs cloudflared --tail=200
+
+# hoặc trích dòng có link:
+
+docker compose logs cloudflared | Select-String 'trycloudflare.com' | Select -Last 1
+
+# Sau khi sửa Dockerfile:
+
+docker compose build --no-cache tiximax
+docker compose up -d

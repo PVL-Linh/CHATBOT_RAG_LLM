@@ -1,0 +1,330 @@
+/* ================================
+   PDF → TXT • Canvas-y skin (drop-in)
+   ================================ */
+
+/* Theme tokens */
+.pdf-layout{
+  --surface: #ffffff;
+  --bg: #f8fafc;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(2,6,23,.06);
+  --accent-start:#667eea;
+  --accent-end:#764ba2;
+  --accent: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+}
+
+/* ---- Page grid ---- */
+.pdf-layout{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap:24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(8px,2vw,16px);
+}
+@media (max-width: 991.98px){
+  .pdf-layout{ grid-template-columns: 1fr; }
+}
+
+/* ---- Panels (cards) ---- */
+.pdf-panel{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Sticky only on desktop */
+@media (min-width: 992px){
+  .pdf-left, .pdf-right{
+    position: sticky; top: 16px;
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+  }
+}
+@media (max-width: 991.98px){
+  .pdf-left, .pdf-right{
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Left panel */
+.pdf-left{ padding: 20px; }
+.pdf-page-title{
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: clamp(24px, 2.4vw, 36px);
+  letter-spacing: .2px;
+  display:flex; align-items:center; gap:12px;
+}
+.pdf-page-title::before{
+  content:"";
+  width: 28px; height: 28px;
+  border-radius: 10px;
+  background: var(--accent);
+  box-shadow: 0 8px 18px rgba(102,126,234,.35);
+}
+
+/* Form rows */
+.pdf-form .pdf-row{
+  display:grid;
+  grid-template-columns: 140px 1fr;
+  gap:14px;
+  align-items:center;
+  margin:12px 0;
+}
+@media (max-width:576px){
+  .pdf-form .pdf-row{ grid-template-columns: 1fr; }
+  .pdf-form .pdf-row>label{ margin-bottom: 6px; }
+}
+
+/* File input line */
+.pdf-file{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+#pdf_file{
+  width:100%;
+  min-height: 44px;
+  border:1px solid var(--border);
+  border-radius: 12px;
+  background:#fff;
+  padding: 8px 12px;
+  color: var(--ink);
+}
+
+/* Status + progress */
+.pdf-status{
+  margin-top: 10px;
+  background:#f6f8ff;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px dashed #dbe1fb;
+  color:#243b5a;
+}
+.pdf-progress{
+  width:100%; height:8px;
+  border-radius:999px;
+  background:#eef1f5;
+  margin-top:10px; overflow:hidden;
+}
+.pdf-progress>span{
+  display:block; width:0%; height:100%;
+  background: var(--accent);
+}
+
+/* Convert button */
+#pdf_convert{
+  border:0;
+  border-radius:12px;
+  padding: 10px 16px;
+  font-weight:700;
+  background: var(--accent);
+  color:#fff;
+  box-shadow:0 10px 20px rgba(102,126,234,.25);
+  transition: transform .12s ease, box-shadow .15s ease;
+}
+#pdf_convert:hover{ transform: translateY(-1px); box-shadow:0 14px 26px rgba(102,126,234,.28); }
+@media (max-width:576px){ #pdf_convert{ width:100%; } }
+
+/* Right panel */
+.pdf-right{
+  padding: 20px;
+  border-left:0 !important;   /* bỏ vạch chia cũ cho “thoáng” */
+}
+
+/* Topbar */
+.pdf-topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom: 12px;
+}
+.pill-tabs{ display:flex; gap:10px; flex-wrap:wrap; }
+.pill{
+  height: 42px;
+  min-width: 120px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background:#fff;
+  color:#1f2a5a;
+  font-weight:800; letter-spacing:.2px;
+  transition: all .15s ease;
+}
+.pill:hover{ background:#f9fbff; border-color:#cfd6e4; }
+.pill.active{
+  background: var(--accent);
+  color:#fff;
+  border-color: transparent;
+  box-shadow: 0 10px 20px rgba(118,75,162,.18);
+}
+
+/* Icon actions */
+.icon-actions{ display:flex; gap:10px; }
+.icon-btn{
+  width:40px; height:40px;
+  display:grid; place-items:center;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+  color:#1f2937;
+  box-shadow:0 1px 0 rgba(2,6,23,.03);
+  transition: transform .12s, box-shadow .15s, background .15s;
+}
+.icon-btn:hover{ transform:translateY(-1px); background:#f6f7fb; box-shadow:0 8px 18px rgba(15,23,42,.08); }
+
+/* Result / History panels */
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; }
+
+.pdf-textarea{
+  width:100%;
+  min-height: 380px;
+  resize: vertical;
+  border:1px solid var(--border);
+  border-radius: 14px;
+  background:#fff;
+  padding: 14px 16px;
+  white-space: pre-wrap; word-wrap: break-word;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+}
+.pdf-textarea:focus{
+  outline:none; border-color:#c7d2fe;
+  box-shadow:0 0 0 4px rgba(99,102,241,.12);
+}
+.result-scroll{ max-height: 62vh; overflow:auto; }
+
+/* History list */
+#pdf_history_list{ display:grid; gap:10px; }
+.hist-item{
+  border:1px solid var(--border);
+  background: var(--surface);
+  border-radius:12px;
+  padding:10px 12px;
+  display:grid; grid-template-columns:1fr auto;
+  gap:8px 12px;
+  box-shadow: 0 1px 0 rgba(2,6,23,.02);
+}
+.hist-item .meta{ min-width:0; }
+.name-link{
+  font-weight:700; color:#2563eb; background:transparent; border:0;
+  padding:0; text-align:left; cursor:pointer;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.name-link:hover{ text-decoration: underline; }
+.hist-item .sub{ font-size:12px; opacity:.7; margin-top:2px; }
+.hist-item .actions{ display:flex; gap:8px; align-items:start; }
+.hist-item .actions .btn-ghost[disabled]{ opacity:.5; cursor:not-allowed; }
+
+/* Accordion preview mượt + cuộn trong */
+.hist-item .preview{
+  grid-column:1 / -1;
+  border-top:1px dashed var(--border);
+  margin-top:6px; padding-top:8px;
+  overflow:hidden; max-height:0;
+  transition: max-height .25s ease;
+}
+.hist-item.open .preview{ max-height: 360px; }
+.hist-item .preview pre{
+  margin:0; padding:8px;
+  max-height:340px; overflow:auto;
+  white-space: pre-wrap;
+  font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+}
+
+/* “Đã lưu” badge nhỏ ở nút Save (nếu dùng) */
+#pdf_save.is-saved{ position:relative; }
+#pdf_save.is-saved::after{ content:" ✓"; font-weight:700; }
+
+/* ---- Optional: local loader (như HTML bạn có) ---- */
+.has-local-loader{ position: relative; }
+.local-loader{
+  position:absolute; inset:0;
+  background: rgba(255,255,255,.6);
+  display:grid; place-items:center;
+  border-radius: inherit;
+  z-index: 2;
+}
+.local-loader.hidden{ display:none; }
+.local-loader .spinner{
+  width: 28px; height: 28px;
+  border: 3px solid #dbeafe;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin{ to { transform: rotate(360deg);} }
+/* ======================================
+   PDF PAGE — UNLOCK MOBILE SCROLL
+   (append after your current CSS)
+   ====================================== */
+
+@media (max-width: 991.98px){
+  /* Mở cuộn cho toàn trang */
+  html.pdf-page,
+  body.pdf-page{
+    height: auto !important;
+    min-height: 100svh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
+  }
+
+  /* Gỡ height/overflow ở các shell phổ biến */
+  .pdf-page #app,
+  .pdf-page #root,
+  .pdf-page main,
+  .pdf-page .layout,
+  .pdf-page .content,
+  .pdf-page .chat-area{
+    height: auto !important;
+    min-height: 100svh !important;
+    overflow: visible !important;
+  }
+
+  /* Tắt sticky + giới hạn chiều cao panel */
+  .pdf-page .pdf-left,
+  .pdf-page .pdf-right{
+    position: static !important;
+    top: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Bản thân layout & vùng kết quả dài phải cuộn được */
+  .pdf-page .pdf-layout{
+    display: block !important;
+    overflow: visible !important;
+  }
+  .pdf-page .result-scroll{
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .pdf-page .pdf-textarea{ min-height: 60vh; }
+
+  /* Nếu từng có rule khóa khi mở sidebar/history */
+  .pdf-page.sidebar-open,
+  .pdf-page.history-open,
+  body.pdf-page.sidebar-open,
+  body.pdf-page.history-open{
+    overflow-y: auto !important;
+  }
+
+  /* Gỡ mọi inline style gây kẹt (height:100vh/100dvh) bên trong trang PDF */
+  .pdf-page [style*="100vh"],
+  .pdf-page [style*="100dvh"]{
+    height: auto !important;
+    min-height: 100svh !important;
+  }
+}
+
+/* Desktop: dùng svh để tránh kẹt trên iOS */
+@supports (height: 100svh){
+  @media (min-width: 992px){
+    .pdf-left, .pdf-right{ max-height: calc(100svh - 32px); }
+  }
+}

@@ -1,0 +1,48 @@
+FORMAT_VERSION: TREE_V2
+FILE: QUY TRÌNH TUYỂN DỤNG.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\QUY TRÌNH TUYỂN DỤNG.pdf
+TITLE: QUY TRÌNH TUYỂN DỤNG
+LANG: vi
+
+STEPS:
+- STEP 1
+  - ITEM: (trống)
+  - SUBSTEP 1.1: BP có nhu cầu tuyển dụng làm đề xuất tuyển dụng theo mẫu chuyển P. NS xem xét.
+  - SUBSTEP 1.2: P. NS sẽ tổng hợp nhu cầu tuyển dụng của công ty theo KH và chỉ đạo của lãnh đạo để kết họp với nhu cầu các phòng ban lên KH tuyển dụng.
+- STEP 2
+  - ITEM: P
+  - ITEM: NS tiến hành xem xét đánh giá những nhu cầu tuyển dụng từ các BP có nhu cầu
+  - ITEM: TH từ chối, P
+- STEP 3
+  - ITEM: TH đề xuất được P
+  - ITEM: NS thông qua sẽ được chuyển lên cho Giám đốc xem xét
+  - ITEM: TH Giám đốc không duyệt đè xuất, Giám đốc sẽ phản hồi lại lý do cho P
+- STEP 4
+  - ITEM: TH Giám đốc phê duyệt đề xuất, P
+  - ITEM: NS kết hợp nhu cầu tuyển dụng theo KH của công ty từ trước và nhu cầu từ các BP đề xuất, tiến hành xây dựng KH tuyển dụng
+  - ITEM: Xây dựng xong, P
+- STEP 5
+  - ITEM: Giám đốc tiếp nhận KH tuyển dụng xem xét, phê duyệt
+  - ITEM: TH không duyệt, phản hồi thông tin cho P
+  - ITEM: NS để điều chỉnh lại KH
+- STEP 6
+  - ITEM: TH KH tuyển dụng được Giám đốc thông qua, P
+  - ITEM: NS sẽ triển khai KH tuyển dụng, triển khai các công việc chuyên môn
+  - ITEM: Thông báo thông tin cho các Phòng/Ban, Các Phòng/Ban nắm bắt thông tin tuyển dụng để chủ động bố trí cán bộ tham gia quá trình triển khai tuyển dụng
+- STEP 7
+  - ITEM: Kết thúc
+
+TIMELINE:
+- STEP 2: 8 giờ
+- STEP 3: 8 giờ
+- STEP 4: 48 giờ
+- STEP 5: 8 giờ
+
+FORMS:
+- 1.1+1.2+2+3.
+- Phiếu yêu cầu tuyển dụng
+- Danh sách tuyển dụng
+- 4+5. Kế hoạch tuyển dụng
+- 6. Mô tả công việc
+- Hồ sơ ứng viên
+- 7. Báo cáo kết quả tuyển dụng

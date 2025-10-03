@@ -1,0 +1,93 @@
+CÔNG TY CỔ PHẦN TIXIMAX BẢN MÔ TẢ CÔNG VIỆC
+
+Vị trí: Bộ phận: Số hồ sơ:
+
+CRM Application Engineer IT TXM.JD.20
+
+CÔNG TY CỔ PHẦN TIXIMAX	CRM Application Engineer	IT	TXM.JD.20
+
+A. Mục tiêu công việc
+
+Phát triển, tùy chỉnh và tối ưu hệ thống CRM chuyên biệt cho ngành logistics nhằm hỗ trợ các hoạt động quản lý khách hàng, đơn hàng, báo giá, theo dõi lộ trình vận chuyển, và chăm sóc khách hàng. Mục tiêu là giúp tăng hiệu suất vận hành, tối ưu trải nghiệm khách hàng và hỗ trợ ra quyết định dựa trên dữ liệu.
+
+B. Quan hệ công việc
+
+B. Thời gian và Địa điểm làm việc
+
+Thời gian làm việc: Từ thứ 2 đến thứ 6 (Thứ 7 làm việc cách tuần.)
+
+Từ 8h15’: 12h00- Chiều từ 13h15: 17h15’ (nghỉ trưa 1h15’)
+
+Địa điểm làm việc: Số 65, Đường số 9, Khu dân cư Vạn Phúc, Phường Hiệp Bình Phước, TP.Hồ Chí Minh.
+
+C. Yêu cầu về trình độ và kỹ năng
+
+Tốt nghiệp chuyên ngành CNTT, Khoa học máy tính hoặc liên quan.
+
+Có kiến thức cơ bản hoặc đã từng làm việc với hệ thống CRM.
+
+Hiểu biết về ngành logistics, quy trình chăm sóc khách hàng và vận hành đơn hàng.
+
+Có kinh nghiệm với cơ sở dữ liệu: MySQL, PostgreSQL hoặc MongoDB.
+
+Kinh nghiệm làm việc với hệ thống CRM mã nguồn mở (ví dụ: Odoo, SuiteCRM, vTiger).
+
+Biết về tích hợp API (REST, SOAP), Webhook, và kết nối đa nền tảng.
+
+Có tư duy UI/UX cơ bản để cải thiện trải nghiệm người dùng.
+
+Kinh nghiệm triển khai CRM cho doanh nghiệp logistics là một lợi thế lớn.
+
+Giao tiếp tốt, hiểu nhanh yêu cầu nghiệp vụ
+
+Làm việc nhóm và chủ động phối hợp liên phòng ban
+
+Tư duy phân tích và giải quyết vấn đề
+
+Sẵn sàng học hỏi công nghệ mới và mô hình hoạt động logistics
+
+Môi trường làm việc năng động, định hướng chuyển đổi số ngành logistics
+
+Được đào tạo chuyên sâu về CRM và các quy trình logistics
+
+Hưởng đầy đủ các chế độ BHXH, thưởng KPI, phụ cấp và nghỉ phép theo quy định
+
+D. Trách nhiệm chính
+
+Phân tích yêu cầu nghiệp vụ từ các phòng ban: kinh doanh, CSKH, điều phối, kế toán... trong ngành logistics.
+
+Thiết kế, phát triển và triển khai các chức năng CRM phục vụ các quy trình như:
+
+Quản lý khách hàng và tiềm năng (Leads)
+
+Quản lý báo giá, đơn hàng vận chuyển
+
+Theo dõi lịch sử tương tác và phản hồi khách hàng Quản lý khiếu nại và bảo hành dịch vụ
+
+Tích hợp theo dõi vận đơn, tình trạng giao hàng
+
+Tùy chỉnh các nền tảng CRM mã nguồn mở (ví dụ: Odoo, SuiteCRM) viết mới hệ thống tùy theo chiến lược công ty.
+
+Tích hợp CRM với các hệ thống khác như ERP, phần mềm hoặc vận tải (TMS), WMS, Email, tổng đài IP, Zalo/Chatbot, v.v.
+
+Hỗ trợ triển khai, kiểm thử và vận hành hệ thống CRM.
+
+Tham gia viết tài liệu kỹ thuật và hướng dẫn người dùng.
+
+Bảo trì, cập nhật và nâng cấp tính năng định kỳ theo yêu cầu.
+
+Hợp tác với các team nội bộ để đảm bảo giải pháp phần mềm phù hợp thực tế hoạt động logistics.
+
+E. Quyền Lợi
+
+Thu nhập ổn định: 12.000.000 + Phụ cấp + Thưởng KPI.
+
+Môi trường làm việc trẻ trung, chuyên nghiệp.
+
+Được đào tạo chuyên môn về vận hành kho quốc tế và logistics phi mậu dịch.
+
+Có lộ trình thăng tiến cho nhân viên gắn bó và có năng lực.
+
+Đóng BHXH, BHYT, BH thất nghiệp và các chế độ chính sách theo Bộ Luật lao Động.
+
+Hưởng đầy đủ chính sách phúc lợi của công ty: Thưởng các dịp lễ, tết, lương tháng 13.

@@ -1,0 +1,55 @@
+CÔNG TY CỔ PHẦN TIXIMAX BẢN MÔ TẢ CÔNG VIỆC
+
+Vị trí: Bộ phận: Số hồ sơ:
+
+Thực Tập Sinh IT IT TXM.JD.24
+
+CÔNG TY CỔ PHẦN TIXIMAX	Thực Tập Sinh IT	IT	TXM.JD.24
+
+A. Mục tiêu công việc
+
+Hỗ trợ xây dựng và phát triển giao diện người dùng cho hệ thống quản lý logistics, đảm bảo trải nghiệm mượt mà và trực quan trong các tính năng: quản lý đơn hàng, báo giá, theo dõi tình trạng đơn hàng, xử lý thanh toán và hiển thị báo cáo theo thời gian thực.
+
+B. Quan hệ công việc
+
+B. Thời gian và Địa điểm làm việc
+
+Thời gian làm việc: Tối thiểu 3-4 ngày/ 1 tuần.
+
+Từ 8h15: 12h00- Chiều từ 13h15: 17h15’ (nghỉ trưa 1h15’)
+
+Địa điểm làm việc: Số 65, Đường số 9, Khu dân cư Vạn Phúc, Phường Hiệp Bình Phước, TP.Hồ Chí Minh.
+
+C. Yêu cầu về trình độ và kỹ năng
+
+Sinh viên năm 3-4 Cao đẳng/Đại học các ngành về Công Nghệ Thông Tin.
+
+Có kỹ năng đàm phán, giao tiếp và xử lý tình huống tốt.
+
+Có khả năng làm việc độc lập và làm việc nhóm.
+
+Trung thực, chủ động, có tinh thần trách nhiệm cao và chịu được áp lực công việc.
+
+D. Trách nhiệm chính
+
+ Phát triển giao diện Front-end cho các module:
+
+📦 Quản lý đơn hàng (tạo mới, chỉnh sửa, hủy, tìm kiếm).
+
+💰 Báo giá (form nhập dữ liệu, hiển thị giá vận chuyển).
+
+🚚 Theo dõi đơn hàng (tracking status real-time, cập nhật giao hàng).
+
+💳 Thanh toán đơn hàng (tích hợp cổng thanh toán, giao diện xác nhận).
+
+📊 Báo cáo thời gian thực (dashboard trực quan: số lượng đơn, doanh thu, tình trạng giao hàng).
+
+E. Quyền Lợi
+
+Phụ cấp TTS từ 4.000.000 VNĐ- Thoả thuận theo hiệu quả công việc.
+
+Môi trường làm việc trẻ trung, chuyên nghiệp.
+
+Được đào tạo chuyên môn về vận hành kho quốc tế và logistics phi mậu dịch.
+
+Có lộ trình thăng tiến cho nhân viên gắn bó và có năng lực.
