@@ -1,5 +1,5 @@
 # Bỏ models
-src/models/
+src/app/models/
 TRASH/
 src/chat_logs/
 # Bỏ FAISS_Vector trong src
