@@ -1,4 +1,4 @@
-﻿SƠ ĐỒ TỔ CHỨC NHÂN VIÊN CÔNG TY CỔ PHẦN TIXIMAX
+﻿SƠ ĐỒ TỔ CHỨC NHÂN VIÊN CÔNG TY CỔ PHẦN TIXIMAX( sơ đồ nhân viên công ty, sơ đồ nhân sự, sơ đồ tổng )
 1 Giám đốc điều hành (CEO)
 ├─ 1.1 Giám đốc KD PTTT
 │  ├─ 1.1.1 NV CRM

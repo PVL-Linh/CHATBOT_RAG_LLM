@@ -7,5 +7,5 @@ except:
 
 
 if __name__ == "__main__":
-    main_All()
-    # main_HR()
+    # main_All()
+    main_HR()
