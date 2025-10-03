@@ -7,34 +7,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css', v="1") }}" />
 {% endblock %}
 {% block content %}
-  <!-- History Toggle Button -->
-  <button class="history-toggle" id="historyToggle"><i data-lucide="message-square"></i></button>
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  </-- Include chat history sidebar --/>
+  {% include 'partials/chat_history.html' %}
 
-  <!-- Chat History Sidebar -->
-  <div class="chat-sidebar slim" id="chatSidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title">
-        <i data-lucide="history"></i>
-        Chat History
-      </div>
-
-      <!-- NÚT + trong header -->
-      <div class="sidebar-actions">
-        <button class="newchat-toggle" id="newChatBtn" title="Cuộc trò chuyện mới"><i data-lucide="plus"></i></button>
-      </div>
-    </div>
-
-    <div class="search-container">
-      <input type="text" class="search-input" placeholder="Tìm kiếm cuộc trò chuyện..." id="searchInput" />
-    </div>
-
-    <div class="chat-history" id="chatHistory">
-      <!-- Chat items will be dynamically inserted here -->
-    </div>
-  </div>
-
+  </-- Layout chat --/>
   <main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
     <div class="row justify-content-center flex-grow-1 h-100">
       <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">

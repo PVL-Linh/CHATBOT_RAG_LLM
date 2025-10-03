@@ -35,16 +35,10 @@
 
       <section class="main">
         <!-- Topbar: biến thành block để trang con có thể ẩn -->
-        {% block topbar %}
-          <header>
-            <div class="tb-right">
-              {% if active == 'chat' %}
-              {% endif %}
-            </div>
-          </header>
-        {% endblock %}  {% block content %}
-
-        {% endblock %} {% block footer %}
+ 
+        {% block content %}
+        {% endblock %} 
+        {% block footer %}
 
         {% endblock %}
       </section>
