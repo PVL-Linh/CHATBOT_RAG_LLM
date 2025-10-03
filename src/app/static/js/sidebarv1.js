@@ -1,43 +1,5 @@
 // static/js/sidebarv1.js
 (() => {
-  document.addEventListener('DOMContentLoaded', () => {
-    const MIN = 190, MAX = 260, EXTRA = 40; // padding + icon
-    const labels = Array.from(document.querySelectorAll('.sidebar .nav-item span'));
-    let widest = 0;
-    labels.forEach(el => widest = Math.max(widest, el?.scrollWidth || 0));
-    const w = Math.min(MAX, Math.max(MIN, widest + EXTRA));
-    document.body.style.setProperty('--sidebar-w', w + 'px');
-
-    const sidebar = document.getElementById('sidebar');
-    const sbToggle = document.getElementById('sbToggle');
-
-    // Khôi phục trạng thái thu gọn
-    const saved = localStorage.getItem('txm_sidebar_collapsed');
-    if (saved === '1') sidebar.classList.add('is-collapsed');
-
-    // Toggle thu gọn/mở rộng
-    sbToggle?.addEventListener('click', () => {
-      sidebar.classList.toggle('is-collapsed');
-      const collapsed = sidebar.classList.contains('is-collapsed') ? '1' : '0';
-      localStorage.setItem('txm_sidebar_collapsed', collapsed);
-      sbToggle.setAttribute('aria-pressed', collapsed === '1' ? 'true' : 'false');
-      // Cập nhật icon lucide (nếu dùng)
-      if (window.lucide?.createIcons) window.lucide.createIcons();
-    });
-
-    // Tooltip title khi thu gọn (tuỳ chọn): dùng text trong <span>
-    function applyCollapsedTitles() {
-      const collapsed = sidebar.classList.contains('is-collapsed');
-      document.querySelectorAll('.sidebar .nav-item').forEach(a => {
-        const label = a.querySelector('span')?.textContent?.trim() || '';
-        if (collapsed) a.title = label;
-        else a.removeAttribute('title');
-      });
-    }
-    applyCollapsedTitles();
-    const obs = new MutationObserver(applyCollapsedTitles);
-    obs.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-  });
   const KEY_PIN = "txm_sb_pinned";
   const KEY_COLLAPSE = "txm_sb_collapsed";       // 1 = collapsed (ẩn)
   const MQ = window.matchMedia("(min-width: 992px)");
@@ -57,7 +19,7 @@
         !isDesktop());
 
     ico.setAttribute("data-lucide", open ? "chevrons-left" : "chevrons-right");
-    if (window.lucide) { try { lucide.createIcons(); } catch (_) { } }
+    if (window.lucide) { try { lucide.createIcons(); } catch (_) {} }
 
     const btn = document.querySelector(".sb-toggle");
     if (btn) {

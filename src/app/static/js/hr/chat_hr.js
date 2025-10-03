@@ -759,21 +759,7 @@
     } catch { }
   }
 
-  function showMessages(messages) {
-    if (!els.chatList) return;
-    els.chatList.innerHTML = "";
-    if (els.greeting) els.greeting.style.display = messages.length ? "none" : "flex";
 
-    let i = 0;
-    (function pump() {
-      const end = Math.min(i + MSG_CHUNK, messages.length);
-      for (; i < end; i++) {
-        const m = messages[i];
-        addMessage(m.role, m.content, { persist: false });
-      }
-      if (i < messages.length) setTimeout(pump, 0);
-    })();
-  }
 
   // =========================
   // Local Storage Helpers
