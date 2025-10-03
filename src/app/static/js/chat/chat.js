@@ -21,6 +21,7 @@
     chatInput: document.getElementById("chatInput"),
     sendBtn: document.getElementById("sendBtn"),
     timingEl: document.getElementById("timing"),
+    scroll: document.getElementById("chatScroll"),
 
     // History UI (auto-detect both panel and sidebar styles)
     openBtn: document.getElementById("historyBtn") || document.getElementById("historyToggle"),
@@ -73,7 +74,15 @@
   function isSidebarMode() {
     return !!document.getElementById("chatSidebar");
   }
-
+  function scrollToBottom(force = false) {
+    const sc = els.scroll || document.getElementById("chatScroll");
+    if (!sc) return;
+    const threshold = 48; // px: coi như đã ở gần đáy
+    const atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight <= threshold;
+    if (force || atBottom) {
+      sc.scrollTo({ top: sc.scrollHeight, behavior: "smooth" });
+    }
+  }
   function containerIsOpen() {
     const node = els.panel;
     if (!node) return false;
@@ -311,7 +320,7 @@
     li.appendChild(bubble);
     if (els.chatList) {
       els.chatList.appendChild(li);
-      els.chatList.scrollTop = els.chatList.scrollHeight;
+      scrollToBottom(true);
     }
 
     if (opts.persist) {
@@ -323,17 +332,27 @@
 
   function addTyping() {
     if (!els.chatList) return;
+    if (document.getElementById("typingRow")) return; // tránh trùng
+
     const li = document.createElement("li");
     li.id = "typingRow";
     li.className = "msg assistant";
-    li.innerHTML = `<div class="bubble"><span class="dots">Vui lòng chờ...</span></div>`;
+    li.innerHTML = `
+    <div class="bubble">
+      <span class="typing" aria-live="polite" aria-label="Đang soạn...">
+        <span class="label">Thinking</span>
+        <span class="dots3"><span></span><span></span><span></span></span>
+      </span>
+    </div>`;
     els.chatList.appendChild(li);
-    els.chatList.scrollTop = els.chatList.scrollHeight;
+    scrollToBottom(true);
   }
+
 
   function removeTyping() {
     const t = document.getElementById("typingRow");
     if (t) t.remove();
+    scrollToBottom(true);
   }
 
   function resetUIToEmpty() {
@@ -773,6 +792,7 @@
       }
       if (i < messages.length) setTimeout(pump, 0);
     })();
+    scrollToBottom(true);
   }
 
   // =========================
@@ -876,12 +896,13 @@
       if (!text) return;
 
       addMessage("user", text);
+      scrollToBottom(true);
       els.chatInput.value = "";
       els.chatInput.style.height = "auto";
 
       if (els.sendBtn) els.sendBtn.disabled = true;
       addTyping();
-
+      scrollToBottom(true);
       try {
         const res = await fetch("/api/chat", {
           method: "POST",

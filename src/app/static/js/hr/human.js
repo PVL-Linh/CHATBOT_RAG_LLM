@@ -1,16 +1,14 @@
-// Complete Chat System - Fixed Session Management (HR API version) + TREE BLOCK RENDER (connected v2)
 (() => {
   "use strict";
 
-  // =========================
-  // Configuration
-  // =========================
+  /* =========================
+     Configuration
+     ========================= */
   const MAX_SESSIONS = 200;
   const SESSIONS_CHUNK = 20;
   const MSG_CHUNK = 10;
   const MAX_LOCAL_MSGS = 200;
 
-  // ---- API endpoints (HR) ----
   const API = {
     chat: "/api/hr/chat",
     chatStream: "/api/hr/chat/stream",
@@ -24,9 +22,9 @@
     },
   };
 
-  // =========================
-  // Element Detection
-  // =========================
+  /* =========================
+     Element Detection
+     ========================= */
   const els = {
     chatList: document.getElementById("chatList"),
     greeting: document.getElementById("greeting"),
@@ -35,25 +33,19 @@
     sendBtn: document.getElementById("sendBtn"),
     timingEl: document.getElementById("timing"),
     openBtn: document.getElementById("historyBtn") || document.getElementById("historyToggle"),
-    newBtn:
-      document.getElementById("newChatBtn") ||
-      document.getElementById("newSession") ||
-      document.getElementById("newSessionTop"),
+    newBtn: document.getElementById("newChatBtn") || document.getElementById("newSession") || document.getElementById("newSessionTop"),
     overlay: document.getElementById("overlay") || document.getElementById("sidebarOverlay"),
     panel: document.getElementById("historyPanel") || document.getElementById("chatSidebar"),
     closeBtn: document.getElementById("closeHistory") || document.getElementById("closeSidebar"),
-    list:
-      document.getElementById("historyList") ||
-      document.getElementById("chatHistory") ||
-      document.querySelector(
-        ".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"
-      ),
+    list: document.getElementById("historyList") || document.getElementById("chatHistory") ||
+      document.querySelector(".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"),
     search: document.getElementById("searchInput"),
+    scroll: document.getElementById("chatScroll"),
   };
 
-  // =========================
-  // Storage & Session Management
-  // =========================
+  /* =========================
+     Storage & Session Management
+     ========================= */
   let sessionHistory = [];
   const USER = (window.TXM_USER || "anonymous").trim();
   const SESS_KEY = `txm_sessions_${USER}`;
@@ -66,303 +58,274 @@
   let renderCtrl = null;
   let sessionsCache = [];
 
-  // =========================
-  // Utility Functions
-  // =========================
-  function nowTS() { return new Date().toISOString(); }
-  function genId() { return Math.random().toString(36).slice(2, 10); }
-  function msgKey(id) { return MSG_KEY_PREFIX + id; }
+  /* =========================
+     Utilities
+     ========================= */
+  function nowTS(){ return new Date().toISOString(); }
+  function genId(){ return Math.random().toString(36).slice(2,10); }
+  function msgKey(id){ return MSG_KEY_PREFIX + id; }
+  function htmlEscape(s){ if(!s) return ""; const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  function _esc(s){ return String(s||"").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
-  function htmlEscape(s) {
-    if (!s) return "";
-    const d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
-  function lucideRefresh() { try { if (window.lucide) window.lucide.createIcons(); } catch {} }
-  function lockScroll(on) { document.body.style.overflow = on ? "hidden" : ""; }
-  function isSidebarMode() { return !!document.getElementById("chatSidebar"); }
-  function containerIsOpen() {
-    const node = els.panel;
-    if (!node) return false;
+  function lucideRefresh(){ try{ if(window.lucide) window.lucide.createIcons(); }catch{} }
+  function lockScroll(on){ document.body.style.overflow = on ? "hidden" : ""; }
+  function isSidebarMode(){ return !!document.getElementById("chatSidebar"); }
+  function containerIsOpen(){
+    const node = els.panel; if(!node) return false;
     return node.classList.contains(isSidebarMode() ? "active" : "open");
   }
-  const useIdle = (cb, timeout = 500) =>
-    window.requestIdleCallback ? requestIdleCallback(cb, { timeout }) : setTimeout(cb, 0);
+  const useIdle = (cb, timeout=500) => window.requestIdleCallback ? requestIdleCallback(cb, {timeout}) : setTimeout(cb,0);
 
-  // =========================
-  // Local Storage Functions
-  // =========================
-  function loadSessions() { try { return JSON.parse(localStorage.getItem(SESS_KEY) || "[]"); } catch { return []; } }
-  function saveSessions(list) { try { localStorage.setItem(SESS_KEY, JSON.stringify(list)); } catch {} }
-  function loadMsgs(id) { try { return JSON.parse(localStorage.getItem(msgKey(id)) || "[]"); } catch { return []; } }
-  function saveMsgs(id, msgs) { try { if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS); localStorage.setItem(msgKey(id), JSON.stringify(msgs)); } catch {} }
-  function anyLocalMessagesExist() {
+  function scrollToBottom(force=false){
+    const sc = els.scroll || document.getElementById("chatScroll"); if(!sc) return;
+    const threshold = 48;
+    const atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight <= threshold;
+    if(force || atBottom){ sc.scrollTo({ top: sc.scrollHeight, behavior: "smooth" }); }
+  }
+
+  /* =========================
+     Local Storage helpers
+     ========================= */
+  function loadSessions(){ try{ return JSON.parse(localStorage.getItem(SESS_KEY) || "[]"); }catch{ return []; } }
+  function saveSessions(list){ try{ localStorage.setItem(SESS_KEY, JSON.stringify(list)); }catch{} }
+  function loadMsgs(id){ try{ return JSON.parse(localStorage.getItem(msgKey(id)) || "[]"); }catch{ return []; } }
+  function saveMsgs(id, msgs){ try{ if(msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS); localStorage.setItem(msgKey(id), JSON.stringify(msgs)); }catch{} }
+  function anyLocalMessagesExist(){
     const sessions = loadSessions();
-    for (const s of sessions) { const msgs = loadMsgs(s.id); if (msgs && msgs.length) return true; }
+    for(const s of sessions){ const msgs = loadMsgs(s.id); if(msgs && msgs.length) return true; }
     return false;
   }
-  function clearAllLocalForUser() {
-    try {
+  function clearAllLocalForUser(){
+    try{
       const keys = Object.keys(localStorage);
-      keys.forEach((k) => {
-        if (k === SESS_KEY || k === CURR_KEY || k.startsWith(MSG_KEY_PREFIX)) {
-          localStorage.removeItem(k);
-        }
+      keys.forEach((k)=>{
+        if(k === SESS_KEY || k === CURR_KEY || k.startsWith(MSG_KEY_PREFIX)){ localStorage.removeItem(k); }
       });
-    } catch {}
+    }catch{}
   }
-  function ensureLocalSchema() {
+  function ensureLocalSchema(){
     const v = Number(localStorage.getItem(LSCHEMA_KEY) || 0);
-    if (v < LSCHEMA_VERSION) {
+    if(v < LSCHEMA_VERSION){
       clearAllLocalForUser();
       localStorage.setItem(LSCHEMA_KEY, String(LSCHEMA_VERSION));
     }
   }
-  function ensureLocalSessionEntry(id) {
+  function ensureLocalSessionEntry(id){
     const sessions = loadSessions();
-    if (!sessions.find((x) => x.id === id)) {
-      sessions.unshift({ id, name: "Cuộc trò chuyện mới", createdAt: nowTS(), updatedAt: nowTS() });
-      saveSessions(sessions);
-      saveMsgs(id, []);
+    if(!sessions.find((x)=>x.id===id)){
+      sessions.unshift({ id, name:"Cuộc trò chuyện mới", createdAt:nowTS(), updatedAt:nowTS() });
+      saveSessions(sessions); saveMsgs(id, []);
     }
   }
 
-  // =========================
-  // Session Management Functions
-  // =========================
-  function exposeCurrentSessionId() { try { window.currentSessionId = currentSessionId; } catch {} }
-  function setSessionHistoryRef(arr) { sessionHistory = Array.isArray(arr) ? arr : []; try { window.sessionHistory = sessionHistory; } catch {} }
+  /* =========================
+     Session Management
+     ========================= */
+  function exposeCurrentSessionId(){ try{ window.currentSessionId = currentSessionId; }catch{} }
+  function setSessionHistoryRef(arr){ sessionHistory = Array.isArray(arr) ? arr : []; try{ window.sessionHistory = sessionHistory; }catch{} }
 
-  function adoptServerSid(newSid) {
-    if (!newSid) return;
-    if (!currentSessionId) {
+  function adoptServerSid(newSid){
+    if(!newSid) return;
+    if(!currentSessionId){
       currentSessionId = newSid; localStorage.setItem(CURR_KEY, newSid);
       ensureLocalSessionEntry(newSid); exposeCurrentSessionId(); useIdle(markActiveSessionInList); return;
     }
-    if (currentSessionId === newSid) return;
+    if(currentSessionId === newSid) return;
     currentSessionId = newSid; localStorage.setItem(CURR_KEY, newSid);
     ensureLocalSessionEntry(newSid); exposeCurrentSessionId(); useIdle(markActiveSessionInList);
   }
 
-  async function createServerSession(title) {
-    try {
-      const res = await fetch(API.history.newSession, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(title ? { title } : {}) });
+  async function createServerSession(title){
+    try{
+      const res = await fetch(API.history.newSession,{ method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(title?{title}:{}) });
       const data = await res.json();
-      if (data && data.session_id) { adoptServerSid(data.session_id); return data.session_id; }
-    } catch (e) { console.warn("Server session creation failed:", e); }
+      if(data && data.session_id){ adoptServerSid(data.session_id); return data.session_id; }
+    }catch(e){ console.warn("Server session creation failed:", e); }
     throw new Error("Không tạo được session_id từ server");
   }
 
-  function ensureSession(createIfMissing = false) {
-    if (currentSessionId) return currentSessionId;
-    if (!createIfMissing) return null;
+  function ensureSession(createIfMissing=false){
+    if(currentSessionId) return currentSessionId;
+    if(!createIfMissing) return null;
     const id = genId();
     const sessions = loadSessions();
-    sessions.unshift({ id, name: "Cuộc trò chuyện mới", createdAt: nowTS(), updatedAt: nowTS() });
-    saveSessions(sessions);
-    localStorage.setItem(CURR_KEY, id);
+    sessions.unshift({ id, name:"Cuộc trò chuyện mới", createdAt:nowTS(), updatedAt:nowTS() });
+    saveSessions(sessions); localStorage.setItem(CURR_KEY, id);
     currentSessionId = id; exposeCurrentSessionId(); saveMsgs(id, []);
     return id;
   }
 
-  function setSessionTitleFromFirstUser(msg) {
-    if (!currentSessionId) return;
+  function setSessionTitleFromFirstUser(msg){
+    if(!currentSessionId) return;
     const sessions = loadSessions();
-    const s = sessions.find((x) => x.id === currentSessionId);
-    if (!s) return;
-    if (s.name === "Cuộc trò chuyện mới") { s.name = (msg || "Untitled").slice(0, 30); }
+    const s = sessions.find((x)=>x.id===currentSessionId);
+    if(!s) return;
+    if(s.name === "Cuộc trò chuyện mới"){ s.name = (msg || "Untitled").slice(0,30); }
     s.updatedAt = nowTS(); saveSessions(sessions);
   }
 
-  function persistMessage(role, content) {
-    if (!content) return;
-    if (!currentSessionId && role === "user") ensureSession(true);
-    if (!currentSessionId) return;
-
+  function persistMessage(role, content){
+    if(!content) return;
+    if(!currentSessionId && role==="user") ensureSession(true);
+    if(!currentSessionId) return;
     const msgs = loadMsgs(currentSessionId);
-    const last = msgs[msgs.length - 1];
-    if (last && last.role === role && last.content === content) return;
-
+    const last = msgs[msgs.length-1];
+    if(last && last.role===role && last.content===content) return;
     msgs.push({ role, content, at: nowTS() });
     saveMsgs(currentSessionId, msgs);
-
     const sessions = loadSessions();
-    const s = sessions.find((x) => x.id === currentSessionId);
-    if (s) { s.updatedAt = nowTS(); saveSessions(sessions); }
-
-    if (containerIsOpen()) useIdle(startRenderSessions);
+    const s = sessions.find((x)=>x.id===currentSessionId);
+    if(s){ s.updatedAt = nowTS(); saveSessions(sessions); }
+    if(containerIsOpen()) useIdle(startRenderSessions);
   }
 
-  // =========================
-  // TREE RENDER (connected │ ├─ └─) — phiên bản vẽ từ cấp 2
-  // =========================
+  /* =========================
+     TREE RENDER (connected │ ├─ └─)
+     ========================= */
 
-  // Bắt đầu vẽ nhánh từ cấp này trở đi (1 = root -> không vẽ; 2 trở lên vẽ)
+  // Vẽ nhánh từ cấp 2 trở đi
   const CONNECTED_DRAW_FROM_LEVEL = 2;
-  // Giữ số thứ tự trước nhãn (true) hoặc ẩn (false)
+  // KHÔNG hiển thị số trước nhãn — chỉ dùng để xác định bậc
   const CONNECTED_KEEP_NUM = false;
 
-  // Chuẩn hoá khoảng trắng lạ
-  function _normSpaces(s) {
-    return (s || "")
-      .replace(/\uFEFF/g, "")
-      .replace(/[\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D]/g, " ");
+  // Normalize whitespace
+  function _normSpaces(s){
+    return (s||"")
+      .replace(/\uFEFF/g,"")
+      .replace(/[\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D]/g," ");
   }
 
-  // Bóc bỏ bullets/formatting để bắt số
-  function _preTreeLine(s) {
+  function _preTreeLine(s){
     let t = _normSpaces(s).trimEnd();
-    t = t.replace(/^\s*>+\s*/, "");           // >
-    t = t.replace(/^\s*(?:[*+-]\s+)/, "");    // *, -, +
-    t = t.replace(/^\s*(?:\*\*|__|\*|_)\s*/, "");
-    t = t.replace(/\s*(?:\*\*|__|\*|_)\s*$/, "");
+    t = t.replace(/^\s*>+\s*/,"");
+    t = t.replace(/^\s*(?:[*+-]\s+)/,"");
+    t = t.replace(/^\s*(?:\*\*|__|\*|_)\s*/,"");
+    t = t.replace(/\s*(?:\*\*|__|\*|_)\s*$/,"");
     return t;
   }
 
-  // Nhận dạng dòng có token số (chấp nhận đã có connector cũ)
-  const RX_TREE_LINE =
-    /^\s*[│┃║ \t]*(?:[├┝┞┟┠┡┢┣└┕┖┗]\s*[─━┄┅┈┉]+\s*)?\s*\(?([0-9]+(?:\.[0-9]+)*)\)?(?:[.)-])?\s+(.*)$/;
+  // Nhận dạng dòng TREE có số: 1, 1.2, 2.3.4 ...
+  const RX_TREE_LINE = /^\s*[│┃║ \t]*(?:[├┝┞┟┠┡┢┣└┕┖┗]\s*[─━┄┅┈┉]+\s*)?\s*\(?([0-9]+(?:\.[0-9]+)*)\)?(?:[.)-])?\s+(.*)$/;
 
-  function _stripLeadingNumberToken(text) {
-    return String(text || "").replace(/^\s*[0-9]+(?:\.[0-9]+)*\s+/, "");
+  function _stripLeadingNumberToken(text){
+    return String(text||"").replace(/^\s*[0-9]+(?:\.[0-9]+)*\s+/, "");
   }
 
-  function _parseTreeLine(raw) {
+  function _parseTreeLine(raw){
     const s = _preTreeLine(raw);
-    if (!s.trim()) return { kind: "blank", raw: "" };
+    if(!s.trim()) return { kind:"blank", raw:"" };
     const m = s.match(RX_TREE_LINE);
-    if (!m) return { kind: "raw", raw: s };
-    const token = (m[1] || "").trim();
-    const label = (m[2] || "").trim();
-    if (!label) return { kind: "raw", raw: s };
+    if(!m) return { kind:"raw", raw:s };
+    const token = (m[1]||"").trim();
+    const label = (m[2]||"").trim();
+    if(!label) return { kind:"raw", raw:s };
     const parts = token.split(".");
-    const depth = parts.length; // 1 => root (1, 2, 3...), >=2 => vẽ nhánh
-    return { kind: "node", depth, parts, text: `${token} ${label}` };
+    const depth = parts.length; // 1 => root, 2 => con...
+    return { kind:"node", depth, parts, token, label, text:`${token} ${label}` };
   }
 
-  // Kiểm tra còn anh/chị em cùng cấp phía sau (cùng parent, cùng depth)
-  function _hasNextSibling(idx, items) {
+  function _hasNextSibling(idx, items){
     const curr = items[idx];
     const d = curr.depth;
-    const parentKey = curr.parts.slice(0, d - 1).join(".");
-    for (let j = idx + 1; j < items.length; j++) {
+    const parentKey = curr.parts.slice(0, d-1).join(".");
+    for(let j = idx+1; j < items.length; j++){
       const it = items[j];
-      if (it.kind !== "node") continue;
-      if (it.depth < d) return false; // đã ra khỏi subtree của parent
-      if (it.depth === d && it.parts.slice(0, d - 1).join(".") === parentKey) return true;
+      if(it.kind !== "node") continue;
+      if(it.depth < d) return false;
+      if(it.depth === d && it.parts.slice(0, d-1).join(".") === parentKey) return true;
     }
     return false;
   }
 
-  // Build dạng cây có liên kết cột dọc:
-  // - depth=1: in thẳng, không vẽ nhánh
-  // - depth>=2: vẽ từ level=2 đến level=d-1 bằng "│  " nếu cột còn mở, sau đó "├─"/"└─"
-  function _buildConnectedTree(items, opt = {}) {
-    const keepNumbers = opt.keepNumbers ?? CONNECTED_KEEP_NUM;
+  // Build TREE -> HTML (bold nhãn khi depth <= 2, ẩn số)
+  function _buildConnectedTree(items, opt={}){
+    const keepNumbers = opt.keepNumbers ?? CONNECTED_KEEP_NUM; // false
+    const boldUpTo    = opt.boldUpTo ?? 2; // <=2 in đậm
 
-    const nodes = items.filter((x) => x.kind === "node");
-    if (!nodes.length) return items.map((x) => (x.kind === "raw" ? x.raw : "")).join("\n");
+    const nodes = items.filter(x=>x.kind==="node");
+    if(!nodes.length) return items.map(x => (x.kind==="raw" ? _esc(x.raw) : "")).join("\n");
 
     const out = [];
-    // open[level] = còn cột dọc ở level này không (level bắt đầu từ 1)
     const open = [];
 
-    for (let i = 0; i < items.length; i++) {
+    for(let i=0; i<items.length; i++){
       const it = items[i];
 
-      if (it.kind !== "node") {
-        out.push(it.kind === "blank" ? "" : it.raw);
-        continue;
-      }
+      if(it.kind !== "node"){ out.push(it.kind==="blank" ? "" : _esc(it.raw)); continue; }
 
       const d = it.depth;
-
-      // Khi "nhảy" lên bậc nông hơn, đóng các cột sâu hơn
-      for (let k = open.length - 1; k > d; k--) open[k] = false;
-
+      for(let k=open.length-1; k>d; k--) open[k] = false;
       const last = !_hasNextSibling(i, items);
-      const label = keepNumbers ? (it.text || "") : _stripLeadingNumberToken(it.text || "");
 
-      // Root (depth=1): không vẽ nhánh/gạch
-      if (d < CONNECTED_DRAW_FROM_LEVEL) {
-        // Đóng toàn bộ cột cũ (nếu có) khi gặp root mới
-        for (let k = open.length - 1; k >= CONNECTED_DRAW_FROM_LEVEL; k--) open[k] = false;
-        out.push(label);
+      const rawLabel = keepNumbers ? (it.text || "") : _stripLeadingNumberToken(it.text || "");
+      const labelHTML = (d <= boldUpTo) ? `<strong>${_esc(rawLabel)}</strong>` : _esc(rawLabel);
+
+      if(d < CONNECTED_DRAW_FROM_LEVEL){
+        for(let k=open.length-1; k>=CONNECTED_DRAW_FROM_LEVEL; k--) open[k] = false;
+        out.push(labelHTML);
         continue;
       }
 
-      // Vẽ prefix từ level=2..(d-1)
       let prefix = "";
-      for (let k = CONNECTED_DRAW_FROM_LEVEL; k < d; k++) {
-        prefix += open[k] ? "│  " : "   ";
-      }
-      // Nhánh tại level=d
+      for(let k=CONNECTED_DRAW_FROM_LEVEL; k<d; k++){ prefix += open[k] ? "│  " : "   "; }
       prefix += last ? "└─ " : "├─ ";
-
-      out.push(prefix + label);
-
-      // Cập nhật trạng thái cột tại level hiện tại
       open[d] = !last;
+
+      out.push(`${_esc(prefix)}${labelHTML}`);
     }
 
     return out.join("\n");
   }
-  
-  // Cắt message thành block: tree / md. Hỗ trợ ```tree ... ```
-  function _splitBlocks(md) {
-    const lines = _normSpaces(md).replace(/\r\n?/g, "\n").split("\n");
+
+  // Split into blocks: auto-detect tree or ```tree```
+  function _splitBlocks(md){
+    const lines = _normSpaces(md).replace(/\r\n?/g,"\n").split("\n");
     const blocks = [];
     let i = 0;
 
-    while (i < lines.length) {
-      // ép kiểu ```tree
-      if (/^\s*```tree\s*$/i.test(lines[i])) {
+    while(i < lines.length){
+      if(/^\s*```tree\s*$/i.test(lines[i])){
         const start = ++i;
-        while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) i++;
+        while(i < lines.length && !/^\s*```\s*$/.test(lines[i])) i++;
         const raw = lines.slice(start, i);
         const parsed = raw.map(_parseTreeLine);
-        blocks.push({ type: "tree", content: _buildConnectedTree(parsed) });
-        if (i < lines.length && /^\s*```\s*$/.test(lines[i])) i++; // skip ```
+        blocks.push({ type:"tree", content:_buildConnectedTree(parsed, { keepNumbers:false, boldUpTo:2 }) });
+        if(i < lines.length && /^\s*```\s*$/.test(lines[i])) i++;
         continue;
       }
 
-      // tự nhận diện: >= 2 dòng có token số
       const start = i;
       let cnt = 0;
-      while (i < lines.length && RX_TREE_LINE.test(_preTreeLine(lines[i]).trimEnd())) { cnt++; i++; }
-      if (cnt >= 2) {
+      while(i < lines.length && RX_TREE_LINE.test(_preTreeLine(lines[i]).trimEnd())){ cnt++; i++; }
+      if(cnt >= 2){
         const rawBlock = lines.slice(start, i);
         const parsed = rawBlock.map(_parseTreeLine);
-        blocks.push({ type: "tree", content: _buildConnectedTree(parsed) });
+        blocks.push({ type:"tree", content:_buildConnectedTree(parsed, { keepNumbers:false, boldUpTo:2 }) });
         continue;
       }
 
-      // gom md thường
       let j = i;
       const buf = [];
-      while (j < lines.length) {
-        if (/^\s*```tree\s*$/i.test(lines[j])) break;
-        if (RX_TREE_LINE.test(_preTreeLine(lines[j]).trimEnd())) {
+      while(j < lines.length){
+        if(/^\s*```tree\s*$/i.test(lines[j])) break;
+        if(RX_TREE_LINE.test(_preTreeLine(lines[j]).trimEnd())){
           let k = j, c = 0;
-          while (k < lines.length && RX_TREE_LINE.test(_preTreeLine(lines[k]).trimEnd())) { c++; k++; }
-          if (c >= 2) break;
+          while(k < lines.length && RX_TREE_LINE.test(_preTreeLine(lines[k]).trimEnd())){ c++; k++; }
+          if(c >= 2) break;
         }
         buf.push(lines[j]); j++;
       }
-      blocks.push({ type: "md", content: buf.join("\n") });
+      blocks.push({ type:"md", content: buf.join("\n") });
       i = j;
     }
     return blocks;
   }
 
-  // Render block
-  function _renderBlock(block) {
-    if (block.type === "tree") {
+  function _renderBlock(block){
+    if(block.type === "tree"){
       const pre = document.createElement("pre");
       pre.className = "txm-tree";
-      pre.textContent = block.content;
+      pre.innerHTML = block.content;   // dùng HTML để có <strong>
       pre.dataset.isTree = "1";
       return pre;
     }
@@ -372,47 +335,45 @@
     wrapper.innerHTML = clean;
 
     const tables = wrapper.querySelectorAll("table");
-    tables.forEach((t) => {
+    tables.forEach((t)=>{
       const wrap = document.createElement("div");
       wrap.className = "table-scroll";
       t.parentNode.insertBefore(wrap, t);
       wrap.appendChild(t);
     });
-    if (tables.length) wrapper.dataset.hasTable = "1";
+    if(tables.length) wrapper.dataset.hasTable = "1";
 
-    if (window.hljs) {
-      wrapper.querySelectorAll("pre code").forEach((b) => { try { hljs.highlightElement(b); } catch {} });
+    if(window.hljs){
+      wrapper.querySelectorAll("pre code").forEach((b)=>{ try{ hljs.highlightElement(b); }catch{} });
     }
     return wrapper;
   }
 
-  // =========================
-  // Markdown Rendering
-  // =========================
-  if (window.marked) {
-    marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
-  }
-  function renderMarkdown(md) {
+  /* =========================
+     Markdown Rendering
+     ========================= */
+  if(window.marked){ marked.setOptions({ gfm:true, breaks:true, headerIds:false, mangle:false }); }
+  function renderMarkdown(md){
     const blocks = _splitBlocks(md || "");
     const host = document.createElement("div");
     let hasTable = false, hasTree = false;
-    for (const b of blocks) {
+    for(const b of blocks){
       const node = _renderBlock(b);
-      if (node.dataset?.hasTable === "1") hasTable = true;
-      if (node.dataset?.isTree === "1") hasTree = true;
+      if(node.dataset?.hasTable === "1") hasTable = true;
+      if(node.dataset?.isTree === "1") hasTree = true;
       host.appendChild(node);
     }
-    if (hasTable) host.dataset.hasTable = "1";
-    if (hasTree) host.dataset.isTree = "1";
+    if(hasTable) host.dataset.hasTable = "1";
+    if(hasTree) host.dataset.isTree = "1";
     return host;
   }
 
-  // =========================
-  // Chat UI
-  // =========================
-  function addMessage(role, content, opts = { persist: true }) {
-    if (!content) return;
-    if (els.greeting) els.greeting.style.display = "none";
+  /* =========================
+     Chat UI
+     ========================= */
+  function addMessage(role, content, opts={ persist:true }){
+    if(!content) return;
+    if(els.greeting) els.greeting.style.display = "none";
 
     const li = document.createElement("li");
     li.className = "msg " + (role === "user" ? "user" : "assistant");
@@ -421,173 +382,158 @@
     bubble.className = "bubble";
 
     const node = renderMarkdown(content);
-    if (node.dataset && node.dataset.hasTable === "1") bubble.classList.add("is-table");
-    if (node.dataset && node.dataset.isTree === "1") bubble.classList.add("is-tree");
+    if(node.dataset && node.dataset.hasTable === "1") bubble.classList.add("is-table");
+    if(node.dataset && node.dataset.isTree === "1") bubble.classList.add("is-tree");
     bubble.appendChild(node);
 
     li.appendChild(bubble);
-    if (els.chatList) {
-      els.chatList.appendChild(li);
-      els.chatList.scrollTop = els.chatList.scrollHeight;
-    }
+    if(els.chatList){ els.chatList.appendChild(li); }
 
-    if (opts.persist) {
+    scrollToBottom(true);
+
+    if(opts.persist){
       sessionHistory.push({ role, content });
       persistMessage(role, content);
-      try { window.sessionHistory = sessionHistory; } catch {}
+      try{ window.sessionHistory = sessionHistory; }catch{}
     }
   }
 
-  function addTyping() {
-    if (!els.chatList) return;
+  function addTyping(){
+    if(!els.chatList) return;
+    if(document.getElementById("typingRow")) return;
+
     const li = document.createElement("li");
     li.id = "typingRow";
     li.className = "msg assistant";
-    li.innerHTML = `<div class="bubble"><span class="dots">Vui lòng chờ...</span></div>`;
+    li.innerHTML = `
+      <div class="bubble">
+        <span class="typing" aria-live="polite" aria-label="Đang soạn...">
+          <span class="label">Thinking</span>
+          <span class="dots3"><span></span><span></span><span></span></span>
+        </span>
+      </div>`;
     els.chatList.appendChild(li);
-    els.chatList.scrollTop = els.chatList.scrollHeight;
+    scrollToBottom(true);
   }
 
-  function removeTyping() { const t = document.getElementById("typingRow"); if (t) t.remove(); }
-  function resetUIToEmpty() {
+  function removeTyping(){ const t = document.getElementById("typingRow"); if(t) t.remove(); scrollToBottom(true); }
+
+  function resetUIToEmpty(){
     setSessionHistoryRef([]);
-    if (els.chatList) els.chatList.innerHTML = "";
-    if (els.greeting) els.greeting.style.display = "flex";
-    if (els.timingEl) els.timingEl.textContent = "";
+    if(els.chatList) els.chatList.innerHTML = "";
+    if(els.greeting) els.greeting.style.display = "flex";
+    if(els.timingEl) els.timingEl.textContent = "";
+    scrollToBottom(true);
   }
 
-  // =========================
-  // History Container
-  // =========================
-  function syncHistoryWidth() {
-    if (!els.panel) return;
+  /* =========================
+     History Container
+     ========================= */
+  function syncHistoryWidth(){
+    if(!els.panel) return;
     const w = els.panel.getBoundingClientRect().width || 0;
     const effective = Math.min(w, 400);
     document.documentElement.style.setProperty("--history-w", effective + "px");
-
-    const btnW =
-      Math.max((els.openBtn && els.openBtn.offsetWidth) || 0, (els.newBtn && els.newBtn.offsetWidth) || 0) || 56;
+    const btnW = Math.max((els.openBtn && els.openBtn.offsetWidth) || 0, (els.newBtn && els.newBtn.offsetWidth) || 0) || 56;
     document.documentElement.style.setProperty("--float-btn-w", btnW + "px");
   }
-
-  function openContainer() {
-    if (!els.panel || !els.overlay) return;
-    if (containerIsOpen()) return;
-    els.panel.setAttribute("aria-hidden", "false");
+  function openContainer(){
+    if(!els.panel || !els.overlay) return;
+    if(containerIsOpen()) return;
+    els.panel.setAttribute("aria-hidden","false");
     els.panel.classList.add(isSidebarMode() ? "active" : "open");
     els.overlay.classList.add(isSidebarMode() ? "active" : "open");
     document.body.classList.add("sidebar-open");
     syncHistoryWidth();
-    window.addEventListener("resize", syncHistoryWidth, { passive: true });
+    window.addEventListener("resize", syncHistoryWidth, { passive:true });
     lockScroll(true);
     useIdle(startRenderSessions);
   }
-
-  function closeContainer() {
-    if (!els.panel || !els.overlay) return;
-    els.panel.setAttribute("aria-hidden", "true");
+  function closeContainer(){
+    if(!els.panel || !els.overlay) return;
+    els.panel.setAttribute("aria-hidden","true");
     els.panel.classList.remove(isSidebarMode() ? "active" : "open");
     els.overlay.classList.remove(isSidebarMode() ? "active" : "open");
     document.body.classList.remove("sidebar-open");
     window.removeEventListener("resize", syncHistoryWidth);
-    document.documentElement.style.setProperty("--history-w", "0px");
+    document.documentElement.style.setProperty("--history-w","0px");
     lockScroll(false);
     cancelHistoryRender();
   }
+  function cancelHistoryRender(){ if(renderCtrl){ renderCtrl.abort(); renderCtrl = null; } }
 
-  function cancelHistoryRender() { if (renderCtrl) { renderCtrl.abort(); renderCtrl = null; } }
-
-  // =========================
-  // Data Sources (Server + Local)
-  // =========================
-  async function fetchSessionsServer() {
-    try {
+  /* =========================
+     Data Sources
+     ========================= */
+  async function fetchSessionsServer(){
+    try{
       const r = await fetch(API.history.sessions(MAX_SESSIONS));
-      if (!r.ok) throw new Error("server off");
+      if(!r.ok) throw new Error("server off");
       const d = await r.json();
-      const arr = (d.sessions || []).map((s) => ({
+      const arr = (d.sessions || []).map((s)=>({
         id: s.id,
         title: s.title || "Cuộc trò chuyện",
         preview: s.preview || s.last_msg || "",
         last_ts: s.last_ts || s.first_ts || "",
       }));
       return arr;
-    } catch {
-      return null;
-    }
+    }catch{ return null; }
   }
-
-  function loadLocalSessions() {
-    try {
-      return loadSessions().map((s) => ({
+  function loadLocalSessionsUI(){
+    try{
+      return loadSessions().map((s)=>({
         id: s.id, title: s.name || "Cuộc trò chuyện", preview: s.preview || "",
         last_ts: s.updatedAt || s.createdAt || "",
       }));
-    } catch { return []; }
+    }catch{ return []; }
   }
+  async function getSessions(){ const server = await fetchSessionsServer(); if(server) return server; return loadLocalSessionsUI(); }
 
-  async function getSessions() { const server = await fetchSessionsServer(); if (server) return server; return loadLocalSessions(); }
-
-  // =========================
-  // History Rendering
-  // =========================
-  async function startRenderSessions() {
+  /* =========================
+     History Rendering
+     ========================= */
+  async function startRenderSessions(){
     cancelHistoryRender();
     renderCtrl = new AbortController();
-    try {
+    try{
       const list = await getSessions();
-      list.sort((a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0));
+      list.sort((a,b)=> new Date(b.last_ts||0) - new Date(a.last_ts||0));
       sessionsCache = list.slice(0, MAX_SESSIONS);
       renderList(filterSessions(sessionsCache), renderCtrl.signal);
-    } catch (e) {
-      if (e?.name !== "AbortError") console.error("render sessions failed:", e);
-    } finally {
-      renderCtrl = null;
-    }
+    }catch(e){
+      if(e?.name !== "AbortError") console.error("render sessions failed:", e);
+    }finally{ renderCtrl = null; }
   }
-
-  function filterSessions(list) {
+  function filterSessions(list){
     const q = (els.search?.value || "").trim().toLowerCase();
-    if (!q) return list;
-    return list.filter((s) => (s.title || "").toLowerCase().includes(q) || (s.preview || "").toLowerCase().includes(q));
+    if(!q) return list;
+    return list.filter((s)=> (s.title||"").toLowerCase().includes(q) || (s.preview||"").toLowerCase().includes(q));
   }
-
-  function renderList(list, signal) {
-    const host = els.list; if (!host) return;
-    const start = performance.now();
+  function renderList(list, signal){
+    const host = els.list; if(!host) return;
     host.innerHTML = "";
-
     let i = 0;
-    (function pump() {
-      if (signal?.aborted) return;
+    (function pump(){
+      if(signal?.aborted) return;
       const frag = document.createDocumentFragment();
-      for (let n = 0; n < SESSIONS_CHUNK && i < list.length; n++, i++) {
-        const s = list[i];
-        frag.appendChild(renderItemNode(s));
-      }
+      for(let n=0; n<SESSIONS_CHUNK && i<list.length; n++, i++){ const s = list[i]; frag.appendChild(renderItemNode(s)); }
       host.appendChild(frag);
-      if (i < list.length) { setTimeout(pump, 0); }
-      else {
-        lucideRefresh(); markActiveSessionInList();
-        const took = Math.round(performance.now() - start);
-        console.debug(`[history] rendered ${list.length} items in ~${took}ms`);
-      }
+      if(i < list.length){ setTimeout(pump,0); }
+      else{ lucideRefresh(); markActiveSessionInList(); scrollToBottom(false); }
     })();
   }
-
-  function markActiveSessionInList() {
-    if (!els.list) return;
-    try {
-      els.list.querySelectorAll(".chat-item.active, .hp-item.active").forEach((n) => n.classList.remove("active"));
-      if (!currentSessionId) return;
+  function markActiveSessionInList(){
+    if(!els.list) return;
+    try{
+      els.list.querySelectorAll(".chat-item.active, .hp-item.active").forEach(n=>n.classList.remove("active"));
+      if(!currentSessionId) return;
       const id = window.CSS && CSS.escape ? CSS.escape(String(currentSessionId)) : String(currentSessionId);
       const node = els.list.querySelector(`.chat-item[data-id="${id}"], .hp-item[data-id="${id}"]`);
-      if (node) { node.classList.add("active"); node.scrollIntoView({ block: "nearest" }); }
-    } catch {}
+      if(node){ node.classList.add("active"); node.scrollIntoView({ block:"nearest" }); }
+    }catch{}
   }
-
-  function renderItemNode(s) {
-    if (!isSidebarMode()) {
+  function renderItemNode(s){
+    if(!isSidebarMode()){
       const li = document.createElement("li");
       li.className = "hp-item"; li.setAttribute("data-id", String(s.id));
       const row = document.createElement("div");
@@ -601,9 +547,9 @@
         <button class="icon-btn act-rename" title="Đổi tên"><i data-lucide="pencil"></i></button>
         <button class="icon-btn act-delete" title="Xóa"><i data-lucide="trash-2"></i></button>`;
       li.append(row, acts);
-      li.addEventListener("click", (e) => { if (e.target.closest(".acts")) return; openSessionAndRender(s.id); });
-      acts.querySelector(".act-rename").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); inlineRename(s.id, s.title); });
-      acts.querySelector(".act-delete").addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); onDelete(s.id); });
+      li.addEventListener("click", (e)=>{ if(e.target.closest(".acts")) return; openSessionAndRender(s.id); });
+      acts.querySelector(".act-rename").addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); inlineRename(s.id, s.title); });
+      acts.querySelector(".act-delete").addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); onDelete(s.id); });
       return li;
     }
 
@@ -623,285 +569,273 @@
         <button class="action-btn" data-action="rename" title="Đổi tên"><i data-lucide="edit-3"></i></button>
         <button class="action-btn delete" data-action="delete" title="Xóa"><i data-lucide="trash-2"></i></button>
       </div>`;
-    wrap.addEventListener("click", (e) => { if (e.target.closest(".chat-actions")) return; openSessionAndRender(s.id); });
-    wrap.querySelector('[data-action="rename"]').addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); inlineRename(s.id, s.title); });
-    wrap.querySelector('[data-action="delete"]').addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); onDelete(s.id); });
+    wrap.addEventListener("click",(e)=>{ if(e.target.closest(".chat-actions")) return; openSessionAndRender(s.id); });
+    wrap.querySelector('[data-action="rename"]').addEventListener("click",(e)=>{ e.preventDefault(); e.stopPropagation(); inlineRename(s.id, s.title); });
+    wrap.querySelector('[data-action="delete"]').addEventListener("click",(e)=>{ e.preventDefault(); e.stopPropagation(); onDelete(s.id); });
     return wrap;
   }
-
-  function formatTime(ts) {
-    if (!ts) return "";
-    const date = new Date(ts); if (isNaN(+date)) return "";
+  function formatTime(ts){
+    if(!ts) return "";
+    const date = new Date(ts); if(isNaN(+date)) return "";
     const now = new Date(); const diff = now - date; const days = Math.floor(diff / 86400000);
-    if (days === 0) return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
-    if (days === 1) return "Hôm qua";
-    if (days < 7) return `${days} ngày trước`;
+    if(days === 0) return date.toLocaleTimeString("vi-VN",{ hour:"2-digit", minute:"2-digit" });
+    if(days === 1) return "Hôm qua";
+    if(days < 7) return `${days} ngày trước`;
     return date.toLocaleDateString("vi-VN");
   }
 
-  // =========================
-  // Session Actions
-  // =========================
-  function inlineRename(id, currentTitle) {
+  /* =========================
+     Session Actions
+     ========================= */
+  function inlineRename(id, currentTitle){
     const newName = prompt("Đặt tên đoạn chat:", currentTitle || "Cuộc trò chuyện");
-    if (!newName || !newName.trim()) return;
+    if(!newName || !newName.trim()) return;
     commitRename(id, newName.trim());
   }
-
-  async function commitRename(id, newTitle) {
-    try {
-      await fetch(API.history.rename, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: id, title: newTitle }) });
-    } catch {}
-    updateLocalSession(id, (s) => { s.name = newTitle; });
+  async function commitRename(id, newTitle){
+    try{ await fetch(API.history.rename,{ method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ session_id:id, title:newTitle }) }); }catch{}
+    updateLocalSession(id,(s)=>{ s.name = newTitle; });
     await startRenderSessions();
   }
-
-  async function onDelete(id) {
-    if (!confirm("Bạn có chắc chắn muốn xóa cuộc trò chuyện này?")) return;
+  async function onDelete(id){
+    if(!confirm("Bạn có chắc chắn muốn xóa cuộc trò chuyện này?")) return;
     let serverOk = false;
-    try {
-      const r = await fetch(API.history.delete, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: id }) });
-      const d = await r.json().catch(() => ({}));
+    try{
+      const r = await fetch(API.history.delete,{ method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ session_id:id }) });
+      const d = await r.json().catch(()=>({}));
       serverOk = r.ok && d.ok;
-    } catch {}
+    }catch{}
     clearLocal(id);
 
     const deletingCurrent = currentSessionId && String(currentSessionId) === String(id);
-    if (deletingCurrent) {
+    if(deletingCurrent){
       let candidateId = null;
-      try {
+      try{
         const list = await getSessions();
-        const filtered = (list || []).filter((s) => String(s.id) !== String(id));
-        filtered.sort((a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0));
-        if (filtered.length) candidateId = filtered[0].id;
-      } catch {}
+        const filtered = (list || []).filter((s)=> String(s.id) !== String(id));
+        filtered.sort((a,b)=> new Date(b.last_ts||0) - new Date(a.last_ts||0));
+        if(filtered.length) candidateId = filtered[0].id;
+      }catch{}
       localStorage.removeItem(CURR_KEY);
       currentSessionId = null; exposeCurrentSessionId();
       resetUIToEmpty();
-      if (candidateId) { await openSessionAndRender(candidateId); }
-      else { try { await createNewSession(); } catch {} }
+      if(candidateId){ await openSessionAndRender(candidateId); }
+      else{ try{ await createNewSession(); }catch{} }
     }
     await startRenderSessions();
-    if (!serverOk) console.warn("Server delete failed; cleared locally only.");
+    if(!serverOk) console.warn("Server delete failed; cleared locally only.");
   }
-
-  async function createNewSession() {
-    try {
+  async function createNewSession(){
+    try{
       const res = await createServerSession("Cuộc trò chuyện mới");
       resetUIToEmpty(); await startRenderSessions(); closeContainer(); return;
-    } catch {}
-    try {
-      const r = await fetch(API.history.newSession, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: "Cuộc trò chuyện" }) });
-      if (r.ok) {
+    }catch{}
+    try{
+      const r = await fetch(API.history.newSession,{ method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ title:"Cuộc trò chuyện" }) });
+      if(r.ok){
         const d = await r.json(); const sid = d?.session_id || d?.id;
-        if (sid) { adoptServerSid(sid); resetUIToEmpty(); await startRenderSessions(); closeContainer(); return; }
+        if(sid){ adoptServerSid(sid); resetUIToEmpty(); await startRenderSessions(); closeContainer(); return; }
       }
-    } catch {}
+    }catch{}
     ensureSession(true); resetUIToEmpty(); await startRenderSessions(); closeContainer();
   }
 
-  // Open session with proper session switching
-  async function openSessionAndRender(sessionId) {
-    if (!sessionId) return;
-    try {
+  async function openSessionAndRender(sessionId){
+    if(!sessionId) return;
+    try{
       const r = await fetch(API.history.bySession(sessionId));
-      if (r.ok) {
+      if(r.ok){
         const data = await r.json();
         const items = data.items || [];
-        if (els.chatList) els.chatList.innerHTML = "";
-        if (els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
+        if(els.chatList) els.chatList.innerHTML = "";
+        if(els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
         adoptServerSid(data.session_id || sessionId);
-        items.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-        setSessionHistoryRef(items.map(({ role, content }) => ({ role, content })));
-        if (currentSessionId) {
-          const msgs = items.map((m) => ({ role: m.role, content: m.content, at: m.ts || nowTS() }));
+        items.forEach((m)=> addMessage(m.role, m.content, { persist:false }));
+        setSessionHistoryRef(items.map(({role, content})=>({ role, content })));
+        if(currentSessionId){
+          const msgs = items.map((m)=>({ role:m.role, content:m.content, at:m.ts || nowTS() }));
           saveMsgs(currentSessionId, msgs);
-          const firstUser = items.find((x) => x.role === "user");
-          if (firstUser) setSessionTitleFromFirstUser(firstUser.content);
+          const firstUser = items.find((x)=>x.role==="user");
+          if(firstUser) setSessionTitleFromFirstUser(firstUser.content);
         }
-        closeContainer(); return;
+        closeContainer(); scrollToBottom(true); return;
       }
-    } catch {}
-    openLocalSession(sessionId); closeContainer();
+    }catch{}
+    openLocalSession(sessionId); closeContainer(); scrollToBottom(true);
   }
-
-  function openLocalSession(id) {
-    try {
+  function openLocalSession(id){
+    try{
       const all = loadSessions();
-      const s = all.find((x) => String(x.id) === String(id));
-      if (s) {
+      const s = all.find((x)=> String(x.id) === String(id));
+      if(s){
         const msgs = loadMsgs(s.id);
-        if (msgs.length) {
-          if (els.chatList) els.chatList.innerHTML = "";
-          if (els.greeting) els.greeting.style.display = "none";
+        if(msgs.length){
+          if(els.chatList) els.chatList.innerHTML = "";
+          if(els.greeting) els.greeting.style.display = "none";
           currentSessionId = id; localStorage.setItem(CURR_KEY, id); exposeCurrentSessionId(); useIdle(markActiveSessionInList);
-          msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-          setSessionHistoryRef(msgs.map((m) => ({ role: m.role, content: m.content })));
+          msgs.forEach((m)=> addMessage(m.role, m.content, { persist:false }));
+          setSessionHistoryRef(msgs.map((m)=>({ role:m.role, content:m.content })));
+          scrollToBottom(true);
         }
       }
-    } catch {}
+    }catch{}
   }
-
-  function showMessages(messages) {
-    if (!els.chatList) return;
+  function showMessages(messages){
+    if(!els.chatList) return;
     els.chatList.innerHTML = "";
-    if (els.greeting) els.greeting.style.display = messages.length ? "none" : "flex";
+    if(els.greeting) els.greeting.style.display = messages.length ? "none" : "flex";
     let i = 0;
-    (function pump() {
-      const end = Math.min(i + MSG_CHUNK, messages.length);
-      for (; i < end; i++) { const m = messages[i]; addMessage(m.role, m.content, { persist: false }); }
-      if (i < messages.length) setTimeout(pump, 0);
+    (function pump(){
+      const end = Math.min(i+MSG_CHUNK, messages.length);
+      for(; i<end; i++){ const m = messages[i]; addMessage(m.role, m.content, { persist:false }); }
+      if(i < messages.length) setTimeout(pump,0); else scrollToBottom(true);
     })();
   }
 
-  // =========================
-  // Local Storage Helpers
-  // =========================
-  function updateLocalSession(id, mutator) {
-    try {
+  function updateLocalSession(id, mutator){
+    try{
       const arr = loadSessions();
-      const idx = arr.findIndex((s) => String(s.id) === String(id));
-      if (idx >= 0) { mutator(arr[idx]); saveSessions(arr); }
-    } catch {}
+      const idx = arr.findIndex((s)=> String(s.id) === String(id));
+      if(idx >= 0){ mutator(arr[idx]); saveSessions(arr); }
+    }catch{}
   }
-  function clearLocal(id) {
-    try { const filtered = loadSessions().filter((s) => String(s.id) !== String(id)); saveSessions(filtered); } catch {}
-    try { localStorage.removeItem(MSG_KEY_PREFIX + id); } catch {}
+  function clearLocal(id){
+    try{ const filtered = loadSessions().filter((s)=> String(s.id) !== String(id)); saveSessions(filtered); }catch{}
+    try{ localStorage.removeItem(MSG_KEY_PREFIX + id); }catch{}
   }
 
-  // =========================
-  // Server Communication
-  // =========================
-  async function hydrateFromServer() {
-    try {
-      const res = await fetch(API.history.current, { method: "GET" });
+  /* =========================
+     Server Communication
+     ========================= */
+  async function hydrateFromServer(){
+    try{
+      const res = await fetch(API.history.current,{ method:"GET" });
       const data = await res.json();
-
       const items = data.items || [];
       const sid = data.session_id || null;
 
-      if (!sid && !items.length && anyLocalMessagesExist()) {
+      if(!sid && !items.length && anyLocalMessagesExist()){
         clearAllLocalForUser();
-        if (els.chatList) els.chatList.innerHTML = "";
-        if (els.greeting) els.greeting.style.display = "flex";
+        if(els.chatList) els.chatList.innerHTML = "";
+        if(els.greeting) els.greeting.style.display = "flex";
         currentSessionId = null; exposeCurrentSessionId();
         localStorage.removeItem(CURR_KEY);
         return;
       }
 
-      if (sid) adoptServerSid(sid);
+      if(sid) adoptServerSid(sid);
 
-      if (els.chatList) els.chatList.innerHTML = "";
-      if (els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
+      if(els.chatList) els.chatList.innerHTML = "";
+      if(els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
+      items.forEach((m)=> addMessage(m.role, m.content, { persist:false }));
+      setSessionHistoryRef(items.map(({role, content})=>({ role, content })));
 
-      items.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-      setSessionHistoryRef(items.map(({ role, content }) => ({ role, content })));
-
-      if (currentSessionId) {
-        const msgs = items.map((m) => ({ role: m.role, content: m.content, at: m.ts || nowTS() }));
+      if(currentSessionId){
+        const msgs = items.map((m)=>({ role:m.role, content:m.content, at:m.ts || nowTS() }));
         saveMsgs(currentSessionId, msgs);
-        const firstUser = items.find((x) => x.role === "user");
-        if (firstUser) setSessionTitleFromFirstUser(firstUser.content);
+        const firstUser = items.find((x)=>x.role==="user");
+        if(firstUser) setSessionTitleFromFirstUser(firstUser.content);
       }
-    } catch (e) { console.warn("hydrateFromServer() failed:", e); }
+      scrollToBottom(true);
+    }catch(e){ console.warn("hydrateFromServer() failed:", e); }
   }
 
-  async function bootstrapFromLocalThenServer() {
+  async function bootstrapFromLocalThenServer(){
     await hydrateFromServer();
     const hasUI = els.chatList && els.chatList.children && els.chatList.children.length > 0;
-    if (!hasUI) {
-      try {
+    if(!hasUI){
+      try{
         currentSessionId = localStorage.getItem(CURR_KEY) || null; exposeCurrentSessionId();
-        if (currentSessionId && els.chatList) {
+        if(currentSessionId && els.chatList){
           const msgs = loadMsgs(currentSessionId);
-          if (msgs.length) {
-            if (els.greeting) els.greeting.style.display = "none";
+          if(msgs.length){
+            if(els.greeting) els.greeting.style.display = "none";
             els.chatList.innerHTML = "";
-            msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-            setSessionHistoryRef(msgs.map((m) => ({ role: m.role, content: m.content })));
+            msgs.forEach((m)=> addMessage(m.role, m.content, { persist:false }));
+            setSessionHistoryRef(msgs.map((m)=>({ role:m.role, content:m.content })));
+            scrollToBottom(true);
           }
         }
-      } catch {}
+      }catch{}
     }
   }
 
-  // =========================
-  // Chat Form Handler (→ HR API)
-  // =========================
-  if (els.chatForm) {
-    els.chatForm.addEventListener("submit", async (e) => {
+  /* =========================
+     Chat Form Handler
+     ========================= */
+  if(els.chatForm){
+    els.chatForm.addEventListener("submit", async (e)=>{
       e.preventDefault();
-      const text = (els.chatInput?.value || "").trim(); if (!text) return;
+      const text = (els.chatInput?.value || "").trim(); if(!text) return;
 
       addMessage("user", text);
+      scrollToBottom(true);
+
       els.chatInput.value = ""; els.chatInput.style.height = "auto";
 
-      if (els.sendBtn) els.sendBtn.disabled = true;
+      if(els.sendBtn) els.sendBtn.disabled = true;
       addTyping();
 
-      try {
-        const res = await fetch(API.chat, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, session_id: currentSessionId || "" }),
+      try{
+        const res = await fetch(API.chat,{
+          method:"POST", headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ message:text, session_id: currentSessionId || "" }),
         });
         const data = await res.json();
-        if (data.session_id) adoptServerSid(data.session_id);
+        if(data.session_id) adoptServerSid(data.session_id);
 
-        removeTyping(); if (els.sendBtn) els.sendBtn.disabled = false;
+        removeTyping(); if(els.sendBtn) els.sendBtn.disabled = false;
 
-        if (!data.ok) { addMessage("assistant", `⚠️ Lỗi: ${data.error || "Không rõ"}`); return; }
+        if(!data.ok){ addMessage("assistant", `⚠️ Lỗi: ${data.error || "Không rõ"}`); return; }
 
         const answer = data.answer || "";
         addMessage("assistant", answer);
+        scrollToBottom(true);
 
-        if (data.timing && els.timingEl) {
+        if(data.timing && els.timingEl){
           const t = data.timing;
           const total = Number(t.total ?? 0);
           const emb = Number(t.embedding ?? 0);
           const search = Number(t.search ?? 0);
           const llm = Number(t.llm ?? 0);
-          els.timingEl.textContent =
-            `Tổng: ${total.toFixed(2)}s | Embedding: ${emb.toFixed(2)}s | Tìm kiếm: ${search.toFixed(2)}s | LLM: ${llm.toFixed(2)}s`;
+          els.timingEl.textContent = `Tổng: ${total.toFixed(2)}s | Embedding: ${emb.toFixed(2)}s | Tìm kiếm: ${search.toFixed(2)}s | LLM: ${llm.toFixed(2)}s`;
         }
-      } catch (err) {
-        removeTyping(); if (els.sendBtn) els.sendBtn.disabled = false;
+      }catch(err){
+        removeTyping(); if(els.sendBtn) els.sendBtn.disabled = false;
         addMessage("assistant", `❌ Lỗi kết nối: ${err}`);
+        scrollToBottom(true);
       }
     });
 
-    els.chatInput?.addEventListener("input", () => {
+    els.chatInput?.addEventListener("input", ()=>{
       els.chatInput.style.height = "auto";
       els.chatInput.style.height = els.chatInput.scrollHeight + "px";
     });
 
-    els.chatInput?.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) {
+    els.chatInput?.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && !e.shiftKey){
         e.preventDefault();
-        els.chatForm.dispatchEvent(new Event("submit", { cancelable: true }));
+        els.chatForm.dispatchEvent(new Event("submit", { cancelable:true }));
       }
     });
 
-    // Set session title from first user message
-    els.chatForm.addEventListener("submit", () => {
+    els.chatForm.addEventListener("submit", ()=>{
       const text = (els.chatInput?.value || "").trim();
-      if (text) { if (!currentSessionId) ensureSession(true); setSessionTitleFromFirstUser(text); }
+      if(text){ if(!currentSessionId) ensureSession(true); setSessionTitleFromFirstUser(text); }
     }, true);
   }
 
-  // =========================
-  // Event Listeners
-  // =========================
-  if (els.openBtn) els.openBtn.addEventListener("click", () => { containerIsOpen() ? closeContainer() : openContainer(); });
-  if (els.overlay) els.overlay.addEventListener("click", closeContainer);
-  if (els.closeBtn) els.closeBtn.addEventListener("click", closeContainer);
-  window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeContainer(); });
-  if (els.search) els.search.addEventListener("input", () => { renderList(filterSessions(sessionsCache)); });
-  if (els.newBtn) els.newBtn.addEventListener("click", createNewSession);
+  /* =========================
+     Events & Exports
+     ========================= */
+  if(els.openBtn) els.openBtn.addEventListener("click", ()=>{ containerIsOpen() ? closeContainer() : openContainer(); });
+  if(els.overlay) els.overlay.addEventListener("click", closeContainer);
+  if(els.closeBtn) els.closeBtn.addEventListener("click", closeContainer);
+  window.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeContainer(); });
+  if(els.search) els.search.addEventListener("input", ()=>{ renderList(filterSessions(sessionsCache)); });
+  if(els.newBtn) els.newBtn.addEventListener("click", createNewSession);
 
-  // =========================
-  // Global Exports
-  // =========================
-  try {
+  try{
     window.addMessage = addMessage;
     window.persistMessage = persistMessage;
     window.saveMsgs = saveMsgs;
@@ -917,25 +851,15 @@
     window.openSessionAndRender = openSessionAndRender;
 
     window.ChatPage = window.ChatPage || {};
-    window.ChatPage.History = {
-      open: openContainer,
-      close: closeContainer,
-      render: startRenderSessions,
-      create: createNewSession,
-    };
-  } catch {}
+    window.ChatPage.History = { open: openContainer, close: closeContainer, render: startRenderSessions, create: createNewSession };
+  }catch{}
 
-  // =========================
-  // Initialization
-  // =========================
-  document.addEventListener("DOMContentLoaded", () => {
-    if (window.lucide) lucide.createIcons();
+  document.addEventListener("DOMContentLoaded", ()=>{
+    if(window.lucide) lucide.createIcons();
     ensureLocalSchema();
-    try {
-      currentSessionId = localStorage.getItem(CURR_KEY) || null;
-      exposeCurrentSessionId();
-    } catch {}
+    try{ currentSessionId = localStorage.getItem(CURR_KEY) || null; exposeCurrentSessionId(); }catch{}
     bootstrapFromLocalThenServer();
     useIdle(startRenderSessions);
+    scrollToBottom(true);
   });
 })();
