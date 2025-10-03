@@ -1,0 +1,64 @@
+FORMAT_VERSION: TREE_V2
+FILE: QUY TRÌNH THUYÊN CHUYỂN CÔNG TÁC.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\QUY TRÌNH THUYÊN CHUYỂN CÔNG TÁC.pdf
+TITLE: QUY TRÌNH THUYÊN CHUYỂN CÔNG TÁC
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- QUY TRÌNH THUYÊN CHUYỂN CÔNG TÁC
+- Người thực hiện: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ
+- Số hồ sơ:TXM.QT 07
+- QUY TRÌNH THUYÊN CHUYỂN CÔNG TÁC
+- Nhân viên
+- Quản lý
+- Giám đốc
+- BP liên quan
+- 1. Đề xuất
+- Không Duyệt
+- 2. Xét duyệt
+- Duyệt
+- Không Duyệt
+- 3. Xét duyệt
+- Duyệt
+- 4. Nhận thông tin, hoàn tất
+- thủ tục
+- Mô tả chi tiết
+- 1. Nhân viên trong công ty có nhu cầu muốn chuyển vị trí công việc từ Team này sang Team khác hoặc
+- từ vị trí này sang vị trí khác hoặc chuyển công tác giữa các chi nhánh sẽ làm đề xuất theo mẫu.
+- 2. Người tiếp nhận và xử lý đầu tiên là quản lý trực tiếp của nhân viên, yêu cầu xem xét kỹ lưỡng đơn
+- đề xuất kết hợp gặp mặt để phỏng vấn trực tiếp hoặc phỏng vấn online để hiểu rõ hơn về nhu cầu,
+- nguyện vọng của nhân viên.
+- Sau đó, xác nhận, chuyển thông tin sang cho quản lý bộ phận mà nhân viên muốn chuyển sang làm
+- việc để tiếp tục xem xét, phỏng vấn và xác định sự phù hợp về công việc.
+- Trường hợp không duyệt, quản lý thông báo lại cho nhân viên lý do để họ chuẩn bị đề xuất lại hoặc tiếp
+- tục làm việc ở vị trí cũ.
+- 3. Giám đốc tiếp nhận thông tin phê duyệt yêu cầu thuyên chuyển của quản lý, sẽ tiến hành xem xét
+- đánh giá, có thể phỏng vấn lại để có đầy đủ thông tin ra quyết định.
+- Trường hợp không duyệt, Giám đốc phản hồi lại cho nhân viên lý do để họ chuẩn bị đề xuất lại hoặc
+- tiếp tục làm việc ở vị trí cũ.
+- 4. Sau khi quản lý và Giám đốc phê duyệt đề xuất, thông tin sẽ được gửi tới cá bộ phận sau để hoản tất
+- thủ tục thuyên chuyển:
+- P. HCNS tiếp nhận thông tin, tiến hành soạn thảo quyết định thuyên chuyển công tác trình Giám đốc
+- xác nhận, Liên quan đến chuyển công tác giữa các chi nhánh có thể liên quan đến các thủ tục về Bảo
+- hiểm xã hội cần phải chuyển lại P. HCNS khu vực nơi nhân viên chuyển công tác tới. Cập nhật lại tình
+- hình nhân sự và chỉnh sửa những thông tin thay đổi (name card, danh sách nhân sự, ...).
+- P. Pháp chế tiến hành bổ sung một phụ lục hợp đồng hoặc làm lại hợp đồng mới đối với trường hợp
+- nhân sự thay đổi nội dung công việc mới.
+- BP. Tính lương nhận thông tin và những thay đổi trong chính sách lương để cập nhật cách thức tính
+- lương mới cho nhân viên.
+- Tài liệu/
+- Biểu mẫu
+- Thời gian
+- 2. Quản lý trực tiếp: 2 ngày kể từ khi nhận đề xuất
+- Quản lý mới: 2 ngày kể từ khi quản lý trực tiếp duyệt
+- 3. 2 ngày kể từ khi quản lý xác nhận
+- 4. 3 ngày kề từ khi Giám đốc duyệt
+- 1. Đề xuất thuyên chuyển
+- 4. Phụ lục hợp đồng hoặc hợp đồng mới
+- Quyết định thuyên chuyển.

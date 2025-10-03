@@ -1,0 +1,82 @@
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{0}: reset: moving to 8e81f52
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{1}: reset: moving to 8e81f52
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{2}: checkout: moving from backup-code-cua-toi to Linh
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{3}: checkout: moving from 8e81f5285e6e62b6d330b9a5764399a64861ac70 to backup-code-cua-toi
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{4}: checkout: moving from backup-20251003 to 8e81f52
+[33mc8b15b3[m[33m ([m[1;32mbackup-20251003[m[33m)[m HEAD@{5}: commit: backup trước khi pull
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{6}: checkout: moving from Linh to backup-20251003
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{7}: checkout: moving from backup-20251003 to Linh
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{8}: checkout: moving from Linh to backup-20251003
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{9}: checkout: moving from Linh to Linh
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{10}: reset: moving to 8e81f52
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{11}: reset: moving to 8e81f52
+[33m08bb7d5[m HEAD@{12}: checkout: moving from backup-code-moi to Linh
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{13}: checkout: moving from Linh to backup-code-moi
+[33m08bb7d5[m HEAD@{14}: rebase (finish): returning to refs/heads/Linh
+[33m08bb7d5[m HEAD@{15}: commit: yes
+[33m03a971c[m HEAD@{16}: pull origin Linh --rebase (start): checkout 03a971c68656ad9c7cc06b393a83db2432910bc6
+[33m8e81f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mLinh[m[33m, [m[1;31morigin/backup-code-cua-toi[m[33m, [m[1;31morigin/backup-20251003[m[33m, [m[1;31morigin/Linh[m[33m, [m[1;32mbackup-code-moi[m[33m, [m[1;32mbackup-code-cua-toi[m[33m)[m HEAD@{17}: commit: Lưu thay đổi trước khi rebase
+[33m7b38caa[m HEAD@{18}: rebase (abort): returning to refs/heads/Linh
+[33m7b38caa[m HEAD@{19}: rebase (abort): returning to refs/heads/Linh
+[33m2c7c4e3[m HEAD@{20}: commit: fix chức năng của chat hr
+[33mf9cbe4c[m HEAD@{21}: commit: fix chức năng của chat hr
+[33mc332f35[m HEAD@{22}: commit: "delete"
+[33m4cabeda[m HEAD@{23}: checkout: moving from test to Linh
+[33m9d43b82[m[33m ([m[1;31morigin/test[m[33m, [m[1;32mtest[m[33m)[m HEAD@{24}: commit: "bao -> test"
+[33m13664f3[m HEAD@{25}: checkout: moving from Linh to test
+[33m4cabeda[m HEAD@{26}: commit: bị sai
+[33ma6d1b77[m HEAD@{27}: commit: "bị sai"
+[33m03a971c[m HEAD@{28}: commit: "bao -> linh"
+[33mffa4776[m HEAD@{29}: checkout: moving from 96a1d37ab164307b0117270d43f8a47a66edc8de to Linh
+[33m96a1d37[m HEAD@{30}: checkout: moving from Linh to 96a1d37
+[33mffa4776[m HEAD@{31}: commit: "ui hr"
+[33m96a1d37[m HEAD@{32}: commit: update
+[33mbfabd7f[m HEAD@{33}: commit: update key
+[33m093ffab[m HEAD@{34}: commit: SỬA VÀ CẬP NHẬT TÍNH NĂNG TRONG HR
+[33m11f2f6b[m HEAD@{35}: commit: sửa phần cấu trúc thư mục
+[33mf7e2d16[m HEAD@{36}: commit: sửa phần cấu trúc thư mục
+[33md5b25d8[m HEAD@{37}: commit: đẩy data lên
+[33m6748d46[m HEAD@{38}: commit: fix error đường link
+[33m6c59b11[m HEAD@{39}: commit: update - hr : bỏ các link file
+[33mdaf5eda[m HEAD@{40}: commit: update - hr : bỏ các link file
+[33m1c4c292[m HEAD@{41}: commit: chat hr
+[33mf249e15[m HEAD@{42}: commit: "update"
+[33m6e212d3[m HEAD@{43}: commit: "update chat"
+[33m7f56d80[m HEAD@{44}: commit: delete một số file thừa
+[33mdafb8fa[m HEAD@{45}: commit: lấy Ui - bảo - bootstrap
+[33m2dba6be[m HEAD@{46}: commit: "update user.db trong docker"
+[33mf3ea8b2[m HEAD@{47}: commit: fix planner marketing
+[33m1391ff1[m HEAD@{48}: commit: update
+[33m7954fdd[m HEAD@{49}: commit: bỏ số mục
+[33md1280cf[m HEAD@{50}: commit: update wsgi.py
+[33m2fe1557[m HEAD@{51}: commit: "fix một vài lỗi nhỏ"
+[33m108e91c[m HEAD@{52}: commit: fix error
+[33mf48f868[m HEAD@{53}: commit: update phiên bản
+[33m1fdf2d3[m HEAD@{54}: commit: update phiên bản
+[33m3e5ae04[m HEAD@{55}: commit: add tạo ảnh
+[33mf3f2e10[m HEAD@{56}: commit: update imgae
+[33m9254c20[m HEAD@{57}: commit: update
+[33mb7c1d0c[m HEAD@{58}: commit: update
+[33m1b72c86[m HEAD@{59}: commit: update , fix render
+[33m22002f2[m HEAD@{60}: commit: update , fix render
+[33m39f178f[m HEAD@{61}: commit: update app.db
+[33m4a83140[m HEAD@{62}: commit: upload app và user
+[33m5250afe[m HEAD@{63}: commit: fix history
+[33md07e830[m HEAD@{64}: commit: fix history
+[33me368559[m HEAD@{65}: commit: fix history
+[33m0634893[m HEAD@{66}: commit: fix history
+[33m3c10917[m HEAD@{67}: commit: cập nhật user.csv
+[33m48eaf95[m HEAD@{68}: commit: update model_LLM
+[33m0236219[m HEAD@{69}: commit: "sửa user"
+[33meaed448[m HEAD@{70}: commit: update model_LLM
+[33m9fc61a2[m HEAD@{71}: commit: sửa file model_llm sử dụng hugging face
+[33m02e1925[m HEAD@{72}: commit: test erorr
+[33m89996e4[m HEAD@{73}: commit: test erorr
+[33mb22679a[m HEAD@{74}: commit: test erorr
+[33mebf805b[m HEAD@{75}: commit: test erorr
+[33m0595753[m HEAD@{76}: commit: Fix error Docker
+[33mfebec0e[m HEAD@{77}: commit: test
+[33m1d475d5[m HEAD@{78}: commit: test
+[33m08882ad[m[33m ([m[1;31morigin/Linh-clean-2025-08-29[m[33m)[m HEAD@{79}: rebase (pick): test
+[33md6792cc[m HEAD@{80}: rebase (pick): Re-add models placeholder; ignore contents
+[33m4a8f67e[m HEAD@{81}: commit: 

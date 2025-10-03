@@ -1,54 +1,77 @@
-{# templates/home/partials/_marketing_sidebar.html #}
-<aside id="sidebar-mkt" class="sidebar">
-  {# Chuẩn hoá roles như trên #} {% set r1 = (session.get('role') or '')|lower
-  %} {% set r2 = (session.get('roles') or [])|join(',')|lower %} {% set r_all =
-  (',' ~ (r1|replace(';', ',')|replace('|', ',')|replace('/', ',')|replace(' ',
-  ',')) ~ ',' ~ r2 ~ ',') %} {% set can_admin = (',admin,' in r_all) %} {% set
-  can_channels = can_admin or (',manager_marketing,' in r_all) %}
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}">
+{% endblock %}
+<aside id="sidebar-mkt" class="mkt-sidebar bg-body border-end sticky-top" aria-label="Marketing navigation">
+  {# Chuẩn hoá roles từ session #}
+  {% set r1 = (session.get('role') or '')|lower %}
+  {% set r2 = (session.get('roles') or [])|join(',')|lower %}
+  {% set r_all = (',' ~ (r1|replace(';', ',')|replace('|', ',')|replace('/', ',')|replace(' ', ',')) ~ ',' ~ r2 ~ ',') %}
+  {% set can_channels = (',admin,' in r_all) or (',manager_marketing,' in r_all) or (',manager_sales,' in r_all) %}
 
-  <nav>
-    <a
-      href="/marketing"
-      class="{{ 'active' if request.path == '/marketing' else '' }}"
-      >📣 Facebook Ads</a
-    >
-
-    <a
-      href="/marketing/rephrase"
-      class="{{ 'active' if request.path.startswith('/marketing/rephrase') else '' }}"
-    >
-      📝 Rephrase Content
+  <nav class="mkt-nav nav flex-column nav-pills gap-2 py-2">
+    {# Facebook #}
+    <a href="/marketing"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path == '/marketing' else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="Facebook Content" aria-label="Facebook Content">
+      <span class="mkt-ico">📣</span>
+      <span class="mkt-txt d-none d-md-inline">Facebook Content</span>
     </a>
 
-    <a
-      href="/marketing/tiktok"
-      class="{{ 'active' if request.path.startswith('/marketing/tiktok') else '' }}"
-    >
-      🎬 TikTok Script
+    {# Rephrase #}
+    <a href="/marketing/rephrase"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path.startswith('/marketing/rephrase') else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="Rephrase Content" aria-label="Rephrase Content">
+      <span class="mkt-ico">📝</span>
+      <span class="mkt-txt d-none d-md-inline">Rephrase Content</span>
     </a>
 
-    <a
-      href="/marketing/fab"
-      class="{{ 'active' if request.path.startswith('/marketing/fab') else '' }}"
-    >
-      📦 FAB Optimize
+    {# TikTok #}
+    <a href="/marketing/tiktok"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path.startswith('/marketing/tiktok') else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="TikTok Script" aria-label="TikTok Script">
+      <span class="mkt-ico">🎬</span>
+      <span class="mkt-txt d-none d-md-inline">TikTok Script</span>
     </a>
 
-    <a
-      href="/marketing/planner"
-      class="{{ 'active' if request.path.startswith('/marketing/planner') else '' }}"
-    >
-      📅 Content Planner
+    {# FAB #}
+    <a href="/marketing/fab"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path.startswith('/marketing/fab') else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="FAB Optimize" aria-label="FAB Optimize">
+      <span class="mkt-ico">📦</span>
+      <span class="mkt-txt d-none d-md-inline">FAB Optimize</span>
+    </a>
+
+    {# Planner #}
+    <a href="/marketing/planner"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path.startswith('/marketing/planner') else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="Content Planner" aria-label="Content Planner">
+      <span class="mkt-ico">📅</span>
+      <span class="mkt-txt d-none d-md-inline">Content Planner</span>
+    </a>
+
+    {# POD Mockup #}
+    <a href="https://g.co/gemini/share/375cce72dd39" target="_blank"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="POD Mockup Studio" aria-label="POD Mockup Studio">
+      <span class="mkt-ico">🤖</span>
+      <span class="mkt-txt d-none d-md-inline">POD Mockup Studio</span>
     </a>
 
     {% if can_channels %}
-    <a
-      href="/marketing/channels"
-      class="{{ 'active' if request.path.startswith('/marketing/channels') else '' }}"
-    >
-      📡 Marketing Channels
+    <a href="/marketing/channels"
+       class="mkt-link nav-link d-flex align-items-center gap-2 px-3 py-2 {{ 'active' if request.path.startswith('/marketing/channels') else '' }}"
+       data-bs-toggle="tooltip" data-bs-placement="right" title="Marketing Channels" aria-label="Marketing Channels">
+      <span class="mkt-ico">📡</span>
+      <span class="mkt-txt d-none d-md-inline">Marketing Channels</span>
     </a>
-
     {% endif %}
   </nav>
 </aside>
+
+<script>
+  // Bật tooltip cho chế độ icon-only (mobile)
+  document.addEventListener('DOMContentLoaded', () => {
+    const els = document.querySelectorAll('#sidebar-mkt [data-bs-toggle="tooltip"]');
+    els.forEach(el => new bootstrap.Tooltip(el));
+  });
+</script>

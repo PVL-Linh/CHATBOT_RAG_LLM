@@ -1,17 +1,44 @@
 {# templates/home/marketing.html #} {% extends 'home/base.html' %} {% block
-title %} Marketing · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
+title %} Planner · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
 {% block page_css %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
+  href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
 />
+<style>
+/* Luôn cuộn trong thẻ trái, mọi breakpoint */
+#pl_form_card{
+  position: sticky;
+  top: 12px;
+  max-height: calc(100dvh - 24px);   /* dvh cho mobile */
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Đảm bảo con trong grid cho phép cuộn */
+#marketing .content, 
+#marketing .grid-2 { min-height: 0; }
+#pl_tones {
+  display: flex;
+  flex-wrap: wrap;     /* cho phép xuống dòng */
+  gap: 12px;           /* khoảng cách giữa các label */
+}
+
+#pl_tones label {
+  flex: 1 1 auto;      /* co giãn theo không gian */
+  min-width: 220px;    /* cỡ nhỏ nhất trước khi xuống dòng */
+}
+
+</style>
 {% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
 topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
 footer %} {% endblock %} {% block content %}
 <main style="width: auto" id="marketing" class="chat-area">
   <div class="layout">
     {% include 'partials/_marketing_sidebar.html' %}
-
+    
     <main class="content">
       <div style="height: auto" class="grid-2">
         <!-- LEFT -->
@@ -119,7 +146,6 @@ footer %} {% endblock %} {% block content %}
                 <option>Trung bình (300–500 từ)</option>
                 <option>Dài (trên 800 từ)</option>
                 <option>SEO Expert (2000+ từ)</option>
-                <option>Hơn 3500 từ</option>
               </select>
             </label>
           </div>
@@ -201,7 +227,13 @@ footer %} {% endblock %} {% block content %}
 
           <div id="pl_result" class="tab-panel active">
             <div class="result-box">
-              <div id="pl_out" class="markdown"></div>
+              <!-- NEW: vùng cuộn riêng cho kết quả -->
+              <div
+                class="result-scroll"
+                aria-label="Kết quả sinh nội dung (cuộn được)"
+              >
+                <div id="pl_out" class="markdown"></div>
+              </div>
             </div>
             <div id="pl_meta" class="meta"></div>
           </div>
@@ -217,6 +249,6 @@ footer %} {% endblock %} {% block content %}
 {% endblock %} {% block extra_scripts %}
 <script
   defer
-  src="{{ url_for('static', filename='js/planner_MKT.js', v='4') }}"
+  src="{{ url_for('static', filename='js/marketing/planner_MKT.js', v='4') }}"
 ></script>
 {% endblock %}

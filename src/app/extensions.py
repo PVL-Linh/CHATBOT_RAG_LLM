@@ -10,7 +10,7 @@ load_dotenv()
 # Global configuration constants
 LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
 MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
-CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/chat_logs")
+CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/app/Data_app/chat_logs")
 LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
 
 def init_extensions(app):

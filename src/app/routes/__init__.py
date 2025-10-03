@@ -1,6 +1,5 @@
 from flask import Flask
 
-
 def register_blueprints(app: Flask) -> None:
     from .auth import bp as auth_bp
     from .pages import bp as pages_bp
@@ -10,8 +9,9 @@ def register_blueprints(app: Flask) -> None:
     from .history_api import bp as history_bp
     from .pdf_to_txt import bp as pdf_bp
     from .transcribe import bp as stt_bp
-    from .errors import init_error_handlers as _eh # noqa
-
+    from .errors import init_error_handlers as _eh
+    from app.routes.api_fbads_imagefirst import bp as fbads_bp
+    from .hr_rag import bp_hr_rag
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(pages_bp)
@@ -21,8 +21,9 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(history_bp)
     app.register_blueprint(pdf_bp)
     app.register_blueprint(stt_bp)
-
-
+    app.register_blueprint(fbads_bp)
+    app.register_blueprint(bp_hr_rag)
+    
 
 
 def register_error_handlers(app: Flask) -> None:

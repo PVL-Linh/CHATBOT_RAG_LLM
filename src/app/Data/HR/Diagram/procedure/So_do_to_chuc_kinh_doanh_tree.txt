@@ -1,0 +1,22 @@
+﻿SƠ ĐỒ TỔ CHỨC PHÒNG KINH DOANH
+3 Giám đốc điều hành
+├─ 3.1 Giám đốc kinh doanh
+│  ├─ 3.1.1 Sale Leader Indo
+│  │  └─ 3.1.1.1 Nhân viên sale
+│  ├─ 3.1.2 Sale Leader Han
+│  │  └─ 3.1.2.1 Nhân viên sale
+│  ├─ 3.1.3 Sale Leader My
+│  │  └─ 3.1.3.1 Nhân viên sale
+│  ├─ 3.1.4 Sale Leader Nhat
+│  │  └─ 3.1.4.1 Nhân viên sale
+│  ├─ 3.1.5 Leader CSKH
+│  │  ├─ 3.1.5.1 NV xử lí đơn hàng (sale Admin)
+│  │  ├─ 3.1.5.2 Nhân viên CSKH
+│  │  └─ 3.1.5.3 Nhân viên quản lý khiếu nại (Admin)
+│  ├─ 3.1.6 IT
+│  │  ├─ 3.1.6.1 Nhân viên quản lý data KH
+│  │  └─ 3.1.6.2 Nhân viên quản lý web
+│  └─ 3.1.7 Kho
+└─ 3.2 Giám đốc PTTT
+   ├─ 3.2.1 Chuyên viên đối ngoại
+   └─ 3.2.2 Nhân viên CRM

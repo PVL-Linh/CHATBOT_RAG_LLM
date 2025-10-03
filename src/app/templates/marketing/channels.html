@@ -2,35 +2,16 @@
 Tiximax{% endblock %} {# dùng đúng CSS như planner #} {% block page_css %}
 <link
   rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
+  href="{{ url_for('static', filename='css/marketing/chanels.css') }}"
 />
-<style>
-  /* bổ sung rất nhẹ để hiển thị chips + lưới thẻ */
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-  }
-  .chip {
-    background: #ffc940;
-    color: #222;
-    border: none;
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 12px;
-  }
-  .chip .x {
-    margin-left: 6px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
-  }
-</style>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/marketing.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}"
+/>
 {% endblock %} {# ẩn topbar/history/footer như planner #} {% block topbar %}{%
 endblock %} {% block history_panel %}{% endblock %} {% block footer %}{%
 endblock %} {% block content %}
@@ -194,6 +175,6 @@ endblock %} {% block content %}
 {% endblock %} {% block extra_scripts %}
 <script
   defer
-  src="{{ url_for('static', filename='js/channels.js', v='1') }}"
+  src="{{ url_for('static', filename='js/marketing/channels.js', v='1') }}"
 ></script>
 {% endblock %}

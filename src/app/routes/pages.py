@@ -11,7 +11,7 @@ def chat():
 
 
 @bp.route('/marketing', methods=['GET'])
-@login_required(roles=['marketing', 'manager_marketing'])
+@login_required(roles=['marketing', 'manager_marketing', 'sales', 'manager_sales'])
 def marketing():
     return render_template('home/marketing.html', current_user=session.get('user'), active='marketing')
 

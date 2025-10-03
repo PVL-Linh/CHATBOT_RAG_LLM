@@ -1,35 +1,65 @@
-{# templates/home/marketing.html #} {% extends 'home/base.html' %}
+{# templates/home/marketing_fab.html #}
+{% extends 'home/base.html' %}
 {% set active = 'marketing' %}
-{% block
-title %} FAB · Tiximax {% endblock %} {# CSS riêng cho trang Marketing #}
+{% block title %}FAB · Tiximax{% endblock %}
+
+{# CSS đúng như Planner (và chắc chắn nạp luôn sidebar_marketing.css) #}
 {% block page_css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/marketing.css') }}"
-/>
-{% endblock %} {# Ẩn Topbar/History/Footer trên trang Marketing #} {% block
-topbar %} {% endblock %} {% block history_panel %} {% endblock %} {% block
-footer %} {% endblock %} {% block content %}
-  <main style="width: auto;" id="marketing" class="chat-area">
-    <div class="layout">
-      {% include 'partials/_marketing_sidebar.html' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/sidebar_marketing.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marketing/marketing.css') }}">
+  <style>
+      /* Cho phép cuộn toàn bộ nội dung TikTok khi màn hình nhỏ */
+      #marketing .content {
+        height: 100vh; /* full chiều cao màn hình */
+        overflow-y: auto; /* bật cuộn dọc */
+        box-sizing: border-box;
+        scrollbar-gutter: stable;
+      }
+      
+      /* Fix cho grid không bị dãn xấu khi cuộn */
+      #marketing .content > .grid-2 {
+        align-items: flex-start;
+      }
+    </style>
+{% endblock %}
+
+{# Ẩn Topbar/History/Footer trên trang Marketing #}
+{% block topbar %}{% endblock %}
+{% block history_panel %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<main id="marketing" class="chat-area" style="width:auto;">
+  <div class="layout">
+    {% include 'partials/_marketing_sidebar.html' %}
+
+    {# GIỐNG PLANNER: bọc nội dung bằng .content #}
+    <main class="content">
       <div class="grid-2">
-        <section class="card has-local-loader" id="fab_form_card">
-          <h1 style="font-size: 30px; margin: 0;">FAB Optimize (Công thức viết content)</h1>
-          <div class="local-loader hidden">
-            <div class="spinner"></div>
-          </div>
-          <label>
-            Ngôn ngữ<select id="fab_lang">
+        <!-- LEFT -->
+        <section class="card has-local-loader" id="fab_form_card" style="height: auto;">
+          <h1 style="font-size:30px;margin:0;">FAB Optimize (Công thức viết content)</h1>
+          <div class="local-loader hidden"><div class="spinner"></div></div>
+
+          <label>Ngôn ngữ
+            <select id="fab_lang">
               <option>Tiếng Việt</option>
               <option>English</option>
             </select>
           </label>
-          <label>Lợi ích của sản phẩm/dịch vụ *<textarea id="fab_benefits" rows="8" placeholder="Lợi ích cốt lõi…"></textarea></label>
-          <label>Thông tin bổ sung (tuỳ chọn)<textarea id="fab_extra" rows="5" placeholder="USP, quy trình, case, chính sách…"></textarea></label>
+
+          <label>Lợi ích của sản phẩm/dịch vụ *
+            <textarea id="fab_benefits" rows="8" placeholder="Lợi ích cốt lõi…"></textarea>
+          </label>
+
+          <label>Thông tin bổ sung (tuỳ chọn)
+            <textarea id="fab_extra" rows="5" placeholder="USP, quy trình, case, chính sách…"></textarea>
+          </label>
+
           <button class="btn-primary" id="fab_generate">Tạo nội dung</button>
         </section>
 
+        <!-- RIGHT -->
         <section id="fab" class="card">
           <div class="tabs" data-scope="fab">
             <button class="tab active" data-tab="result">Result</button>
@@ -40,17 +70,26 @@ footer %} {% endblock %} {% block content %}
           </div>
 
           <div id="fab_result" class="tab-panel active">
-            <div id="fab_out" class="markdown result-scroll"></div>
+            {# GIỐNG PLANNER: khung cuộn đẹp #}
+            <div class="result-box">
+              <div class="result-scroll" aria-label="Kết quả sinh nội dung (cuộn được)">
+                <div id="fab_out" class="markdown"></div>
+              </div>
+            </div>
+            <div id="fab_meta" class="meta"></div>
           </div>
+
           <div id="fab_saved" class="tab-panel">
             <div id="fab_saved_list" class="saved-list"></div>
           </div>
         </section>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
+</main>
 {% endblock %}
 
 {% block extra_scripts %}
+  {# nếu bạn đang dùng chung file JS cho FAB, giữ nguyên; #}
   <script defer src="{{ url_for('static', filename='js/main_MKT.js', v='3') }}"></script>
 {% endblock %}

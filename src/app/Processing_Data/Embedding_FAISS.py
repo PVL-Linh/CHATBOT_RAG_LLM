@@ -7,10 +7,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
 from pdf_to_text import process_pdf_documents
+
 try:
+    from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
     from .DataBase_Web.web_crawler import web_crawler
 except ImportError:
     from DataBase_Web.web_crawler import web_crawler
+    from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
 # =======================
 # Tham số
 # =======================
@@ -20,14 +23,16 @@ if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
-DOCS_DIR = "./Documents"  # thư mục PDF gốc (sẽ convert -> txt)
+DOCS_DIR = "./Documents/Data_All"  # thư mục PDF gốc (sẽ convert -> txt)
 
 # =======================
-# Đường dẫn
+# Đường dẫn Data all
 # =======================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data"))          # nơi chứa .txt/.csv sau khi convert
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector")) # nơi lưu FAISS index
+DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))          # nơi chứa .txt/.csv sau khi convert
+INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All")) # nơi lưu FAISS index
+
+
 
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
@@ -107,14 +112,14 @@ def _load_text_files(folder: str) -> Dict[str, str]:
 # =======================
 # Main
 # =======================
-def main():
+def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
 
     # B1) Convert PDF -> TXT (luôn chạy trước khi build FAISS)
     #    - pdf_to_text sẽ xử lý header/footer, table_mode theo bạn cấu hình ở đó.
     process_pdf_documents(DOCS_DIR, DATA_DIR)
-
+    web_crawler("Data_All")
     # B2) Load TXT/CSV để embed
     raw = _load_text_files(DATA_DIR)
     if not raw:
@@ -155,6 +160,3 @@ def main():
     vs = FAISS.from_documents(chunks, emb)
     vs.save_local(INDEX_DIR)
     print(f"✅ FAISS index saved at: {INDEX_DIR}")
-
-if __name__ == "__main__":
-    main()

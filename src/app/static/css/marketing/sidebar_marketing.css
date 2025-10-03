@@ -1,0 +1,116 @@
+/* ===== Marketing Sidebar — scoped riêng cho #sidebar-mkt ===== */
+:root {
+  --mkt-sidebar-w: auto;
+  --mkt-topbar-h: 0px;
+  /* nếu có header cố định, chỉnh lại (vd 64px) */
+}
+
+/* Bố cục 2 cột: cột 1 = sidebar marketing */
+#marketing .layout {
+  grid-template-columns: var(--mkt-sidebar-w) 1fr !important;
+}
+
+/* Sidebar marketing luôn hiển thị */
+.mkt-sidebar {
+  position: sticky;
+  top: var(--mkt-topbar-h);
+  z-index: 20;
+  width: var(--mkt-sidebar-w);
+  height: calc(100dvh - var(--mkt-topbar-h));
+  overflow: hidden;
+  background: #fff;
+  color: #111;
+  border-right: 1px solid #eee;
+  /* “kháng” mọi rule ẩn/thu gọn từ ngoài */
+  display: block !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  padding: 0 12px;
+}
+
+/* Nav items */
+.mkt-nav .mkt-link {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  color: #000 !important;
+  text-decoration: none;
+  margin: 4px 0;
+
+  white-space: nowrap;
+  /* không xuống dòng */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* … nếu quá dài */
+}
+
+.mkt-nav .mkt-link:hover {
+  background: #f3f4f6;
+}
+
+.mkt-nav .mkt-link.active {
+  background: #eef2ff;
+  border-top: 0px solid #c7d2fe;
+  border-bottom: 0px solid #c7d2fe;
+}
+
+/* Form trái cuộn độc lập (nếu dùng) */
+#fb_form_card {
+  position: sticky;
+  top: var(--mkt-topbar-h);
+  height: calc(100dvh - var(--mkt-topbar-h));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 8px;
+}
+
+/* Mobile vẫn giữ 2 cột để sidebar marketing không biến mất */
+@media (max-width: 900px) {
+  #marketing .layout {
+    grid-template-columns: var(--mkt-sidebar-w) 1fr !important;
+  }
+
+  .mkt-sidebar {
+    width: var(--mkt-sidebar-w);
+    height: calc(100dvh - var(--mkt-topbar-h));
+  }
+}
+
+/* --- Cho phép text trong sidebar tự wrap khi cột hẹp --- */
+#sidebar-mkt .mkt-link {
+  /* gỡ các ràng buộc 1 dòng nếu có */
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+
+  /* để flex items được co và có thể rơi xuống hàng mới */
+  min-width: 0;
+  flex-wrap: wrap;
+  /* khi hẹp, text có thể xuống hàng */
+  align-items: flex-start;
+}
+
+#sidebar-mkt .mkt-ico {
+  flex: 0 0 auto;
+  /* icon giữ kích thước, không co */
+}
+
+#sidebar-mkt .mkt-txt {
+  flex: 1 1 auto;
+  /* phần chữ chiếm phần còn lại */
+  min-width: 0;
+  /* cho phép co theo bề rộng */
+  white-space: normal;
+  /* bật wrap */
+  overflow-wrap: anywhere;
+  /* bẻ từ bất kỳ đâu nếu cần */
+  word-break: break-word;
+  /* fallback */
+  line-height: 1.25;
+}
+/* Mobile: icon-only nhưng vẫn hiện icon */
+@media (max-width: 575.98px){
+  #sidebar-mkt .mkt-ico { display: inline-flex !important; }
+}
