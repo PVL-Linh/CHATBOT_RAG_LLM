@@ -3,8 +3,8 @@
   Tiximax Chatbot HR
 {% endblock %}
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css', v="1") }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css', v="1") }}" />
 {% endblock %}
 {% block content %}
   <!-- History Toggle Button -->
@@ -40,7 +40,9 @@
       <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">
         <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
           <ul id="chatList" class="chat-list mb-3"></ul>
-          <div id="greeting" class="greeting"></div>
+          <div id="greeting" class="greeting">
+            <div class="g-title-xl">Hello, Can I help you?</div>
+          </div>
         </div>
         <footer class="composer position-sticky bottom-0">
           <form id="chatForm" class="composer-inner">
@@ -55,5 +57,5 @@
   </main>
 {% endblock %}
 {% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/hr/human.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/hr/human.js', v="1") }}"></script>
 {% endblock %}
