@@ -2,15 +2,11 @@ CÔNG TY CỔ PHẦN TIXIMAX BẢN MÔ TẢ CÔNG VIỆC
 
 Vị trí: Bộ phận: Số hồ sơ:
 
-Nhân viên AI Promter IT TXM.JD.19 CÔNG TY CỔ PHẦN TIXIMAX BẢN MÔ TẢ CÔNG VIỆC
+Nhân viên AI Promter IT TXM.JD.19
 
-Vị trí:
+CÔNG TY CỔ PHẦN TIXIMAX	Nhân viên AI Promter	IT	TXM.JD.19
 
-Bộ phận:
-
-Số hồ sơ:
-
-Nhân viên AI Promter IT TXM.JD.19 A. Mục tiêu công việc
+A. Mục tiêu công việc
 
 AI Prompter chuyên ngành Logistics chịu trách nhiệm xây dựng và tối ưu các câu lệnh (prompts) để tương tác hiệu quả với các mô hình trí tuệ nhân tạo (AI), phục vụ cho việc phân tích, dự đoán, và tối ưu hóa chuỗi cung ứng, quản lý kho, vận tải, và các hoạt động logistics khác. Mục tiêu là giúp doanh nghiệp tận dụng sức mạnh của AI để nâng cao hiệu suất và giảm chi phí vận hành.
 
@@ -61,58 +57,6 @@ Huấn luyện và hỗ trợ các phòng ban sử dụng công cụ AI hiệu q
 Cập nhật xu hướng về Prompt Engineering và ứng dụng AI trong lĩnh vực logistics.
 
 E. Quyền Lợi
-
-Thu nhập ổn định: 13.000.000 – 20.000.000 VNĐ + Phụ cấp + Thưởng KPI.
-
-Môi trường làm việc trẻ trung, chuyên nghiệp.
-
-Được đào tạo chuyên môn về vận hành kho quốc tế và logistics phi mậu dịch.
-
-Có lộ trình thăng tiến cho nhân viên gắn bó và có năng lực.
-
-Đóng BHXH, BHYT, BH thất nghiệp và các chế độ chính sách theo Bộ Luật lao Động.
-
-Hưởng đầy đủ chính sách phúc lợi của công ty: Thưởng các dịp lễ, tết, lương tháng 13.
-
-CÔNG TY CỔ PHẦN TIXIMAX	Nhân viên AI Promter	IT	TXM.JD.19
-
-Thời gian làm việc: Từ thứ 2 đến thứ 6 (Thứ 7 làm việc cách tuần.)
-
-Từ 8h15’: 12h00- Chiều từ 13h15: 17h15’ (nghỉ trưa 1h15’)
-
-Địa điểm làm việc: Số 65, Đường số 9, Khu dân cư Vạn Phúc, Phường Hiệp Bình Phước, TP.Hồ Chí Minh.
-
-Không yêu cầu kinh nghiệm, cần các bạn đam mê và nghiên cứu về AI sử dụng nội bộ trong doanh nghiệp.
-
-Hiểu biết về cách vận hành các mô hình AI như ChatGPT, Claude, Gemini...
-
-Có kỹ năng giao tiếp và viết lách tốt để xây dựng lời nhắc rõ ràng, logic và hiệu quả.
-
-Tư duy logic, phân tích tốt, có khả năng hiểu nhanh quy trình nghiệp vụ.
-
-Có khả năng học hỏi nhanh, cập nhật công nghệ mới.
-
-Tư duy sáng tạo và đổi mới
-
-Chủ động học hỏi, cập nhật công nghệ
-
-Giao tiếp liên phòng ban hiệu quả Quản lý thời gian và ưu tiên công việc tốt.
-
-Nghiên cứu quy trình logistics và hiểu rõ các thách thức trong vận hành chuỗi cung ứng để xây dựng prompts AI phù hợp.
-
-Tạo, kiểm thử và tối ưu hóa các prompts sử dụng trong các hệ thống AI như ChatGPT, LLM nội bộ hoặc các nền tảng AI khác nhằm hỗ trợ:
-
-Tự động hóa trả lời khách hàng hoặc quản lý yêu cầu nội bộ
-
-Tối ưu hóa lịch trình giao hàng, điều phối kho bãi, và dự báo nhu cầu
-
-Hợp tác với các nhóm kỹ thuật (Data Engineer, DevOps, AI Engineer...) để tích hợp giải pháp prompt vào hệ thống thực tế.
-
-Phối hợp cùng chuyên gia logistics để hiệu chỉnh lời nhắc phù hợp với nghiệp vụ đặc thù.
-
-Huấn luyện và hỗ trợ các phòng ban sử dụng công cụ AI hiệu quả.
-
-Cập nhật xu hướng về Prompt Engineering và ứng dụng AI trong lĩnh vực logistics.
 
 Thu nhập ổn định: 13.000.000 – 20.000.000 VNĐ + Phụ cấp + Thưởng KPI.
 

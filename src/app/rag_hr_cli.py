@@ -1,14 +1,205 @@
-import os, sys
-from rag_hr.engine_hr import answer_with_rag
+# -*- coding: utf-8 -*-
+"""
+app/rag_hr_cli.py — CLI test cho HR RAG (đặt trong thư mục app)
+
+Cách dùng:
+  # chạy từ thư mục cha chứa cả "app/" và "rag_hr/":
+  python app/rag_hr_cli.py --ask "Sơ đồ tổ chức"
+  # hoặc chạy như module (nếu muốn):
+  python -m app.rag_hr_cli --ask "Sơ đồ tổ chức"
+"""
+
+from __future__ import annotations
+import os
+import sys
+import argparse
+import json
+import re
+from typing import Any, Dict, List
+
+# ------------------------------------------------------------
+# 1) Chuẩn hoá PYTHONPATH: thêm thư mục CHỨA 'app/' và 'rag_hr/'
+# ------------------------------------------------------------
+CUR = os.path.dirname(os.path.abspath(__file__))        # .../app
+PROJECT_ROOT = os.path.abspath(os.path.join(CUR, "..")) # thư mục cha (chứa app/ và rag_hr/)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# đảm bảo app là package (tránh lỗi khi chạy trực tiếp)
+init_app = os.path.join(CUR, "__init__.py")
+if not os.path.exists(init_app):
+    try:
+        open(init_app, "a", encoding="utf-8").close()
+    except Exception:
+        pass
+
+# ------------------------------------------------------------
+# 2) Import engine — ƯU TIÊN rag_hr.engine_hr (đúng layout của bạn)
+# ------------------------------------------------------------
+try:
+    # TH layout A (khuyên dùng): <project_root>/rag_hr/engine_hr.py
+    from rag_hr.engine_hr import answer_with_rag, continue_with_last  # type: ignore
+except Exception as e_a:
+    try:
+        # TH layout B (cũ): <project_root>/app/Model_LLM/hr/engine_hr.py
+        from app.Model_LLM.hr import answer_with_rag, continue_with_last  # type: ignore
+    except Exception as e_b:
+        print("[ERR] Không import được engine HR.")
+        print("Hãy đảm bảo một trong hai layout sau tồn tại:")
+        print("  A) <project_root>/rag_hr/engine_hr.py  (khuyên dùng)")
+        print("  B) <project_root>/app/Model_LLM/hr/engine_hr.py")
+        print("\nChi tiết lỗi:")
+        print(" - rag_hr.engine_hr:", repr(e_a))
+        print(" - app.Model_LLM.hr:", repr(e_b))
+        sys.exit(1)
+
+# ------------------------------------------------------------
+# 3) Helpers in/ra
+# ------------------------------------------------------------
+def _color(s: str, name: str) -> str:
+    if not sys.stdout.isatty():
+        return s
+    C = {"cyan":"\033[36m","green":"\033[32m","yellow":"\033[33m","magenta":"\033[35m","reset":"\033[0m"}
+    c = C.get(name, ""); r = C["reset"] if c else ""
+    return f"{c}{s}{r}"
+
+def _truncate(s: str, n: int) -> str:
+    return s if not s or len(s) <= n else s[: n - 1] + "…"
+
+def _print_header(title: str):
+    print("\n" + "=" * 80)
+    print(title)
+    print("=" * 80)
+
+def _print_answer(ans: str):
+    print(_color("Answer:", "green"))
+    print(ans if ans else "(empty)")
+
+def _print_trace(trace: List[Dict[str, Any]], max_text: int = 240):
+    if not trace:
+        print("(trace rỗng)")
+        return
+    print(_color(f"Trace ({len(trace)} items):", "yellow"))
+    for i, t in enumerate(trace[:50]):
+        src = t.get("source"); cid = t.get("chunk_id"); sc  = t.get("score")
+        txt = _truncate((t.get("text") or "").replace("\n", " "), max_text)
+        h = f"  {i+1:02d}. [{src}|{cid}]"
+        if sc is not None:
+            h += f" score={sc:.4f}"
+        print(h)
+        print(f"      {txt}")
+
+FOLLOWUP_REDRAW_PAT = re.compile(
+    r"\b(v[eê]̃?\s*l[ạ]i|ve lai|draw\s*again|redraw|show\s*again|hi[ẹ]n thị lại|v[ẽ]\s*ti[ế]p)\b", re.I)
+FOLLOWUP_BRANCH_PAT = re.compile(
+    r"(?:nh[á]nh|branch|ph[à]n|b[ộ]\s*ph[ậ]n|team)\s*[a-zA-Z0-9À-ỹ \-_]+", re.I)
+
+def _as_json(ans: str, trace: List[Dict[str, Any]]):
+    print(json.dumps({"answer": ans, "trace": trace}, ensure_ascii=False, indent=2))
+
+BANNER = _color(
+    r"""
+HR RAG CLI (app/)
+────────────
+Lệnh nhanh:
+  --ask  "Câu hỏi"          Hỏi 1 câu
+  --cont "Câu follow-up"    Tiếp tục/vẽ lại (giữ cùng nguồn lần trước)
+Gợi ý chạy:
+  python app/rag_hr_cli.py --ask "Sơ đồ tổ chức"
+""",
+    "cyan",
+)
+
+# ------------------------------------------------------------
+# 4) Argparse
+# ------------------------------------------------------------
+def build_parser():
+    p = argparse.ArgumentParser(description="CLI test cho HR RAG (app/)")
+    p.add_argument("--ask", "-q", type=str, help="Câu hỏi đầu vào")
+    p.add_argument("--cont", type=str, help="Câu follow-up (vẽ lại/nhánh)")
+    p.add_argument("--json", action="store_true", help="In kết quả dạng JSON")
+    p.add_argument("--trace", action="store_true", help="Hiển thị trace")
+    p.add_argument("--max-trace-text", type=int, default=240, help="Giới hạn ký tự mỗi dòng trace")
+    p.add_argument("--rebuild-corpus", action="store_true", help="FORCE_REBUILD_CORPUS_HR=1 (BM25)")
+    p.add_argument("--dotenv", type=str, default=os.environ.get("DOTENV_PATH", ""), help="Chỉ định .env (nếu cần)")
+    return p
+
+def _apply_env(args: argparse.Namespace):
+    if args.dotenv:
+        os.environ["DOTENV_PATH"] = args.dotenv
+    if args.rebuild_corpus:
+        os.environ["FORCE_REBUILD_CORPUS_HR"] = "1"
+
+# ------------------------------------------------------------
+# 5) Chức năng chính
+# ------------------------------------------------------------
+def run_once_ask(q: str, show_json: bool, show_trace: bool, max_trace_text: int):
+    _print_header("ASK")
+    print(_color(f"Q: {q}", "magenta"))
+    ans, trace = answer_with_rag(q)
+    if show_json:
+        _as_json(ans, trace)
+    else:
+        _print_answer(ans)
+        if show_trace:
+            _print_trace(trace, max_text=max_trace_text)
+
+def run_once_cont(q: str, show_json: bool, show_trace: bool, max_trace_text: int):
+    _print_header("CONTINUE")
+    print(_color(f"Follow-up: {q}", "magenta"))
+    ans, trace = continue_with_last(q)
+    if show_json:
+        _as_json(ans, trace)
+    else:
+        _print_answer(ans)
+        if show_trace:
+            _print_trace(trace, max_text=max_trace_text)
+
+def repl(show_trace_default: bool, max_trace_text: int):
+    print(BANNER)
+    while True:
+        try:
+            raw = input(_color("hr> ", "cyan")).strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+        if not raw:
+            continue
+        if raw in (":q", ":quit", ":exit"):
+            break
+        if raw.startswith(":cont"):
+            _, _, tail = raw.partition(" ")
+            q = tail.strip() or "vẽ lại"
+            ans, trace = continue_with_last(q)
+            _print_answer(ans)
+            if show_trace_default:
+                _print_trace(trace, max_trace_text)
+            continue
+        # Auto follow-up nếu user quên dùng :cont
+        if FOLLOWUP_REDRAW_PAT.search(raw) or FOLLOWUP_BRANCH_PAT.search(raw):
+            ans, trace = continue_with_last(raw)
+            _print_answer(ans)
+            if show_trace_default:
+                _print_trace(trace, max_trace_text)
+            continue
+        # Mặc định: hỏi mới
+        ans, trace = answer_with_rag(raw)
+        _print_answer(ans)
+        if show_trace_default:
+            _print_trace(trace, max_trace_text)
 
 def main():
-    q = " ".join(sys.argv[1:]).strip() or input("Hỏi gì: ").strip()
-    print("[CFG] INDEX_DIR_HR =", os.environ.get("INDEX_DIR_HR"))
-    print("[CFG] DATA_DIR_HR  =", os.environ.get("DATA_DIR_HR"))
-    print("[CFG] FAISS_DIR_HR =", os.environ.get("FAISS_DIR_HR") or os.environ.get("INDEX_DIR_HR"))
-    print("[CFG] FORCE_REBUILD_CORPUS_HR =", os.environ.get("FORCE_REBUILD_CORPUS_HR","0"))
-    ans, trace = answer_with_rag(q)
-    print("\n===== ANSWER =====\n" + ans)
+    parser = build_parser()
+    args = parser.parse_args()
+    _apply_env(args)
+
+    if args.ask:
+        run_once_ask(args.ask, args.json, args.trace, args.max_trace_text)
+        return
+    if args.cont:
+        run_once_cont(args.cont, args.json, args.trace, args.max_trace_text)
+        return
+    repl(show_trace_default=args.trace, max_trace_text=args.max_trace_text)
 
 if __name__ == "__main__":
     main()

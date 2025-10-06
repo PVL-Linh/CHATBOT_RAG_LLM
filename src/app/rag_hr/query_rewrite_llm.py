@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import annotations
 import json
-from typing import Dict, List
-from .config_hr import CASE_NORM, USE_QR_LLM, QR_LLM_MODEL, QR_NUM_ALIASES, PHRASE_BOOST_TIMES, DEBUG_QE
+from .config_hr import CASE_NORM_HR, USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR, PHRASE_BOOST_TIMES_HR, DEBUG_QE_HR
 from .utils_hr import normalize_case
 from .gemini_client_hr import init_gemini, ask_gemini
 
@@ -14,21 +12,17 @@ YÊU CẦU:
 - aliases chỉ gồm CỤM DANH TỪ/THÀNH NGỮ NGẮN (≤ 4 từ), không giải thích, không câu dài.
 - Ưu tiên các biến thể phổ biến như: "sơ đồ tổ chức", "cơ cấu tổ chức", "org chart", ...
 - Không bịa tên riêng mới. Không thêm dấu câu thừa.
-VÍ DỤ:
-input: "sơ đồ nhân sự công ty tiximax"
-output:
-{"canonical": "sơ đồ tổ chức", "aliases": ["sơ đồ tổ chức","cơ cấu tổ chức","org chart","organizational chart"]}
 """
 
-def llm_expand_query(q: str) -> Dict[str, str]:
-    nq = normalize_case(q, CASE_NORM)
-    if not USE_QR_LLM:
+def llm_expand_query(q: str) -> dict:
+    nq = normalize_case(q, CASE_NORM_HR)
+    if not USE_QR_LLM_HR:
         return {"lex_query": nq, "canonical": nq}
 
     genai = init_gemini()
     sys = "Bạn chỉ trả JSON như hướng dẫn. Không thêm chữ thừa ngoài JSON."
     user = f'input: "{q}"\nTrả JSON như yêu cầu ở trên.'
-    raw = ask_gemini(genai, QR_LLM_MODEL, sys + _PROMPT, user, json_mode=False).strip()
+    raw = ask_gemini(genai, QR_LLM_MODEL_HR, sys + _PROMPT, user, json_mode=False).strip()
 
     try:
         data = json.loads(raw)
@@ -37,21 +31,21 @@ def llm_expand_query(q: str) -> Dict[str, str]:
             start = raw.find("{"); end = raw.rfind("}")
             data = json.loads(raw[start:end+1])
         except Exception:
-            if DEBUG_QE:
+            if DEBUG_QE_HR:
                 print("[QR-LLM] Parse JSON fail, raw:", raw[:200])
             data = {"canonical": nq, "aliases": []}
 
-    aliases: List[str] = [normalize_case(x, CASE_NORM) for x in (data.get("aliases") or [])]
+    aliases = [normalize_case(x, CASE_NORM_HR) for x in (data.get("aliases") or [])]
     aliases = [a for a in aliases if a and a != nq]
-    aliases = aliases[:max(1, QR_NUM_ALIASES)]
+    aliases = aliases[:max(1, QR_NUM_ALIASES_HR)]
 
     phrases = [f"\"{a}\"" for a in aliases]
     boosted = []
     for p in phrases:
-        boosted.extend([p] * max(1, PHRASE_BOOST_TIMES))
+        boosted.extend([p] * max(1, PHRASE_BOOST_TIMES_HR))
 
     lex_query = " ".join([nq] + boosted)
-    canonical = normalize_case(data.get("canonical") or nq, CASE_NORM)
-    if DEBUG_QE:
+    canonical = normalize_case(data.get("canonical") or nq, CASE_NORM_HR)
+    if DEBUG_QE_HR:
         print(f"[QR-LLM] canonical={canonical} | aliases={aliases}")
     return {"lex_query": lex_query, "canonical": canonical}

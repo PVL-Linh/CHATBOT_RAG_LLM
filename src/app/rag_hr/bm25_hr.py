@@ -1,11 +1,12 @@
+# -*- coding: utf-8 -*-
 import os, json, re
-from typing import List
+from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
 from .config_hr import DATA_DIR_HR, FAISS_DIR_HR, CASE_NORM_HR, USE_BM25_HR
 
-CORPUS_PATH = os.path.join(FAISS_DIR_HR, "corpus.jsonl")
-FORCE_REBUILD = os.environ.get("FORCE_REBUILD_CORPUS_HR","0").lower() not in ("0","false")
+_CORPUS_PATH = os.path.join(FAISS_DIR_HR, "corpus.jsonl")
+_FORCE_REBUILD = os.environ.get("FORCE_REBUILD_CORPUS_HR","0").lower() not in ("0","false")
 
 def _normalize_case(s: str) -> str:
     s = re.sub(r"\s+", " ", (s or "")).strip()
@@ -36,9 +37,9 @@ def _scan_txt(folder: str):
     return out
 
 def _load_corpus_jsonl() -> List[Document]:
-    if not os.path.isfile(CORPUS_PATH): return []
+    if not os.path.isfile(_CORPUS_PATH): return []
     docs = []
-    with open(CORPUS_PATH, "r", encoding="utf-8") as f:
+    with open(_CORPUS_PATH, "r", encoding="utf-8") as f:
         for line in f:
             rec = json.loads(line)
             meta = rec.get("metadata", {})
@@ -48,8 +49,8 @@ def _load_corpus_jsonl() -> List[Document]:
     return docs
 
 def _save_corpus_jsonl(docs: List[Document]):
-    os.makedirs(os.path.dirname(CORPUS_PATH), exist_ok=True)
-    with open(CORPUS_PATH, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(_CORPUS_PATH), exist_ok=True)
+    with open(_CORPUS_PATH, "w", encoding="utf-8") as f:
         for d in docs:
             text = d.page_content
             if text.lower().startswith("passage: "):
@@ -57,10 +58,10 @@ def _save_corpus_jsonl(docs: List[Document]):
             f.write(json.dumps({"text": text, "metadata": d.metadata}, ensure_ascii=False) + "\n")
 
 def _need_rebuild() -> bool:
-    if FORCE_REBUILD: return True
-    if not os.path.isfile(CORPUS_PATH): return True
+    if _FORCE_REBUILD: return True
+    if not os.path.isfile(_CORPUS_PATH): return True
     try:
-        corpus_mtime = os.path.getmtime(CORPUS_PATH)
+        corpus_mtime = os.path.getmtime(_CORPUS_PATH)
         for root, _, files in os.walk(DATA_DIR_HR):
             for fn in files:
                 if fn.lower().endswith(".txt"):
@@ -81,7 +82,7 @@ def prepare_bm25_docs() -> List[Document]:
     if not _need_rebuild():
         docs = _load_corpus_jsonl()
         if docs:
-            print(f"[DBG] Nạp corpus.jsonl ({len(docs)} chunks) từ {CORPUS_PATH}")
+            print(f"[DBG] Nạp corpus.jsonl ({len(docs)} chunks) từ {_CORPUS_PATH}")
             _bm25_docs_cache = docs
             return docs
 
@@ -94,7 +95,7 @@ def prepare_bm25_docs() -> List[Document]:
             cid += 1
     if docs:
         _save_corpus_jsonl(docs)
-        print(f"[DBG] Build corpus.jsonl mới: {len(docs)} chunks → {CORPUS_PATH}")
+        print(f"[DBG] Build corpus.jsonl mới: {len(docs)} chunks → {_CORPUS_PATH}")
     else:
         print(f"[WARN] DATA_DIR_HR rỗng: {DATA_DIR_HR} — BM25 sẽ bị tắt.")
     _bm25_docs_cache = docs
@@ -111,7 +112,7 @@ def get_bm25():
         return None
     try:
         bm25 = BM25Retriever.from_documents(docs)
-        bm25.k = 50  # sẽ được cắt ở ngoài
+        bm25.k = 50
         _bm25_retriever = bm25
         return bm25
     except Exception as e:

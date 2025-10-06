@@ -1,5 +1,5 @@
-import re
-import unicodedata
+# -*- coding: utf-8 -*-
+import re, unicodedata
 
 def select_device() -> str:
     try:

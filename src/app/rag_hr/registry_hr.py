@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json, os, hashlib
 from typing import Dict, List, Optional, Tuple
 from .config_hr import SOURCE_REGISTRY_PATH, DATA_DIR_HR
@@ -52,7 +53,6 @@ def verify_hash_if_present(rec: Dict) -> bool:
     return (calc == sha)
 
 def pick_best_from_scored(doc_type: str, scored_sources: List[Tuple[str,float]]) -> Optional[str]:
-    """Filter scored list by registry type, choose highest score."""
     if not _Registry: load_registry()
     allowed = { (r["path"]): r for r in get_by_type(doc_type) }
     if not allowed:

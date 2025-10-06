@@ -15,6 +15,15 @@ logs/
 ingest/
 
 
+TRASH/
+src/app/chat_logs/
+# Bỏ FAISS_Vector trong src
+src/app/FAISS_Vector/
+instance/
+# Bỏ Data trong src
+src/app/Data/
+src/test.py
+src/uploads/
 # Bỏ file tạm Python
 __pycache__/
 *.pyc

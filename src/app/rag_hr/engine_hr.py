@@ -1,449 +1,1316 @@
-import os, time, re, unicodedata
-from typing import Tuple, List, Dict, Any, Optional
-from langchain_core.documents import Document
+# # -*- coding: utf-8 -*-
+# """
+# engine_hr.py — HR RAG (Tiximax)
+
+# Mục tiêu:
+# 1) NEW ASK "sơ đồ <bộ phận>"  -> ƯU TIÊN CHỌN ĐÚNG FILE TREE CỦA BỘ PHẬN (marketing/kinh doanh/indo/...).
+#    Không cắt nhánh từ sơ đồ tổng cho truy vấn kiểu này.
+# 2) FOLLOW-UP: "vẽ nhánh … / tiếp tục / nhận xét …"
+#    - Dùng prev_answer/prev_trace để vẽ lại nhánh, hoặc
+#    - Gửi prev_answer + follow-up vào LLM để nhận xét/chỉnh lý.
+
+# Public API:
+# - answer_with_rag(question: str) -> (answer, trace)
+# - continue_with_last(followup: str) -> (answer, trace)
+# """
+
+# from __future__ import annotations
+
+# import os
+# import re
+# import time
+# import unicodedata
+# from collections import Counter
+# from typing import Any, Dict, List, Optional, Tuple
+
+# from langchain_core.documents import Document
+
+# from .config_hr import (
+#     DATA_DIR_HR,
+#     RAG_TOPK_HR, K_SEM_HR, K_LEX_HR, MMR_FETCH_K_HR, MMR_LAMBDA_HR,
+#     W_SEM_HR, W_LEX_HR, USE_BM25_HR, FAST_MODE_HR,
+#     USE_RERANK_HR, RERANK_CANDIDATES_HR, RERANK_TOP_K_HR,
+#     MAX_CHARS_CTX_HR, PROFILE_HR, STRIP_CITATIONS_HR, DEBUG_QE_HR, METRICS_HR,
+#     GEMINI_MODEL_ANSWER_HR, GEMINI_MODEL_JUDGE_HR,
+#     USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR,
+#     USE_PRF_HR, PRF_K_SEM_HR, PRF_NGRAMS_HR, PRF_TOP_PHRASES_HR, PRF_MIN_LEN_CHARS_HR,
+#     PHRASE_BOOST_TIMES_HR,
+#     ORG_FULLCOPY_HR, JD_FULLCOPY_HR, FORM_FULLCOPY_HR,
+#     ORG_SOURCE_HINT_HR,
+# )
+# from .prompts_hr import get_system_prompt
+# from .postprocess import strip_citations, cleanup_org_answer
+# from .hybrid_hr import load_vs, hybrid_retrieve, build_lex_query
+# from .rerank_hr import rerank
+# from .intent_router_hr import classify_intent
+# from .gemini_client_hr import init_gemini, ask_gemini
+# from .judge_hr import judge_answer
+# from .context_hr import build_context as _build_context
+
+# __all__ = ["answer_with_rag", "continue_with_last"]
+
+# # =====================================================================
+# #  State
+# # =====================================================================
+# _LAST: Dict[str, Any] = {
+#     "question": "",
+#     "answer": "",
+#     "trace": [],
+#     "intent": "",
+#     "source": "",  # nguồn tree đã dùng lần trước (nếu có)
+# }
+
+# # === Passthrough flags ===
+# STRICT_ORG_PASSTHRU = (os.environ.get("STRICT_ORG_PASSTHRU","1").lower() not in ("0","false","no"))
+# STRICT_JD_PASSTHRU  = (os.environ.get("STRICT_JD_PASSTHRU","1").lower() not in ("0","false","no"))
+# STRICT_FORM_PASSTHRU= (os.environ.get("STRICT_FORM_PASSTHRU","1").lower() not in ("0","false","no"))
+# WRAP_TREE_AS_CODE   = (os.environ.get("WRAP_TREE_AS_CODE","1").lower() not in ("0","false","no"))
+
+# # =====================================================================
+# #  Follow-up patterns
+# # =====================================================================
+# FOLLOWUP_REDRAW_PAT = re.compile(r"\b(v[eê]̃?\s*l[ạ]i|ve lai|draw|redraw|nh[á]nh|branch|ve|vẽ)\b", re.I)
+# FOLLOWUP_CONT_PAT   = re.compile(r"\b(ti[ế]p|ti[ế]p tục|tiếp tục|show\s*again|continue|hi[ẹ]n thị lại)\b", re.I)
+# FOLLOWUP_REVIEW_PAT = re.compile(r"\b(nh[ậ]n x[é]t|d[á]nh gi[á]|review|g[ó]p [ýy]|t[ôo]́i [u]u|cải ti[êe]́n|đề xuất|de xuat)\b", re.I)
+
+# # =====================================================================
+# #  Dept synonyms -> filename hints
+# # =====================================================================
+
+# def _strip_accents(s: str) -> str:
+#     if not s:
+#         return ""
+#     s = unicodedata.normalize("NFD", s)
+#     return "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
+
+# # Khóa logic cho từng sơ đồ chuyên biệt
+# DEPT_SYNONYMS: Dict[str, List[str]] = {
+#     "marketing": ["marketing", "tiếp thị", "tiep thi", "marcom", "mkt"],
+#     "kinh_doanh": ["kinh doanh", "sales", "ban hang", "bán hàng"],
+#     "kinh_doanh_indonesia": ["indonesia", "indo"],
+#     "nhan_vien": ["nhan vien", "nhân viên", "toan cong ty", "tổng"],
+# }
+
+
+# def _dept_key_from_text(s: str) -> Optional[str]:
+#     s0 = _strip_accents((s or "").lower())
+#     s0 = re.sub(r"\s+", " ", s0)
+#     # Ưu tiên indo trước nếu xuất hiện
+#     if any(k in s0 for k in DEPT_SYNONYMS["kinh_doanh_indonesia"]):
+#         return "kinh_doanh_indonesia"
+#     for k, arr in DEPT_SYNONYMS.items():
+#         if k == "kinh_doanh_indonesia":
+#             continue
+#         for a in arr:
+#             if f" {a} " in f" {s0} ":
+#                 return k
+#     return None
+
+
+# def _filename_hints_for_dept(key: Optional[str]) -> List[str]:
+#     if not key:
+#         return []
+#     if key == "marketing":
+#         return ["marketing", "mkt"]
+#     if key == "kinh_doanh_indonesia":
+#         return ["kinh_doanh_indonesia", "indo"]
+#     if key == "kinh_doanh":
+#         return ["kinh_doanh", "sales"]
+#     if key == "nhan_vien":
+#         return ["nhan_vien", "tiximax"]
+#     return []
+
+
+# def _join_unique_chunks(ranked, source: str) -> str:
+#     """Ghép các chunk cùng source theo thứ tự, khử trùng đoạn lặp."""
+#     items = []
+#     for d, _ in ranked:
+#         m = d.metadata or {}
+#         if m.get("source") == source:
+#             cid = m.get("chunk_id", -1)
+#             items.append((cid, d.page_content or ""))
+#     # sort theo chunk_id nếu có
+#     items.sort(key=lambda x: (x[0] if isinstance(x[0], int) else 10**9))
+
+#     seen = set()
+#     out_parts = []
+#     for _, txt in items:
+#         # tách theo đoạn (2+ newline), khử “trùng ý” theo phiên bản thường hoá
+#         for para in re.split(r"\n{2,}", (txt or "").strip()):
+#             key = re.sub(r"\s+", " ", para).strip().lower()
+#             if key and key not in seen:
+#                 seen.add(key)
+#                 out_parts.append(para.strip())
+#     return "\n\n".join(out_parts).strip()
+
+
+# def _clean_jd_headers(raw: str) -> str:
+#     """Loại bỏ header/footer lặp phổ biến của JD."""
+#     if not raw:
+#         return raw
+#     lines = [re.sub(r"\s+", " ", ln).strip() for ln in raw.splitlines()]
+#     cleaned = []
+#     seen_line = set()
+#     for ln in lines:
+#         if not ln:
+#             cleaned.append("")
+#             continue
+#         key = ln.lower()
+#         # chặn một số header JD thường lặp
+#         if key in {
+#             "công ty cổ phần tiximax bản mô tả công việc",
+#             "cong ty co phan tiximax ban mo ta cong viec"
+#         }:
+#             if key in seen_line:
+#                 continue
+#             seen_line.add(key)
+#         cleaned.append(ln)
+#     # gom nhiều dòng trống liên tiếp thành 1
+#     txt = "\n".join(cleaned)
+#     txt = re.sub(r"\n{3,}", "\n\n", txt).strip()
+#     return txt
+
+# # =====================================================================
+# #  File / source helpers
+# # =====================================================================
+
+# def _read_full_source_text(source_rel: str) -> Optional[str]:
+#     if not source_rel:
+#         return None
+#     candidates = [os.path.join(DATA_DIR_HR, source_rel)]
+#     base = os.path.basename(source_rel)
+#     for root, _, files in os.walk(DATA_DIR_HR):
+#         for fn in files:
+#             if fn == base:
+#                 candidates.append(os.path.join(root, fn))
+#     seen = set()
+#     for full in candidates:
+#         full = os.path.abspath(full)
+#         if full in seen:
+#             continue
+#         seen.add(full)
+#         if os.path.isfile(full):
+#             try:
+#                 return open(full, "r", encoding="utf-8", errors="ignore").read()
+#             except Exception:
+#                 pass
+#     return None
+
+
+# def _pick_best_source_from_trace(trace: List[Dict[str, Any]]) -> Optional[str]:
+#     if not trace:
+#         return None
+#     c = Counter()
+#     for item in trace:
+#         src = (item or {}).get("source") or ""
+#         if src:
+#             c[src] += 1
+#     return c.most_common(1)[0][0] if c else None
+
+
+# def _prefer_diagram_source(ranked: List[Tuple[Document, Optional[float]]], dept_key: Optional[str]) -> Optional[str]:
+#     """Ưu tiên chọn đúng file TREE theo bộ phận (nếu có)."""
+#     hints = _filename_hints_for_dept(dept_key)
+
+#     # Nếu là sơ đồ tổng và có hint cấu hình → dùng ngay
+#     if not dept_key and ORG_SOURCE_HINT_HR:
+#         return ORG_SOURCE_HINT_HR
+
+#     def looks_tree(src: str) -> bool:
+#         s = (src or "").lower()
+#         return ("tree" in s) or s.endswith("_tree.txt")
+
+#     # 1) file tree khớp dept hints
+#     for d, _ in ranked:
+#         src = (d.metadata or {}).get("source", "")
+#         s = (src or "").lower()
+#         if dept_key and looks_tree(s) and any(h in s for h in hints):
+#             return src
+
+#     # 2) bất kỳ file tree nào
+#     for d, _ in ranked:
+#         src = (d.metadata or {}).get("source", "")
+#         if looks_tree(src):
+#             return src
+
+#     # 3) fallback: top-1 source
+#     return (ranked[0][0].metadata or {}).get("source")
+
+# # =====================================================================
+# #  QE / Retrieval helpers
+# # =====================================================================
+
+# def _norm(s: str) -> str:
+#     s = (s or "").lower()
+#     s = re.sub(r"\s+", " ", s).strip()
+#     return s
+
+
+# def _qr_llm_aliases(question: str) -> List[str]:
+#     if not USE_QR_LLM_HR:
+#         return []
+#     try:
+#         genai = init_gemini()
+#         model = genai.GenerativeModel(QR_LLM_MODEL_HR)
+#         prompt = f"""Sinh tối đa {QR_NUM_ALIASES_HR} alias ngắn cho câu sau, tiếng Việt/Anh.
+# CÂU: "{question}"
+# Chỉ in danh sách, mỗi dòng 1 alias."""
+#         resp = model.generate_content(prompt)
+#         text = (resp.text or "").strip()
+#         out, seen = [], set()
+#         for line in text.splitlines():
+#             a = line.strip("-*• \t").strip()
+#             if not a:
+#                 continue
+#             n = _norm(a)
+#             if n not in seen:
+#                 out.append(a)
+#                 seen.add(n)
+#         if DEBUG_QE_HR and out:
+#             print(f"[QR-LLM] aliases={out}")
+#         return out[:QR_NUM_ALIASES_HR]
+#     except Exception as e:
+#         print(f"[WARN] QR-LLM lỗi: {e}")
+#         return []
+
+
+# def _prf_phrases(vs, question: str) -> List[str]:
+#     if not USE_PRF_HR:
+#         return []
+#     docs = vs.similarity_search(f"query: {_norm(question)}", k=PRF_K_SEM_HR)
+#     txt = " ".join(d.page_content for d in docs)
+#     tokens = re.findall(r"[a-zA-Z0-9À-ỹ\.]+", _norm(txt))
+#     bag: Dict[str, int] = {}
+#     for n in PRF_NGRAMS_HR:
+#         for i in range(0, max(0, len(tokens) - n + 1)):
+#             g = " ".join(tokens[i:i + n]).strip()
+#             if len(g) >= PRF_MIN_LEN_CHARS_HR:
+#                 bag[g] = bag.get(g, 0) + 1
+#     cand = sorted(bag.items(), key=lambda x: x[1], reverse=True)
+#     out = [w for w, _ in cand[:PRF_TOP_PHRASES_HR]]
+#     if DEBUG_QE_HR and out:
+#         print(f"[PRF] phrases={out}")
+#     return out
+
+# # =====================================================================
+# #  Org subtree extractors
+# # =====================================================================
+# _CODE_FENCE = re.compile(r"^```.*?$|^```$", re.MULTILINE)
+
+
+# def _strip_code_fences(s: str) -> str:
+#     if not s:
+#         return ""
+#     return _CODE_FENCE.sub("", s).strip()
+
+
+# def _visual_indent(line: str) -> int:
+#     m = re.match(r'^[\s│├└─]+', line or '')
+#     return len(m.group(0)) if m else 0
+
+
+# _NUM_PREFIX_RE = re.compile(r'^\s*[│├└─\s]*((?:\d+(?:\.\d+)*))\s+')
+
+
+# def _number_prefix(line: str) -> Optional[str]:
+#     m = _NUM_PREFIX_RE.match(line or "")
+#     return m.group(1) if m else None
+
+
+# def _match_line_title(line: str, title_regex: str) -> bool:
+#     # Match nguyên bản
+#     if re.search(title_regex, line, re.I):
+#         return True
+#     # Match không dấu
+#     return bool(re.search(title_regex, _strip_accents(line).lower(), re.I))
+
+
+# def _relax_patterns_for_token(token: str) -> List[str]:
+#     t = _strip_accents(token or "").lower().strip()
+#     if not t:
+#         return []
+#     pats: List[str] = []
+#     if re.fullmatch(r"[a-z0-9]+", t):
+#         pats = [rf"\b{re.escape(t)}\b", re.escape(t)]
+#     else:
+#         pats = [re.escape(t)]
+#     # synonyms
+#     if t == "marketing":
+#         pats += [r"\bmarcom\b", r"\bmkt\b", "tiep thi"]
+#     if t in ("sales", "kinh doanh"):
+#         pats += ["ban hang"]
+#     return list(dict.fromkeys(pats))
+
+
+# def extract_subtree_by_title(ascii_tree: str, title_regex: str = r"marketing") -> str:
+#     if not ascii_tree:
+#         return ""
+#     body = _strip_code_fences(ascii_tree)
+#     lines = body.splitlines()
+
+#     def _find_start(pat: str) -> Tuple[int, Optional[int], Optional[str]]:
+#         start_idx, base_indent, base_num = -1, None, None
+#         for i, ln in enumerate(lines):
+#             if not ln.strip():
+#                 continue
+#             if _match_line_title(ln, pat):
+#                 start_idx = i
+#                 base_indent = _visual_indent(ln)
+#                 base_num = _number_prefix(ln)
+#                 break
+#         return start_idx, base_indent, base_num
+
+#     tried = [title_regex]
+#     start_idx, base_indent, base_num = _find_start(title_regex)
+#     if start_idx < 0:
+#         # nới pattern nếu token
+#         for pat in _relax_patterns_for_token(title_regex):
+#             if pat in tried:
+#                 continue
+#             tried.append(pat)
+#             start_idx, base_indent, base_num = _find_start(pat)
+#             if start_idx >= 0:
+#                 if DEBUG_QE_HR:
+#                     print(f"[ORG-REDRAW] Relaxed matched by: {pat}")
+#                 break
+#     if start_idx < 0:
+#         if DEBUG_QE_HR:
+#             print(f"[ORG-REDRAW] No match for: {title_regex}. Tried={tried}")
+#         return ""
+
+#     out: List[str] = [lines[start_idx].rstrip()]
+#     for j in range(start_idx + 1, len(lines)):
+#         ln = lines[j]
+#         if not ln.strip():
+#             continue
+#         ind = _visual_indent(ln)
+#         if base_num:
+#             num = _number_prefix(ln)
+#             if num and (num == base_num or num.startswith(base_num + ".")):
+#                 out.append(ln.rstrip())
+#                 continue
+#         if ind > (base_indent or 0):
+#             out.append(ln.rstrip())
+#         else:
+#             break
+#     return "\n".join(out).strip()
+
+# # =====================================================================
+# #  Follow-up action detection
+# # =====================================================================
+
+# def detect_followup_action(text: str) -> str:
+#     """Nhận diện follow-up theo từ khóa KHÔNG DẤU (ổn định hơn)."""
+#     s_raw = (text or "").strip()
+#     s = _strip_accents(s_raw).lower()
+
+#     # REDRAW / VẼ LẠI / VẼ NHÁNH
+#     redraw_keys = [
+#         "ve lai", "ve tiep", "ve nhanh", "ve nhanh", "ve nhanh",
+#         "redraw", "draw again", "draw", "branch", "nhanh", "ve", "hien thi lai", "show again"
+#     ]
+#     if any(k in s for k in redraw_keys):
+#         return "REDRAW"
+
+#     # REVIEW / NHẬN XÉT / GÓP Ý / ĐÁNH GIÁ
+#     review_keys = [
+#         "nhan xet", "review", "comment", "gop y", "danh gia", "nhan dinh",
+#         "de xuat", "nhan xet phan tren", "nhan xet tren", "nhan xet so do"
+#     ]
+#     if any(k in s for k in review_keys):
+#         return "REVIEW"
+
+#     # CONTINUE
+#     continue_keys = ["tiep tuc", "continue"]
+#     if any(k in s for k in continue_keys):
+#         return "CONTINUE"
+
+#     return "NONE"
+
+
+# def _extract_branch_key(followup: str) -> Optional[str]:
+#     s_raw = (followup or "").strip()
+#     if not s_raw:
+#         return None
+#     s_norm = _strip_accents(s_raw).lower()
+#     s_norm = re.sub(r"\s+", " ", s_norm)
+
+#     m = re.search(r"(?:nhanh|branch|phan|bo phan|team)\s+([a-z0-9 \-_.]{2,60})", s_norm)
+#     if m:
+#         key = m.group(1).strip(" .-_")
+#         parts = [p for p in key.split() if p]
+#         if parts:
+#             return parts[-1]
+
+#     for _, arr in DEPT_SYNONYMS.items():
+#         for kw in arr:
+#             if f" {kw} " in f" {s_norm} ":
+#                 return kw
+#     return None
+
+# # =====================================================================
+# #  PUBLIC: New question
+# # =====================================================================
+
+# def answer_with_rag(question: str) -> Tuple[str, List[Dict[str, Any]]]:
+#     """
+#     NEW ASK:
+#     - Nếu câu mới thực ra là follow-up (vẽ/tiếp tục/nhận xét) và có _LAST → route sang continue_with_last.
+#     - Nếu là 'sơ đồ <bộ phận>' → ƯU TIÊN chọn đúng file tree của bộ phận (full copy).
+#     - Các trường hợp khác → RAG + LLM như cũ.
+#     """
+#     # Nếu câu mới là follow-up và có bối cảnh, chuyển sang continue
+#     if _LAST.get("trace"):
+#         act = detect_followup_action(question)
+#         if act in ("REDRAW", "REVIEW", "CONTINUE"):
+#             if DEBUG_QE_HR:
+#                 print(f"[ROUTER] New text looks like follow-up: act={act} -> continue_with_last")
+#             return continue_with_last(question)
+
+#     vs = load_vs()
+#     intent = classify_intent(question)
+
+#     aliases = _qr_llm_aliases(question)
+#     phrases = _prf_phrases(vs, question)
+
+#     # build lex
+#     if intent == "ORG":
+#         extra_alias = [
+#             "sơ đồ tổ chức", "cơ cấu tổ chức", "organizational chart", "org chart",
+#             "sơ đồ công ty", "sơ đồ nhân sự", "organizational structure", "company structure",
+#         ]
+#         seen = {_norm(a) for a in aliases}
+#         for a in extra_alias:
+#             if _norm(a) not in seen:
+#                 aliases.append(a)
+#                 seen.add(_norm(a))
+#         phrases = (phrases or []) + ["1.1", "1.2", "1.3.1"]
+#         phrase_boost = max(2, PHRASE_BOOST_TIMES_HR * 2)
+#     else:
+#         phrase_boost = PHRASE_BOOST_TIMES_HR
+
+#     boosted: List[str] = []
+#     for p in (phrases or []):
+#         boosted += [p] * max(1, phrase_boost)
+#     phrases = boosted
+
+#     lexinfo = build_lex_query(question, aliases=aliases, phrases=phrases)
+#     if DEBUG_QE_HR:
+#         print(f"[LEX_QUERY] {lexinfo['lex_query']}")
+#         print(f"[Expanded] {lexinfo['lex_query']}")
+
+#     docs = hybrid_retrieve(vs, question, lex_query=lexinfo["lex_query"])
+#     try:
+#         ranked = rerank(question, docs)
+#     except Exception as e:
+#         print(f"[WARN] rerank failed: {e}")
+#         ranked = [(d, None) for d in docs]
+
+#     if not ranked:
+#         answer = "Không tìm thấy nội dung phù hợp trong tài liệu."
+#         _LAST.update(question=question, answer=answer, trace=[], intent=intent, source="")
+#         return answer, []
+
+#     # ===== ORG: CHỌN FILE TREE ĐÚNG BỘ PHẬN (FULL COPY) =====
+#     if intent == "ORG" and ORG_FULLCOPY_HR:
+#         dept_key = _dept_key_from_text(question)  # vd: "marketing"/"kinh_doanh"/"kinh_doanh_indonesia"/None
+#         src = _prefer_diagram_source(ranked, dept_key)
+#         raw = _read_full_source_text(src) if src else None
+#         if not raw:
+#             # Fallback: ghép các chunk cùng source
+#             raw = "".join(d.page_content for d, _ in ranked if (d.metadata or {}).get("source") == src)
+
+#         tree_text = (raw or "").strip("")
+#         if STRICT_ORG_PASSTHRU:
+#             ans = f"```text{tree_text}```" if WRAP_TREE_AS_CODE else tree_text
+#         else:
+#             # chế độ cũ: strip_citations + cleanup (không khuyến nghị)
+#             ans = strip_citations(tree_text) if STRIP_CITATIONS_HR else tree_text
+#             ans = cleanup_org_answer(ans)
+#         trace = _make_trace(ranked)
+#         _LAST.update(question=question, answer=ans, trace=trace, intent="ORG", source=(src or ""))
+#         return ans, trace
+
+#     # ===== JD FULL COPY =====
+#     qn_norm = _norm(question)
+#     is_jd = bool(re.search(r"\b(jd|mô tả công việc|job description|mtcv)\b", qn_norm))
+#     if JD_FULLCOPY_HR and is_jd:
+#         best_src = (ranked[0][0].metadata or {}).get("source")
+#         raw = _read_full_source_text(best_src) if best_src else None
+#         if not raw:
+#             # GHÉP ĐÚNG + KHỬ TRÙNG (thay vì "\n".join(...))
+#             raw = _join_unique_chunks(ranked, best_src or "")
+
+#         # Sửa .strip("") -> .strip()
+#         raw = (raw or "").strip()
+#         raw = _clean_jd_headers(raw)
+
+#         if STRICT_JD_PASSTHRU:
+#             ans = raw
+#         else:
+#             ans = strip_citations(raw) if STRIP_CITATIONS_HR else raw
+
+#         trace = _make_trace(ranked)
+#         _LAST.update(question=question, answer=ans, trace=trace, intent=intent, source=(best_src or ""))
+#         return ans, trace
+
+#     # ===== LLM compose (OTHER) =====
+#     ctx = _build_context(ranked, max_chars=MAX_CHARS_CTX_HR)
+#     trace = _make_trace(ranked)
+#     genai = init_gemini()
+#     sys_prompt = get_system_prompt(PROFILE_HR)
+#     user_prompt = f"""
+# Câu hỏi: {question}
+
+# Ngữ cảnh (mỗi đoạn có thẻ [source|chunk_id]):
+# {ctx}
+
+# Yêu cầu:
+# 1) Trả lời tiếng Việt, chỉ dựa trên NGỮ CẢNH.
+# 2) Gắn [source|chunk_id] ngay sau ý tương ứng.
+# 3) Nếu thiếu, nói đúng câu: "không tìm thấy trong tài liệu".
+# """.strip()
+#     t0 = time.time()
+#     answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys_prompt, user_prompt)
+#     t1 = time.time()
+#     if METRICS_HR:
+#         print(f"[METRIC] t_llm={t1 - t0:.3f}s")
+#     answer = strip_citations(answer_raw) if STRIP_CITATIONS_HR else answer_raw
+
+#     try:
+#         report = judge_answer(question, answer, trace, GEMINI_MODEL_JUDGE_HR)
+#         g = float(report.get("groundedness")) if report and report.get("groundedness") is not None else None
+#         if (g is not None) and (g < 0.7):
+#             answer = "không tìm thấy trong tài liệu"
+#     except Exception as e:
+#         print(f"[WARN] judge failed: {e}")
+
+#     if re.search(r"[├└│]", answer) or re.search(r"\b\d+(?:\.\d+){1,3}\b", answer):
+#         answer = cleanup_org_answer(answer)
+
+#     _LAST.update(question=question, answer=answer, trace=trace, intent=intent, source=(trace[0].get("source") if trace else ""))
+#     return answer, trace
+
+# # =====================================================================
+# #  PUBLIC: Follow-up
+# # =====================================================================
+
+# def _make_trace(ranked: List[Tuple[Document, Optional[float]]]) -> List[Dict[str, Any]]:
+#     out = []
+#     for d, s in ranked:
+#         m = d.metadata or {}
+#         out.append({
+#             "source": m.get("source", "?"),
+#             "chunk_id": m.get("chunk_id", -1),
+#             "score": float(s) if s is not None else None,
+#             "text": d.page_content,
+#         })
+#     return out
+
+
+# def _compose_followup_review(prev_q: str, prev_ans: str, followup: str) -> str:
+#     """Dùng LLM để 'nhận xét/đề xuất' dựa trên sơ đồ ở prev_ans + yêu cầu follow-up."""
+#     genai = init_gemini()
+#     sys = get_system_prompt(PROFILE_HR)
+#     user = f"""
+# Bạn là chuyên viên HR. Hãy nhận xét ngắn gọn, hành động được.
+# Dưới đây là SƠ ĐỒ hiện tại (ASCII):
+
+# ```text
+# {_strip_code_fences(prev_ans)}
+# ```
+
+# Yêu cầu follow-up của người dùng:
+# - {followup}
+
+# Trả lời:
+# - Tiếng Việt, gạch đầu dòng súc tích.
+# - Không bịa chức danh mới.
+# - Nếu đề xuất thay đổi, nêu lý do ngắn + lợi ích.
+# """
+#     return ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys, user)
+
+
+# def _redraw_from_prev(prev_ans: str, followup: str) -> Optional[str]:
+#     key = _extract_branch_key(followup or "")
+#     if not key:
+#         return None
+#     for pat in _relax_patterns_for_token(key):
+#         blk = extract_subtree_by_title(prev_ans, title_regex=pat)
+#         if blk and blk.strip():
+#             return (f"```text\n{blk}\n```" if WRAP_TREE_AS_CODE else blk)
+#     return None
+
+
+# def _redraw_from_source(prev_trace: List[Dict[str, Any]], followup: str, last_source: str) -> Optional[str]:
+#     key = _extract_branch_key(followup or "")
+#     if not key:
+#         return None
+
+#     # Ưu tiên nguồn lần trước
+#     src = last_source or _pick_best_source_from_trace(prev_trace)
+
+#     # Nếu follow-up nêu rõ bộ phận, cố tìm đúng file tree của bộ phận trong trace
+#     dept_key = _dept_key_from_text(key)
+#     if dept_key:
+#         hints = _filename_hints_for_dept(dept_key)
+#         for t in prev_trace:
+#             s = (t.get("source") or "").lower()
+#             if ("tree" in s) and any(h in s for h in hints):
+#                 src = t.get("source")
+#                 break
+
+#     raw = _read_full_source_text(src) if src else None
+#     if not raw:
+#         return None
+
+#     for pat in _relax_patterns_for_token(key):
+#         blk = extract_subtree_by_title(raw, title_regex=pat)
+#         if blk and blk.strip():
+#             return (f"```text\n{blk}\n```" if WRAP_TREE_AS_CODE else blk)
+#     return None
+
+#     raw = _read_full_source_text(src) if src else None
+#     if not raw:
+#         return None
+#     for pat in _relax_patterns_for_token(key):
+#         blk = extract_subtree_by_title(raw, title_regex=pat)
+#         if blk and blk.count("") >= 1:
+#             return (f"```text{blk}```" if WRAP_TREE_AS_CODE else blk)
+#     return None
+
+#     # ưu tiên dùng nguồn lần trước nếu có
+#     src = last_source or _pick_best_source_from_trace(prev_trace)
+
+#     # nếu follow-up có dept rõ ràng → cố chọn file tree đúng dept trong trace
+#     dept_key = _dept_key_from_text(key)
+#     if dept_key:
+#         hints = _filename_hints_for_dept(dept_key)
+#         for t in prev_trace:
+#             s = (t.get("source") or "").lower()
+#             if ("tree" in s) and any(h in s for h in hints):
+#                 src = t.get("source")
+#                 break
+
+#     raw = _read_full_source_text(src) if src else None
+#     if not raw:
+#         return None
+#     for pat in _relax_patterns_for_token(key):
+#         blk = extract_subtree_by_title(raw, title_regex=pat)
+#         if blk and blk.count("\n") >= 1:
+#             return cleanup_org_answer(f"```text\n{blk}\n```")
+#     return None
+
+
+# def continue_with_last(followup: str) -> Tuple[str, List[Dict[str, Any]]]:
+#     prev_q = _LAST.get("question", "") or ""
+#     prev_ans = _LAST.get("answer", "") or ""
+#     prev_trace = _LAST.get("trace", []) or []
+#     prev_intent = _LAST.get("intent", "")
+#     last_source = _LAST.get("source", "") or ""
+
+#     if not prev_trace:
+#         return ("Không có ngữ cảnh trước đó để 'tiếp tục'. Hãy hỏi: 'Sơ đồ tổ chức' trước.", [])
+
+#     act = detect_followup_action(followup)
+#     if DEBUG_QE_HR:
+#         print(f"[FOLLOW-UP] act={act} | text={followup}")
+
+#     # 1) REDRAW (vẽ nhánh)
+#     if act == "REDRAW":
+#         # cắt ngay trên prev_ans
+#         if prev_ans:
+#             ans = _redraw_from_prev(prev_ans, followup)
+#             if ans:
+#                 _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+#                 return ans, prev_trace
+#         # fallback: đọc từ source
+#         ans = _redraw_from_source(prev_trace, followup, last_source)
+#         if ans:
+#             _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+#             return ans, prev_trace
+#         return (f"Không tìm thấy nhánh phù hợp để vẽ lại cho yêu cầu: '{followup}'. Hãy thử: 'vẽ nhánh Marketing' hoặc 'vẽ nhánh 1.3'.", prev_trace)
+
+#     # 2) REVIEW (nhận xét/đánh giá)
+#     if act == "REVIEW":
+#         if not prev_ans:
+#             return ("Chưa có sơ đồ để nhận xét. Hãy hỏi 'Sơ đồ tổ chức' trước.", prev_trace)
+#         review = _compose_followup_review(prev_q, prev_ans, followup)
+#         if STRIP_CITATIONS_HR:
+#             review = strip_citations(review)
+#         _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=review, trace=prev_trace, intent=prev_intent, source=last_source)
+#         return review, prev_trace
+
+#     # 3) CONTINUE (hiển thị lại)
+#     if act == "CONTINUE":
+#         _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=prev_ans, trace=prev_trace, intent=prev_intent, source=last_source)
+#         return prev_ans, prev_trace
+
+#     # 4) Nếu follow-up chứa tên bộ phận quen thuộc → coi như REDRAW nhẹ
+#     quick_key = _dept_key_from_text(followup)
+#     if quick_key and prev_ans:
+#         ans = _redraw_from_prev(prev_ans, followup)
+#         if ans:
+#             _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+#             return ans, prev_trace
+
+#     # fallback: trả lại sơ đồ cũ (tránh "nhảy ra liền" không suy nghĩ)
+#     return (prev_ans or "Không rõ yêu cầu tiếp tục.", prev_trace)
+
+
+
+
+
+# -*- coding: utf-8 -*-
+"""
+engine_hr.py — HR RAG (Tiximax)
+
+Bản đã vá lỗi:
+- Chặn QR-LLM lệch nghĩa khi hỏi JD (tránh "Just Do It").
+- Ưu tiên đúng file JD + ghép chunk không lặp, dọn header/footer.
+- Sửa logic vẽ nhánh: bỏ điều kiện luôn-đúng, xóa code unreachable.
+- Thêm fallback import cho Document (nếu langchain_core không có).
+
+Public API:
+- answer_with_rag(question: str) -> (answer, trace)
+- continue_with_last(followup: str) -> (answer, trace)
+"""
+
+from __future__ import annotations
+
+import os
+import re
+import time
+import unicodedata
+from collections import Counter
+from typing import Any, Dict, List, Optional, Tuple, Set
+
+# Fallback cho Document nếu langchain_core không có
+try:
+    from langchain_core.documents import Document
+except Exception:  # pragma: no cover
+    from typing import Any as _Any
+    Document = _Any  # type: ignore
 
 from .config_hr import (
-    # cấu hình chung
-    MAX_CHARS_CTX_HR, GEMINI_MODEL_ANSWER_HR, PROFILE_HR, DATA_DIR_HR,
-    STRIP_CITATIONS_HR, METRICS_HR,
-
-    # full-copy & nguồn
-    ORG_FULLCOPY_HR, FORM_FULLCOPY_HR, JD_FULLCOPY_HR,
-    ORG_SOURCE_HINT_HR, SOURCE_REGISTRY_PATH, STRICT_SOURCE_MATCH_HR,
-
-    # QE
+    DATA_DIR_HR,
+    RAG_TOPK_HR, K_SEM_HR, K_LEX_HR, MMR_FETCH_K_HR, MMR_LAMBDA_HR,
+    W_SEM_HR, W_LEX_HR, USE_BM25_HR, FAST_MODE_HR,
+    USE_RERANK_HR, RERANK_CANDIDATES_HR, RERANK_TOP_K_HR,
+    MAX_CHARS_CTX_HR, PROFILE_HR, STRIP_CITATIONS_HR, DEBUG_QE_HR, METRICS_HR,
+    GEMINI_MODEL_ANSWER_HR, GEMINI_MODEL_JUDGE_HR,
     USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR,
     USE_PRF_HR, PRF_K_SEM_HR, PRF_NGRAMS_HR, PRF_TOP_PHRASES_HR, PRF_MIN_LEN_CHARS_HR,
     PHRASE_BOOST_TIMES_HR,
-
-    # mini-LLM header
-    MINI_LLM_ON_FULLCOPY_HR, MINI_LLM_TASK_HR, MINI_LLM_TASK_ORG_HR, MINI_LLM_MAXTOK_HR,
+    ORG_FULLCOPY_HR, JD_FULLCOPY_HR, FORM_FULLCOPY_HR,
+    ORG_SOURCE_HINT_HR,
 )
-
 from .prompts_hr import get_system_prompt
 from .postprocess import strip_citations, cleanup_org_answer
 from .hybrid_hr import load_vs, hybrid_retrieve, build_lex_query
 from .rerank_hr import rerank
 from .intent_router_hr import classify_intent
-from .registry_hr import get_by_path, verify_hash_if_present, pick_best_from_scored
+from .gemini_client_hr import init_gemini, ask_gemini
+from .judge_hr import judge_answer
+from .context_hr import build_context as _build_context
 
-_LAST: Dict[str, Any] = {"question": "", "answer": "", "trace": []}
+__all__ = ["answer_with_rag", "continue_with_last"]
 
-# ----------------------------- #
-#            HELPERS            #
-# ----------------------------- #
+# =====================================================================
+#  State
+# =====================================================================
+_LAST: Dict[str, Any] = {
+    "question": "",
+    "answer": "",
+    "trace": [],
+    "intent": "",
+    "source": "",  # nguồn tree/JD đã dùng lần trước (nếu có)
+}
+
+# === Passthrough flags ===
+STRICT_ORG_PASSTHRU = (os.environ.get("STRICT_ORG_PASSTHRU","1").lower() not in ("0","false","no"))
+STRICT_JD_PASSTHRU  = (os.environ.get("STRICT_JD_PASSTHRU","1").lower() not in ("0","false","no"))
+STRICT_FORM_PASSTHRU= (os.environ.get("STRICT_FORM_PASSTHRU","1").lower() not in ("0","false","no"))
+WRAP_TREE_AS_CODE   = (os.environ.get("WRAP_TREE_AS_CODE","1").lower() not in ("0","false","no"))
+
+# =====================================================================
+#  Follow-up patterns
+# =====================================================================
+FOLLOWUP_REDRAW_PAT = re.compile(r"\b(v[eê]̃?\s*l[ạ]i|ve lai|draw|redraw|nh[á]nh|branch|ve|vẽ)\b", re.I)
+FOLLOWUP_CONT_PAT   = re.compile(r"\b(ti[ế]p|ti[ế]p tục|tiếp tục|show\s*again|continue|hi[ẹ]n thị lại)\b", re.I)
+FOLLOWUP_REVIEW_PAT = re.compile(r"\b(nh[ậ]n x[é]t|d[á]nh gi[á]|review|g[ó]p [ýy]|t[ôo]́i [u]u|cải ti[êe]́n|đề xuất|de xuat)\b", re.I)
+
+# =====================================================================
+#  Dept synonyms -> filename hints
+# =====================================================================
+
+def _strip_accents(s: str) -> str:
+    if not s:
+        return ""
+    s = unicodedata.normalize("NFD", s)
+    return "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
+
+# Khóa logic cho từng sơ đồ chuyên biệt
+DEPT_SYNONYMS: Dict[str, List[str]] = {
+    "marketing": ["marketing", "tiếp thị", "tiep thi", "marcom", "mkt"],
+    "kinh_doanh": ["kinh doanh", "sales", "ban hang", "bán hàng"],
+    "kinh_doanh_indonesia": ["indonesia", "indo"],
+    "nhan_vien": ["nhan vien", "nhân viên", "toan cong ty", "tổng"],
+}
+
+def _dept_key_from_text(s: str) -> Optional[str]:
+    s0 = _strip_accents((s or "").lower())
+    s0 = re.sub(r"\s+", " ", s0)
+    # Ưu tiên indo trước nếu xuất hiện
+    if any(k in s0 for k in DEPT_SYNONYMS["kinh_doanh_indonesia"]):
+        return "kinh_doanh_indonesia"
+    for k, arr in DEPT_SYNONYMS.items():
+        if k == "kinh_doanh_indonesia":
+            continue
+        for a in arr:
+            if f" {a} " in f" {s0} ":
+                return k
+    return None
+
+def _filename_hints_for_dept(key: Optional[str]) -> List[str]:
+    if not key:
+        return []
+    if key == "marketing":
+        return ["marketing", "mkt"]
+    if key == "kinh_doanh_indonesia":
+        return ["kinh_doanh_indonesia", "indo"]
+    if key == "kinh_doanh":
+        return ["kinh_doanh", "sales"]
+    if key == "nhan_vien":
+        return ["nhan_vien", "tiximax"]
+    return []
+
+# =====================================================================
+#  File / source helpers
+# =====================================================================
+
+def _read_full_source_text(source_rel: str) -> Optional[str]:
+    if not source_rel:
+        return None
+    candidates = [os.path.join(DATA_DIR_HR, source_rel)]
+    base = os.path.basename(source_rel)
+    for root, _, files in os.walk(DATA_DIR_HR):
+        for fn in files:
+            if fn == base:
+                candidates.append(os.path.join(root, fn))
+    seen: Set[str] = set()
+    for full in candidates:
+        full = os.path.abspath(full)
+        if full in seen:
+            continue
+        seen.add(full)
+        if os.path.isfile(full):
+            try:
+                return open(full, "r", encoding="utf-8", errors="ignore").read()
+            except Exception:
+                pass
+    return None
+
+
+def _pick_best_source_from_trace(trace: List[Dict[str, Any]]) -> Optional[str]:
+    if not trace:
+        return None
+    c = Counter()
+    for item in trace:
+        src = (item or {}).get("source") or ""
+        if src:
+            c[src] += 1
+    return c.most_common(1)[0][0] if c else None
+
+
+def _prefer_diagram_source(ranked: List[Tuple[Document, Optional[float]]], dept_key: Optional[str]) -> Optional[str]:
+    """Ưu tiên chọn đúng file TREE theo bộ phận (nếu có)."""
+    hints = _filename_hints_for_dept(dept_key)
+
+    # Nếu là sơ đồ tổng và có hint cấu hình → dùng ngay
+    if not dept_key and ORG_SOURCE_HINT_HR:
+        return ORG_SOURCE_HINT_HR
+
+    def looks_tree(src: str) -> bool:
+        s = (src or "").lower()
+        return ("tree" in s) or s.endswith("_tree.txt")
+
+    # 1) file tree khớp dept hints
+    for d, _ in ranked:
+        src = (d.metadata or {}).get("source", "")
+        s = (src or "").lower()
+        if dept_key and looks_tree(s) and any(h in s for h in hints):
+            return src
+
+    # 2) bất kỳ file tree nào
+    for d, _ in ranked:
+        src = (d.metadata or {}).get("source", "")
+        if looks_tree(src):
+            return src
+
+    # 3) fallback: top-1 source
+    return (ranked[0][0].metadata or {}).get("source")
+
+# =====================================================================
+#  QE / Retrieval helpers
+# =====================================================================
 
 def _norm(s: str) -> str:
     s = (s or "").lower()
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-def _vn_norm(s: str) -> str:
-    if not s: return ""
-    s = unicodedata.normalize("NFD", s)
-    s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
-    s = re.sub(r"[^a-zA-Z0-9 \n]+", " ", s)
-    s = re.sub(r"\s+", " ", s).strip().lower()
-    return s
-
-ORG_PATTERNS = [
-    r"\bsơ\s*đồ\s*tổ\s*chức\b", r"\bsơ\s*đồ\s*nhân\s*sự\b", r"\bsơ\s*đồ\s*nhân\s*viên\b",
-    r"\bsơ\s*đồ\s*phòng\s*ban\b", r"\bbiểu\s*đồ\s*nhân\s*sự\b", r"\bcơ\s*cấu\s*tổ\s*chức\b",
-    r"\bcơ\s*cấu\s*nhân\s*sự\b", r"\borg(?:anizational)?\s*chart\b",
-    r"\bstaff(?:ing)?\s*(?:chart|structure)\b", r"\bteam\s*structure\b", r"\bsơ\s*đồ\s*công\s*ty\b",
-]
-JD_PATTERNS = [r"\bjd\b", r"\bmô\s*tả\s*công\s*việc\b", r"\bjob\s*description\b", r"\bmtcv\b"]
-SOP_PATTERNS = [r"\bquy\s*trình\b", r"\bquy\s*trinh\b", r"\bprocess\b", r"\bprocedure\b", r"\bsop\b"]
-
-def is_org_request(question: str) -> bool:
-    return any(re.search(p, _norm(question)) for p in ORG_PATTERNS)
-
-def is_jd_request(question: str) -> bool:
-    return any(re.search(p, _norm(question)) for p in JD_PATTERNS)
-
-def is_sop_request(question: str) -> bool:
-    return any(re.search(p, _norm(question)) for p in SOP_PATTERNS)
-
-def _candidate_paths(source_rel: str) -> List[str]:
-    if not source_rel: return []
-    paths = [
-        os.path.join(DATA_DIR_HR, source_rel),
-        os.path.join(DATA_DIR_HR, source_rel.replace("\\", os.sep)),
-    ]
-    base = os.path.basename(source_rel)
-    for root, _, files in os.walk(DATA_DIR_HR):
-        for fn in files:
-            if fn == base:
-                paths.append(os.path.join(root, fn))
-    uniq, seen = [], set()
-    for p in paths:
-        ab = os.path.abspath(p)
-        if ab not in seen and os.path.isfile(ab):
-            seen.add(ab); uniq.append(ab)
-    return uniq
-
-def read_full_source_text(source_rel: str) -> Optional[str]:
-    for full in _candidate_paths(source_rel):
-        try:
-            with open(full, "r", encoding="utf-8", errors="ignore") as f:
-                return f.read()
-        except Exception:
-            continue
-    return None
-
-def _normalize_raw(s: str) -> str:
-    if not s: return s
-    s = s.replace("\u0000", " ")
-    s = re.sub(r"[ \t]+", " ", s)
-    s = re.sub(r"\n{3,}", "\n\n", s)
-    return s.strip()
-
-def build_context(pairs: List[Tuple[Document, float]], max_chars: int = MAX_CHARS_CTX_HR) -> str:
-    blocks, used = [], 0
-    for d, _ in pairs:
-        meta = d.metadata or {}
-        tag = f"[{meta.get('source','?')}|{meta.get('chunk_id',-1)}]"
-        text = (d.page_content or "").strip()
-        piece = (f"{tag}\n{text}\n").strip() + "\n"
-        if used + len(piece) > max_chars and blocks:
-            break
-        blocks.append(piece); used += len(piece)
-    return "\n---\n".join(blocks)
-
-def _make_trace(ranked: List[Tuple[Document,float]]) -> List[Dict[str,Any]]:
-    out=[]
-    for d, s in ranked:
-        m = d.metadata or {}
-        out.append({
-            "source": m.get("source","?"),
-            "chunk_id": m.get("chunk_id",-1),
-            "score": float(s) if s is not None else None,
-            "text": d.page_content
-        })
-    return out
-
-# ----------------------------- #
-#       PICK SOURCE (ORG/SOP)   #
-# ----------------------------- #
-
-def pick_org_source(ranked_pairs: List[Tuple[Document,float]]) -> Optional[str]:
-    # 1) Ưu tiên tên file gợi ý "tổ chức", "tree", "org_chart"
-    for d, _ in ranked_pairs:
-        src = (d.metadata or {}).get("source", "") or ""
-        sn = _norm(src)
-        if any(k in sn for k in ["so_do_to_chuc", "to_chuc_nhan_vien", "to_chuc", "tree", "org_chart"]):
-            return src
-    # 2) Ưu tiên nội dung có cụm "sơ đồ tổ chức"
-    for d, _ in ranked_pairs:
-        if "sơ đồ tổ chức" in _norm(d.page_content) or "organizational chart" in _norm(d.page_content):
-            return (d.metadata or {}).get("source")
-    # 3) fallback: lấy source của doc top-1
-    return (ranked_pairs[0][0].metadata or {}).get("source") if ranked_pairs else None
-
-def pick_sop_source(ranked_pairs: List[Tuple[Document,float]]) -> Optional[str]:
-    for d, _ in ranked_pairs:
-        src = (d.metadata or {}).get("source", "") or ""
-        sn = _norm(src)
-        if any(k in sn for k in ["quy_trinh", "quy trinh", "process", "procedure", "sop"]):
-            return src
-    for d, _ in ranked_pairs:
-        if any(k in _norm(d.page_content) for k in ["quy trình", "quy trinh", "sop"]):
-            return (d.metadata or {}).get("source")
-    return (ranked_pairs[0][0].metadata or {}).get("source") if ranked_pairs else None
-
-# ----------------------------- #
-#           JD HELPERS          #
-# ----------------------------- #
-
-def _extract_title(text: str) -> str:
-    if not text: return ""
-    head = (text[:1200] or "")
-    m = re.search(r"(?im)^\s*vị\s*trí\s*:\s*(.+)$", head)
-    if m: return m.group(1).strip()
-    for line in head.splitlines():
-        l = line.strip()
-        if re.search(r"(nhân\s*viên|chuyên\s*viên|engineer|intern|tts|it)", _vn_norm(l)):
-            return l
-    return ""
-
-def _title_sim(a: str, b: str) -> float:
-    A = set(_vn_norm(a).split())
-    B = set(_vn_norm(b).split())
-    if not A or not B: return 0.0
-    inter = len(A & B); union = len(A | B)
-    return inter / union if union else 0.0
-
-def _guess_title_for_doc(d: Document) -> str:
-    t = _extract_title(d.page_content or "")
-    if t: return t
-    src = ((d.metadata or {}).get("source") or "").split("\\")[-1].split("/")[-1]
-    name = re.sub(r"[-_.]+", " ", src)
-    return name
-
-TITLE_BONUS_ALPHA = float(os.environ.get("TITLE_BONUS_ALPHA_HR", "0.6"))
-PENALTY_TTS = float(os.environ.get("PENALTY_TTS_HR", "0.4"))
-PENALTY_CRM = float(os.environ.get("PENALTY_CRM_HR", "0.3"))
-
-def _jd_reweight(question: str, ranked_pairs: List[Tuple[Document, float]]) -> List[Tuple[Document, float]]:
-    qn = _vn_norm(question)
-    q_mentions_tts = any(k in qn for k in ("tts", "thuc tap", "thực tập", "intern"))
-    q_mentions_crm = "crm" in qn
-
-    out = []
-    for d, base in ranked_pairs:
-        title = _guess_title_for_doc(d)
-        sim = _title_sim(question, title)  # 0..1
-        score = (base or 0.0) + TITLE_BONUS_ALPHA * sim
-
-        srcn = _vn_norm((d.metadata or {}).get("source", "")) + " " + _vn_norm(title)
-        if (("tts" in srcn or "thuc tap" in srcn or "thuc tap sinh" in srcn or "intern" in srcn) and not q_mentions_tts):
-            score -= PENALTY_TTS
-        if (("crm" in srcn or "application engineer" in srcn) and not q_mentions_crm):
-            score -= PENALTY_CRM
-
-        out.append((d, score))
-    out.sort(key=lambda x: x[1], reverse=True)
-    return out
-
-def _merge_chunks_same_source(pairs: List[Tuple[Document, float]], source: str, max_chars: int) -> str:
-    items = []
-    for d, _ in pairs:
-        if (d.metadata or {}).get("source") == source:
-            items.append((int((d.metadata or {}).get("chunk_id", 0)), d.page_content or ""))
-    if not items: return ""
-    items.sort(key=lambda x: x[0])
-
-    seen = set()
-    merged_lines = []
-    for _, txt in items:
-        for line in (txt.splitlines()):
-            norm = _vn_norm(line)
-            if norm and norm in seen:
-                continue
-            seen.add(norm)
-            merged_lines.append(line)
-    text = "\n".join(merged_lines).strip()
-
-    if len(text) > max_chars:
-        cut = text[:max_chars]
-        i = cut.rfind("\n")
-        text = cut if i < 200 else cut[:i]
-    return text
-
-def _parse_jd_header(text: str) -> dict:
-    fields = {"position": None, "dept": None, "code": None}
-    for line in text.splitlines():
-        raw = line.strip()
-        if not raw: continue
-        vn = _vn_norm(raw)
-        if fields["position"] is None and vn.startswith("vi tri"):
-            fields["position"] = raw.split(":", 1)[-1].strip(" -:\t"); continue
-        if fields["dept"] is None and vn.startswith("bo phan"):
-            fields["dept"] = raw.split(":", 1)[-1].strip(" -:\t"); continue
-        if fields["code"] is None and (vn.startswith("so ho so") or "txm jd" in vn or "txm.jd" in vn):
-            m = re.search(r"(TXM\.\s*JD[.\- ]*\d+)", raw, re.IGNORECASE)
-            fields["code"] = (m.group(1).replace(" ", "") if m else raw.split(":",1)[-1].strip())
-            continue
-    return fields
-
-def _cleanup_jd_text(raw: str) -> str:
-    if not raw: return raw
-    # 1) bỏ header công ty lặp
-    lines = []
-    for line in raw.splitlines():
-        s = line.strip()
-        if not s:
-            lines.append("")
-            continue
-        vn = _vn_norm(s)
-        if ("cong ty co phan tiximax" in vn) or ("ban mo ta cong viec" in vn):
-            continue
-        if vn.startswith("vi tri") or vn.startswith("bo phan") or vn.startswith("so ho so"):
-            continue
-        lines.append(s)
-    t = "\n".join(lines)
-
-    # 2) tách heading A./B./C. khỏi nội dung nếu dính
-    t = re.sub(r"(?m)^([A-E]\.\s*[^\n]{1,80}?)(\s{2,}|\s)(?=[A-Za-zÀ-ỹ0-9])", r"\1\n", t)
-
-    # 3) chuẩn hóa khoảng trắng, khử trùng lặp theo đoạn
-    t = re.sub(r"[ \t]{2,}", " ", t)
-    t = re.sub(r"\n{3,}", "\n\n", t)
-    paras, seen = [], set()
-    for para in re.split(r"\n{2,}", t):
-        p = para.strip()
-        if not p: continue
-        key = _vn_norm(p)
-        if key in seen: continue
-        seen.add(key); paras.append(p)
-    t = "\n\n".join(paras)
-
-    # 4) gộp block thời gian/địa điểm nếu lặp
-    t = re.sub(r"(?is)(Thời gian làm việc:[\s\S]*?Địa điểm làm việc:[^\n]*)(?:\n+\s*\1)+", r"\1", t)
-
-    # 5) header gọn
-    hdr = []
-    fields = _parse_jd_header(raw)
-    if fields.get("position"): hdr.append(f"Vị trí: {fields['position']}")
-    if fields.get("dept"):     hdr.append(f"Bộ phận: {fields['dept']}")
-    if fields.get("code"):     hdr.append(f"Số hồ sơ: {fields['code']}")
-    t = (("\n".join(hdr) + "\n\n") if hdr else "") + t
-    t = re.sub(r"\n{3,}", "\n\n", t).strip()
-    return t
-
-def _cleanup_sop_text(raw: str) -> str:
-    if not raw: return raw
-    lines = []
-    for line in raw.splitlines():
-        s = line.strip()
-        if not s:
-            lines.append(""); continue
-        vn = _vn_norm(s)
-        if ("cong ty co phan tiximax" in vn) or ("tai lieu dao tao" in vn) or ("so ho so" in vn):
-            continue
-        lines.append(s)
-    t = "\n".join(lines)
-    t = re.sub(r"[ \t]{2,}", " ", t)
-    t = re.sub(r"\n{3,}", "\n\n", t)
-    t = re.sub(r"(?m)^((?:Bước|Buoc)\s*\d+\s*[:\-]|[IVXLC]+\.\s+|\d+\.\s+)(?=\S)", r"\1\n", t, flags=re.IGNORECASE)
-
-    paras, seen = [], set()
-    for para in re.split(r"\n{2,}", t):
-        p = para.strip()
-        if not p: continue
-        key = _vn_norm(p)
-        if key in seen: continue
-        seen.add(key); paras.append(p)
-    t = "\n\n".join(paras).strip()
-    return t
-
-def _format_fullcopy_output(title: str, header: str, raw: str, fence="text") -> str:
-    parts = []
-    if title:  parts.append(f"**{title}**")
-    if header: parts.append(header)
-    if raw:    parts.append(f"```{fence}\n{raw}\n```")
-    return "\n\n".join(parts).strip()
-
-# ----------------------------- #
-#            LLM I/O            #
-# ----------------------------- #
-
-def _init_gemini():
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise RuntimeError("Thiếu GEMINI_API_KEY / GOOGLE_API_KEY")
-    import google.generativeai as genai
-    genai.configure(api_key=api_key)
-    return genai
-
-def ask_gemini(genai, model_name: str, sys_prompt: str, user_prompt: str):
-    model = genai.GenerativeModel(model_name, system_instruction=sys_prompt)
-    resp = model.generate_content(user_prompt)
-    return (resp.text or "").strip()
 
 def _qr_llm_aliases(question: str) -> List[str]:
-    if not USE_QR_LLM_HR: return []
+    if not USE_QR_LLM_HR:
+        return []
+    out: List[str] = []
     try:
-        genai = _init_gemini()
+        genai = init_gemini()
         model = genai.GenerativeModel(QR_LLM_MODEL_HR)
-        prompt = f"""Sinh tối đa {QR_NUM_ALIASES_HR} alias ngắn (<=5 từ) cho câu sau (Việt/Anh).
+        prompt = f"""Sinh tối đa {QR_NUM_ALIASES_HR} alias ngắn (<=5 từ) cho câu sau, tiếng Việt/Anh.
 CÂU: "{question}"
 Chỉ in danh sách, mỗi dòng 1 alias."""
         resp = model.generate_content(prompt)
         text = (resp.text or "").strip()
-        out, seen = [], set()
+        seen = set()
         for line in text.splitlines():
             a = line.strip("-*• \t").strip()
-            if not a: continue
+            if not a:
+                continue
             n = _norm(a)
             if n not in seen:
-                out.append(a); seen.add(n)
-        if out: print(f"[QR-LLM] aliases={out}")
-        return out[:QR_NUM_ALIASES_HR]
+                out.append(a)
+                seen.add(n)
+        if DEBUG_QE_HR and out:
+            print(f"[QR-LLM] aliases={out}")
     except Exception as e:
         print(f"[WARN] QR-LLM lỗi: {e}")
-        return []
+    return out[:QR_NUM_ALIASES_HR]
+
 
 def _prf_phrases(vs, question: str) -> List[str]:
-    if not USE_PRF_HR: return []
+    if not USE_PRF_HR:
+        return []
     docs = vs.similarity_search(f"query: {_norm(question)}", k=PRF_K_SEM_HR)
     txt = " ".join(d.page_content for d in docs)
     tokens = re.findall(r"[a-zA-Z0-9À-ỹ\.]+", _norm(txt))
-    bag: Dict[str,int] = {}
+    bag: Dict[str, int] = {}
     for n in PRF_NGRAMS_HR:
-        for i in range(0, max(0, len(tokens)-n+1)):
-            g = " ".join(tokens[i:i+n]).strip()
+        for i in range(0, max(0, len(tokens) - n + 1)):
+            g = " ".join(tokens[i:i + n]).strip()
             if len(g) >= PRF_MIN_LEN_CHARS_HR:
                 bag[g] = bag.get(g, 0) + 1
     cand = sorted(bag.items(), key=lambda x: x[1], reverse=True)
-    out = [w for w,_ in cand[:PRF_TOP_PHRASES_HR]]
-    if out: print(f"[PRF] phrases={out}")
+    out = [w for w, _ in cand[:PRF_TOP_PHRASES_HR]]
+    if DEBUG_QE_HR and out:
+        print(f"[PRF] phrases={out}")
     return out
 
-def _mini_llm_decorate(raw_text: str, task: str) -> str:
-    if not raw_text or not MINI_LLM_ON_FULLCOPY_HR: return ""
-    try:
-        genai = _init_gemini()
-        model = genai.GenerativeModel(GEMINI_MODEL_ANSWER_HR)
-        if task == "ascii_tree":
-            instr = (
-                "Tạo sơ đồ ASCII có đánh số phân cấp (├─, └─, │) từ đoạn sau.\n"
-                "Không thêm giải thích/nguồn. Tối đa ~" + str(MINI_LLM_MAXTOK_HR) + " từ.\n"
-                "<<<\n" + raw_text[:4000] + "\n>>>"
-            )
-        elif task == "prefix_summary":
-            instr = (
-                "Tóm tắt 3–6 bullet siêu ngắn, không nguồn/citation, tối đa " + str(MINI_LLM_MAXTOK_HR) + " từ.\n"
-                "<<<\n" + raw_text[:3000] + "\n>>>"
-            )
-        else:
-            instr = (
-                "Viết 3–5 bullet checklist áp dụng, ngắn gọn, không nguồn/citation, tối đa "
-                + str(MINI_LLM_MAXTOK_HR) + " từ.\n"
-                "<<<\n" + raw_text[:3000] + "\n>>>"
-            )
-        resp = model.generate_content(instr)
-        header = (resp.text or "").strip()
-        return strip_citations(header) if STRIP_CITATIONS_HR else header
-    except Exception as e:
-        print(f"[WARN] mini-LLM lỗi: {e}")
+# =====================================================================
+#  JD helpers — curated expansion + source picking + dedup join
+# =====================================================================
+
+def _is_jd_query(q: str) -> bool:
+    n = _norm(q)
+    return bool(re.search(r"\b(jd|mô tả công việc|mtcv|job description)\b", n))
+
+
+def _curated_jd_aliases_and_phrases(q: str) -> Tuple[List[str], List[str]]:
+    aliases = ["job description", "mô tả công việc", "mtcv", "JD", "TXM.JD"]
+    n = _norm(q)
+    if "it" in n:
+        aliases += ["IT"]
+    if "crm" in n:
+        aliases += ["CRM", "CRM Application Engineer"]
+    phrases = [
+        "Vị trí", "Bộ phận", "Số hồ sơ",
+        "Mục tiêu công việc", "Quan hệ công việc",
+        "Thời gian và Địa điểm làm việc",
+        "Yêu cầu về trình độ và kỹ năng",
+        "Trách nhiệm chính", "Quyền Lợi",
+        "TXM.JD", "MTCV"
+    ]
+    return aliases, phrases
+
+
+def _join_unique_chunks(ranked, source: str) -> str:
+    """Ghép các chunk cùng source theo thứ tự, khử đoạn lặp."""
+    items: List[Tuple[int, str]] = []
+    for d, _ in ranked:
+        m = d.metadata or {}
+        if m.get("source") == source:
+            cid = m.get("chunk_id", -1)
+            items.append((cid if isinstance(cid, int) else 10**9, d.page_content or ""))
+    items.sort(key=lambda x: x[0])
+    seen: Set[str] = set()
+    out_parts: List[str] = []
+    for _, txt in items:
+        for para in re.split(r"\n{2,}", (txt or "").strip()):
+            key = re.sub(r"\s+", " ", para).strip().lower()
+            if key and key not in seen:
+                seen.add(key)
+                out_parts.append(para.strip())
+    return "\n\n".join(out_parts).strip()
+
+
+def _clean_jd_headers(raw: str) -> str:
+    """Loại header/footer JD lặp + rút gọn dòng trống."""
+    if not raw:
+        return raw
+    lines = [re.sub(r"\s+", " ", ln).strip() for ln in raw.splitlines()]
+    cleaned: List[str] = []
+    seen_line: Set[str] = set()
+    ban = {
+        "công ty cổ phần tiximax bản mô tả công việc",
+        "cong ty co phan tiximax ban mo ta cong viec",
+    }
+    for ln in lines:
+        if not ln:
+            cleaned.append("")
+            continue
+        key = ln.lower()
+        if key in ban:
+            if key in seen_line:
+                continue
+            seen_line.add(key)
+        cleaned.append(ln)
+    txt = "\n".join(cleaned)
+    return re.sub(r"\n{3,}", "\n\n", txt).strip()
+
+
+def _pick_best_jd_source(ranked, question: str) -> Optional[str]:
+    """Ưu tiên file JD khớp mã (TXM.JD.xx), sau đó JD-IT, rồi JD bất kỳ, cuối cùng top-1."""
+    n = _norm(question)
+    m = re.search(r"txm\.jd\.(\d+)", n)
+    if m:
+        code = m.group(0)
+        for d, _ in ranked:
+            src = (d.metadata or {}).get("source", "").lower()
+            if code in src:
+                return (d.metadata or {}).get("source")
+    for d, _ in ranked:
+        s = (d.metadata or {}).get("source", "").lower()
+        if "txm.jd" in s and (" it" in s or "it " in s or " it." in s):
+            return (d.metadata or {}).get("source")
+    for d, _ in ranked:
+        s = (d.metadata or {}).get("source", "").lower()
+        if "txm.jd" in s or "mtcv" in s:
+            return (d.metadata or {}).get("source")
+    return (ranked[0][0].metadata or {}).get("source")
+
+# =====================================================================
+#  Org subtree extractors
+# =====================================================================
+_CODE_FENCE = re.compile(r"^```.*?$|^```$", re.MULTILINE)
+
+
+def _strip_code_fences(s: str) -> str:
+    if not s:
+        return ""
+    return _CODE_FENCE.sub("", s).strip()
+
+
+def _visual_indent(line: str) -> int:
+    m = re.match(r'^[\s│├└─]+', line or '')
+    return len(m.group(0)) if m else 0
+
+
+_NUM_PREFIX_RE = re.compile(r'^\s*[│├└─\s]*((?:\d+(?:\.\d+)*))\s+')
+
+
+def _number_prefix(line: str) -> Optional[str]:
+    m = _NUM_PREFIX_RE.match(line or "")
+    return m.group(1) if m else None
+
+
+def _match_line_title(line: str, title_regex: str) -> bool:
+    # Match nguyên bản
+    if re.search(title_regex, line, re.I):
+        return True
+    # Match không dấu
+    return bool(re.search(title_regex, _strip_accents(line).lower(), re.I))
+
+
+def _relax_patterns_for_token(token: str) -> List[str]:
+    t = _strip_accents(token or "").lower().strip()
+    if not t:
+        return []
+    pats: List[str] = []
+    if re.fullmatch(r"[a-z0-9]+", t):
+        pats = [rf"\b{re.escape(t)}\b", re.escape(t)]
+    else:
+        pats = [re.escape(t)]
+    # synonyms
+    if t == "marketing":
+        pats += [r"\bmarcom\b", r"\bmkt\b", "tiep thi"]
+    if t in ("sales", "kinh doanh"):
+        pats += ["ban hang"]
+    return list(dict.fromkeys(pats))
+
+
+def extract_subtree_by_title(ascii_tree: str, title_regex: str = r"marketing") -> str:
+    if not ascii_tree:
+        return ""
+    body = _strip_code_fences(ascii_tree)
+    lines = body.splitlines()
+
+    def _find_start(pat: str) -> Tuple[int, Optional[int], Optional[str]]:
+        start_idx, base_indent, base_num = -1, None, None
+        for i, ln in enumerate(lines):
+            if not ln.strip():
+                continue
+            if _match_line_title(ln, pat):
+                start_idx = i
+                base_indent = _visual_indent(ln)
+                base_num = _number_prefix(ln)
+                break
+        return start_idx, base_indent, base_num
+
+    tried = [title_regex]
+    start_idx, base_indent, base_num = _find_start(title_regex)
+    if start_idx < 0:
+        # nới pattern nếu token
+        for pat in _relax_patterns_for_token(title_regex):
+            if pat in tried:
+                continue
+            tried.append(pat)
+            start_idx, base_indent, base_num = _find_start(pat)
+            if start_idx >= 0:
+                if DEBUG_QE_HR:
+                    print(f"[ORG-REDRAW] Relaxed matched by: {pat}")
+                break
+    if start_idx < 0:
+        if DEBUG_QE_HR:
+            print(f"[ORG-REDRAW] No match for: {title_regex}. Tried={tried}")
         return ""
 
-# ----------------------------- #
-#            MAIN API           #
-# ----------------------------- #
+    out: List[str] = [lines[start_idx].rstrip()]
+    for j in range(start_idx + 1, len(lines)):
+        ln = lines[j]
+        if not ln.strip():
+            continue
+        ind = _visual_indent(ln)
+        if base_num:
+            num = _number_prefix(ln)
+            if num and (num == base_num or num.startswith(base_num + ".")):
+                out.append(ln.rstrip())
+                continue
+        if ind > (base_indent or 0):
+            out.append(ln.rstrip())
+        else:
+            break
+    return "\n".join(out).strip()
+
+# =====================================================================
+#  Follow-up action detection
+# =====================================================================
+
+def detect_followup_action(text: str) -> str:
+    """Nhận diện follow-up theo từ khóa KHÔNG DẤU (ổn định hơn)."""
+    s_raw = (text or "").strip()
+    s = _strip_accents(s_raw).lower()
+
+    # REDRAW / VẼ LẠI / VẼ NHÁNH
+    redraw_keys = [
+        "ve lai", "ve tiep", "ve nhanh",
+        "redraw", "draw again", "draw", "branch", "nhanh", "ve", "hien thi lai", "show again"
+    ]
+    if any(k in s for k in redraw_keys):
+        return "REDRAW"
+
+    # REVIEW / NHẬN XÉT / GÓP Ý / ĐÁNH GIÁ
+    review_keys = [
+        "nhan xet", "review", "comment", "gop y", "danh gia", "nhan dinh",
+        "de xuat", "nhan xet phan tren", "nhan xet tren", "nhan xet so do"
+    ]
+    if any(k in s for k in review_keys):
+        return "REVIEW"
+
+    # CONTINUE
+    continue_keys = ["tiep tuc", "continue"]
+    if any(k in s for k in continue_keys):
+        return "CONTINUE"
+
+    return "NONE"
+
+
+def _extract_branch_key(followup: str) -> Optional[str]:
+    s_raw = (followup or "").strip()
+    if not s_raw:
+        return None
+    s_norm = _strip_accents(s_raw).lower()
+    s_norm = re.sub(r"\s+", " ", s_norm)
+
+    m = re.search(r"(?:nhanh|branch|phan|bo phan|team)\s+([a-z0-9 \-_.]{2,60})", s_norm)
+    if m:
+        key = m.group(1).strip(" .-_")
+        parts = [p for p in key.split() if p]
+        if parts:
+            return parts[-1]
+
+    for _, arr in DEPT_SYNONYMS.items():
+        for kw in arr:
+            if f" {kw} " in f" {s_norm} ":
+                return kw
+    return None
+
+# =====================================================================
+#  PUBLIC: New question
+# =====================================================================
 
 def answer_with_rag(question: str) -> Tuple[str, List[Dict[str, Any]]]:
-    vs = load_vs()
-    intent = classify_intent(question)  # "ORG" | "JD" | "FORM" | "OTHER"
+    """
+    NEW ASK:
+    - Nếu câu mới thực ra là follow-up (vẽ/tiếp tục/nhận xét) và có _LAST → route sang continue_with_last.
+    - Nếu là 'sơ đồ <bộ phận>' → ƯU TIÊN chọn đúng file tree của bộ phận (full copy).
+    - Các trường hợp khác → RAG + LLM như cũ.
+    """
+    # Nếu câu mới là follow-up và có bối cảnh, chuyển sang continue
+    if _LAST.get("trace"):
+        act = detect_followup_action(question)
+        if act in ("REDRAW", "REVIEW", "CONTINUE"):
+            if DEBUG_QE_HR:
+                print(f"[ROUTER] New text looks like follow-up: act={act} -> continue_with_last")
+            return continue_with_last(question)
 
-    # --- Query Expansion ---
+    vs = load_vs()
+    intent = classify_intent(question)
+
     aliases = _qr_llm_aliases(question)
     phrases = _prf_phrases(vs, question)
 
+    # Nếu là truy vấn JD → dùng curated aliases/phrases (tránh "Just Do It")
+    if _is_jd_query(question):
+        aliases, jd_phrases = _curated_jd_aliases_and_phrases(question)
+        phrases = (phrases or []) + jd_phrases
+
+    # build lex
     if intent == "ORG":
-        extra_alias = ["sơ đồ tổ chức nhân viên", "sơ đồ tổ chức", "cơ cấu tổ chức",
-                       "organizational chart", "org chart", "sơ đồ công ty"]
+        extra_alias = [
+            "sơ đồ tổ chức", "cơ cấu tổ chức", "organizational chart", "org chart",
+            "sơ đồ công ty", "sơ đồ nhân sự", "organizational structure", "company structure",
+        ]
         seen = {_norm(a) for a in aliases}
         for a in extra_alias:
             if _norm(a) not in seen:
-                aliases.append(a); seen.add(_norm(a))
-        phrases = (phrases or []) + ["1.1", "1.2", "1.3.1", "1 3 1"]
+                aliases.append(a)
+                seen.add(_norm(a))
+        phrases = (phrases or []) + ["1.1", "1.2", "1.3.1"]
         phrase_boost = max(2, PHRASE_BOOST_TIMES_HR * 2)
     else:
         phrase_boost = PHRASE_BOOST_TIMES_HR
 
-    boosted = []
+    boosted: List[str] = []
     for p in (phrases or []):
         boosted += [p] * max(1, phrase_boost)
     phrases = boosted
 
-    # --- Lex query ---
     lexinfo = build_lex_query(question, aliases=aliases, phrases=phrases)
-    if os.environ.get("DEBUG_QE_HR","1").lower() not in ("0","false"):
+    if DEBUG_QE_HR:
+        print(f"[LEX_QUERY] {lexinfo['lex_query']}")
         print(f"[Expanded] {lexinfo['lex_query']}")
 
-    # --- Retrieve & Rerank ---
     docs = hybrid_retrieve(vs, question, lex_query=lexinfo["lex_query"])
     try:
         ranked = rerank(question, docs)
@@ -453,118 +1320,51 @@ def answer_with_rag(question: str) -> Tuple[str, List[Dict[str, Any]]]:
 
     if not ranked:
         answer = "Không tìm thấy nội dung phù hợp trong tài liệu."
-        _LAST.update(question=question, answer=answer, trace=[])
+        _LAST.update(question=question, answer=answer, trace=[], intent=intent, source="")
         return answer, []
 
-    # ---------------- ORG FULLCOPY ----------------
-    if ORG_FULLCOPY_HR and is_org_request(question):
-        src = ORG_SOURCE_HINT_HR or pick_org_source(ranked)
-        raw = read_full_source_text(src) if src else None
+    # ===== ORG: CHỌN FILE TREE ĐÚNG BỘ PHẬN (FULL COPY) =====
+    if intent == "ORG" and ORG_FULLCOPY_HR:
+        dept_key = _dept_key_from_text(question)  # vd: "marketing"/"kinh_doanh"/"kinh_doanh_indonesia"/None
+        src = _prefer_diagram_source(ranked, dept_key)
+        raw = _read_full_source_text(src) if src else None
         if not raw:
-            raw = "\n".join(d.page_content for d, _ in ranked if (d.metadata or {}).get("source")==src).strip() if src else ""
-        if not raw:
-            answer = "Không tìm thấy tài liệu sơ đồ tổ chức."
-            trace = _make_trace(ranked)
-            _LAST.update(question=question, answer=answer, trace=trace)
-            return answer, trace
+            # Fallback: ghép các chunk cùng source
+            raw = "".join(d.page_content for d, _ in ranked if (d.metadata or {}).get("source") == src)
 
-        raw = _normalize_raw(raw)
-        header = _mini_llm_decorate(raw, MINI_LLM_TASK_ORG_HR)
-        answer = _format_fullcopy_output("Sơ đồ tổ chức nhân viên", header, raw, fence="text")
-        if STRIP_CITATIONS_HR: answer = strip_citations(answer)
-        answer = cleanup_org_answer(answer)
+        tree_text = (raw or "").strip()
+        if STRICT_ORG_PASSTHRU:
+            ans = f"```text\n{tree_text}\n```" if WRAP_TREE_AS_CODE else tree_text
+        else:
+            # chế độ cũ: strip_citations + cleanup (không khuyến nghị)
+            ans = strip_citations(tree_text) if STRIP_CITATIONS_HR else tree_text
+            ans = cleanup_org_answer(ans)
         trace = _make_trace(ranked)
-        _LAST.update(question=question, answer=answer, trace=trace)
-        return answer, trace
-
-    # ---------------- SOP FULLCOPY ----------------
-    SOP_FULLCOPY = os.environ.get("SOP_FULLCOPY_HR", "0").strip().lower() not in ("0", "false")
-    if SOP_FULLCOPY and is_sop_request(question):
-        src = pick_sop_source(ranked)
-        raw = read_full_source_text(src) if src else None
-        if not raw:
-            raw = "\n".join(d.page_content for d, _ in ranked if (d.metadata or {}).get("source")==src).strip() if src else ""
-        answer = _cleanup_sop_text(raw or "")
-        if STRIP_CITATIONS_HR: answer = strip_citations(answer)
-        answer = _format_fullcopy_output("Quy trình/SOP", "", answer, fence="text")
-        trace = _make_trace(ranked)
-        _LAST.update(question=question, answer=answer, trace=trace)
-        return answer, trace
-
-    # ---------------- JD BRANCH ----------------
-    if is_jd_request(question):
-        ranked = _jd_reweight(question, ranked)
-        best_src = (ranked[0][0].metadata or {}).get("source") if ranked else None
-
-        if JD_FULLCOPY_HR:
-            raw = read_full_source_text(best_src) if best_src else None
-            if not raw:
-                raw = _merge_chunks_same_source(ranked, best_src, MAX_CHARS_CTX_HR * 3)
-            clean = _cleanup_jd_text(strip_citations(raw or "") if STRIP_CITATIONS_HR else (raw or ""))
-            answer = _format_fullcopy_output("Mô tả công việc", "", clean, fence="text")
-            trace = _make_trace(ranked[:10])
-            _LAST.update(question=question, answer=answer, trace=trace)
-            return answer, trace
-
-        # Không fullcopy: dùng LLM nhưng chỉ với context từ 1 source tốt nhất
-        merged = _merge_chunks_same_source(ranked, best_src, MAX_CHARS_CTX_HR)
-        ctx = f"[{best_src}|*]\n{merged}" if merged else build_context(ranked, MAX_CHARS_CTX_HR)
-
-        genai = _init_gemini()
-        sys_prompt = get_system_prompt(PROFILE_HR)
-        user_prompt = (
-            "Trả lời đúng theo JD trong ngữ cảnh. Không bịa. "
-            "Không trộn tài liệu khác. Trả về nội dung sạch, mạch lạc.\n\n"
-            f"Ngữ cảnh:\n{ctx}\n\nCâu hỏi: {question}"
-        )
-        t0 = time.time()
-        answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys_prompt, user_prompt)
-        t1 = time.time()
-        if METRICS_HR: print(f"[METRIC] t_llm={t1-t0:.3f}s")
-        ans = strip_citations(answer_raw) if STRIP_CITATIONS_HR else answer_raw
-        ans = _cleanup_jd_text(ans)
-        trace = _make_trace(ranked[:10])
-        _LAST.update(question=question, answer=ans, trace=trace)
+        _LAST.update(question=question, answer=ans, trace=trace, intent="ORG", source=(src or ""))
         return ans, trace
 
-    # ---------------- FORM FULLCOPY (nếu bật ở intent_router) ----------------
-    if intent in ("ORG","JD","FORM") and (FORM_FULLCOPY_HR if intent=="FORM" else False):
-        # chọn nguồn theo điểm file (hoặc registry)
-        by_file: Dict[str, float] = {}
-        for d, s in ranked:
-            path = (d.metadata or {}).get("source")
-            if not path: continue
-            by_file[path] = by_file.get(path, 0.0) + float(s or 0.0)
-        scored_sources = sorted(by_file.items(), key=lambda x: x[1], reverse=True)
-        doc_type = "form"
-        src = pick_best_from_scored(doc_type, scored_sources) or (scored_sources[0][0] if scored_sources else None)
-
-        if not src:
-            answer = "Không tìm thấy tài liệu phù hợp."
-            trace = _make_trace(ranked)
-            _LAST.update(question=question, answer=answer, trace=trace)
-            return answer, trace
-
-        if STRICT_SOURCE_MATCH_HR and SOURCE_REGISTRY_PATH:
-            rec = get_by_path(src)
-            if rec and not verify_hash_if_present(rec):
-                print(f"[WARN] Hash mismatch for {src} (registry). Vẫn tiếp tục đọc…")
-
-        raw = read_full_source_text(src) or "\n".join(
-            d.page_content for d, _ in ranked if (d.metadata or {}).get("source")==src
-        ).strip()
-        raw = _normalize_raw(raw)
-        header = _mini_llm_decorate(raw, MINI_LLM_TASK_HR)
-        answer = _format_fullcopy_output("Mẫu biểu mẫu", header, raw, fence="text")
-        if STRIP_CITATIONS_HR: answer = strip_citations(answer)
+    # ===== JD FULL COPY (đã làm sạch & không lặp) =====
+    qn_norm = _norm(question)
+    is_jd = bool(re.search(r"\b(jd|mô tả công việc|job description|mtcv)\b", qn_norm))
+    if JD_FULLCOPY_HR and is_jd:
+        best_src = _pick_best_jd_source(ranked, question)
+        raw = _read_full_source_text(best_src) if best_src else None
+        if not raw:
+            raw = _join_unique_chunks(ranked, best_src or "")
+        raw = (raw or "").strip()
+        raw = _clean_jd_headers(raw)
+        if STRICT_JD_PASSTHRU:
+            ans = raw
+        else:
+            ans = strip_citations(raw) if STRIP_CITATIONS_HR else raw
         trace = _make_trace(ranked)
-        _LAST.update(question=question, answer=answer, trace=trace)
-        return answer, trace
+        _LAST.update(question=question, answer=ans, trace=trace, intent=intent, source=(best_src or ""))
+        return ans, trace
 
-    # ---------------- GENERAL LLM COMPOSE ----------------
-    ctx = build_context(ranked, max_chars=MAX_CHARS_CTX_HR)
+    # ===== LLM compose (OTHER) =====
+    ctx = _build_context(ranked, max_chars=MAX_CHARS_CTX_HR)
     trace = _make_trace(ranked)
-    genai = _init_gemini()
+    genai = init_gemini()
     sys_prompt = get_system_prompt(PROFILE_HR)
     user_prompt = f"""
 Câu hỏi: {question}
@@ -575,17 +1375,159 @@ Ngữ cảnh (mỗi đoạn có thẻ [source|chunk_id]):
 Yêu cầu:
 1) Trả lời tiếng Việt, chỉ dựa trên NGỮ CẢNH.
 2) Gắn [source|chunk_id] ngay sau ý tương ứng.
-3) Nếu thiếu, nói rõ "không tìm thấy trong tài liệu".
+3) Nếu thiếu, nói đúng câu: "không tìm thấy trong tài liệu".
 """.strip()
     t0 = time.time()
     answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys_prompt, user_prompt)
     t1 = time.time()
-    if METRICS_HR: print(f"[METRIC] t_llm={t1-t0:.3f}s")
+    if METRICS_HR:
+        print(f"[METRIC] t_llm={t1 - t0:.3f}s")
     answer = strip_citations(answer_raw) if STRIP_CITATIONS_HR else answer_raw
-    if is_org_request(question) or re.search(r"[├└│]", answer) or re.search(r"\b\d+(?:\.\d+){1,3}\b", answer):
+
+    try:
+        report = judge_answer(question, answer, trace, GEMINI_MODEL_JUDGE_HR)
+        g = float(report.get("groundedness")) if report and report.get("groundedness") is not None else None
+        if (g is not None) and (g < 0.7):
+            answer = "không tìm thấy trong tài liệu"
+    except Exception as e:
+        print(f"[WARN] judge failed: {e}")
+
+    if re.search(r"[├└│]", answer) or re.search(r"\b\d+(?:\.\d+){1,3}\b", answer):
         answer = cleanup_org_answer(answer)
 
-    _LAST.update(question=question, answer=answer, trace=trace)
+    _LAST.update(question=question, answer=answer, trace=trace, intent=intent, source=(trace[0].get("source") if trace else ""))
     return answer, trace
 
-__all__ = ["answer_with_rag"]
+# =====================================================================
+#  PUBLIC: Follow-up
+# =====================================================================
+
+def _make_trace(ranked: List[Tuple[Document, Optional[float]]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for d, s in ranked:
+        m = d.metadata or {}
+        out.append({
+            "source": m.get("source", "?"),
+            "chunk_id": m.get("chunk_id", -1),
+            "score": float(s) if s is not None else None,
+            "text": d.page_content,
+        })
+    return out
+
+
+def _compose_followup_review(prev_q: str, prev_ans: str, followup: str) -> str:
+    """Dùng LLM để 'nhận xét/đề xuất' dựa trên sơ đồ ở prev_ans + yêu cầu follow-up."""
+    genai = init_gemini()
+    sys = get_system_prompt(PROFILE_HR)
+    user = f"""
+Bạn là chuyên viên HR. Hãy nhận xét ngắn gọn, hành động được.
+Dưới đây là SƠ ĐỒ hiện tại (ASCII):
+
+```text
+{_strip_code_fences(prev_ans)}
+```
+
+Yêu cầu follow-up của người dùng:
+- {followup}
+
+Trả lời:
+- Tiếng Việt, gạch đầu dòng súc tích.
+- Không bịa chức danh mới.
+- Nếu đề xuất thay đổi, nêu lý do ngắn + lợi ích.
+"""
+    return ask_gemini(genai, GEMINI_MODEL_ANSWER_HR, sys, user)
+
+
+def _redraw_from_prev(prev_ans: str, followup: str) -> Optional[str]:
+    key = _extract_branch_key(followup or "")
+    if not key:
+        return None
+    for pat in _relax_patterns_for_token(key):
+        blk = extract_subtree_by_title(prev_ans, title_regex=pat)
+        if blk and blk.strip():
+            return (f"```text\n{blk}\n```" if WRAP_TREE_AS_CODE else blk)
+    return None
+
+
+def _redraw_from_source(prev_trace: List[Dict[str, Any]], followup: str, last_source: str) -> Optional[str]:
+    key = _extract_branch_key(followup or "")
+    if not key:
+        return None
+
+    # ưu tiên dùng nguồn lần trước nếu có
+    src = last_source or _pick_best_source_from_trace(prev_trace)
+
+    # nếu follow-up có dept rõ ràng → cố chọn file tree đúng dept trong trace
+    dept_key = _dept_key_from_text(key)
+    if dept_key:
+        hints = _filename_hints_for_dept(dept_key)
+        for t in prev_trace:
+            s = (t.get("source") or "").lower()
+            if ("tree" in s) and any(h in s for h in hints):
+                src = t.get("source")
+                break
+
+    raw = _read_full_source_text(src) if src else None
+    if not raw:
+        return None
+    for pat in _relax_patterns_for_token(key):
+        blk = extract_subtree_by_title(raw, title_regex=pat)
+        if blk and blk.strip():
+            return (f"```text\n{blk}\n```" if WRAP_TREE_AS_CODE else blk)
+    return None
+
+
+def continue_with_last(followup: str) -> Tuple[str, List[Dict[str, Any]]]:
+    prev_q = _LAST.get("question", "") or ""
+    prev_ans = _LAST.get("answer", "") or ""
+    prev_trace = _LAST.get("trace", []) or []
+    prev_intent = _LAST.get("intent", "")
+    last_source = _LAST.get("source", "") or ""
+
+    if not prev_trace:
+        return ("Không có ngữ cảnh trước đó để 'tiếp tục'. Hãy hỏi: 'Sơ đồ tổ chức' trước.", [])
+
+    act = detect_followup_action(followup)
+    if DEBUG_QE_HR:
+        print(f"[FOLLOW-UP] act={act} | text={followup}")
+
+    # 1) REDRAW (vẽ nhánh)
+    if act == "REDRAW":
+        # cắt ngay trên prev_ans
+        if prev_ans:
+            ans = _redraw_from_prev(prev_ans, followup)
+            if ans:
+                _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+                return ans, prev_trace
+        # fallback: đọc từ source
+        ans = _redraw_from_source(prev_trace, followup, last_source)
+        if ans:
+            _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+            return ans, prev_trace
+        return (f"Không tìm thấy nhánh phù hợp để vẽ lại cho yêu cầu: '{followup}'. Hãy thử: 'vẽ nhánh Marketing' hoặc 'vẽ nhánh 1.3'.", prev_trace)
+
+    # 2) REVIEW (nhận xét/đánh giá)
+    if act == "REVIEW":
+        if not prev_ans:
+            return ("Chưa có sơ đồ để nhận xét. Hãy hỏi 'Sơ đồ tổ chức' trước.", prev_trace)
+        review = _compose_followup_review(prev_q, prev_ans, followup)
+        if STRIP_CITATIONS_HR:
+            review = strip_citations(review)
+        _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=review, trace=prev_trace, intent=prev_intent, source=last_source)
+        return review, prev_trace
+
+    # 3) CONTINUE (hiển thị lại)
+    if act == "CONTINUE":
+        _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=prev_ans, trace=prev_trace, intent=prev_intent, source=last_source)
+        return prev_ans, prev_trace
+
+    # 4) Nếu follow-up chứa tên bộ phận quen thuộc → coi như REDRAW nhẹ
+    quick_key = _dept_key_from_text(followup)
+    if quick_key and prev_ans:
+        ans = _redraw_from_prev(prev_ans, followup)
+        if ans:
+            _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
+            return ans, prev_trace
+
+    # fallback: trả lại sơ đồ cũ
+    return (prev_ans or "Không rõ yêu cầu tiếp tục.", prev_trace)

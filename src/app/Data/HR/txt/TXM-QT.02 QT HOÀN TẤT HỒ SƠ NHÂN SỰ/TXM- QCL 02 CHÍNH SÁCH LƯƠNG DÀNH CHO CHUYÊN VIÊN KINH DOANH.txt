@@ -148,84 +148,6 @@ GIÁM ĐỐC KINH DOANH
 
 CÔNG TY CỔ PHẦN TIXIMAX -----------
 
-Số: ....02/2025/QCL/TXM.
-
-CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
-
-Độc lập - Tự do - Hạnh phúc
-
-$$ ---------o0o--------- $$
-
-TP.HCM., ngày 08 tháng 08 năm 2025 Thành phần thu nhập Mức chi trả Ghi chú Lương cơ bản
-
-5.000.000 VNĐ/tháng
-
-Cố định hàng tháng
-
-Lương trách nhiệm công việc
-
-1.000.000 VNĐ/tháng.
-
-Lương khoán (theo KPI)
-
-Tối đa 3.000.000 VNĐ/tháng
-
-Tính theo hiệu suất công việc Lương phụ cấp
-
-Tối đa 2.000.000 VNĐ/Tháng
-
-Cố định theo tháng.
-
-Theo % doanh thu lợi nhuận Tính theo chính sách thưởng riêng Tiêu chí Trọng số (%)
-
-Mức nhận lương khoán tối đa
-
-Doanh thu đạt được đối với Chuyên viên Kinh doanh
-
-Trên 70%
-
-3.000.000 VNĐ
-
-Stt Team Chuyên viên Kinh doanh 1 Indonesia
-
-Tổng doanh thu 1 tấn/ tháng.
-
-2 Nhật 3 Hàn 4 Mỹ
-
-Số kg đạt trong tháng
-
-Hoa hồng (vnđ)
-
-Indo Từ 300kg
-
-3.000
-
-Từ 400kg đến 1 tấn
-
-4.000
-
-Trên 1 tấn
-
-Theo ban hành của BGĐ
-
-Hoa hồng (VNĐ)
-
-Nhật, Hàn
-
-Từ 300kg đến 1 tấn
-
-1.000
-
-Trên 1 tấn trở lên
-
-1,500
-
-Từ 300kg trở lên 3000 Từ 1 Tấn trở lên 4000
-
-Ví dụ:Chính sách giá công ty: 158.000 trên 1kgNhân viên chốt được khách với giá: 200.000 trên 1kg.⇒ Phần chênh lệch: 42.000/1 kg ⇒ Hoa hồng chênh lệch được tính là 20%: 8.400/1kg.
-
-CÔNG TY CỔ PHẦN TIXIMAX -----------
-
 Số: ....02/2025/QCL/TXM.	CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM
 
 Độc lập - Tự do - Hạnh phúc
@@ -261,8 +183,6 @@ Stt	Team	Số kg đạt trong tháng	Hoa hồng (vnđ)
 1	Indo	Từ 400kg đến 1 tấn	4.000
 
 1	Indo	Trên 1 tấn	Theo ban hành của BGĐ
-
-Stt	Team	Số kg đạt trong tháng	Hoa hồng (VNĐ)
 
 1	Nhật, Hàn	Từ 300kg đến 1 tấn	1.000
 

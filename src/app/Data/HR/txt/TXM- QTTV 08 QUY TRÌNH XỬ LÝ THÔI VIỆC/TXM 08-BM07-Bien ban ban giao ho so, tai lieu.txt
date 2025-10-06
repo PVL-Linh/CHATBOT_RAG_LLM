@@ -14,32 +14,6 @@ Biên bản được lập vào lúc ... giờ ... phút và kết thúc lúc ..
 
 Biên bản được lập thành 03 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau./.
 
-CÔNG TY CỔ PHẦN TIXIMAX
-
-TÀI LIỆU ĐÀO TẠO
-
-BIÊN BẢN BÀN GIAO HỒ SƠ, TÀI LIỆU Số hồ sơ:TXM.QT 01 Phiên bản: 01
-
-Lần sửa đổi:
-
-Ngày ban hành:
-
-Người bàn giao: .......................
-
-Chức vụ: ...............
-
-Người nhận bàn giao: ..............
-
-Lý do bàn giao:
-
-TT Mã hồ sơ tài liệu Tên hồ sơ, tài liệu Số lượng Tình trạng
-
-Vị trí để hồ sơ tài liệu
-
-1 2 3 4 5
-
-(Ký và ghi rõ họ tên) NGƯỜI NHẬN BÀN GIAO NGƯỜI BÀN GIAO
-
 CÔNG TY CỔ PHẦN TIXIMAX	TÀI LIỆU ĐÀO TẠO	TÀI LIỆU ĐÀO TẠO
 
 CÔNG TY CỔ PHẦN TIXIMAX	BIÊN BẢN BÀN GIAO HỒ SƠ, TÀI LIỆU	Số hồ sơ:TXM.QT 01
@@ -53,5 +27,7 @@ Ngày ban hành:
 hồ sơ
 
 tài liệu	Số lượng	Tình trạng	Vị trí để hồ sơ tài liệu
+
+1 2 3 4 5
 
 (Ký và ghi rõ họ tên)
