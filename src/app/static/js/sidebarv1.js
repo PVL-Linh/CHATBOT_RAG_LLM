@@ -8,36 +8,34 @@
     const w = Math.min(MAX, Math.max(MIN, widest + EXTRA));
     document.body.style.setProperty('--sidebar-w', w + 'px');
 
-    const sidebar = document.getElementById('sidebar');
     const sbToggle = document.getElementById('sbToggle');
+    const sidebar = document.getElementById('sidebar');
 
-    // Khôi phục trạng thái thu gọn
-    const saved = localStorage.getItem('txm_sidebar_collapsed');
-    if (saved === '1') sidebar.classList.add('is-collapsed');
+    // ✅ Khôi phục trạng thái theo BODY CLASS (tránh .is-collapsed)
+    const savedCollapsed = (localStorage.getItem('txm_sb_collapsed') === '1');
+    const savedPinned    = (localStorage.getItem('txm_sb_pinned') === '1');
+    document.body.classList.toggle('sb-collapsed', savedCollapsed);
+    document.body.classList.toggle('sb-pinned',    savedPinned);
 
-    // Toggle thu gọn/mở rộng
-    sbToggle?.addEventListener('click', () => {
-      sidebar.classList.toggle('is-collapsed');
-      const collapsed = sidebar.classList.contains('is-collapsed') ? '1' : '0';
-      localStorage.setItem('txm_sidebar_collapsed', collapsed);
-      sbToggle.setAttribute('aria-pressed', collapsed === '1' ? 'true' : 'false');
-      // Cập nhật icon lucide (nếu dùng)
-      if (window.lucide?.createIcons) window.lucide.createIcons();
+    // ✅ Click: gọi hàm onToggle (khớp logic khối sau), tránh double-toggle
+    sbToggle?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof onToggle === 'function') onToggle(e);
     });
 
-    // Tooltip title khi thu gọn (tuỳ chọn): dùng text trong <span>
+    // Tooltip khi thu gọn: đọc theo BODY CLASS
     function applyCollapsedTitles() {
-      const collapsed = sidebar.classList.contains('is-collapsed');
+      const collapsed = document.body.classList.contains('sb-collapsed');
       document.querySelectorAll('.sidebar .nav-item').forEach(a => {
         const label = a.querySelector('span')?.textContent?.trim() || '';
-        if (collapsed) a.title = label;
-        else a.removeAttribute('title');
+        if (collapsed) a.title = label; else a.removeAttribute('title');
       });
     }
     applyCollapsedTitles();
     const obs = new MutationObserver(applyCollapsedTitles);
     obs.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
   });
+
   const KEY_PIN = "txm_sb_pinned";
   const KEY_COLLAPSE = "txm_sb_collapsed";       // 1 = collapsed (ẩn)
   const MQ = window.matchMedia("(min-width: 992px)");
@@ -123,7 +121,7 @@
       setPinned(nextPinned);
     } else {
       const nextCollapsed = !document.body.classList.contains("sb-collapsed");
-      setCollapsed(nextCollapsed);
+      setCollapsed(nextCollapsed ? false : true);
     }
   }
 
@@ -182,11 +180,20 @@
     watchHistoryToggle();
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.querySelectorAll(".sb-toggle").forEach(b =>
-      b.addEventListener("click", onToggle)
-    );
+
+    // ❌ Tránh double-binding: KHÔNG gắn click ở đây nữa (đã gắn ở khối đầu).
+    // document.querySelectorAll(".sb-toggle").forEach(b =>
+    //   b.addEventListener("click", onToggle)
+    // );
+
+    // Media query change & resize icon
+    MQ.addEventListener("change", applyState);
+    window.addEventListener("resize", updateIcon);
+
+    // render icon lucide
+    if (window.lucide) { try { window.lucide.createIcons(); } catch (_) { } }
   });
 
-  MQ.addEventListener("change", applyState);
-  window.addEventListener("resize", updateIcon);
+  // Expose onToggle trong phạm vi IIFE để khối đầu có thể gọi
+  window.__txm_sb_onToggle = onToggle; // (không bắt buộc, chỉ phòng hờ)
 })();

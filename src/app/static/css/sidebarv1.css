@@ -33,6 +33,11 @@
   box-shadow: none;
 }
 
+/* ✅ Enable smooth width on all viewports (fix mobile toggle mượt) */
+aside.sidebar {
+  transition: width var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important;
+}
+
 .s-header { padding: 16px; border-bottom: 1px solid white; }
 .logo { height: 48px; object-fit: contain; }
 
@@ -253,6 +258,7 @@
     white-space: normal !important;
   }
 }
+
 /* ===== Sidebar layout & smooth hover ===== */
 :root {
   --sidebar-w: 240px;                    /* JS của bạn vẫn sẽ cập nhật biến này */
