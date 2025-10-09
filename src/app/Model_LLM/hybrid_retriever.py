@@ -14,7 +14,7 @@ MMR_LAMBDA = 0.45        # 0.35–0.5, thấp = đa dạng hơn
 USE_RERANK = True
 RERANK_CANDIDATES = 80
 RERANK_TOP_K = TOP_K
-RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-12-v2"
+RERANK_MODEL = "BAAI/bge-reranker-v2-m3"
 
 # ==== Chuẩn hoá chữ cho BM25 & Query ====
 # CASE_NORM: 'lower' (mặc định) hoặc 'upper'

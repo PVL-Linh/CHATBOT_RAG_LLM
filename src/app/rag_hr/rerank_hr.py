@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import List, Tuple
 from langchain_core.documents import Document
-from .config_hr import USE_RERANK_HR, RERANK_MODEL_HR, RERANK_CANDIDATES_HR, RERANK_TOP_K_HR, METRICS_HR
+from app.config.config_HR import USE_RERANK_HR, RERANK_MODEL_HR, RERANK_CANDIDATES_HR, RERANK_TOP_K_HR, METRICS_HR
 
 _ce_model = None
 

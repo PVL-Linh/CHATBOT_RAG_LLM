@@ -5,11 +5,15 @@ from flask import Blueprint, jsonify, request, send_file, url_for, session, curr
 from app.Login.login_required import login_required
 from werkzeug.utils import secure_filename
 import fitz
+
+from app.config.paths import PDF_TEXT_DIR, PDF_TMP_DIR
 # Helper from your Processing_Data
 try:
     from app.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except Exception:
     from app.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
+
+
 bp = Blueprint('pdf', __name__)
 
 def _clean_extracted_text(s: str) -> str:
@@ -28,14 +32,14 @@ def _clean_extracted_text(s: str) -> str:
     return s2.strip()
 
 def _hist_user_dir(username: str) -> str:
-    base = os.path.join(current_app.instance_path, "pdf_txt_111", secure_filename(username or "anon"))
-    os.makedirs(base, exist_ok=True)
-    return base
+    base = PDF_TEXT_DIR / secure_filename(username or "anon")
+    base.mkdir(parents=True, exist_ok=True)
+    return str(base)
 
 def _tmp_user_dir(username: str) -> str:
-    base = os.path.join(current_app.instance_path, "pdf_txt_tmp", secure_filename(username or "anon"))
-    os.makedirs(base, exist_ok=True)
-    return base
+    base = PDF_TMP_DIR / secure_filename(username or "anon")
+    base.mkdir(parents=True, exist_ok=True)
+    return str(base)
 
 def _is_in_dir(path: str, base_dir: str) -> bool:
     try:

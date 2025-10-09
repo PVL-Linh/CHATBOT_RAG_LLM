@@ -3,7 +3,8 @@ import os, json, re
 from typing import List, Optional
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
-from .config_hr import DATA_DIR_HR, FAISS_DIR_HR, CASE_NORM_HR, USE_BM25_HR
+from app.config.paths import DATA_DIR_HR, FAISS_DIR_HR
+from app.config.config_HR import USE_BM25_HR, CASE_NORM_HR
 
 _CORPUS_PATH = os.path.join(FAISS_DIR_HR, "corpus.jsonl")
 _FORCE_REBUILD = os.environ.get("FORCE_REBUILD_CORPUS_HR","0").lower() not in ("0","false")

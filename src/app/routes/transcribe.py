@@ -3,10 +3,11 @@ import os
 import time
 from flask import Blueprint, jsonify, request, render_template, session, current_app
 from werkzeug.utils import secure_filename
-
 from app.Login.login_required import login_required
 from app.Helpers.media_convert import convert_to_wav16k_mono
 from app.Helpers.vinai_stt import transcribe_file
+from app.config.paths import UPLOAD_VIDEOS_DIR
+
 
 bp = Blueprint("stt", __name__)
 
@@ -35,10 +36,9 @@ def api_transcribe():
     lang = (request.form.get("lang") or "vi").strip().lower()
 
     # Lưu tạm file upload
-    upload_dir = os.path.join(current_app.root_path, "app", "Data_app", "uploads", "stt")
-    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(UPLOAD_VIDEOS_DIR, exist_ok=True)
     fname = f"{int(time.time()*1000)}_{secure_filename(audio.filename)}"
-    src_path = os.path.join(upload_dir, fname)
+    src_path = os.path.join(UPLOAD_VIDEOS_DIR, fname)
     audio.save(src_path)
 
     # Chuẩn hoá sang WAV 16k mono (ổn định cho mọi nguồn: mp4/webm/m4a/…)

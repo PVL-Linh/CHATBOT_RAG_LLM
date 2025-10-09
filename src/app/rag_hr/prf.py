@@ -3,7 +3,7 @@ import re
 from collections import Counter
 from typing import List
 from langchain_core.documents import Document
-from .config_hr import CASE_NORM_HR, PRF_K_SEM_HR, PRF_NGRAMS_HR, PRF_TOP_PHRASES_HR, PRF_MIN_LEN_CHARS_HR, DEBUG_QE_HR
+from app.config.config_HR import CASE_NORM_HR, PRF_NGRAMS_HR, PRF_TOP_PHRASES_HR, PRF_MIN_LEN_CHARS_HR, DEBUG_QE_HR
 from .utils_hr import normalize_case
 
 _STOP = set([

@@ -1,17 +1,12 @@
-"""
-Flask extensions initialization and global configuration
-"""
 import os
 import threading
-from dotenv import load_dotenv
-
-load_dotenv()
+from app.config.paths import CHAT_LOGS_DIR
+from app.config.settings import ChatConfig
 
 # Global configuration constants
-LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
-MAX_HISTORY = int(os.environ.get("MAX_HISTORY", "50"))
-CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/app/Data_app/chat_logs")
-LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
+LLM_SEM = ChatConfig.LLM_SEM
+MAX_HISTORY = ChatConfig.MAX_HISTORY
+LOCAL_TZ_NAME = ChatConfig.LOCAL_TZ_NAME
 
 def init_extensions(app):
     """Initialize Flask extensions and app configuration"""

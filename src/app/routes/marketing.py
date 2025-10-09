@@ -96,20 +96,20 @@ def api_fb_text():
         return jsonify({"error": "Thiếu dữ liệu bắt buộc."}), 400
 
     user_prompt = f"""
-Create marketing content using the fixed template below for a Facebook Ads campaign.
-Language: {lang}
-Brand: {brand}
-Tone/Brand voice: {tone}
+        Create marketing content using the fixed template below for a Facebook Ads campaign.
+        Language: {lang}
+        Brand: {brand}
+        Tone/Brand voice: {tone}
 
-Input:
-* Product description: {product}
-* Customer persona: {customer}
+        Input:
+        * Product description: {product}
+        * Customer persona: {customer}
 
-REQUIREMENTS:
-* Faithfully reflect the specified brand voice (tone).
-* Do not invent promotions/prices if none are provided.
-* Output only ONE complete piece following the template (Analysis → Campaign Idea → Facebook Post → IMAGE_PROMPT).
-""".strip()
+        REQUIREMENTS:
+        * Faithfully reflect the specified brand voice (tone).
+        * Do not invent promotions/prices if none are provided.
+        * Output only ONE complete piece following the template (Analysis → Campaign Idea → Facebook Post → IMAGE_PROMPT).
+        """.strip()
 
     u_prompt, sys_inst = apply_occasion_lock(user_prompt, persona_vi)
     try:

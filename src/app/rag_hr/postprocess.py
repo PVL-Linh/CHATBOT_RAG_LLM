@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 _SOURCE_TAG_PAT = re.compile(
