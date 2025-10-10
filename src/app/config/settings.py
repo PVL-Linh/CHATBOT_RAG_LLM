@@ -1,8 +1,7 @@
 import os
 import threading
 from .paths import FAISS_ALL_DIR
-from dotenv import load_dotenv
-load_dotenv()
+
 
 class ChatConfig:
     LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", 24)))
