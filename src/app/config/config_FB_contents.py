@@ -1,7 +1,8 @@
 import os, time, random
 import google.generativeai as genai_old
 from google import genai as genai_new
-
+from dotenv import load_dotenv
+load_dotenv()
 
 API_KEY_MKT_FB = os.environ.get("GEMINI_API_KEY_FB")
 if not API_KEY_MKT_FB:

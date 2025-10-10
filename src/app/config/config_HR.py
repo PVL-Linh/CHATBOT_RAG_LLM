@@ -2,7 +2,8 @@
 import os
 from app.config.utils_config import _env_get, _env_bool, _env_int, _env_float, _resolve_path
 from app.config.paths import *
-
+from dotenv import load_dotenv
+load_dotenv()
 # ---------- retrieval ----------
 RAG_TOPK_HR   = _env_int ("RAG_TOPK_HR",   "40")
 K_SEM_HR      = _env_int ("K_SEM_HR",      "20")
