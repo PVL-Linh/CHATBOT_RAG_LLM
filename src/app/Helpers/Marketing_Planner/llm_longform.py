@@ -1,6 +1,6 @@
 # Helpers/llm_longform.py
 import re
-from ..config_MKT import call_text, MAX_TOKENS_MKT, tokens_for_words
+from app.config.config_MKT import call_text, MAX_TOKENS_MKT, tokens_for_words
 
 def _word_count_vi(s: str) -> int:
     return len(re.findall(r"[A-Za-zÀ-ỹ0-9\-]+", s or ""))

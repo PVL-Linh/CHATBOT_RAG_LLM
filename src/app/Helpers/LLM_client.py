@@ -7,8 +7,8 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 # from .prompt_KT import persona_vi  # nếu cần
 from .Occasion_Classifier import classify_occasion_1
-from .Marketing_Planner.config_FB_contents import TEXT_MODEL_MKT_FB, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
-from .config_MKT import TEXT_MODEL_MKT    #, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
+from app.config.config_FB_contents import TEXT_MODEL_MKT_FB, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
+from app.config.config_MKT import TEXT_MODEL_MKT 
 from .rate_limit import get_text_limiter
 
 # ===================== Semaphore (đồng thời cho LLM)

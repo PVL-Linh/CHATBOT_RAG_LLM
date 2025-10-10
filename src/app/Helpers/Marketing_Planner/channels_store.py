@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 import json, os, uuid
 from typing import List, Dict, Any
-
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "Data_app")
-CHANNELS_FILE = os.path.join(DATA_DIR, "channels.json")
+from app.config.paths import DATA_DIR, CHANNELS_JSON
 
 # Danh sách mặc định để seed lần đầu
 SEED_CHANNELS = [
@@ -38,12 +36,12 @@ _STRUCTURE_GUESS = {
 def _ensure_file():
     os.makedirs(DATA_DIR, exist_ok=True)
     # Nếu chưa có file → tạo file rỗng
-    if not os.path.exists(CHANNELS_FILE):
-        with open(CHANNELS_FILE, "w", encoding="utf-8") as f:
+    if not os.path.exists(CHANNELS_JSON):
+        with open(CHANNELS_JSON, "w", encoding="utf-8") as f:
             json.dump([], f, ensure_ascii=False, indent=2)
     # Nếu file trống → seed kênh mặc định như bản ghi thường (UUID)
     try:
-        with open(CHANNELS_FILE, "r", encoding="utf-8") as f:
+        with open(CHANNELS_JSON, "r", encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError:
         data = []
@@ -67,12 +65,12 @@ def _ensure_file():
                 "structure": "blog_longform",
                 "system_prompt_override": "",
             })
-        with open(CHANNELS_FILE, "w", encoding="utf-8") as f:
+        with open(CHANNELS_JSON, "w", encoding="utf-8") as f:
             json.dump(seeded, f, ensure_ascii=False, indent=2)
 
 def load_channels() -> List[Dict[str, Any]]:
     _ensure_file()
-    with open(CHANNELS_FILE, "r", encoding="utf-8") as f:
+    with open(CHANNELS_JSON, "r", encoding="utf-8") as f:
         try:
             return json.load(f)
         except json.JSONDecodeError:
@@ -80,7 +78,7 @@ def load_channels() -> List[Dict[str, Any]]:
 
 def save_channels(items: List[Dict[str, Any]]):
     _ensure_file()
-    with open(CHANNELS_FILE, "w", encoding="utf-8") as f:
+    with open(CHANNELS_JSON, "w", encoding="utf-8") as f:
         json.dump(items, f, ensure_ascii=False, indent=2)
 
 # -------------- Helpers chuẩn hoá/upsert --------------

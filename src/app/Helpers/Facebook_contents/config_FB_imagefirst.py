@@ -4,11 +4,10 @@ Config dành riêng cho flow 'Image-First' (mượn cùng API key/model với FB
 Tách file để dễ quản lý và điều chỉnh độc lập nếu cần.
 """
 import os, time, random
-from dotenv import load_dotenv
 import google.generativeai as genai_old
 from google import genai as genai_new
-
-load_dotenv()
+from app.config.utils_env import load_env_near
+load_env_near(__file__)
 
 API_KEY_MKT_FB = os.getenv("GEMINI_API_KEY_IMGFB") or os.getenv("GEMINI_API_KEY_FB")
 if not API_KEY_MKT_FB:

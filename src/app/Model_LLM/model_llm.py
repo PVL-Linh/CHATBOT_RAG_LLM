@@ -1,10 +1,6 @@
 import os
 import errno
 from typing import Optional, Tuple
-
-from dotenv import load_dotenv
-load_dotenv()
-
 # --- Optional: Ẩn warnings deprecate từ huggingface_hub ---
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="huggingface_hub.file_download")
@@ -12,29 +8,20 @@ warnings.filterwarnings("ignore", category=UserWarning, module="huggingface_hub.
 
 # --- LangChain Embeddings (ưu tiên lib mới, fallback lib cũ) ---
 try:
-    # pip install -U langchain-huggingface
-    from langchain_huggingface import HuggingFaceEmbeddings  # type: ignore
+    from langchain_huggingface import HuggingFaceEmbeddings
 except Exception:
-    # pip install langchain-community
-    from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
-
-from langchain_core.embeddings import Embeddings as LCEmbeddings  # type: ignore
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.embeddings import Embeddings as LCEmbeddings
 from langchain_community.vectorstores import FAISS
-
-# Hybrid retriever (nếu có)
 try:
-    from app.Model_LLM.hybrid_retriever import build_hybrid_retriever  # type: ignore
+    from app.Model_LLM.hybrid_retriever import build_hybrid_retriever
 except Exception:
-    build_hybrid_retriever = None  # fallback phía dưới
-
-# Gemini SDK (google-genai) — pip install google-genai
+    build_hybrid_retriever = None
 from google import genai as genai_new
 from google.genai import types as genai_types
-
-# HF Hub — pip install --upgrade huggingface_hub
 from huggingface_hub import snapshot_download
-
-
+from app.config.paths import EMBED_MODEL_DIR, EMBED_REVISION, EMBED_MODEL_ID, FAISS_ALL_DIR
+from app.config.settings import Gemini_Config_LLM
 # =========================
 # Helpers
 # =========================
@@ -79,8 +66,8 @@ def ensure_local_hf_model(local_dir: str, model_id: str, revision: Optional[str]
     if has_config and has_weights:
         return local_dir
 
-    token = os.getenv("HF_TOKEN") or None
-    force = (os.getenv("HF_FORCE_DOWNLOAD", "0") == "1")
+    token = Gemini_Config_LLM.token or None
+    force = Gemini_Config_LLM.force
 
     try:
         print(f"[model_llm] Tải model '{model_id}' về: {local_dir} (revision={revision or 'default'})")
@@ -123,6 +110,9 @@ def ensure_local_hf_model(local_dir: str, model_id: str, revision: Optional[str]
 
 def _make_embeddings_local(model_path_or_name: str) -> LCEmbeddings:
     """Embeddings LOCAL: ưu tiên GPU nếu có, fallback CPU."""
+    # 🔧 Quan trọng: đảm bảo là string, không phải Path
+    model_path_or_name = str(model_path_or_name)
+
     try:
         import torch
         has_cuda = torch.cuda.is_available()
@@ -131,6 +121,10 @@ def _make_embeddings_local(model_path_or_name: str) -> LCEmbeddings:
         has_cuda = False
 
     force_device = (os.getenv("EMBED_DEVICE") or "").strip().lower()
+    # 🔧 mapping 'gpu' -> 'cuda' để hợp lệ với libs
+    if force_device == "gpu":
+        force_device = "cuda"
+
     if force_device in ("cpu", "cuda"):
         device = force_device
     else:
@@ -156,13 +150,14 @@ def _make_embeddings_local(model_path_or_name: str) -> LCEmbeddings:
         raise
 
 
+
 def _make_embeddings_remote(model_id: str) -> LCEmbeddings:
     """
     Embeddings REMOTE trên Hugging Face Inference.
     Env cần:
       - HUGGINGFACEHUB_API_TOKEN (ưu tiên) hoặc HF_TOKEN
     """
-    api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN") or os.getenv("HF_TOKEN")
+    api_key = Gemini_Config_LLM.api_key
     if not api_key:
         raise RuntimeError("Thiếu HUGGINGFACEHUB_API_TOKEN/HF_TOKEN để dùng Hugging Face Inference.")
 
@@ -188,7 +183,7 @@ def _maybe_download_faiss_from_hub(default_dir: str) -> str:
     ENV:
       - FAISS_HUB_REPO (vd: username/my-faiss-index)  [bắt buộc để tải]
       - FAISS_HUB_REPO_TYPE = dataset|model (mặc định: dataset)
-      - FAISS_HUB_SUBDIR (vd: vectorstore/FAISS_Vector) (mặc định: "vectorstore/FAISS_Vector")
+      - FAISS_HUB_SUBDIR (vd: FAISS_Vector_All hoặc vectorstore/FAISS_Vector_All)
       - FAISS_LOCAL_DIR (override đường dẫn local nếu muốn)
     """
     local_dir = os.getenv("FAISS_LOCAL_DIR") or default_dir
@@ -199,11 +194,11 @@ def _maybe_download_faiss_from_hub(default_dir: str) -> str:
 
     repo_id = os.getenv("FAISS_HUB_REPO")
     if not repo_id:
-        # Không có repo để tải → giữ nguyên local_dir (FAISS sẽ báo lỗi ở dưới nếu thiếu)
         return local_dir
 
-    repo_type = os.getenv("FAISS_HUB_REPO_TYPE", "dataset")
-    subdir = os.getenv("FAISS_HUB_SUBDIR", "vectorstore/FAISS_Vector_All").strip().strip("/")
+    repo_type = Gemini_Config_LLM.repo_type
+    # Mặc định dùng tên thư mục FAISS thực tế (FAISS_ALL_DIR.name = "FAISS_Vector_All")
+    subdir = Gemini_Config_LLM.subdir
 
     print(f"[model_llm] Tải FAISS index từ Hub: {repo_type}:{repo_id}/{subdir}")
     snap_path = snapshot_download(
@@ -239,16 +234,14 @@ def LLM_model() -> Tuple[
     ENV liên quan:
       - EMBED_MODEL_ID        (mặc định: intfloat/multilingual-e5-large)
       - EMBED_REVISION        (tuỳ chọn, chỉ dùng nếu chạy local)
-      - EMBED_MODEL_PATH      (mặc định: ./src/app/models/local_multilingual_e5_large) (chỉ dùng nếu local)
+      - EMBED_MODEL_DIR      (mặc định: ./src/app/models/local_multilingual_e5_large) (chỉ dùng nếu local)
       - EMBED_FORCE_REMOTE    (1|0|auto) — auto: nếu phát hiện SPACE_ID → remote
       - HUGGINGFACEHUB_API_TOKEN hoặc HF_TOKEN (cho remote)
       - FAISS_DIR / FAISS_LOCAL_DIR (tuỳ chọn)
       - FAISS_HUB_REPO / FAISS_HUB_REPO_TYPE / FAISS_HUB_SUBDIR (tuỳ chọn)
       - GEMINI_*
     """
-    EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")
-    EMBED_REVISION = os.getenv("EMBED_REVISION")  # chỉ dùng khi local
-    EMBED_MODEL_PATH = os.getenv("EMBED_MODEL_PATH", "./src/app/models/local_multilingual_e5_large")
+ 
 
     # ——— Chế độ remote mặc định trên Spaces
     force_remote_env = (os.getenv("EMBED_FORCE_REMOTE", "auto").strip().lower())
@@ -267,12 +260,13 @@ def LLM_model() -> Tuple[
     else:
         # Chỉ dùng cho môi trường không phải Spaces (hoặc khi bạn ép local)
         try:
-            EMBED_MODEL_PATH = ensure_local_hf_model(
-                local_dir=EMBED_MODEL_PATH,
+            local_embed_dir = ensure_local_hf_model(
+                local_dir=EMBED_MODEL_DIR,
                 model_id=EMBED_MODEL_ID,
                 revision=EMBED_REVISION,
             )
-            embeddings = _make_embeddings_local(EMBED_MODEL_PATH)
+            embeddings = _make_embeddings_local(local_embed_dir)
+
         except Exception as e:
             if _is_disk_full_error(e) or "no space left" in str(e).lower():
                 print("[model_llm] Hết dung lượng tải model → fallback Remote Embeddings.")
@@ -282,8 +276,9 @@ def LLM_model() -> Tuple[
 
     # ====== FAISS ======
     # Ưu tiên dùng /data nếu tồn tại (Persistent Storage trên Spaces)
-    default_faiss_dir = "/data/faiss" if os.path.isdir("/data") else "./src/app/vectorstore/FAISS_Vector_All"
+    default_faiss_dir = str(FAISS_ALL_DIR)
     FAISS_DIR = _abs(os.getenv("FAISS_DIR") or default_faiss_dir)
+
     # Nếu không có thư mục FAISS local → thử tải từ Hub (nếu có config)
     faiss_load_dir = _maybe_download_faiss_from_hub(FAISS_DIR)
 

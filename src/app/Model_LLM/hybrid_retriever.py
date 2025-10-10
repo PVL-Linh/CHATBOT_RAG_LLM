@@ -3,18 +3,21 @@ from typing import List, Dict, Tuple
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.ensemble import EnsembleRetriever
+from app.config.paths import DATA_DIR, FAISS_ALL_DIR
+from app.config.settings import hybrid_retriever as chatall
+
 
 # ==== Tham số hybrid / rerank (bạn có thể chỉnh) ====
-TOP_K = 22              # k cuối cùng dùng làm context
-K_SEM = 20              # k semantic (FAISS) trước khi hợp nhất
-K_LEX = 20              # k lexical (BM25) trước khi hợp nhất
-MMR_FETCH_K = 80        # số lượng fetch để MMR đa dạng
-MMR_LAMBDA = 0.45        # 0.35–0.5, thấp = đa dạng hơn
+TOP_K = chatall.TOP_K              # k cuối cùng dùng làm context
+K_SEM = chatall.K_SEM              # k semantic (FAISS) trước khi hợp nhất
+K_LEX = chatall.K_LEX              # k lexical (BM25) trước khi hợp nhất
+MMR_FETCH_K = chatall.MMR_FETCH_K        # số lượng fetch để MMR đa dạng
+MMR_LAMBDA = chatall.MMR_LAMBDA        # 0.35–0.5, thấp = đa dạng hơn
 
-USE_RERANK = True
-RERANK_CANDIDATES = 80
-RERANK_TOP_K = TOP_K
-RERANK_MODEL = "BAAI/bge-reranker-v2-m3"
+USE_RERANK = chatall.USE_RERANK
+RERANK_CANDIDATES = chatall.RERANK_CANDIDATES
+RERANK_TOP_K = chatall.RERANK_TOP_K
+RERANK_MODEL = chatall.RERANK_MODEL
 
 # ==== Chuẩn hoá chữ cho BM25 & Query ====
 # CASE_NORM: 'lower' (mặc định) hoặc 'upper'
@@ -32,12 +35,8 @@ def normalize_query(q: str) -> str:
     """Hàm export để nơi gọi dùng trước khi search."""
     return _normalize_case(q or "")
 
-# Vị trí data .txt (fallback nếu chưa có corpus.jsonl)
-DATA_DIR = os.environ.get("DATA_DIR", "./src/app/Data/Data_All")
-# Nơi lưu index FAISS đang dùng
-FAISS_DIR = os.environ.get("FAISS_DIR", "./src/app/vectorstore/FAISS_Vector_All")
 # Nơi lưu corpus JSONL để lần sau không phải load TXT lại
-CORPUS_PATH = os.path.join(FAISS_DIR, "corpus.jsonl")
+CORPUS_PATH = os.path.join(FAISS_ALL_DIR, "corpus.jsonl")
 
 # ==== Clean text gọn ====
 def _clean_text(s: str) -> str:

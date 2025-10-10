@@ -9,27 +9,9 @@ from functools import wraps
 
 from flask import request, session, redirect, url_for, jsonify
 from werkzeug.security import generate_password_hash
+from app.config.paths import USERS_DB
 
-# ============================================================
-# Config — GIỮ TƯƠNG THÍCH VỚI CODE CŨ + HỖ TRỢ RENDER
-# ============================================================
-
-# Ưu tiên các biến env bạn đã dùng; nếu có DATA_DIR thì ưu tiên path tại đó.
-def _resolve_db_path() -> str:
-    # Giữ tương thích hoàn toàn với mã cũ
-    v = (os.getenv("SQLITE_PATH") or os.getenv("USERS_DB") or "").strip()
-    if v:
-        return v
-
-    # Hỗ trợ thêm: nếu có DATA_DIR/RENDER_DISK_PATH thì dùng
-    data_dir = (os.getenv("DATA_DIR") or os.getenv("RENDER_DISK_PATH") or "").strip()
-    if data_dir:
-        return os.path.join(data_dir, "users.db")
-
-    # Mặc định cũ của bạn
-    return "./src/app/Data_app/users.db"
-
-DB_PATH = _resolve_db_path()
+DB_PATH = USERS_DB
 
 ALLOWED_ROLES = {
     "marketing", "manager_marketing", "sales", "hr", "admin", "manager_sales"

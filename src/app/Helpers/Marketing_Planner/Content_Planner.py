@@ -1,23 +1,20 @@
 # Marketing_Planner/Content_Planner.py
 from .prompt_planner import (
-    Prompt_Blog_Website_Planner,
-    Prompt_FaceBook_Planner,
-    Prompt_Instagram_Planner,
-    Prompt_LinkedIn_Planner,
-    Prompt_TikTok_Planner,
-    Prompt_YouTube_Planner,
-    Prompt_Zalo_OA_Planner,
-)
-# from .helpers_resolve import resolve_channel
-# from .bounded_writer import generate_bounded_longform
-# from .llm_longform_sectioned import generate_sectioned_longform
+                            Prompt_Blog_Website_Planner,
+                            Prompt_FaceBook_Planner,
+                            Prompt_Instagram_Planner,
+                            Prompt_LinkedIn_Planner,
+                            Prompt_TikTok_Planner,
+                            Prompt_YouTube_Planner,
+                            Prompt_Zalo_OA_Planner,
+                        )
+
 from .repeat_guard import jaccard_sentence_overlap
-from ..config_MKT import call_text, tokens_for_words
+from app.config.config_MKT import call_text
 import re
 from typing import List
 import os
-
-PLANNER_SHORT_CAP = int(os.getenv("PLANNER_SHORT_CAP", 512))
+from app.config.paths import PLANNER_SHORT_CAP
 
 def _normalize_channel(s: str) -> str:
     s = (s or "").strip().lower()

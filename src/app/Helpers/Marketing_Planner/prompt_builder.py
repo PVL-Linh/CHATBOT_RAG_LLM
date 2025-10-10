@@ -10,8 +10,6 @@ from .prompt_planner import (
 )
 import re
 from typing import Dict
-# Registry map "structure" -> template nội dung (đầu ra). 
-# Có thể thay Prompt_Blog_Website_Planner bằng Prompt_Blog_Website_Planner_V2 nếu bạn dùng bản ép word count.
 STRUCTURE_TEMPLATES: Dict[str, str] = {
     "blog_longform": Prompt_Blog_Website_Planner,
     "facebook_post": Prompt_FaceBook_Planner,
