@@ -2,7 +2,7 @@
 import os
 from typing import Dict
 import fitz  # PyMuPDF
-from Data_processing import clean_page_text
+from .Data_processing import clean_page_text
 
 # OCR fallback (tự động khi trang gần như không có text)
 USE_OCR_FALLBACK = True
