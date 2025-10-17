@@ -37,3 +37,8 @@ def guide():
 @login_required(roles=['admin'])
 def admin():
     return render_template('home/admin.html', current_user=session.get('user'), active='admin')
+
+@bp.get("/indexing")
+@login_required
+def indexing_faiss():
+    return render_template("home/indexing_Faiss.html", active="indexing_faiss")

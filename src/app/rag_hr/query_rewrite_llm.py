@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import json
-from .config_hr import CASE_NORM_HR, USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR, PHRASE_BOOST_TIMES_HR, DEBUG_QE_HR
+from app.config.config_HR import CASE_NORM_HR, USE_QR_LLM_HR, QR_LLM_MODEL_HR, QR_NUM_ALIASES_HR, PHRASE_BOOST_TIMES_HR, DEBUG_QE_HR
 from .utils_hr import normalize_case
 from .gemini_client_hr import init_gemini, ask_gemini
 
 _PROMPT = """
-Bạn là bộ máy MỞ RỘNG TRUY VẤN cho lĩnh vực Nhân sự (HR) tiếng Việt.
-Mục tiêu: từ truy vấn người dùng, tạo ra một số cụm từ ĐỒNG NGHĨA/BIẾN THỂ NGẮN GỌN giúp tìm kiếm tài liệu tốt hơn.
-YÊU CẦU:
-- Trả về JSON với keys: canonical (string), aliases (array of strings).
-- aliases chỉ gồm CỤM DANH TỪ/THÀNH NGỮ NGẮN (≤ 4 từ), không giải thích, không câu dài.
-- Ưu tiên các biến thể phổ biến như: "sơ đồ tổ chức", "cơ cấu tổ chức", "org chart", ...
-- Không bịa tên riêng mới. Không thêm dấu câu thừa.
-"""
+    Bạn là bộ máy MỞ RỘNG TRUY VẤN cho lĩnh vực Nhân sự (HR) tiếng Việt.
+    Mục tiêu: từ truy vấn người dùng, tạo ra một số cụm từ ĐỒNG NGHĨA/BIẾN THỂ NGẮN GỌN giúp tìm kiếm tài liệu tốt hơn.
+    YÊU CẦU:
+    - Trả về JSON với keys: canonical (string), aliases (array of strings).
+    - aliases chỉ gồm CỤM DANH TỪ/THÀNH NGỮ NGẮN (≤ 4 từ), không giải thích, không câu dài.
+    - Ưu tiên các biến thể phổ biến như: "sơ đồ tổ chức", "cơ cấu tổ chức", "org chart", ...
+    - Không bịa tên riêng mới. Không thêm dấu câu thừa.
+    """
 
 def llm_expand_query(q: str) -> dict:
     nq = normalize_case(q, CASE_NORM_HR)

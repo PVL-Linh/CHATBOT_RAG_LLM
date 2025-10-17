@@ -1,0 +1,360 @@
+:root {
+  --gap: 16px;
+  --card-bg: #fff;
+  --card-bd: #e9eef6;
+  --muted: #6b7280;
+  --pri: #4f46e5;
+  --danger: #dc2626;
+}
+
+/* ===== Page layout ===== */
+html,
+body {
+  height: 100%;
+  overflow: auto;
+} /* cho phép cuộn trang nếu cần */
+.page {
+  min-height: 100vh;
+  padding: 0 var(--gap);
+  box-sizing: border-box;
+}
+.grid-2 {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: clamp(300px, 28vw, 420px) 1fr;
+  align-items: stretch;
+}
+@media (max-width: 1024px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Card & common ===== */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-bd);
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+.card-body {
+  padding: 16px;
+}
+.h1 {
+  font-size: 28px;
+  margin: 0;
+}
+.muted {
+  color: var(--muted);
+}
+.btn {
+  border: 0;
+  line-height: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--pri);
+  color: #fff;
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ===== Loader ===== */
+.has-loader {
+  position: relative;
+}
+.local-loader {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+.local-loader.hidden {
+  display: none;
+}
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid #ddd;
+  border-top-color: var(--pri);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Left: form & upload ===== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+select,
+input[type="text"] {
+  padding: 8px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  outline: 0;
+}
+select:focus,
+input[type="text"]:focus {
+  border-color: var(--pri);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+.upload-zone {
+  border: 2px dashed #d6d9e0;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  background: #fafbff;
+  transition: 0.2s;
+}
+.upload-zone:hover {
+  border-color: var(--pri);
+  background: #f2f5ff;
+}
+.upload-zone.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ===== Right: sticky header + single internal scrollbar ===== */
+#idx_right_card {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* độc lập chiều cao, tránh phụ thuộc cha */
+}
+#idx_right_card .card-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
+  border-bottom: 1px solid #eef2f7;
+}
+.tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+.search-wrap {
+  position: relative;
+  min-width: min(340px, 60%);
+  flex: 1 1 260px;
+}
+.search-wrap i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9aa0a6;
+}
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 30px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
+}
+.search-input:focus {
+  border-color: var(--pri);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* vùng cuộn duy nhất */
+#tableContent.table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid #eef2f7;
+}
+
+/* ===== Table ===== */
+table.idx-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f7f8fc;
+  z-index: 2;
+  font-weight: 700;
+  font-size: 13px;
+  color: #364152;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e9eef6;
+}
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: top;
+}
+tr.file-row {
+  cursor: pointer;
+}
+tr.file-row:hover {
+  background: #f8fafc;
+}
+
+/* cột linh hoạt */
+.col-select {
+  width: 42px;
+}
+.col-name {
+  width: clamp(240px, 30vw, 900px);
+}
+.col-chunks {
+  width: clamp(120px, 16vw, 100px);
+  text-align: left;
+}
+.col-type {
+  width: clamp(90px, 12vw, 40px);
+}
+
+/* Tên file: wrap + line-clamp để gọn hàng */
+.col-name,
+.col-name .name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+.col-name .name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* desktop: tối đa 2 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .col-name .name {
+    -webkit-line-clamp: 3;
+  } /* mobile: 3 dòng */
+  .hide-sm {
+    display: none;
+  }
+  .search-wrap {
+    min-width: 100%;
+  }
+}
+
+.badge-chunks {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.badge-type {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 11px;
+}
+.badge-pdf {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.badge-txt {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 38px 16px;
+}
+.empty i {
+  font-size: 44px;
+  color: #cbd5e1;
+  display: block;
+  margin-bottom: 8px;
+}
+.col-name,
+.col-name .name {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  hyphens: auto;
+  line-height: 1.35;
+}
+/* === Single-scroll: chỉ cuộn trong bảng phải === */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+} /* tắt cuộn trang */
+.page {
+  height: 100vh;
+  overflow: hidden;
+}
+.grid-2 {
+  height: 100%;
+}
+
+/* Pane phải chiếm trọn chiều cao */
+#idx_right_card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* QUAN TRỌNG: cho phép con overflow */
+}
+
+/* Header dính trên cùng */
+#idx_right_card .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
+  border-bottom: 1px solid #eef2f7;
+}
+
+/* Bảng là vùng cuộn duy nhất */
+#tableContent.table-wrap {
+  flex: 1 1 auto;
+  min-height: 0; /* QUAN TRỌNG: để scroll hoạt động */
+  overflow: auto; /* cuộn ở đây */
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  padding-bottom: 16px; /* chừa đáy, tránh bị che */
+}
+
+/* Tên file rất dài: bẻ dòng mạnh + không tràn ngang */
+.col-name,
+.col-name .name {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  line-height: 1.35;
+}

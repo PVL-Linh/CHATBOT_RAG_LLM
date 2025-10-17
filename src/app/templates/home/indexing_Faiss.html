@@ -1,0 +1,107 @@
+{# templates/home/indexing_faiss.html #} {% extends 'home/base.html' %} {% set
+active = 'indexing_faiss' %} {% block title %}Indexing FAISS · Tiximax{%
+endblock %} {# nạp CSS riêng #} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/indexing_faiss/indexing_faiss.css') }}"
+/>
+{% endblock %} {% block topbar %}{% endblock %} {% block history_panel %}{%
+endblock %} {% block footer %}{% endblock %} {% block content %}
+<main class="page">
+  <div class="grid-2">
+    <!-- LEFT -->
+    <section class="card has-loader" id="idx_left_card">
+      <div class="local-loader hidden"><div class="spinner"></div></div>
+      <div class="card-body">
+        <h1 class="h1">FAISS Indexing</h1>
+        <p class="muted" style="margin: 6px 0 12px">
+          Chọn phòng ban, tải lên file .txt/.pdf để index; xoá sẽ gỡ khỏi chỉ
+          mục.
+        </p>
+
+        <div class="field">
+          <label for="deptSelect">Phòng ban</label>
+          <select id="deptSelect">
+            <option value="">-- Chọn phòng ban --</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Tải lên</label>
+          <div
+            id="uploadZone"
+            class="upload-zone disabled"
+            role="button"
+            tabindex="0"
+            aria-label="Chọn hoặc kéo-thả file để tải lên"
+          >
+            <input
+              id="fileInput"
+              type="file"
+              multiple
+              accept=".txt,.pdf"
+              hidden
+            />
+            <div>
+              <i
+                class="fa-solid fa-cloud-arrow-up fa-2xl"
+                style="color: #4f46e5"
+              ></i>
+            </div>
+            <div style="font-weight: 700; margin-top: 6px">
+              Chọn file .txt / .pdf
+            </div>
+            <small class="muted">Hoặc kéo-thả file vào đây</small>
+          </div>
+          <small class="muted" style="display: block; margin-top: 8px">
+            Nếu <b>trùng tên</b> với tài liệu đã có, hệ thống sẽ
+            <b>từ chối</b> (không ghi đè).
+          </small>
+        </div>
+
+        <div style="margin-top: 10px">
+          <small id="rootPath" class="muted"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="card has-loader" id="idx_right_card">
+      <div class="local-loader hidden"><div class="spinner"></div></div>
+
+      <div class="card-header">
+        <div>
+          <div style="font-weight: 800">Danh sách tài liệu</div>
+          <small class="muted"
+            >Phòng ban: <span id="currentDept">-</span> · Tổng:
+            <span id="totalFiles">0</span></small
+          >
+        </div>
+        <div class="tools">
+          <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              id="searchInput"
+              class="search-input"
+              placeholder="Tìm kiếm theo tên file..."
+            />
+          </div>
+          <button id="refreshBtn" class="btn btn-primary">↻ Làm mới</button>
+          <button id="deleteBtn" class="btn btn-danger" disabled>
+            🗑️ Xoá (<span id="deleteCount">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <div class="table-wrap" id="tableContent">
+        <div class="empty">
+          <i class="fa-regular fa-folder-open"></i>
+          <div>Vui lòng chọn phòng ban ở khung bên trái</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %} {# nạp JS riêng #} {% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/indexing_faiss/indexing_faiss.js') }}"></script>
+{% endblock %}

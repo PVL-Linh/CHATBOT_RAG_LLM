@@ -9,10 +9,44 @@ page_css %}
   rel="stylesheet"
   href="{{ url_for('static', filename='css/marketing/facebook.css') }}"
 />
+
 <style>
   /* Patch nhỏ – đảm bảo không có nowrap trên <p> của markdown */
   #fb_result_md p {
     white-space: pre-line !important;
+  }
+
+  /* Cho phép khu vực nội dung cuộn dọc */
+  #marketing .content {
+    height: 100vh; /* full chiều cao khung nhìn */
+    overflow-y: auto; /* bật cuộn dọc */
+    box-sizing: border-box;
+    scrollbar-gutter: stable;
+  }
+
+  /* Khi màn hình nhỏ: 2 cột -> 1 cột, mỗi section full-width */
+  @media (max-width: 992px) {
+    #marketing .grid-2.row {
+      display: block;
+    }
+    #marketing .grid-2.row > section {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-bottom: 16px;
+    }
+  }
+
+  /* Đảm bảo tab-panel hiển thị/ẩn đúng cách */
+  .tab-panel {
+    display: none;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+
+  /* Tránh trường hợp hộp kết quả bị khóa chiều cao khiến tưởng mất nội dung */
+  .result-box {
+    max-height: unset;
   }
 </style>
 {% endblock %} {% block topbar %}{% endblock %} {% block history_panel %}{%

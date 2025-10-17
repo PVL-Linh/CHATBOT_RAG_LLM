@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# Marketing_Planner/text_postprocess.py
 import re
 
 # ===== Regex & utils =====

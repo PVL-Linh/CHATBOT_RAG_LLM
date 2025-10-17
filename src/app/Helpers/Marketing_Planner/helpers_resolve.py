@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# Marketing_Planner/helpers_resolve.py
 import re
 from .channels_store import get_by_id, get_by_name
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import json, os, hashlib
 from typing import Dict, List, Optional, Tuple
-from .config_hr import SOURCE_REGISTRY_PATH, DATA_DIR_HR
+from app.config.paths import DATA_DIR_HR
+from app.config.config_HR import SOURCE_REGISTRY_PATH, STRICT_SOURCE_MATCH_HR
 
 _Registry: List[Dict] = []
 _ByPath: Dict[str, Dict] = {}

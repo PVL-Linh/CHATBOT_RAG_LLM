@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-# Ví dụ Flask route đơn giản để gọi engine
 try:
     from flask import Blueprint, request, jsonify
     from .engine_hr import answer_with_rag, continue_with_last

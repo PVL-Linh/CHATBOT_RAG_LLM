@@ -43,22 +43,22 @@ def judge_answer(question: str, answer: str, docs: List[Dict[str, Any]], judge_m
         "Chấm điểm và GIẢI THÍCH ngắn gọn."
     )
     user_prompt = f"""
-QUESTION:
-{question}
+        QUESTION:
+        {question}
 
-ANSWER:
-{answer}
+        ANSWER:
+        {answer}
 
-SOURCES (each block begins with [source|chunk_id]):
-{joined_sources}
+        SOURCES (each block begins with [source|chunk_id]):
+        {joined_sources}
 
-Return STRICT JSON with fields:
-- "relevance"
-- "groundedness"
-- "completeness"
-- "overall"
-- "notes": giải thích ngắn
-""".strip()
+        Return STRICT JSON with fields:
+        - "relevance"
+        - "groundedness"
+        - "completeness"
+        - "overall"
+        - "notes": giải thích ngắn
+        """.strip()
 
     raw = ask_gemini(genai, judge_model, sys_prompt, user_prompt, json_mode=True)
     try:

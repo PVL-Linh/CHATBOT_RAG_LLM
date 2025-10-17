@@ -1,98 +1,29 @@
-# from flask import Blueprint, jsonify, request, session
-# from app.Login.login_required import login_required
-# from app.services.history import read_sessions_and_messages, MAX_HISTORY
-
-# bp = Blueprint("history_api", __name__)
-
-# @bp.route("/api/history", methods=["GET"])
-# @login_required(api=True)
-# def api_history():
-#     user = session.get("user")
-#     if not user:
-#         return jsonify({"items": []})
-#     limit = int(request.args.get("limit", 50))
-#     sessions = read_sessions_and_messages(user)
-
-#     flat = []
-#     for sid, msgs in sessions.items():
-#         for m in msgs:
-#             flat.append({**m, "session_id": sid})
-#     flat.sort(key=lambda x: x.get("ts") or "")
-
-#     return jsonify({"items": flat[-min(limit, MAX_HISTORY):]})
-
-# @bp.route("/api/history/sessions", methods=["GET"])
-# @login_required(api=True)
-# def api_history_sessions():
-#     user = session.get("user")
-#     if not user:
-#         return jsonify({"sessions": []})
-#     sessions = read_sessions_and_messages(user)
-
-#     out = []
-#     for sid, msgs in sessions.items():
-#         if not msgs:
-#             continue
-#         first_user = next((m for m in msgs if m.get("role") == "user"), None)
-#         title = (first_user["content"][:30] if first_user else "Cuộc trò chuyện") if sid != "default" else "Mặc định"
-#         out.append({
-#             "id": sid,
-#             "title": title,
-#             "count": len(msgs),
-#             "first_ts": msgs[0]["ts"],
-#             "last_ts": msgs[-1]["ts"],
-#         })
-#     out.sort(key=lambda x: x["last_ts"], reverse=True)
-#     return jsonify({"sessions": out})
-
-# @bp.route("/api/history/by_session", methods=["GET"])
-# @login_required(api=True)
-# def api_history_by_session():
-#     user = session.get("user")
-#     if not user:
-#         return jsonify({"items": []})
-#     sid = (request.args.get("session_id") or "").strip() or "default"
-#     sessions = read_sessions_and_messages(user)
-#     items = sessions.get(sid, [])
-#     return jsonify({"items": items})
-
-
-
-# app/api/history_api.py
 from __future__ import annotations
 import os, sqlite3, uuid, io, csv, json as _json, re, hashlib
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, request, session
-
+from app.config.paths import USER_CHAT_ALL
 # Decorator đăng nhập (ưu tiên module hiện tại)
 try:
     from app.Login.login_required import login_required
 except Exception:
     from app.Login.login_required import login_required  # fallback
-
+from app.config.settings import ChatConfig
 bp = Blueprint("history_api", __name__)
 
 # =======================
 # Config
 # =======================
-MAX_HISTORY   = int(os.environ.get("MAX_HISTORY", "50"))
-LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
-
-# Ưu tiên CHAT_DB_PATH, sau đó cùng DB với auth (SQLITE_PATH/USERS_DB), cuối cùng dùng app.db
-DB_PATH = (
-    os.getenv("CHAT_DB_PATH")
-    or os.getenv("SQLITE_PATH")
-    or os.getenv("USERS_DB")
-    or "./src/app/Data_app/app.db"
-)
+MAX_HISTORY   = ChatConfig.MAX_HISTORY
+LOCAL_TZ_NAME = ChatConfig.LOCAL_TZ_NAME
 
 # =======================
 # DB helpers
 # =======================
 def _conn():
-    os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
-    con = sqlite3.connect(DB_PATH, timeout=30, check_same_thread=False)
+    os.makedirs(os.path.dirname(USER_CHAT_ALL) or ".", exist_ok=True)
+    con = sqlite3.connect(USER_CHAT_ALL, timeout=30, check_same_thread=False)
     con.execute("PRAGMA journal_mode=WAL;")
     con.execute("PRAGMA synchronous=NORMAL;")
     con.execute("PRAGMA busy_timeout=5000;")
@@ -109,10 +40,6 @@ def _user_slug(username: str) -> str:
     return base
 
 def _tables(username: str) -> tuple[str, str, str]:
-    """
-    Trả (slug, sessions_table, messages_table) cho user.
-    Ví dụ user 'Bao' -> ('bao', 'chat_bao_sessions', 'chat_bao_messages').
-    """
     slug = _user_slug(username)
     return slug, f"chat_{slug}_sessions", f"chat_{slug}_messages"
 

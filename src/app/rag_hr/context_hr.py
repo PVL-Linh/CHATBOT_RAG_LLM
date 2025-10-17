@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import List, Tuple, Optional
 from langchain_core.documents import Document
-from .config_hr import MAX_CHARS_CTX_HR as _MAX
+from app.config.config_HR import MAX_CHARS_CTX_HR as _MAX
 
 def build_context(pairs: List[Tuple[Document, Optional[float]]], max_chars: int = _MAX) -> str:
     blocks, used = [], 0

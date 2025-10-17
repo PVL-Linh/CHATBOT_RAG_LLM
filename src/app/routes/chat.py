@@ -1,18 +1,17 @@
-import os, time, threading, json
+import time, json, re
 from flask import Blueprint, request, jsonify, session, Response, stream_with_context
-# from langchain_core.messages import SystemMessage
 from app.Helpers.rate_limit import get_text_limiter
 from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
 from app.Model_LLM.model_llm import LLM_model
-# from zoneinfo import ZoneInfo
-# from app.Helpers.LLM_client import apply_occasion_lock # imported only when needed
 from app.Helpers.prompt_KT import persona_vi
 from app.Model_LLM.hybrid_retriever import rerank, TOP_K
+from app.config.settings import ChatConfig
+
 bp = Blueprint('chat', __name__)
 
 # ====== LLM helpers kept local to this module ======
-LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", "24")))
+LLM_SEM = ChatConfig.LLM_SEM
 
 def _estimate_from_contents(contents, max_out_tokens=1024):
     words = 0
@@ -45,8 +44,6 @@ def _safe_gemini_generate(gclient, model, contents, config, retries=3, backoff=0
             limiter.on_429()
             raise last_err
         
-# filter source tags from model output
-import re
 _SOURCE_TAG_PAT = re.compile(r"\s*[\(\[](?=[^)\]]{0,240}?\b(?:source|nguồn|chunk)\b)[^)\]]+[\)\]]", re.IGNORECASE)
 
 def strip_source_citations(text: str) -> str:

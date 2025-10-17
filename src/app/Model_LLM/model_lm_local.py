@@ -1,29 +1,15 @@
-# app/Model_LLM/model_llm.py
-# ------------------------------------------------------------
-# LLM_model() với cơ chế auto-download model embeddings (HF Hub)
-# ------------------------------------------------------------
-
 import os
 from typing import Optional, Tuple
-
-from dotenv import load_dotenv
-load_dotenv()
-
 # --- LangChain Embeddings (ưu tiên lib mới, fallback lib cũ) ---
 try:
-    # pip install -U langchain-huggingface
-    from langchain_huggingface import HuggingFaceEmbeddings  # type: ignore
+    from langchain_huggingface import HuggingFaceEmbeddings 
 except Exception:
-    # pip install langchain-community
-    from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
-
+    from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-
-# Hybrid retriever của bạn. Nếu không có, sẽ fallback sang retriever mặc định.
 try:
-    from app.Model_LLM.hybrid_retriever import build_hybrid_retriever  # type: ignore
+    from app.Model_LLM.hybrid_retriever import build_hybrid_retriever
 except Exception:
-    build_hybrid_retriever = None  # fallback phía dưới
+    build_hybrid_retriever = None
 
 # Gemini SDK (google-genai)
 # pip install google-genai

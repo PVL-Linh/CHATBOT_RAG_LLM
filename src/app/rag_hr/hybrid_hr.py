@@ -4,9 +4,9 @@ from typing import List
 from langchain_core.documents import Document
 from .faiss_store_hr import load_vectorstore
 from .bm25_hr import get_bm25
-from .config_hr import (
+from app.config.config_HR import (
     DEBUG_QE_HR, K_SEM_HR, K_LEX_HR, RAG_TOPK_HR as TOP_K_HR, MMR_FETCH_K_HR, MMR_LAMBDA_HR,
-    W_SEM_HR, W_LEX_HR, USE_BM25_HR, FAST_MODE_HR
+    W_SEM_HR, W_LEX_HR, FAST_MODE_HR
 )
 
 def _norm(s: str) -> str:

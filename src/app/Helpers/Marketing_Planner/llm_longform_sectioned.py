@@ -1,7 +1,6 @@
-# Helpers/llm_longform_sectioned.py
-import re, math
+import re
 from typing import List
-from ..config_MKT import call_text, MAX_TOKENS_MKT, tokens_for_words
+from app.config.config_MKT import call_text, MAX_TOKENS_MKT, tokens_for_words
 from .repeat_guard import dedup_paragraphs
 
 def _wc_vi(s: str) -> int:
@@ -16,23 +15,23 @@ def _build_section_prompt(up_body: str, outline: List[str], done: List[str], cur
     outline_list = "\n".join(f"{i+1}. {t}" for i, t in enumerate(outline))
     return f"""{up_body}
 
-Bạn đang viết một bài longform theo dàn ý sau (KHÔNG tạo Mục lục/TOC trong đầu ra):
+        Bạn đang viết một bài longform theo dàn ý sau (KHÔNG tạo Mục lục/TOC trong đầu ra):
 
-Outline:
-{outline_list}
+        Outline:
+        {outline_list}
 
-Các mục đã hoàn thành:
-{done_list}
+        Các mục đã hoàn thành:
+        {done_list}
 
-CHỈ viết TIẾP mục sau: "{current}"
-- Không lặp lại bất kỳ câu/đoạn nào đã có ở phần trước.
-- Bắt đầu bằng heading phù hợp (H2/H3) cho mục này.
-- Nếu cần, dùng H3 cho các ý nhỏ; KHÔNG viết FAQ/Kết luận; KHÔNG quay lại các mục đã xong.
-- Phần tham chiếu (đừng lặp lại, chỉ để bạn biết ngữ cảnh):
-<<<BEGIN_CONTEXT>>>
-{tail_ctx}
-<<<END_CONTEXT>>>
-"""
+        CHỈ viết TIẾP mục sau: "{current}"
+        - Không lặp lại bất kỳ câu/đoạn nào đã có ở phần trước.
+        - Bắt đầu bằng heading phù hợp (H2/H3) cho mục này.
+        - Nếu cần, dùng H3 cho các ý nhỏ; KHÔNG viết FAQ/Kết luận; KHÔNG quay lại các mục đã xong.
+        - Phần tham chiếu (đừng lặp lại, chỉ để bạn biết ngữ cảnh):
+        <<<BEGIN_CONTEXT>>>
+        {tail_ctx}
+        <<<END_CONTEXT>>>
+        """
 
 def generate_sectioned_longform(system_instruction: str,
                                 up_body: str,

@@ -4,7 +4,7 @@ from io import BytesIO
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageColor
 import math
 from google.genai import types as genai_types
-from .Marketing_Planner.config_FB_contents import  CLIENT_MKT, GEMINI_IMAGE_MODEL_MKT, IMAGEN_MODEL_MKT
+from app.config.config_FB_contents import  CLIENT_MKT, GEMINI_IMAGE_MODEL_MKT, IMAGEN_MODEL_MKT
 from .Occasion_Classifier import classify_occasion_1
 from .rate_limit import get_img_limiter
 

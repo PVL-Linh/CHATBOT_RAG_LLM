@@ -2,10 +2,10 @@ import os, csv
 from zoneinfo import ZoneInfo
 from datetime import datetime, timezone
 from pathlib import Path
+from app.config.settings import ChatConfig
+from app.config.paths import CHAT_LOGS_DIR
 
-
-CHAT_LOGS_DIR = os.environ.get("CHAT_LOGS_DIR", "./src/app/Data_app/chat_logs")
-LOCAL_TZ_NAME = os.environ.get("LOCAL_TZ", "Asia/Ho_Chi_Minh")
+LOCAL_TZ_NAME = ChatConfig.LOCAL_TZ_NAME
 
 def _ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)

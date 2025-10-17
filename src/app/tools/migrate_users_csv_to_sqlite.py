@@ -1,11 +1,7 @@
-# tools/migrate_users_csv_to_sqlite.py
-import os, csv, sqlite3, re, tempfile, shutil, secrets, io
+import os, csv, sqlite3, re, tempfile, shutil, secrets
 from typing import Dict, List, Optional
 from werkzeug.security import generate_password_hash
-
-# ===== Paths (ưu tiên ENV, fallback local) =====
-USERS_CSV = os.getenv("USERS_CSV", "./src/app/Data_app/users.csv")
-DB_PATH   = os.getenv("SQLITE_PATH") or os.getenv("USERS_DB") or "./src/app/Data_app/users.db"
+from app.config.paths import USERS_CSV, USERS_DB
 
 # ===== Options =====
 WRITE_BACK_CSV = os.getenv("WRITE_BACK_CSV", "0").strip().lower() in {"1","true","yes"}
@@ -33,8 +29,8 @@ def _gen_password() -> str:
     return DEFAULT_PASSWORD or secrets.token_urlsafe(12)
 
 def ensure_db():
-    os.makedirs(os.path.dirname(DB_PATH) or ".", exist_ok=True)
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    os.makedirs(os.path.dirname(USERS_DB) or ".", exist_ok=True)
+    con = sqlite3.connect(USERS_DB, timeout=30)
     try:
         con.execute("PRAGMA journal_mode=WAL;")
         con.execute("PRAGMA synchronous=NORMAL;")
@@ -94,7 +90,7 @@ def migrate():
         return
 
     print(f"[migrate] USERS_CSV = {USERS_CSV}")
-    print(f"[migrate] DB_PATH   = {DB_PATH}")
+    print(f"[migrate] USERS_DB   = {USERS_DB}")
     print(f"[migrate] Options   = AUTO_GEN_WHEN_MISSING={AUTO_GEN_WHEN_MISSING}, "
           f"STORE_PLAIN_IN_DB={STORE_PLAIN_IN_DB}, WRITE_BACK_CSV={WRITE_BACK_CSV}")
 
@@ -123,7 +119,7 @@ def migrate():
         print("[migrate] ERROR: CSV không có cột username/email/user/... -> không thể tiếp tục.")
         return
 
-    con = sqlite3.connect(DB_PATH, timeout=30)
+    con = sqlite3.connect(USERS_DB, timeout=30)
     generated = []  # [(username, password)]
     upserted = 0
     skipped  = 0
