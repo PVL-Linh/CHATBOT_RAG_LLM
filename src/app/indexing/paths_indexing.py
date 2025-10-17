@@ -1,198 +1,135 @@
+# app/indexing/paths_indexing.py
 from __future__ import annotations
-
 import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple, List
+from typing import Dict, List, Tuple, Optional
+from app.indexing.config_indexing import DEPTS_ROOT_DEFAULT
 
-from .config_indexing import (
-    DEPTS_ROOT_DEFAULT,
-    DATA_ROOT_DEFAULT,
-    UPDATE_PREFIX,
-)
+# ===== Helpers =====
 
-# =======================
-# Dataclass gom đường dẫn
-# =======================
+def canonical_dept(dept: Optional[str]) -> Optional[str]:
+    if not dept:
+        return None
+    d = str(dept).strip()
+    low = d.lower()
+    if low in ("hr",):
+        return "HR"
+    if low in ("all", "default"):
+        return "ALL"
+    # Nếu có dept khác, chuẩn hoá theo upper cho nhất quán
+    return d.upper()
 
-@dataclass
-class DepartmentPaths:
-    dept: str
-    dept_dir: Path     # container logic; với layout phẳng sẽ là vectorstore/
-    data_dir: Path     # src/app/Data/<dept> hoặc Data/Data_All
-    index_dir: Path    # src/app/vectorstore/FAISS_Vector_<DEPT> (phẳng) hoặc <dept>/Faiss_vector (fallback)
-    corpus_path: Path  # <-- YÊU CẦU MỚI: LUÔN là index_dir / 'corpus.jsonl'
-    update_dir: Path   # src/app/vectorstore/update_<dept>
-
-    def ensure(self) -> "DepartmentPaths":
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.index_dir.mkdir(parents=True, exist_ok=True)
-        self.update_dir.mkdir(parents=True, exist_ok=True)
-        return self
-
-
-# =======================
-# Resolve root
-# =======================
-
-def get_root(root: Optional[str | Path]) -> Path:
+def _std_paths_for_dept(root: str, dept: str) -> Dict[str, str]:
     """
-    Trả về Path root chuẩn. Nếu không truyền, dùng DEPTS_ROOT_DEFAULT.
+    Chuẩn hoá đường dẫn cho 2 phòng ban chuẩn: HR, ALL.
+    Không quét thư mục để tránh sinh thêm key rác.
     """
-    return Path(root).resolve() if root else Path(DEPTS_ROOT_DEFAULT).resolve()
+    root_dir = Path(root or DEPTS_ROOT_DEFAULT).resolve()
+    app_dir = root_dir.parent  # .../vectorstore/ -> parent = .../app
 
+    # Data nằm dưới app/Data/<DEPT>
+    data_dir = app_dir / "Data" / dept
 
-# =======================
-# Layout resolver
-# =======================
+    # Index nằm dưới vectorstore/FAISS_Vector_<DEPT>
+    index_dir = root_dir / f"FAISS_Vector_{dept}"
 
-def dept_paths_dataclass(root: Optional[str | Path], dept: str, ensure: bool = True) -> DepartmentPaths:
-    """
-    Hỗ trợ 2 layout:
+    # Corpus file (nếu chưa có cũng không sao)
+    corpus = index_dir / "corpus.jsonl"
 
-    A) PHẲNG (đúng cây hiện tại):
-        vectorstore/
-          ├── FAISS_Vector_ALL/
-          ├── FAISS_Vector_HR/
-          └── (corpus chính) FAISS_Vector_<DEPT>/corpus.jsonl
-        data ưu tiên: Data/<dept>, fallback: Data/Data_All
+    # update dir theo convention cũ
+    update_dir = root_dir / f"update_{dept.lower()}"
 
-    B) THEO THƯ MỤC (fallback):
-        vectorstore/
-          └── <dept>/
-              ├── Faiss_vector/
-              ├── Data_All/
-              └── (corpus chính) Faiss_vector/corpus.jsonl
-    """
-    r = get_root(root)
-    dept_norm = Path(dept).name
-    dept_upper = dept_norm.upper()
-    dept_lower = dept_norm.lower()
+    # dept_dir chỉ là thư mục “nhãn” trong root (không nhất thiết dùng)
+    dept_dir = root_dir / dept
 
-    # ---- Ưu tiên layout phẳng
-    flat_index = r / f"FAISS_Vector_{dept_upper}"
-    if flat_index.is_dir():
-        index_dir = flat_index
-        dept_dir = r  # container logic
-        # YÊU CẦU MỚI: corpus chính nằm TRONG index_dir
-        corpus = index_dir / "corpus.jsonl"
-    else:
-        # ---- Fallback: mỗi phòng ban là 1 thư mục
-        dept_dir = r / dept_norm
-        index_dir = dept_dir / "Faiss_vector"
-        # corpus chính cũng nằm trong index_dir
-        corpus = index_dir / "corpus.jsonl"
-
-    # ---- Data dir: ưu tiên Data/<dept>, fallback Data/Data_All
-    prefer = DATA_ROOT_DEFAULT / dept_norm
-    data_dir = prefer if prefer.is_dir() else (DATA_ROOT_DEFAULT / "Data_All")
-
-    update_dir = r / f"{UPDATE_PREFIX}{dept_lower}"
-
-    dp = DepartmentPaths(
-        dept=dept_norm,
-        dept_dir=dept_dir,
-        data_dir=data_dir,
-        index_dir=index_dir,
-        corpus_path=corpus,
-        update_dir=update_dir,
-    )
-    return dp.ensure() if ensure else dp
-
-
-def dept_paths(root: str | Path, dept: str) -> Tuple[str, str, str, str, str]:
-    """
-    API tiện lợi cho code cũ: trả về tuple string.
-    """
-    dp = dept_paths_dataclass(root, dept, ensure=True)
-    return (
-        str(dp.dept_dir),
-        str(dp.data_dir),
-        str(dp.index_dir),
-        str(dp.corpus_path),
-        str(dp.update_dir),
-    )
-
-
-# =======================
-# Tiện ích liệt kê
-# =======================
-
-def list_departments(root: str | Path | None = None) -> List[str]:
-    """
-    Quét root để tìm các phòng ban theo cả 2 layout.
-    - Layout phẳng: phát hiện thư mục bắt đầu bằng 'FAISS_Vector_'
-    - Layout thư mục: phát hiện '<dept>/Faiss_vector'
-    Kết quả trả lowercase, duy nhất, đã sort.
-    """
-    r = get_root(root)
-    if not r.exists():
-        return []
-
-    out: List[str] = []
-
-    # A) phẳng
-    for p in r.iterdir():
-        if p.is_dir() and p.name.startswith("FAISS_Vector_"):
-            out.append(p.name.replace("FAISS_Vector_", "").lower())
-
-    # B) theo thư mục
-    for p in r.iterdir():
-        if p.is_dir() and (p / "Faiss_vector").is_dir():
-            out.append(p.name.lower())
-
-    # dedupe + sort
-    return sorted(list(dict.fromkeys(out)))
-
-
-def all_known_paths(root: Optional[str | Path], dept: Optional[str], ensure: bool = False) -> dict:
-    """
-    Trả về thông tin tổng quan (depts_root, departments,...).
-    Nếu có dept, trả thêm các đường dẫn cụ thể cho dept đó.
-    Ngoài 'corpus' chính (trong index_dir), trả kèm 'new_corpus' (gợi ý vị trí để tạo mới trong update_dir).
-    """
-    r = get_root(root)
-    info = {
-        "depts_root": str(r),
-        "departments": list_departments(r),
+    return {
+        "root": str(root_dir),
+        "dept_dir": str(dept_dir),
+        "data_dir": str(data_dir),
+        "index_dir": str(index_dir),
+        "corpus": str(corpus),
+        "update_dir": str(update_dir),
     }
-    if dept:
-        dp = dept_paths_dataclass(r, dept, ensure=ensure)
-        dept_lower = Path(dp.dept).name.lower()
-        info["dept_paths"] = {
-            "dept_dir": str(dp.dept_dir),
-            "data_dir": str(dp.data_dir),
-            "index_dir": str(dp.index_dir),
-            "corpus": str(dp.corpus_path),  # corpus chính
-            "update_dir": str(dp.update_dir),
-            # Gợi ý nơi tạo corpus mới (nếu bạn cần sinh file mới):
-            "new_corpus": str(dp.update_dir / f"corpus_{dept_lower}.jsonl"),
-        }
-    return info
 
-
-# =======================
-# Một vài helper có thể được các module khác dùng lại
-# =======================
-
-def rel_from_data_dir(data_dir: str | Path, any_path: str | Path) -> str:
+def all_known_paths(root: Optional[str] = None,
+                    dept: Optional[str] = None,
+                    ensure: bool = False) -> Dict[str, Dict[str, str]]:
     """
-    Trả về path tương đối tính từ data_dir (chuẩn hoá '/').
+    Trả về mapping chuẩn chỉ gồm: HR, ALL (và dept chỉ định nếu khác).
+    Không quét filesystem để tránh sinh thêm mục như FAISS_Vector_All/HR...
     """
-    ap = str(Path(any_path).resolve())
-    base = str(Path(data_dir).resolve())
-    if ap.startswith(base):
-        return str(Path(ap).relative_to(base)).replace("\\", "/")
-    return Path(any_path).name.replace("\\", "/")
+    root_effective = str(root or DEPTS_ROOT_DEFAULT)
 
+    result: Dict[str, Dict[str, str]] = {}
 
-def list_txt_files_under(data_dir: str | Path) -> List[str]:
+    # 2 phòng ban mặc định
+    for d in ("ALL", "HR"):
+        info = _std_paths_for_dept(root_effective, d)
+        result[d] = info
+
+    # Nếu người gọi truyền dept khác hai loại trên, thêm vào theo cùng convention
+    cd = canonical_dept(dept)
+    if cd and cd not in result:
+        result[cd] = _std_paths_for_dept(root_effective, cd)
+
+    # ensure: tạo folder nếu thiếu (index_dir, data_dir, update_dir, dept_dir)
+    if ensure:
+        for d, info in result.items():
+            for key in ("dept_dir", "data_dir", "index_dir", "update_dir"):
+                try:
+                    os.makedirs(info[key], exist_ok=True)
+                except Exception:
+                    pass
+
+    return result
+
+def list_departments(root: Optional[str] = None) -> List[str]:
+    """Danh sách phòng ban hợp lệ (mặc định: ALL, HR)."""
+    mp = all_known_paths(root=root, ensure=False)
+    # chỉ hiển thị key chuẩn, không trả về các key gây nhiễu
+    return sorted(k for k in mp.keys())
+
+def dept_paths(root: Optional[str], dept: str, ensure: bool = False) -> Tuple[str, str, str, str, str]:
+    """
+    Trả về 5-tuple: (dept_dir, data_dir, index_dir, corpus, update_dir)
+    -> đúng với kỳ vọng của list_cmd.list_index_sources(...)
+    """
+    cd = canonical_dept(dept)
+    if not cd:
+        raise ValueError("dept is required")
+
+    info_map = all_known_paths(root=root, dept=cd, ensure=ensure)
+    if cd not in info_map:
+        raise RuntimeError(f"Unknown dept: {dept}")
+
+    info = info_map[cd]
+    return (
+        info["dept_dir"],
+        info["data_dir"],
+        info["index_dir"],
+        info["corpus"],
+        info["update_dir"],
+    )
+
+# ====== các hàm tiện ích mà add_indexing.py đang import ======
+
+def rel_from_data_dir(path: str, data_dir: Optional[str] = None) -> str:
+    """
+    Trả về đường dẫn tương đối tính từ data_dir (dùng khi set metadata['source']).
+    """
+    base = Path(data_dir or (Path(DEPTS_ROOT_DEFAULT).parent / "Data")).resolve()
+    ap = Path(path).resolve()
+    try:
+        rel = ap.relative_to(base)
+        return str(rel).replace("\\", "/")
+    except Exception:
+        return str(ap).replace("\\", "/")
+
+def list_txt_files_under(data_dir: str) -> List[str]:
     out: List[str] = []
-    base = Path(data_dir)
-    if not base.is_dir():
+    d = Path(data_dir)
+    if not d.is_dir():
         return out
-    for root, _dirs, files in os.walk(base):
-        for fn in files:
-            if fn.lower().endswith(".txt"):
-                out.append(str(Path(root) / fn))
+    for p in d.rglob("*.txt"):
+        out.append(str(p))
     return out

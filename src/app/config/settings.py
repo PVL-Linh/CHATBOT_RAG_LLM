@@ -1,8 +1,6 @@
 import os
 import threading
 from .paths import FAISS_ALL_DIR
-from dotenv import load_dotenv
-load_dotenv()
 
 class ChatConfig:
     LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", 24)))
@@ -16,7 +14,7 @@ class AppConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-change-in-production")
 
     # Upload / json 
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
     JSON_SORT_KEYS = False
     JSONIFY_PRETTYPRINT_REGULAR = False
     PREFERRED_URL_SCHEME = "https"

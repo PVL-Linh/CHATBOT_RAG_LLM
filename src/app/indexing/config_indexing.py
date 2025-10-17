@@ -1,67 +1,83 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
-
-import os
 from pathlib import Path
 
-# =======================
-# Đường dẫn & cấu hình cơ bản
-# =======================
+# Gốc của module indexing: .../src/app/indexing
+THIS_DIR = Path(__file__).resolve().parent
+APP_DIR = THIS_DIR.parent
 
-# .../src/app
-APP_DIR: Path = Path(__file__).resolve().parents[1]
-
-# Root chứa các thư mục FAISS (đúng với cây hiện tại của bạn)
-#   - src/app/vectorstore/FAISS_Vector_All
-#   - src/app/vectorstore/FAISS_Vector_HR
+# Thư mục vectorstore mặc định
 DEPTS_ROOT_DEFAULT: Path = APP_DIR / "vectorstore"
 
-# Root dữ liệu text (ưu tiên tìm Data/<dept>, fallback Data/Data_All)
-#   - src/app/Data/HR
-#   - src/app/Data/Data_All
-DATA_ROOT_DEFAULT: Path = APP_DIR / "Data"
+# Map tên chuẩn phòng ban (chỉ hiển thị 1 nguồn duy nhất, tránh trùng lặp)
+CANONICAL_DEPTS = ("ALL", "HR",)
 
-# Model embeddings (mặc định local folder; có thể override bằng ENV EMBED_MODEL_DIR)
-EMBED_MODEL_NAME: str = os.environ.get(
-    "EMBED_MODEL_DIR",
-    str(APP_DIR / "models" / "local_multilingual_e5_large"),
-)
+def canonical_dept(name: str | None) -> str | None:
+    if not name:
+        return None
+    n = str(name).strip().lower()
+    # Chuẩn hoá các biến thể tên (faiss_vector_all -> ALL)
+    if n in ("all", "faiss_vector_all", "faiss-vector-all", "vector_all"):
+        return "ALL"
+    if n in ("hr", "faiss_vector_hr", "faiss-vector-hr", "humanresources"):
+        return "HR"
+    return name.upper()
 
-# Tham số chunking khuyến nghị
-CHUNK_SIZE: int = int(os.environ.get("CHUNK_SIZE", 1200))
-CHUNK_OVERLAP: int = int(os.environ.get("CHUNK_OVERLAP", 300))
-if CHUNK_OVERLAP >= CHUNK_SIZE:
-    CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
-
-# Thư mục lưu bản gốc file khi thêm qua API (audit)
-UPDATE_PREFIX: str = "update_"
-
-
-# =======================
-# Helpers cho Embeddings
-# =======================
-
-def _cuda_ok() -> bool:
-    try:
-        import torch  # type: ignore
-        return bool(torch.cuda.is_available())
-    except Exception:
-        return False
-
-
-def build_embeddings():
+def dept_paths(root: str | Path | None, dept: str):
     """
-    Trả về bộ (embeddings, device, batch_size)
-    - Tự nhận biết CUDA nếu có.
-    - Có thể đổi model qua ENV EMBED_MODEL_DIR (ví dụ dùng model HF online).
+    Trả về tuple 5 phần tử:
+      (dept_dir, data_dir, index_dir, corpus_path, update_dir)
+    Tất cả đều là str.
     """
-    from langchain_huggingface import HuggingFaceEmbeddings  # lazy import
+    d = canonical_dept(dept)
+    if not d:
+        raise ValueError("dept is required")
 
-    device = "cuda" if _cuda_ok() else "cpu"
-    batch = int(os.environ.get("EMB_BATCH", 32 if device == "cuda" else 8))
+    root_path = Path(root) if root else DEPTS_ROOT_DEFAULT
+    root_path = root_path.resolve()
 
-    emb = HuggingFaceEmbeddings(
-        model_name=EMBED_MODEL_NAME,
-        model_kwargs={"device": device},
-        encode_kwargs={"normalize_embeddings": True, "batch_size": batch},
-    )
-    return emb, device, batch
+    # Thư mục dữ liệu TXT theo dept
+    data_dir = (APP_DIR / "Data" / d).resolve()
+
+    # Thư mục index FAISS theo dept
+    index_dir = (root_path / f"FAISS_Vector_{d}").resolve()
+
+    # Thư mục update (nếu cần lưu tạm file mới)
+    update_dir = (root_path / f"update_{d.lower()}").resolve()
+
+    # Thư mục dept cấp 1 (chỉ để tham khảo – show trên UI)
+    dept_dir = (root_path / d).resolve()
+
+    corpus_path = (index_dir / "corpus.jsonl").resolve()
+
+    return (str(dept_dir), str(data_dir), str(index_dir), str(corpus_path), str(update_dir))
+
+def list_departments(root: str | Path | None) -> list[str]:
+    # Trả về danh sách “đã chuẩn hoá”: ["ALL","HR"]
+    return list(CANONICAL_DEPTS)
+
+def all_known_paths(root: str | Path | None, dept: str | None, ensure: bool = False) -> dict:
+    """
+    /api/indexing/paths: nếu dept=None → trả về mọi dept; nếu có dept → chỉ dept đó.
+    """
+    def _one(dname: str):
+        _dept_dir, _data_dir, _index_dir, _corpus, _update = dept_paths(root, dname)
+        if ensure:
+            for p in (_dept_dir, _data_dir, _index_dir, _update):
+                Path(p).mkdir(parents=True, exist_ok=True)
+        return {
+            "root": str(Path(root or DEPTS_ROOT_DEFAULT).resolve()),
+            "dept_dir": _dept_dir,
+            "data_dir": _data_dir,
+            "index_dir": _index_dir,
+            "corpus": _corpus,
+            "update_dir": _update,
+        }
+
+    if dept:
+        cd = canonical_dept(dept)
+        return {cd: _one(cd)}
+    out: dict = {}
+    for d in list_departments(root):
+        out[d] = _one(d)
+    return out
