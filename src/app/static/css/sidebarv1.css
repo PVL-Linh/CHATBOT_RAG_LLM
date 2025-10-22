@@ -7,7 +7,7 @@
   /* chiều rộng khi ẩn (dựa trên icon) */
   --sb-collapsed: clamp(calc(var(--icon-size-collapsed) + 2*var(--pad-x)), 48px, 80px);
 
-  --sb-ease: cubic-bezier(.22,.61,.36,1);
+  --sb-ease: cubic-bezier(.22, .61, .36, 1);
   --sb-anim-ms: 380ms;
   --sb-anim-delay: 20ms;
   --toggle-size: 38px;
@@ -38,73 +38,223 @@ aside.sidebar {
   transition: width var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important;
 }
 
-.s-header { padding: 16px; border-bottom: 1px solid white; }
-.logo { height: 48px; object-fit: contain; }
+.s-header {
+  padding: 16px;
+  border-bottom: 1px solid white;
+}
+
+.logo {
+  height: 48px;
+  object-fit: contain;
+}
 
 @container (max-width: 120px) {
-  .s-header .logo { max-height: 40px; width: clamp(28px, calc(100% - 24px), 64px); }
+  .s-header .logo {
+    max-height: 40px;
+    width: clamp(28px, calc(100% - 24px), 64px);
+  }
 }
+
 @container (min-width: 200px) {
-  .s-header .logo { max-height: 60px; width: clamp(80px, calc(100% - 24px), 180px); }
+  .s-header .logo {
+    max-height: 60px;
+    width: clamp(80px, calc(100% - 24px), 180px);
+  }
 }
 
 /* Nav */
-.s-nav { display: flex; flex-direction: column; gap: 4px; padding: 8px; overflow: auto; min-height: 0; }
-.nav-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 12px; border-radius: 10px; text-decoration: none; color: inherit;
-  border: 0; background: transparent; cursor: pointer; transition: background .15s ease;
+.s-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  overflow: auto;
+  min-height: 0;
 }
-.nav-item:hover { background: #f6f7f8; }
-.nav-item.active { background: #eef5ff; color: var(--accent); }
-.nav-item i { width: 20px; height: 20px; flex: 0 0 20px; }
-.nav-item span { opacity: 1; width: auto; margin-left: 6px; transform: none; }
 
-.nav-group { padding: 6px 8px; }
-.nav-group-title { display: flex; align-items: center; gap: 10px; color: var(--muted); font-weight: 600; padding: 8px 10px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s ease;
+}
 
-.badge { margin-left: auto; background: #e0f2fe; color: #0369a1; font-size: 11px; border-radius: 999px; padding: 2px 6px; }
+.nav-item:hover {
+  background: #f6f7f8;
+}
 
-.nav-admin { margin-top: auto; padding: 8px 12px; }
-.admin-row { display: flex; align-items: center; gap: 8px; }
-.pill { background: #111827; color: #fff; font-size: 10px; padding: 4px 6px; border-radius: 6px; }
-.count { margin-left: auto; background: #f1f5f9; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
-.btn-mini { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.nav-item.active {
+  background: #eef5ff;
+  color: var(--accent);
+}
 
-.s-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid white; padding: 12px; gap: 8px; }
-.account-row { display: inline-flex; align-items: center; gap: 8px; }
+.nav-item i {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.nav-item span {
+  opacity: 1;
+  width: auto;
+  margin-left: 6px;
+  transform: none;
+}
+
+.nav-group {
+  padding: 6px 8px;
+}
+
+.nav-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+.badge {
+  margin-left: auto;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+
+.nav-admin {
+  margin-top: auto;
+  padding: 8px 12px;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill {
+  background: #111827;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.count {
+  margin-left: auto;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.btn-mini {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.s-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid white;
+  padding: 12px;
+  gap: 8px;
+}
+
+.account-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .user-name {
-  max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  padding: 8px 12px; color: var(--text); font-weight: 600; font-size: 16px;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px 12px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 16px;
 }
 
 /* Khoá mục menu (roles) */
-.sidebar .s-nav > a.nav-item { display: flex; align-items: center; gap: .6rem; width: 100%; }
-.sidebar .s-nav > a.nav-item .lock-ico { margin-left: auto; width: 18px; height: 18px; flex-shrink: 0; opacity: .85; }
-.sidebar .s-nav > a.nav-item.locked { opacity: .5 !important; cursor: default !important; pointer-events: none !important; }
-.sidebar .s-nav > a.nav-item.locked i[data-lucide] { color: inherit; }
+.sidebar .s-nav>a.nav-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  width: 100%;
+}
+
+.sidebar .s-nav>a.nav-item .lock-ico {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: .85;
+}
+
+.sidebar .s-nav>a.nav-item.locked {
+  opacity: .5 !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+.sidebar .s-nav>a.nav-item.locked i[data-lucide] {
+  color: inherit;
+}
 
 /* ====== ANIMATION / TRANSITION ====== */
-.layout{ transition: grid-template-columns var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay); }
-@media (min-width: 992px){
-  aside.sidebar{ transition: width var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important; }
-  .topbar{ transition: left var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important; }
+.layout {
+  transition: grid-template-columns var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay);
 }
+
+@media (min-width: 992px) {
+  aside.sidebar {
+    transition: width var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important;
+  }
+
+  .topbar {
+    transition: left var(--sb-anim-ms) var(--sb-ease) var(--sb-anim-delay) !important;
+  }
+}
+
 .sidebar .nav-item span,
 .sidebar .s-footer .user-name,
-.sidebar .btn-logout span{
+.sidebar .btn-logout span {
   transition:
     opacity 500ms var(--sb-ease) var(--sb-anim-delay),
     transform 500ms var(--sb-ease) var(--sb-anim-delay),
     margin 500ms var(--sb-ease) var(--sb-anim-delay);
 }
+
 .sidebar .nav-item i,
 .sidebar .nav-item svg,
 .sidebar .s-footer i,
-.sidebar .s-footer svg { width: var(--icon-size) !important; height: var(--icon-size) !important; }
+.sidebar .s-footer svg {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+}
 
-@media (prefers-reduced-motion: reduce){
-  aside.sidebar, .topbar{ transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+
+  aside.sidebar,
+  .topbar {
+    transition: none !important;
+  }
 }
 
 /* ====== DESKTOP (>=992px): mặc định ẨN; hover/ghim để MỞ ====== */
@@ -114,25 +264,39 @@ aside.sidebar {
   body:not(.sb-pinned):not(.sb-hover) .layout {
     grid-template-columns: var(--sb-collapsed) 1fr !important;
   }
+
   body:not(.sb-pinned):not(.sb-hover) aside.sidebar {
     width: var(--sb-collapsed) !important;
     min-width: var(--sb-collapsed) !important;
     max-width: var(--sb-collapsed) !important;
   }
+
   /* Topbar dịch theo chiều rộng ẩn */
   body:not(.sb-pinned):not(.sb-hover) .topbar {
     left: var(--sb-collapsed) !important;
   }
 
   /* item căn giữa icon, ẩn label */
-  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-header { padding: 8px var(--pad-x) !important; }
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-header {
+    padding: 8px var(--pad-x) !important;
+  }
+
   body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item {
-    padding-left: var(--pad-x) !important; padding-right: var(--pad-x) !important;
+    padding-left: var(--pad-x) !important;
+    padding-right: var(--pad-x) !important;
     height: max(36px, calc(var(--icon-size-collapsed) + 12px));
     justify-content: center;
   }
+
   body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item span,
-  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer .user-name { display: none !important; }
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer .user-name {
+    display: none !important;
+  }
+
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item i {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 
   /* logo fit */
   body:not(.sb-pinned):not(.sb-hover) aside.sidebar .logo {
@@ -144,19 +308,27 @@ aside.sidebar {
   body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item i,
   body:not(.sb-pinned):not(.sb-hover) .sidebar .nav-item svg,
   body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer i,
-  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer svg{
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .s-footer svg {
     width: var(--icon-size-collapsed) !important;
     height: var(--icon-size-collapsed) !important;
   }
 
   /* vùng đệm mép phải, tránh “giật” khi hover ra vào */
   body:not(.sb-pinned) aside.sidebar::after {
-    content: ""; position: absolute; top: 0; right: -12px; width: 12px; height: 100%;
-    background: transparent; pointer-events: auto;
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 12px;
+    height: 100%;
+    background: transparent;
+    pointer-events: auto;
   }
 
   /* Ẩn nút logout khi ẩn */
-  body:not(.sb-pinned):not(.sb-hover) .sidebar .btn-logout { display: none !important; }
+  body:not(.sb-pinned):not(.sb-hover) .sidebar .btn-logout {
+    display: none !important;
+  }
 }
 
 /* ====== MOBILE/TABLET (<992px): toggle ẩn/hiện ====== */
@@ -164,82 +336,122 @@ aside.sidebar {
   body.sb-collapsed .layout {
     grid-template-columns: var(--sb-collapsed) 1fr !important;
   }
+
   body.sb-collapsed aside.sidebar {
     width: var(--sb-collapsed) !important;
     min-width: var(--sb-collapsed) !important;
     max-width: var(--sb-collapsed) !important;
   }
-  body.sb-collapsed .topbar { left: var(--sb-collapsed) !important; }
+
+  body.sb-collapsed .topbar {
+    left: var(--sb-collapsed) !important;
+  }
 
   /* icon to khi ẩn */
   body.sb-collapsed .sidebar .nav-item i,
   body.sb-collapsed .sidebar .nav-item svg,
   body.sb-collapsed .sidebar .s-footer i,
-  body.sb-collapsed .sidebar .s-footer svg{
+  body.sb-collapsed .sidebar .s-footer svg {
     width: var(--icon-size-collapsed) !important;
     height: var(--icon-size-collapsed) !important;
   }
-  body.sb-collapsed .sidebar .nav-item{
+
+  body.sb-collapsed .sidebar .nav-item {
     height: max(44px, calc(var(--icon-size-collapsed) + 16px));
     justify-content: center;
   }
-  body.sb-collapsed .sidebar .nav-item span,
-  body.sb-collapsed .sidebar .s-footer .user-name { display: none !important; }
 
-  body.sb-collapsed aside.sidebar .logo{
+  body.sb-collapsed .sidebar .nav-item span,
+  body.sb-collapsed .sidebar .s-footer .user-name {
+    display: none !important;
+  }
+
+  body.sb-collapsed aside.sidebar .logo {
     max-width: calc(var(--sb-collapsed) - 2*var(--pad-x));
     max-height: var(--icon-size-collapsed);
   }
 
   /* Ẩn nút logout khi ẩn */
-  body.sb-collapsed .sidebar .btn-logout { display: none !important; }
+  body.sb-collapsed .sidebar .btn-logout {
+    display: none !important;
+  }
 }
 
 /* === TOGGLE BUTTON (hiện trên thiết bị nhỏ) === */
-.sb-toggle i, .sb-toggle svg, .sb-handle i, .sb-handle svg {
-  width: var(--icon-size) !important; height: var(--icon-size) !important;
+.sb-toggle i,
+.sb-toggle svg,
+.sb-handle i,
+.sb-handle svg {
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
 }
 
 /* Desktop: ẩn toggle */
-@media (min-width: 992px) { .sb-toggle, .sb-handle { display: none !important; } }
+@media (min-width: 992px) {
+
+  .sb-toggle,
+  .sb-handle {
+    display: none !important;
+  }
+}
 
 /* Mobile: luôn hiện toggle trong header của sidebar */
-@media (max-width: 991.98px){
-  aside.sidebar{ position: relative; z-index: 3000 !important; }
-  aside.sidebar .s-header{
-    position: sticky; top: 0; z-index: 3001 !important;
-    display: flex; align-items: center; gap: 8px;
+@media (max-width: 991.98px) {
+  aside.sidebar {
+    position: relative;
+    z-index: 3000 !important;
+  }
+
+  aside.sidebar .s-header {
+    position: sticky;
+    top: 0;
+    z-index: 3001 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px var(--pad-x, 10px);
     background: var(--sidebar-bg, #fff);
-    border-bottom: 1px solid var(--bd, rgba(15,23,42,.12));
+    border-bottom: 1px solid var(--bd, rgba(15, 23, 42, .12));
   }
-  aside.sidebar .s-header > button.sb-toggle.sb-handle{
+
+  aside.sidebar .s-header>button.sb-toggle.sb-handle {
     display: inline-flex !important;
-    position: static !important; right: auto !important; top: auto !important; transform: none !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
     margin-left: auto !important;
     width: var(--toggle-size, 38px) !important;
     height: var(--toggle-size, 38px) !important;
     border-radius: 999px;
-    border: 1px solid var(--bd, rgba(15,23,42,.12));
+    border: 1px solid var(--bd, rgba(15, 23, 42, .12));
     background: var(--sidebar-bg, #fff);
-    box-shadow: 0 6px 18px rgba(15,23,42,.16);
-    align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .16);
+    align-items: center;
+    justify-content: center;
     z-index: 3002 !important;
-    visibility: visible !important; opacity: 1 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
-  aside.sidebar .s-header > button.sb-toggle.sb-handle i[data-lucide],
-  aside.sidebar .s-header > button.sb-toggle.sb-handle svg{
+
+  aside.sidebar .s-header>button.sb-toggle.sb-handle i[data-lucide],
+  aside.sidebar .s-header>button.sb-toggle.sb-handle svg {
     width: var(--icon-size, 22px) !important;
     height: var(--icon-size, 22px) !important;
   }
 
   /* Sidebar ẩn: ẩn logo, chỉ để lại nút */
-  body.sb-collapsed aside.sidebar .s-header .logo{ display: none !important; }
+  body.sb-collapsed aside.sidebar .s-header .logo {
+    display: none !important;
+  }
+
   /* Sidebar mở: hiện logo */
-  body:not(.sb-collapsed) aside.sidebar .s-header .logo{
+  body:not(.sb-collapsed) aside.sidebar .s-header .logo {
     display: block !important;
-    height: var(--logo-h, 22px) !important; max-height: var(--logo-h, 22px) !important;
-    width: auto; object-fit: contain;
+    height: var(--logo-h, 22px) !important;
+    max-height: var(--logo-h, 22px) !important;
+    width: auto;
+    object-fit: contain;
   }
 
   /* Khi sidebar MỞ thì hiện label + canh trái */
@@ -247,6 +459,7 @@ aside.sidebar {
   body:not(.sb-collapsed) .sidebar .s-footer .user {
     justify-content: flex-start !important;
   }
+
   body:not(.sb-collapsed) .sidebar .nav-item span,
   body:not(.sb-collapsed) .sidebar .s-footer .user-name,
   body:not(.sb-collapsed) .sidebar .btn-logout span {
@@ -261,18 +474,21 @@ aside.sidebar {
 
 /* ===== Sidebar layout & smooth hover ===== */
 :root {
-  --sidebar-w: 240px;                    /* JS của bạn vẫn sẽ cập nhật biến này */
+  --sidebar-w: 240px;
+  /* JS của bạn vẫn sẽ cập nhật biến này */
   --sb-bg: #ffffff;
-  --sb-border: rgba(0,0,0,.08);
-  --sb-hover: rgba(64,68,245,.08);
+  --sb-border: rgba(0, 0, 0, .08);
+  --sb-hover: rgba(64, 68, 245, .08);
   --sb-active: rgba(102, 155, 246, 0.399);
-  --ease-smooth: cubic-bezier(.22,.61,.36,1); /* mượt khi hover ra */
+  --ease-smooth: cubic-bezier(.22, .61, .36, 1);
+  /* mượt khi hover ra */
 }
 
 .sidebar {
   position: sticky;
   top: 0;
-  height: 100dvh;                        /* full viewport luôn */
+  height: 100dvh;
+  /* full viewport luôn */
   width: var(--sidebar-w);
   background: var(--sb-bg);
   border-right: 1px solid var(--sb-border);
@@ -280,20 +496,39 @@ aside.sidebar {
   flex-direction: column;
   will-change: width, box-shadow;
   transition: width .28s var(--ease-smooth), box-shadow .2s ease;
-  contain: layout paint;                 /* tránh repaint ngẫu nhiên */
+  contain: layout paint;
+  /* tránh repaint ngẫu nhiên */
 }
 
 .sidebar .s-header {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--sb-border);
 }
 
 .sidebar .s-nav {
-  flex: 1 1 auto;                        /* để footer dạt xuống đáy */
-  overflow: auto;
-  padding: 8px;
-  min-height: 0;                         /* rất quan trọng để vùng cuộn hoạt động */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  /* Ẩn scrollbar mà vẫn scroll được */
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;
+}
+.sidebar .s-nav::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge mới */
+}
+.sidebar .nav-item i[data-lucide] {
+  stroke: #0f172a;
+  filter: drop-shadow(0 0 0.5px rgba(0,0,0,0.1));
 }
 
 /* Footer user luôn ở đáy + sticky đáy khi cuộn danh sách dài */
@@ -303,12 +538,17 @@ aside.sidebar {
   background: var(--sb-bg);
   padding: 10px 12px;
   position: sticky;
-  bottom: 0;                             /* dính đáy viewport sidebar */
-  z-index: 1;                            /* nổi trên content cuộn */
+  bottom: 0;
+  /* dính đáy viewport sidebar */
+  z-index: 1;
+  /* nổi trên content cuộn */
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
 }
+
 .sidebar .s-footer .user {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   color: #111827;
 }
@@ -316,9 +556,12 @@ aside.sidebar {
 /* ===== Nav item: smooth hover-in/out + ink ===== */
 .sidebar .nav-item {
   position: relative;
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
-  color: #111827; text-decoration: none;
+  color: #111827;
+  text-decoration: none;
   border-radius: 10px;
   will-change: transform, background-color, box-shadow;
   transition:
@@ -331,10 +574,12 @@ aside.sidebar {
 .sidebar .nav-item::before {
   content: "";
   position: absolute;
-  left: 8px; top: 50%;
+  left: 8px;
+  top: 50%;
   transform: translateY(-50%) scaleX(0);
   transform-origin: left center;
-  width: 3px; height: 60%;
+  width: 3px;
+  height: 60%;
   border-radius: 2px;
   opacity: 0;
   transition:
@@ -344,13 +589,17 @@ aside.sidebar {
 
 /* Icon & label tinh chỉnh để không nhảy layout */
 .sidebar .nav-item i {
-  width: 18px; height: 18px;
+  width: 18px;
+  height: 18px;
   flex: 0 0 18px;
   will-change: transform;
   transition: transform .22s var(--ease-smooth), opacity .22s var(--ease-smooth);
 }
+
 .sidebar .nav-item span {
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   will-change: color;
   transition: color .2s var(--ease-smooth);
 }
@@ -361,15 +610,18 @@ aside.sidebar {
   background: var(--sb-hover);
   transform: translateX(1px);
 }
+
 .sidebar .nav-item:hover::before,
 .sidebar .nav-item:focus-visible::before {
   opacity: 1;
   transform: translateY(-50%) scaleX(1);
 }
+
 .sidebar .nav-item:hover i,
 .sidebar .nav-item:focus-visible i {
   transform: translateX(1px);
 }
+
 .sidebar .nav-item.active {
   background: var(--sb-active);
   box-shadow: inset 0 0 0 1px rgba(4, 148, 244, 0.12);
@@ -377,25 +629,34 @@ aside.sidebar {
 
 /* Mục bị khoá */
 .sidebar .nav-item.locked {
-  opacity: .6; cursor: not-allowed;
+  opacity: .6;
+  cursor: not-allowed;
 }
 
 /* Nút toggle: quay mũi tên mượt */
 .sb-handle__ico {
   transition: transform .25s var(--ease-smooth);
 }
+
 .sidebar.is-collapsed .sb-handle__ico {
   transform: rotate(180deg);
 }
 
 /* (Tuỳ chọn) Chế độ thu gọn sidebar */
-.sidebar.is-collapsed { width: 64px; }
-.sidebar.is-collapsed .nav-item span { 
-  opacity: 0; transform: translateX(-6px); pointer-events: none;
+.sidebar.is-collapsed {
+  width: 64px;
+}
+
+.sidebar.is-collapsed .nav-item span {
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
   transition: opacity .2s var(--ease-smooth), transform .2s var(--ease-smooth);
 }
+
 .sidebar.is-collapsed .s-footer .user-name {
-  display: none;                         /* chỉ giữ icon khi thu gọn */
+  display: none;
+  /* chỉ giữ icon khi thu gọn */
 }
 
 /* Expand-on-hover (tuỳ chọn): khi đang thu gọn, hover vào sidebar sẽ mở rộng mượt */
@@ -405,7 +666,9 @@ aside.sidebar {
 
 /* Tôn trọng người dùng giảm chuyển động */
 @media (prefers-reduced-motion: reduce) {
-  .sidebar, .sidebar * {
+
+  .sidebar,
+  .sidebar * {
     transition: none !important;
     animation: none !important;
   }

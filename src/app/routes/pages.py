@@ -26,12 +26,15 @@ def sales():
 def hr():
     return render_template('home/hr.html', current_user=session.get('user'), active='hr')
 
+@bp.route('/accountant', methods=['GET'])
+@login_required
+def accountant():
+    return render_template('home/accountant.html', current_user=session.get('user'), active='accountant')
 
 @bp.route('/guide', methods=['GET'])
 @login_required
 def guide():
     return render_template('home/guide.html', current_user=session.get('user'), active='guide')
-
 
 @bp.route('/admin', methods=['GET'])
 @login_required(roles=['admin'])

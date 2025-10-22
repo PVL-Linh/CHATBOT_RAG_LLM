@@ -18,23 +18,27 @@
     </button>
   </div>
 
-  {# --- Chuẩn hoá roles từ session (gộp 'sale' -> 'sales') --- #} {% set r1 =
-  (session.get('role') or '') | replace(';', ',') | replace('|', ',') |
-  replace('/', ',') | replace(' ', ',') | lower %} {% set r2 =
-  (session.get('roles') or []) | join(',') | replace(';', ',') | replace('|',
-  ',') | replace('/', ',') | replace(' ', ',') | lower %} {% set r_all = (',' ~
-  r1 ~ ',' ~ r2 ~ ',') | replace(',,', ',') | replace(',,', ',') |
-  replace(',sale,', ',sales,') %} {# --- Quyền suy diễn theo yêu cầu --- #} {%
-  set is_admin = (',admin,' in r_all) %} {% set mgr_mkt = (',manager_marketing,'
-  in r_all) %} {% set mgr_sales = (',manager_sales,' in r_all) %} {% set is_mkt
-  = (',marketing,' in r_all) or mgr_mkt %} {% set is_sales = (',sales,' in
-  r_all) or mgr_sales %} {% set is_mgr_any = mgr_mkt or mgr_sales %} {#
-  Marketing: mở cho admin OR marketing OR sales OR (bất kỳ manager nào) #} {%
-  set can_marketing = is_admin or is_mkt or is_sales or is_mgr_any %} {# Sales:
-  CHỈ admin OR sales OR manager_sales (marketing/manager_marketing không vào) #}
-  {% set can_sales = is_admin or (',sales,' in r_all) or mgr_sales %} {# HR /
-  Admin #} {% set can_hr = is_admin or (',hr,' in r_all) %} {% set can_admin =
-  is_admin %}
+  {# --- Chuẩn hoá roles từ session (gộp 'sale' -> 'sales') --- #} 
+  {% set r1 = (session.get('role') or '') | replace(';', ',') | replace('|', ',') | replace('/', ',') | replace(' ', ',') | lower %} 
+  {% set r2 = (session.get('roles') or []) | join(',') | replace(';', ',') | replace('|',',') | replace('/', ',') | replace(' ', ',') | lower %} 
+  {% set r_all = (',' ~ r1 ~ ',' ~ r2 ~ ',') | replace(',,', ',') | replace(',,', ',') | replace(',sale,', ',sales,') %} 
+  {# --- Quyền suy diễn theo yêu cầu --- #} 
+  {% set is_admin = (',admin,' in r_all) %} 
+  {% set mgr_mkt = (',manager_marketing,'in r_all) %} 
+  {% set mgr_sales = (',manager_sales,' in r_all) %} 
+  {% set is_mkt= (',marketing,' in r_all) or mgr_mkt %} 
+  {% set is_sales = (',sales,' in r_all) or mgr_sales %} 
+  {% set is_mgr_any = mgr_mkt or mgr_sales %} 
+  {# Marketing: mở cho admin OR marketing OR sales OR (bất kỳ manager nào) #} 
+  {% set can_marketing = is_admin or is_mkt or is_sales or is_mgr_any %} 
+  {# Sales: CHỈ admin OR sales OR manager_sales (marketing/manager_marketing không vào) #}
+  {% set can_sales = is_admin or (',sales,' in r_all) or mgr_sales %} 
+  {# Sales: CHỈ admin OR sales OR manager_sales (marketing/manager_marketing không vào) #}
+  {% set can_accountant = is_admin or (',accountant,' in r_all) %}
+
+  {# HR /Admin #} 
+  {% set can_hr = is_admin or (',hr,' in r_all) %} 
+  {% set can_admin = is_admin %}
 
   <nav class="s-nav">
     {# 0) Chatbot luôn hiện #}
@@ -45,37 +49,53 @@
       <i data-lucide="bot"></i><span>Tiximax Chatbot</span>
     </a>
 
-    {# 1) Marketing (mở cho Sales & Marketing & 2 manager & Admin) #} {% if
-    can_marketing %}
+    {# 1) Marketing (mở cho Sales & Marketing & 2 manager & Admin) #} 
+    {% if can_marketing %}
     <a
       class="nav-item {{ 'active' if active=='marketing' else '' }}"
       href="{{ url_for('pages.marketing') }}"
     >
       <i data-lucide="megaphone"></i><span>Marketing</span>
     </a>
-    {% endif %} {# 2) Sales (chỉ Sales/Manager Sales/Admin) #} {% if can_sales
-    %}
+    {% endif %} 
+
+    {# 2) Sales (chỉ Sales/Manager Sales/Admin) #} 
+    {% if can_sales %}
     <a
       class="nav-item {{ 'active' if active=='sales' else '' }}"
       href="{{ url_for('pages.sales') }}"
     >
       <i data-lucide="shopping-cart"></i><span>Sales</span>
     </a>
-    {% endif %} {# 3) HR (tuỳ quyền) #} {% if can_hr %}
+    {% endif %}
+
+    {# 3) HR (tuỳ quyền) #} 
+    {% if can_hr %}
     <a
       class="nav-item {{ 'active' if active=='hr' else '' }}"
       href="{{ url_for('pages.hr') }}"
     >
       <i data-lucide="users"></i><span>Human Resources</span>
     </a>
-    {% endif %} {# 4) Admin (chỉ admin) #} {% if can_admin %}
+    {% endif %}
+    
+    {% if can_accountant %}
+      <a class="nav-item {{ 'active' if active=='accountant' else '' }}" href="{{ url_for('pages.accountant') }}">
+        <i data-lucide="receipt"></i><span>Accountant</span>
+      </a>
+    {% endif %}
+    
+    {# 4) Admin (chỉ admin) #} 
+    {% if can_admin %}
     <a
       class="nav-item {{ 'active' if active=='admin' else '' }}"
       href="{{ url_for('pages.admin') }}"
     >
       <i data-lucide="user-star"></i><span>Admin</span>
     </a>
-    {% endif %} {# 5) Mục chung luôn hiện #}
+    {% endif %}
+    
+    {# 5) Mục chung luôn hiện #}
     <a
       class="nav-item {{ 'active' if active=='transcribe' else '' }}"
       href="{{ url_for('stt.transcribe') }}"
@@ -96,6 +116,7 @@
     >
       <i data-lucide="book-open"></i><span>Use Instructions</span>
     </a>
+
     {% if can_admin %}
     <a
       class="nav-item {{ 'active' if active=='indexing_faiss' else '' }}"
@@ -116,22 +137,36 @@
       <i data-lucide="log-out"></i><span>Logout</span>
     </a>
 
-    {# 6) Các mục bị khoá (tuỳ chọn hiển thị) #} {% if not can_marketing %}
+    {# 6) Các mục bị khoá (tuỳ chọn hiển thị) #} 
+    {% if not can_marketing %}
     <a class="nav-item locked" aria-disabled="true" tabindex="-1">
       <i data-lucide="megaphone"></i><span>Marketing</span>
       <i data-lucide="lock" class="lock-ico" title="Bị khóa"></i>
     </a>
-    {% endif %} {% if not can_sales %}
+    {% endif %}
+
+    {% if not can_sales %}
     <a class="nav-item locked" aria-disabled="true" tabindex="-1">
       <i data-lucide="shopping-cart"></i><span>Sales</span>
       <i data-lucide="lock" class="lock-ico" title="Bị khóa"></i>
     </a>
-    {% endif %} {% if not can_hr %}
+    {% endif %} 
+
+    {% if not can_hr %}
     <a class="nav-item locked" aria-disabled="true" tabindex="-1">
       <i data-lucide="users"></i><span>Human Resources</span>
       <i data-lucide="lock" class="lock-ico" title="Bị khóa"></i>
     </a>
-    {% endif %} {% if not can_admin %}
+    {% endif %}
+
+    {% if not can_accountant %}
+      <a class="nav-item locked" aria-disabled="true" tabindex="-1">
+        <i data-lucide="receipt"></i><span>Accountant</span>
+        <i data-lucide="lock" class="lock-ico" title="Bị khóa"></i>
+      </a>
+    {% endif %}
+
+    {% if not can_admin %}
     <a class="nav-item locked" aria-disabled="true" tabindex="-1">
       <i data-lucide="user-star"></i><span>Admin</span>
       <i data-lucide="lock" class="lock-ico" title="Bị khóa"></i>
