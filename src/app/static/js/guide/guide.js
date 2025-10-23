@@ -1,37 +1,72 @@
-const scrollProgress = document.getElementById("scrollProgress");
-const sections = document.querySelectorAll(".section");
-const navLinks = document.querySelectorAll(".nav-links a");
+(function () {
+  const scroller = document.getElementById("guideScroll"); // scroller nội bộ
+  if (!scroller) return;
 
-// Cập nhật active khi cuộn
-window.addEventListener("scroll", () => {
-  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  const scrolled = (scrollTop / scrollHeight) * 100;
-  scrollProgress.style.width = scrolled + "%";
+  const progress = document.getElementById("scrollProgress");
+  // Dùng nav-link của Bootstrap
+  const navLinks = scroller.querySelectorAll(".nav-links .nav-link");
+  const sections = scroller.querySelectorAll(".section");
 
-  let current = "";
-  sections.forEach(section => {
-    const sectionTop = section.offsetTop - 120;
-    if (scrollY >= sectionTop) current = section.getAttribute("id");
-  });
+  /* ---- Progress theo scroller ---- */
+  const onScroll = () => {
+    const st = scroller.scrollTop;
+    const sh = scroller.scrollHeight - scroller.clientHeight;
+    const pct = sh > 0 ? (st / sh) * 100 : 0;
+    if (progress) progress.style.width = pct + "%";
+  };
+  scroller.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 
-  navLinks.forEach(link => {
-    link.classList.remove("active");
-    if (link.getAttribute("href") === "#" + current) {
-      link.classList.add("active");
-    }
-  });
-});
+  /* ---- Active link bằng IntersectionObserver trong scroller ---- */
+  const linkById = {};
+  navLinks.forEach(l => { linkById[l.getAttribute("href").slice(1)] = l; });
 
-// ✅ Cập nhật active ngay khi click (không chờ scroll)
-navLinks.forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-    const targetId = link.getAttribute("href");
-    document.querySelector(targetId).scrollIntoView({ behavior: "smooth" });
-
-    // Thêm đoạn này nè 🔥
+  let currentId = "gioi-thieu";
+  const setActive = (id) => {
+    if (currentId === id) return;
+    currentId = id;
     navLinks.forEach(l => l.classList.remove("active"));
-    link.classList.add("active");
+    const link = linkById[id];
+    if (link) link.classList.add("active");
+  };
+
+  const obs = new IntersectionObserver((entries) => {
+    let best = { id: currentId, ratio: 0 };
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > best.ratio) {
+        best = { id: e.target.id, ratio: e.intersectionRatio };
+      }
+    });
+    if (best.id) setActive(best.id);
+  }, {
+    root: scroller,
+    rootMargin: "-120px 0px -60% 0px",
+    threshold: [0.1, 0.25, 0.5, 0.75, 1]
   });
-});
+
+  sections.forEach(sec => obs.observe(sec));
+
+  /* ---- Click anchor: cuộn trong scroller + bù offset topbar ---- */
+  const TOPBAR_OFFSET = 80; // cao ~ thanh topbar
+  navLinks.forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = link.getAttribute("href").slice(1);
+      const target = scroller.querySelector(`#${CSS.escape(id)}`);
+      if (!target) return;
+
+      const scrollerTop = scroller.getBoundingClientRect().top;
+      const targetTop = target.getBoundingClientRect().top;
+      const delta = targetTop - scrollerTop;
+
+      scroller.scrollTo({
+        top: scroller.scrollTop + delta - TOPBAR_OFFSET,
+        behavior: "smooth"
+      });
+
+      setActive(id);
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+  });
+})();

@@ -1,209 +1,178 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+/* =========================
+   GUIDE — SCOPED STYLES
+   ========================= */
+.guide-root {
+    position: relative;
+    block-size: 100dvh;
     background: #f5f7fa;
     color: #1f2937;
     line-height: 1.6;
 }
-html, body {
-    height: 100%;
+
+/* Scroller nội bộ: chỉ trang Guide cuộn */
+.guide-root .guide-scroll {
+    block-size: 100%;
     overflow-y: auto;
-    scroll-behavior: smooth; /* cuộn mượt */
+    overscroll-behavior: contain;
+    /* chặn bật ra body */
+    -webkit-overflow-scrolling: touch;
+    /* mượt trên iOS */
 }
-/* Container */
-.container {
+
+/* Progress bar trong phạm vi Guide */
+.guide-root .scroll-progress {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 3px;
+    z-index: 10;
+    pointer-events: none;
+    background: transparent;
+}
+
+.guide-root .scroll-progress-bar {
+    height: 100%;
+    width: 0%;
+    transition: width .1s linear;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Container / Content */
+.guide-root .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0;
 }
 
-/* Page Header */
-.page-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 48px 40px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.page-icon {
-    width: 80px;
-    height: 80px;
-    background: white;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.8em;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0;
-}
-
-.page-title-wrapper h1 {
-    color: white;
-    font-size: 2.2em;
-    font-weight: 700;
-    margin-bottom: 4px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.page-title-wrapper p {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1em;
-}
-
-/* Topbar Navigation */
-.topbar-nav {
-    background: #3b4d61;
-    padding: 0 40px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.nav-links {
-    display: flex;
-    gap: 4px;
-    list-style: none;
-}
-
-.nav-links a {
-    display: block;
-    padding: 14px 20px;
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    font-size: 0.95em;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border-bottom: 3px solid transparent;
-    height: 44px;
-    margin: 6px 4px;
-    align-items: center;       /* canh giữa theo chiều dọc */
-    justify-content: center;
-}
-
-.nav-links a:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.nav-links a.active {
-    color: white;
-    border-bottom-color: #667eea;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Scroll Progress */
-.scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: transparent;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.scroll-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.1s ease;
-}
-
-/* Content Area */
-.content {
-    padding: 40px;
+.guide-root .content {
+    padding: 40px 24px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* Section */
-.section {
-    scroll-margin-top: 100px;
-    min-height: 100vh; /* thêm cho chắc, test scroll dễ hơn */
+/* Topbar sticky trong scroller (kết hợp Bootstrap) */
+.guide-root .topbar-nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #3b4d61;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    /* Tùy chọn “glass” nhẹ */
+    /* backdrop-filter: saturate(120%) blur(2px); */
 }
 
-.section-header {
+/* =========================
+   NAV — đẹp, không bị trắng khi hover
+   ========================= */
+/* ==== NAV: hiệu ứng hover tối giản ==== */
+.guide-root .nav-links .nav-link {
+    background: transparent !important;
+    color: rgb(255, 255, 255);
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.guide-root .nav-links .nav-link:hover {
+    color: rgb(0, 0, 0); 
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Active giữ gradient; hover active không thêm hiệu ứng gì nữa */
+.guide-root .nav-links .nav-link.active,
+.guide-root .nav.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+    color: #fff !important;
+    font-weight: 700;
+    border: 0 !important;
+    border-radius: 12px !important;
+}
+
+/* Focus-visible đơn giản (a11y) */
+.guide-root .nav-links .nav-link:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, .6);
+    outline-offset: 2px;
+}
+
+
+/* Nhấn chuột: tránh tụt sâu */
+.guide-root .nav-links .nav-link:active {
+    transform: translateY(0) !important;
+}
+
+/* =========================
+   Sections & nội dung
+   ========================= */
+.guide-root .section {
+    scroll-margin-top: 100px;
+    /* tránh bị topbar che khi anchor */
+    padding-block: 24px 40px;
+    /* KHÔNG dùng min-height:100vh để tránh khóa cuộn */
+}
+
+.guide-root .section-header {
     display: flex;
     align-items: center;
     gap: 16px;
     margin-bottom: 24px;
 }
 
-.section-icon {
+.guide-root .section-icon {
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 14px;
+    color: #fff;
+    font-size: 1.6em;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 1.6em;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, .25);
     flex-shrink: 0;
 }
 
-.section-title {
-    color: #1f2937;
+.guide-root .section-title {
     font-size: 1.8em;
     font-weight: 700;
+    color: #1f2937;
     margin: 0;
 }
 
-.section-intro {
+.guide-root .section-intro {
     font-size: 1.05em;
     line-height: 1.7;
     color: #4b5563;
     margin-bottom: 24px;
 }
 
-.department-badge {
-    display: inline-block;
-    background: rgba(102, 126, 234, 0.1);
+.guide-root .department-badge {
+    background: rgba(102, 126, 234, .1);
     color: #667eea;
     padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.8em;
+    font-size: .8em;
     font-weight: 600;
+    display: inline-block;
+    letter-spacing: .3px;
     margin-bottom: 12px;
-    letter-spacing: 0.5px;
 }
 
-/* Feature Cards Grid */
-.feature-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-}
-
-.feature-card {
-    background: white;
+/* Feature cards (dùng grid Bootstrap cho responsive) */
+.guide-root .feature-card {
+    background: #fff;
     border-left: 4px solid #667eea;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    transition: transform .25s ease, box-shadow .25s ease;
 }
 
-.feature-card:hover {
+.guide-root .feature-card:hover {
     transform: translateX(4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.feature-card-title {
+.guide-root .feature-card-title {
     color: #667eea;
-    font-size: 1.05em;
     font-weight: 600;
     margin-bottom: 8px;
     display: flex;
@@ -211,15 +180,13 @@ html, body {
     gap: 8px;
 }
 
-.feature-card-text {
+.guide-root .feature-card-text {
     color: #6b7280;
-    line-height: 1.6;
     margin: 0;
-    font-size: 0.95em;
 }
 
-/* Example Box */
-.example-box {
+/* Example box */
+.guide-root .example-box {
     background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
     border-left: 4px solid #ffa726;
     padding: 24px;
@@ -227,7 +194,7 @@ html, body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.example-title {
+.guide-root .example-title {
     color: #ef6c00;
     margin-bottom: 16px;
     font-weight: 700;
@@ -237,84 +204,43 @@ html, body {
     gap: 8px;
 }
 
-.example-item {
-    background: white;
+.guide-root .example-item {
+    background: #fff;
     padding: 12px 16px;
     border-radius: 8px;
     margin-bottom: 10px;
     color: #5f6368;
     font-style: italic;
-    font-size: 0.95em;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.example-item:last-child {
+.guide-root .example-item:last-child {
     margin-bottom: 0;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .page-header {
+/* Responsive helpers */
+@media (max-width: 992px) {
+    .guide-root .content {
         padding: 32px 20px;
-        flex-direction: column;
-        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .guide-root .content {
+        padding: 24px 16px;
     }
 
-    .page-icon {
-        width: 64px;
-        height: 64px;
-        font-size: 2em;
-    }
-
-    .page-title-wrapper h1 {
-        font-size: 1.8em;
-    }
-
-    .topbar-nav {
-        padding: 0 20px;
-        overflow-x: auto;
-    }
-
-    .nav-links {
-        gap: 0;
-    }
-
-    .nav-links a {
-        padding: 12px 16px;
-        font-size: 0.9em;
-        white-space: nowrap;
-    }
-
-    .content {
-        padding: 24px 20px;
-    }
-
-    .feature-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .section-title {
+    .guide-root .section-title {
         font-size: 1.5em;
     }
 }
-.nav-links a.active {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-  color: #fff !important;
-  font-weight: 600;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transform: translateY(1px);
-  line-height: 1;            /* fix lệch do line-height */
-}
-.nav-links a.active {
-  transform: translateY(1px);
-}
-.nav-links a:active {
-  transform: translateY(2px);
+
+/* Giảm chuyển động theo tuỳ chọn hệ thống */
+@media (prefers-reduced-motion: reduce) {
+
+    .guide-root .nav-links .nav-link,
+    .guide-root .scroll-progress-bar,
+    .guide-root .feature-card {
+        transition: none !important;
+    }
 }
