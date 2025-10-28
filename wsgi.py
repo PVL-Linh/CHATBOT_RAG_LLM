@@ -27,13 +27,13 @@
 # # Production => không tự load .env, dùng ENV từ UI
 # os.environ.setdefault("RUN_ENV", "production")
 
-# from src.app.app_factory import create_app  # src/app/app_factory.py
-# application = create_app()              # alwaysdata cần biến tên 'application'
+from src.app.app_factory import create_app  # src/app/app_factory.py
+app = create_app()              # alwaysdata cần biến tên 'application'
 
 
 # wsgi.py
-try:
-    from src.app.app_factory import create_app
-except Exception:
-    from src.app import create_app
-app = create_app()
+# try:
+#     from src.app.app_factory import create_app
+# except Exception:
+#     from src.app import create_app
+# app = create_app()

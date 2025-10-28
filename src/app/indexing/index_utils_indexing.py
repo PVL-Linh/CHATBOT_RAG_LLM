@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Tuple
 
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # ===== Config cơ bản (bạn có thể lấy từ env tuỳ ý) =====
 EMBED_MODEL_NAME = os.environ.get(

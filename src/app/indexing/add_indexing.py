@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Tuple
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Tuỳ dự án của bạn: nếu có hàm chuyển PDF → TXT sẵn, import vào đây
 try:

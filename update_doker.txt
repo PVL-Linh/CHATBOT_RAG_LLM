@@ -15,7 +15,13 @@ docker compose logs cloudflared --tail=200
 
 docker compose logs cloudflared | Select-String 'trycloudflare.com' | Select -Last 1  # đổi link
 
+
 # Sau khi sửa Dockerfile:
 
 docker compose build --no-cache tiximax
 docker compose up -d
+
+
+fix error
+
+cloudflared tunnel --url http://localhost:10000 --protocol http2

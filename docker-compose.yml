@@ -116,7 +116,10 @@ services:
     volumes:
       - "E:/ChatAll/src/app/Data_app:/var/lib/tiximax/Data_app"
       - "E:/ChatAll/src/app/models:/var/lib/tiximax/models"
-      - "E:/ChatAll/src/app/vectorstore/FAISS_Vector:/var/lib/tiximax/vectorstore/FAISS_Vector"
+      - "E:/ChatAll/src/app/vectorstore:/var/lib/tiximax/vectorstore"
+      - "E:/ChatAll/src/app/Data_app:/app/src/app/Data_app"
+      - "E:/ChatAll/src/app/vectorstore/FAISS_Vector_HR:/var/lib/tiximax/vectorstore/FAISS_Vector_HR"
+      - "E:/ChatAll/src/app/vectorstore/FAISS_Vector_ALL:/var/lib/tiximax/vectorstore/FAISS_Vector_ALL"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
