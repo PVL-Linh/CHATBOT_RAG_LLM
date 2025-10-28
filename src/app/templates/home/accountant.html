@@ -2,15 +2,27 @@
 {% block title %}
   Tiximax Chatbot HR
 {% endblock %}
+
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css', v="1") }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css', v="1") }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/accountant/chat_accountant.css', v='1') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/accountant/chat_history_accountant.css', v='1') }}" />
 {% endblock %}
+
 {% block content %}
-  </-- Include chat history sidebar --/>
+  <!-- Quick Switch -->
+  <div class="quick-nav" id="quickNav" style="--qn-top:12px;">
+    <button type="button" class="quick-nav__btn" id="quickNavBtn" aria-expanded="false" aria-controls="quickNavMenu" title="Chuyển nhanh"><i data-lucide="menu"></i></button>
+    <span class="quick-nav__label" id="quickNavLabel" title="Tính năng">Feature</span>
+    <nav class="quick-nav__menu" id="quickNavMenu" role="menu" aria-label="Chuyển nhanh">
+      <a class="quick-nav__item" role="menuitem" href="/accountant"><i data-lucide="message-circle"></i> <span>Chat Accountant</span></a>
+      <hr class="quick-nav__divider" />
+      <a class="quick-nav__item" role="menuitem" href="#"><i data-lucide="bar-chart-3"></i> <span>Static</span></a>
+    </nav>
+  </div>
+  <!-- /Quick Switch -->
+
   {% include 'partials/chat_history.html' %}
 
-  </-- Layout chat --/>
   <main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
     <div class="row justify-content-center flex-grow-1 h-100">
       <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">
@@ -32,6 +44,7 @@
     </div>
   </main>
 {% endblock %}
+
 {% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/hr/human.js', v="1") }}"></script>
+  <script defer src="{{ url_for('static', filename='js/accountant/accountant.js', v='1') }}"></script>
 {% endblock %}

@@ -21,6 +21,7 @@
     sbToggle?.addEventListener('click', (e) => {
       e.preventDefault();
       if (typeof onToggle === 'function') onToggle(e);
+    if (window.lucide) { try { window.lucide.createIcons(); } catch (_) { } }
     });
 
     // Tooltip khi thu gọn: đọc theo BODY CLASS
