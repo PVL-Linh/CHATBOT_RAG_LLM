@@ -761,7 +761,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   padding: 0 2px 0 2px;
   margin: 0;
   white-space: nowrap;
-  user-select: none;
+  /* user-select: none; */
   cursor: pointer;
 }
 
