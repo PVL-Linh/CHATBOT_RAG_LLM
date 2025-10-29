@@ -5,4 +5,16 @@ services:
     restart: unless-stopped
     depends_on:
       - tiximax
-    command: tunnel --no-autoupdate --url http://tiximax:10000
+    environment:
+      TUNNEL_TRANSPORT_PROTOCOL: "http2"
+    command:
+      - "tunnel"
+      - "--no-autoupdate"
+      - "--protocol"
+      - "http2"
+      - "--edge-ip-version"
+      - "4"
+      - "--ha-connections"
+      - "2"
+      - "--url"
+      - "http://tiximax:10000"

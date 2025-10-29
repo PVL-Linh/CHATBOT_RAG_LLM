@@ -7,7 +7,7 @@ services:
     # Mount các dữ liệu cần persist / lớn
     volumes:
       - ./instance:/app/instance
-      - ./src/vectorstore:/app/src/vectorstore
+      - ./src/app/vectorstore:/app/src/app/vectorstore
       - ./src/uploads:/app/src/uploads
       - ./src/app/models/local_multilingual_e5_large:/app/src/app/models/local_multilingual_e5_large:ro
     networks: [web]
