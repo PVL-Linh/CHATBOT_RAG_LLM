@@ -1,8 +1,0 @@
-numpy
-
-Mean: trung bình 
-Median: Giá trị điểm giữa
-Mode: Gía trị xuất hiện nhiều nhất 
-std: Độ lệch chuẩn
-percentile: phần trăm 
-random.uniform(): tạo một mãn với ( bao nhiêu giá trị)
