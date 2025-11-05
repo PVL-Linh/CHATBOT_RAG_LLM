@@ -822,4 +822,6 @@ def processing_Data_doclinkToText():
 
 
 
-processing_Data_doclinkToText()
+
+def processing_Data_dockinkToText_v2 (input_dir, output_dir):
+    process_documents(input_dir, output_dir)

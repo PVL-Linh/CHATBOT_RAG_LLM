@@ -1,4 +1,3 @@
-// static/js/hr/human.js
 (() => {
     "use strict";
 
@@ -12,17 +11,17 @@
 
     // ---- IMPORTANT: đúng prefix /api/history/hr/*
     const API = {
-        chat: "/api/hr/chat",
-        chatStream: "/api/hr/chat/stream",
+        chat: "/api/accountant/chat",
+        chatStream: "/api/accountant/chat/stream",
         history: {
-            newSession: "/api/history/hr/new_session",
-            rename: "/api/history/hr/rename_session",
-            delete: "/api/history/hr/delete_session",
+            newSession: "/api/history/accountant/new_session",
+            rename: "/api/history/accountant/rename_session",
+            delete: "/api/history/accountant/delete_session",
             bySession: (id) =>
-                `/api/history/hr/by_session?session_id=${encodeURIComponent(id)}`,
+                `/api/history/accountant/by_session?session_id=${encodeURIComponent(id)}`,
             sessions: (limit) =>
-                `/api/history/hr/sessions?limit=${Number(limit) || 200}`,
-            current: "/api/history/hr/current_session",
+                `/api/history/accountant/sessions?limit=${Number(limit) || 200}`,
+            current: "/api/history/accountant/current_session",
         },
     };
 
@@ -68,7 +67,7 @@
        Storage & Session Management
        ========================= */
     // ---- Namespace riêng cho HR để không va chạm với Chat chung
-    const APP_SCOPE = "hr";
+    const APP_SCOPE = "accountant";
     const USER = (window.TXM_USER || "anonymous").trim();
 
     const SESS_KEY = `txm_${APP_SCOPE}_sessions_${USER}`;

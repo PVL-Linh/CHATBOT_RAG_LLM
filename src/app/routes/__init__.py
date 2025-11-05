@@ -12,6 +12,7 @@ def register_blueprints(app: Flask) -> None:
     from .errors import init_error_handlers as _eh
     from app.routes.api_fbads_imagefirst import bp as fbads_bp
     from .hr_rag import bp_hr_rag, bp_hr_history
+    from .accountant_rag import bp_accountant_rag, bp_accountant_history
     from .indexing import indexing_bp
 
     app.register_blueprint(auth_bp)
@@ -26,6 +27,8 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(bp_hr_rag)
     app.register_blueprint(bp_hr_history)
     app.register_blueprint(indexing_bp)
+    app.register_blueprint(bp_accountant_rag)
+    app.register_blueprint(bp_accountant_history)
     
 
 
