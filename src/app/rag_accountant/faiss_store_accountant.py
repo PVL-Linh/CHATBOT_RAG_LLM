@@ -41,7 +41,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from app.config.paths import FAISS_DIR_ACCOUNTANT, EMBED_MODEL_DIR
-from .utils_hr import select_device
+from app.rag_hr.utils_hr import select_device
 
 
 # ---------------- helpers ----------------

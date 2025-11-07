@@ -9,9 +9,9 @@ from app.config.config_accountant import USE_BM25_ACCOUNTANT, CASE_NORM_ACCOUNTA
 _CORPUS_PATH = os.path.join(FAISS_DIR_ACCOUNTANT, "corpus.jsonl")
 _FORCE_REBUILD = os.environ.get("FORCE_REBUILD_CORPUS_ACCOUNTANT","0").lower() not in ("0","false")
 
-def _normalize_case(s: str) -> str:
+def _normalize_case(s: str, CASE=CASE_NORM_ACCOUNTANT) -> str:
     s = re.sub(r"\s+", " ", (s or "")).strip()
-    return s.lower() if CASE_NORM_ACCOUNTANT=="lower" else s.upper()
+    return s.lower() if CASE=="lower" else s.upper()
 
 def _split(text: str, chunk_size=1200, overlap=300):
     text = re.sub(r"\s+\n", "\n", text or "")

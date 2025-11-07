@@ -3,7 +3,7 @@ import sqlite3
 conn = sqlite3.connect("src/app/Data_app/prompts.db")
 cur = conn.cursor()
 
-cur.execute("DELETE FROM prompts WHERE key = ?", ("system:GENERIC",))
+cur.execute("DELETE FROM prompts WHERE key = ?", ("system:Accountant",))
 conn.commit()
 conn.close()
 

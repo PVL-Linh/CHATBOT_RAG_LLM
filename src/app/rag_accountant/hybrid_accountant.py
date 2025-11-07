@@ -3,7 +3,7 @@ import re
 from typing import List
 from langchain_core.documents import Document
 from .faiss_store_accountant import load_vectorstore
-from .bm25_hr import get_bm25
+from .bm25_accountant import get_bm25
 from app.config.config_accountant import (
     DEBUG_QE_ACCOUNTANT, K_SEM_ACCOUNTANT, K_LEX_ACCOUNTANT, RAG_TOPK_ACCOUNTANT as TOP_K_ACCOUNTANT, MMR_FETCH_K_ACCOUNTANT, MMR_LAMBDA_ACCOUNTANT,
     W_SEM_ACCOUNTANT, W_LEX_ACCOUNTANT, FAST_MODE_ACCOUNTANT
@@ -51,13 +51,13 @@ def hybrid_retrieve(vs, question: str, lex_query: str = None,
         return sem_docs[:top_k]
 
     lex_docs: List[Document] = []
-    bm25 = get_bm25()
-    if bm25 and lex_query:
+    bm25_accountants = get_bm25()
+    if bm25_accountants and lex_query:
         try:
             try:
-                lex_docs = bm25.invoke(_norm(lex_query))  # LC >= 0.1.46
+                lex_docs = bm25_accountants.invoke(_norm(lex_query))  # LC >= 0.1.46
             except Exception:
-                lex_docs = bm25.get_relevant_documents(_norm(lex_query))
+                lex_docs = bm25_accountants.get_relevant_documents(_norm(lex_query))
         except Exception as e:
             print(f"[WARN] BM25 query lỗi: {e}")
 

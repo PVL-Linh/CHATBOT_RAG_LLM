@@ -22,15 +22,13 @@ from flask import (
 # ---------------- Optional login_required ----------------
 try:
     from app.Login.login_required import login_required
-    print("hi")
 except Exception:  # pragma: no cover
     def login_required(fn):  # type: ignore
         return fn
     # ---------------- Accountant RAG engine (fallback) ----------------
 # ---------------- Accountant RAG engine (fallback) ----------------
 try:
-    from app.rag_hr.engine_accountant import answer_with_rag_accountant
-    from app.rag_hr.hybrid_accountant import build_lex_query_accountant
+    from app.rag_accountant.engine_accountant import answer_with_rag_accountant, build_lex_query_accountant
 except Exception as e:  # pragma: no cover
     import sys, traceback
     print("[Accountant] Import engine failed:", e, file=sys.stderr)
@@ -264,6 +262,7 @@ def reply_message():
                     "trace": processed.get("trace"),
                     "debug": processed.get("debug"),
                 })
+            print("[DBG] Returning already answered for msg_id", msg_id)
             return _json_error(f"message_id '{msg_id}' không tồn tại", 404)
 
         q = (record.get("question") or "").strip() or direct_question
@@ -343,6 +342,7 @@ def chat_api():
         answer, _trace = answer_with_rag_accountant(user_text)
         add_accountant_message(session_id, "assistant", answer)
         t1 = time.time()
+        print(f"[DBG] Trả lời: {answer}")
         return jsonify({
             "ok": True,
             "answer": answer,

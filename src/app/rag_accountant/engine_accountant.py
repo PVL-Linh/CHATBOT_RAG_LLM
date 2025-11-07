@@ -9,7 +9,7 @@ Bản đã vá lỗi:
 
 Public API:
 - answer_with_rag(question: str) -> (answer, trace)
-- continue_with_last(followup: str) -> (answer, trace)
+- continue_with_last_accountant(followup: str) -> (answer, trace)
 """
 
 from __future__ import annotations
@@ -36,13 +36,13 @@ from app.config.config_accountant import (
 )
 from app.config.paths import DATA_DIR_ACCOUNTANT, GEMINI_MODEL_ANSWER_ACCOUNTANT, GEMINI_MODEL_JUDGE_ACCOUNTANT
 from .prompts_accountant import get_system_prompt
-from .postprocess import strip_citations, cleanup_org_answer
-from .hybrid_accountant import load_vs, hybrid_retrieve, build_lex_query_accountant
-from .rerank_hr import rerank
-from .intent_router_hr import classify_intent
-from .gemini_client_hr import init_gemini, ask_gemini
-from .judge_hr import judge_answer
-from .context_hr import build_context as _build_context
+from app.rag_hr.postprocess import strip_citations, cleanup_org_answer
+from app.rag_accountant.hybrid_accountant import load_vs, hybrid_retrieve, build_lex_query_accountant
+from app.rag_hr.rerank_hr import rerank
+from app.rag_hr.intent_router_hr import classify_intent
+from app.rag_hr.gemini_client_hr import init_gemini, ask_gemini
+from app.rag_hr.judge_hr import judge_answer
+from app.rag_hr.context_hr import build_context as _build_context
 
 __all__ = ["answer_with_rag_accountant", "continue_with_last_accountant"]
 
@@ -81,12 +81,15 @@ def _strip_accents(s: str) -> str:
     return "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
 
 # Khóa logic cho từng sơ đồ chuyên biệt
+# --- THAY TOÀN BỘ KHỐI NÀY ---
 DEPT_SYNONYMS: Dict[str, List[str]] = {
-    "marketing": ["marketing", "tiếp thị", "tiep thi", "marcom", "mkt"],
-    "kinh_doanh": ["kinh doanh", "sales", "ban hang", "bán hàng"],
-    "kinh_doanh_indonesia": ["indonesia", "indo"],
-    "nhan_vien": ["nhan vien", "nhân viên", "toan cong ty", "tổng"],
+    "ke_toan": [
+        "kế toán", "ke toan", "ketoan",
+        "tài chính", "tai chinh",
+        "accounting", "accountant", "finance", "fin"
+    ],
 }
+
 
 def _dept_key_from_text(s: str) -> Optional[str]:
     s0 = _strip_accents((s or "").lower())
@@ -105,14 +108,9 @@ def _dept_key_from_text(s: str) -> Optional[str]:
 def _filename_hints_for_dept(key: Optional[str]) -> List[str]:
     if not key:
         return []
-    if key == "marketing":
-        return ["marketing", "mkt"]
-    if key == "kinh_doanh_indonesia":
-        return ["kinh_doanh_indonesia", "indo"]
-    if key == "kinh_doanh":
-        return ["kinh_doanh", "sales"]
-    if key == "nhan_vien":
-        return ["nhan_vien", "tiximax"]
+    if key == "ke_toan":
+        # các biến thể tên file/thư mục bạn đang dùng
+        return ["ke_toan", "accountant", "accounting", "tai_chinh", "finance"]
     return []
 
 # =====================================================================
@@ -202,6 +200,7 @@ def _qr_llm_aliases(question: str) -> List[str]:
             CÂU: "{question}"
             Chỉ in danh sách, mỗi dòng 1 alias."""
         resp = model.generate_content(prompt)
+        print("[QR-LLM] response received{resp}")
         text = (resp.text or "").strip()
         seen = set()
         for line in text.splitlines():
@@ -371,13 +370,12 @@ def _relax_patterns_for_token(token: str) -> List[str]:
         pats = [rf"\b{re.escape(t)}\b", re.escape(t)]
     else:
         pats = [re.escape(t)]
-    # synonyms
-    if t == "marketing":
-        pats += [r"\bmarcom\b", r"\bmkt\b", "tiep thi"]
-    if t in ("sales", "kinh doanh"):
-        pats += ["ban hang"]
+    # Chỉ giữ nhóm Kế toán/Tài chính
+    if t in ("ke toan", "ketoan", "ke_toan", "kế toán",
+             "tai chinh", "tài chính",
+             "accounting", "accountant", "finance", "fin"):
+        pats += ["ke toan", "ketoan", "accounting", "accountant", "tai chinh", "finance", r"\bfin\b"]
     return list(dict.fromkeys(pats))
-
 
 def extract_subtree_by_title(ascii_tree: str, title_regex: str = r"marketing") -> str:
     if not ascii_tree:
@@ -492,7 +490,7 @@ def _extract_branch_key(followup: str) -> Optional[str]:
 def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]]:
     """
     NEW ASK:
-    - Nếu câu mới thực ra là follow-up (vẽ/tiếp tục/nhận xét) và có _LAST → route sang continue_with_last.
+    - Nếu câu mới thực ra là follow-up (vẽ/tiếp tục/nhận xét) và có _LAST → route sang continue_with_last_accountant.
     - Nếu là 'sơ đồ <bộ phận>' → ƯU TIÊN chọn đúng file tree của bộ phận (full copy).
     - Các trường hợp khác → RAG + LLM như cũ.
     """
@@ -501,8 +499,8 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
         act = detect_followup_action(question)
         if act in ("REDRAW", "REVIEW", "CONTINUE"):
             if DEBUG_QE_ACCOUNTANT:
-                print(f"[ROUTER] New text looks like follow-up: act={act} -> continue_with_last")
-            return continue_with_last(question)
+                print(f"[ROUTER] New text looks like follow-up: act={act} -> continue_with_last_accountant")
+            return continue_with_last_accountant(question)
 
     vs = load_vs()
     intent = classify_intent(question)
@@ -520,6 +518,8 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
         extra_alias = [
             "sơ đồ tổ chức", "cơ cấu tổ chức", "organizational chart", "org chart",
             "sơ đồ công ty", "sơ đồ nhân sự", "organizational structure", "company structure",
+            # Ưu tiên phòng kế toán
+            "kế toán", "accounting", "tài chính", "finance"
         ]
         seen = {_norm(a) for a in aliases}
         for a in extra_alias:
@@ -604,7 +604,10 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
 
         Yêu cầu:
         1) Trả lời tiếng Việt, chỉ dựa trên NGỮ CẢNH.
-        2) Nếu thiếu, nói đúng câu: "Không tìm thấy trong tài liệu".
+         CHÀO HỎI / HỘI THOẠI NGẮN
+        - Nếu đầu vào là lời chào ngắn (≤ 6 từ, hoặc khớp các mẫu: hello/hi/hey/chào/xin chào/alo + emoji 👋🙂),
+        TRẢ LỜI CHÍNH XÁC 1 CÂU:
+        "Xin chào! Tôi là Trợ lý Ảo Kế toán của Tiximax. Tôi có thể hỗ trợ bạn điều gì?"
         """.strip()
     t0 = time.time()
     answer_raw = ask_gemini(genai, GEMINI_MODEL_ANSWER_ACCOUNTANT, sys_prompt, user_prompt)
@@ -616,8 +619,8 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
     try:
         report = judge_answer(question, answer, trace, GEMINI_MODEL_JUDGE_ACCOUNTANT)
         g = float(report.get("groundedness")) if report and report.get("groundedness") is not None else None
-        if (g is not None) and (g < 0.7):
-            answer = "không tìm thấy trong tài liệu"
+        # if (g is not None) and (g < 0.5):
+        #     answer = "không tìm thấy trong tài liệu"
     except Exception as e:
         print(f"[WARN] judge failed: {e}")
 
@@ -704,7 +707,7 @@ def _redraw_from_source(prev_trace: List[Dict[str, Any]], followup: str, last_so
     return None
 
 
-def continue_with_last(followup: str) -> Tuple[str, List[Dict[str, Any]]]:
+def continue_with_last_accountant(followup: str) -> Tuple[str, List[Dict[str, Any]]]:
     prev_q = _LAST.get("question", "") or ""
     prev_ans = _LAST.get("answer", "") or ""
     prev_trace = _LAST.get("trace", []) or []

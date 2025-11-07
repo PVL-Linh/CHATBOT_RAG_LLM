@@ -7,10 +7,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from .pdf_to_text_HR import processing_Data_dockinkToText_v2
-# try:
-#     from ..DataBase_Web.web_crawler import web_crawler
-# except ImportError:
-#     from DataBase_Web.web_crawler import web_crawler
 # =======================
 # Tham số
 # =======================
