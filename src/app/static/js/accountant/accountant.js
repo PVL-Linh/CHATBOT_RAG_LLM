@@ -1,3 +1,4 @@
+
 (() => {
     "use strict";
 
@@ -307,201 +308,7 @@
     }
 
     /* =========================
-       TREE render helpers (giữ nguyên như bản của bạn)
-       ========================= */
-    const CONNECTED_DRAW_FROM_LEVEL = 2;
-    const CONNECTED_KEEP_NUM = false;
-
-    function _normSpaces(s) {
-        return (s || "")
-            .replace(/\uFEFF/g, "")
-            .replace(
-                /[\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000\u200B\u200C\u200D]/g,
-                " "
-            );
-    }
-    function _preTreeLine(s) {
-        let t = _normSpaces(s).trimEnd();
-        t = t.replace(/^\s*>+\s*/, "");
-        t = t.replace(/^\s*(?:[*+-]\s+)/, "");
-        t = t.replace(/^\s*(?:\*\*|__|\*|_)\s*/, "");
-        t = t.replace(/\s*(?:\*\*|__|\*|_)\s*$/, "");
-        return t;
-    }
-    const RX_TREE_LINE =
-        /^\s*[│┃║ \t]*(?:[├┝┞┟┠┡┢┣└┕┖┗]\s*[─━┄┅┈┉]+\s*)?\s*\(?([0-9]+(?:\.[0-9]+)*)\)?(?:[.)-])?\s+(.*)$/;
-    function _stripLeadingNumberToken(text) {
-        return String(text || "").replace(/^\s*[0-9]+(?:\.[0-9]+)*\s+/, "");
-    }
-    function _parseTreeLine(raw) {
-        const s = _preTreeLine(raw);
-        if (!s.trim()) return { kind: "blank", raw: "" };
-        const m = s.match(RX_TREE_LINE);
-        if (!m) return { kind: "raw", raw: s };
-        const token = (m[1] || "").trim();
-        const label = (m[2] || "").trim();
-        if (!label) return { kind: "raw", raw: s };
-        const parts = token.split(".");
-        const depth = parts.length;
-        return {
-            kind: "node",
-            depth,
-            parts,
-            token,
-            label,
-            text: `${token} ${label}`,
-        };
-    }
-    function _hasNextSibling(idx, items) {
-        const curr = items[idx];
-        const d = curr.depth;
-        const parentKey = curr.parts.slice(0, d - 1).join(".");
-        for (let j = idx + 1; j < items.length; j++) {
-            const it = items[j];
-            if (it.kind !== "node") continue;
-            if (it.depth < d) return false;
-            if (it.depth === d && it.parts.slice(0, d - 1).join(".") === parentKey)
-                return true;
-        }
-        return false;
-    }
-    function _buildConnectedTree(items, opt = {}) {
-        const keepNumbers = opt.keepNumbers ?? CONNECTED_KEEP_NUM;
-        const boldUpTo = opt.boldUpTo ?? 2;
-        const nodes = items.filter((x) => x.kind === "node");
-        if (!nodes.length)
-            return items.map((x) => (x.kind === "raw" ? _esc(x.raw) : "")).join("\n");
-        const out = [];
-        const open = [];
-        for (let i = 0; i < items.length; i++) {
-            const it = items[i];
-            if (it.kind !== "node") {
-                out.push(it.kind === "blank" ? "" : _esc(it.raw));
-                continue;
-            }
-            const d = it.depth;
-            for (let k = open.length - 1; k > d; k--) open[k] = false;
-            const last = !_hasNextSibling(i, items);
-            const rawLabel = keepNumbers
-                ? it.text || ""
-                : _stripLeadingNumberToken(it.text || "");
-            const labelHTML =
-                d <= boldUpTo ? `<strong>${_esc(rawLabel)}</strong>` : _esc(rawLabel);
-            if (d < CONNECTED_DRAW_FROM_LEVEL) {
-                for (let k = open.length - 1; k >= CONNECTED_DRAW_FROM_LEVEL; k--)
-                    open[k] = false;
-                out.push(labelHTML);
-                continue;
-            }
-            let prefix = "";
-            for (let k = CONNECTED_DRAW_FROM_LEVEL; k < d; k++) {
-                prefix += open[k] ? "│  " : "   ";
-            }
-            prefix += last ? "└─ " : "├─ ";
-            open[d] = !last;
-            out.push(`${_esc(prefix)}${labelHTML}`);
-        }
-        return out.join("\n");
-    }
-    function _splitBlocks(md) {
-        const lines = _normSpaces(md).replace(/\r\n?/g, "\n").split("\n");
-        const blocks = [];
-        let i = 0;
-        while (i < lines.length) {
-            if (/^\s*```tree\s*$/i.test(lines[i])) {
-                const start = ++i;
-                while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) i++;
-                const raw = lines.slice(start, i);
-                const parsed = raw.map(_parseTreeLine);
-                blocks.push({
-                    type: "tree",
-                    content: _buildConnectedTree(parsed, {
-                        keepNumbers: false,
-                        boldUpTo: 2,
-                    }),
-                });
-                if (i < lines.length && /^\s*```\s*$/.test(lines[i])) i++;
-                continue;
-            }
-            const start = i;
-            let cnt = 0;
-            while (
-                i < lines.length &&
-                RX_TREE_LINE.test(_preTreeLine(lines[i]).trimEnd())
-            ) {
-                cnt++;
-                i++;
-            }
-            if (cnt >= 2) {
-                const rawBlock = lines.slice(start, i);
-                const parsed = rawBlock.map(_parseTreeLine);
-                blocks.push({
-                    type: "tree",
-                    content: _buildConnectedTree(parsed, {
-                        keepNumbers: false,
-                        boldUpTo: 2,
-                    }),
-                });
-                continue;
-            }
-            let j = i;
-            const buf = [];
-            while (j < lines.length) {
-                if (/^\s*```tree\s*$/i.test(lines[j])) break;
-                if (RX_TREE_LINE.test(_preTreeLine(lines[j]).trimEnd())) {
-                    let k = j,
-                        c = 0;
-                    while (
-                        k < lines.length &&
-                        RX_TREE_LINE.test(_preTreeLine(lines[k]).trimEnd())
-                    ) {
-                        c++;
-                        k++;
-                    }
-                    if (c >= 2) break;
-                }
-                buf.push(lines[j]);
-                j++;
-            }
-            blocks.push({ type: "md", content: buf.join("\n") });
-            i = j;
-        }
-        return blocks;
-    }
-    function _renderBlock(block) {
-        if (block.type === "tree") {
-            const pre = document.createElement("pre");
-            pre.className = "txm-tree";
-            pre.innerHTML = block.content;
-            pre.dataset.isTree = "1";
-            return pre;
-        }
-        const raw = (
-            window.marked ? marked.parse(block.content || "") : block.content || ""
-        ).toString();
-        const clean = window.DOMPurify ? DOMPurify.sanitize(raw) : raw;
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = clean;
-        const tables = wrapper.querySelectorAll("table");
-        tables.forEach((t) => {
-            const wrap = document.createElement("div");
-            wrap.className = "table-scroll";
-            t.parentNode.insertBefore(wrap, t);
-            wrap.appendChild(t);
-        });
-        if (tables.length) wrapper.dataset.hasTable = "1";
-        if (window.hljs) {
-            wrapper.querySelectorAll("pre code").forEach((b) => {
-                try {
-                    hljs.highlightElement(b);
-                } catch { }
-            });
-        }
-        return wrapper;
-    }
-
-    /* =========================
-       Markdown Rendering
+       Markdown Rendering (đã gỡ toàn bộ logic "sơ đồ") 
        ========================= */
     if (window.marked) {
         marked.setOptions({
@@ -512,19 +319,30 @@
         });
     }
     function renderMarkdown(md) {
-        const blocks = _splitBlocks(md || "");
-        const host = document.createElement("div");
-        let hasTable = false,
-            hasTree = false;
-        for (const b of blocks) {
-            const node = _renderBlock(b);
-            if (node.dataset?.hasTable === "1") hasTable = true;
-            if (node.dataset?.isTree === "1") hasTree = true;
-            host.appendChild(node);
+        const raw = (
+            window.marked ? marked.parse(md || "") : (md || "")
+        ).toString();
+        const clean = window.DOMPurify ? DOMPurify.sanitize(raw) : raw;
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = clean;
+
+        // Bọc bảng để cuộn ngang
+        const tables = wrapper.querySelectorAll("table");
+        tables.forEach((t) => {
+            const wrap = document.createElement("div");
+            wrap.className = "table-scroll";
+            t.parentNode.insertBefore(wrap, t);
+            wrap.appendChild(t);
+        });
+        if (tables.length) wrapper.dataset.hasTable = "1";
+
+        // Highlight code (nếu có) — vẫn giữ cho Markdown khác
+        if (window.hljs) {
+            wrapper.querySelectorAll("pre code").forEach((b) => {
+                try { hljs.highlightElement(b); } catch {}
+            });
         }
-        if (hasTable) host.dataset.hasTable = "1";
-        if (hasTree) host.dataset.isTree = "1";
-        return host;
+        return wrapper;
     }
 
     /* =========================
@@ -540,8 +358,7 @@
         const node = renderMarkdown(content);
         if (node.dataset && node.dataset.hasTable === "1")
             bubble.classList.add("is-table");
-        if (node.dataset && node.dataset.isTree === "1")
-            bubble.classList.add("is-tree");
+        // ĐÃ GỠ: không còn .is-tree
         bubble.appendChild(node);
         li.appendChild(bubble);
         if (els.chatList) {
@@ -1203,19 +1020,20 @@
         useIdle(startRenderSessions);
         scrollToBottom(true);
     });
-    ; (function () {
+
+    // QuickNav button logic (giữ nguyên)
+    (function () {
         const wrap = document.getElementById('quickNav')
         const btn = document.getElementById('quickNavBtn')
         const label = document.getElementById('quickNavLabel')
         const sidebar = document.querySelector('aside.sidebar, .sidebar')
         if (!wrap || !btn || !sidebar) return
 
-        const GAP = 12 // khoảng cách nút ↔ mép phải sidebar
-        const OVERLAY_PAD = 12 // khớp với aside.sidebar::after trên desktop
+        const GAP = 12
+        const OVERLAY_PAD = 12
         const mqDesktop = window.matchMedia('(min-width: 992px)')
 
         function overlayExtra() {
-            // Có overlay khi desktop và sidebar không được pin (đang ở chế độ hover)
             return mqDesktop.matches && !document.body.classList.contains('sb-pinned') ? OVERLAY_PAD : 0
         }
         function calcLeft() {
@@ -1229,9 +1047,7 @@
             setLeft(calcLeft())
         }
 
-        // Lock-step theo animation của sidebar: cập nhật mỗi frame
-        let rafId = null,
-            until = 0
+        let rafId = null, until = 0
         function toMs(str) {
             if (!str) return 0
             const s = String(str).trim()
@@ -1241,7 +1057,7 @@
             const cs = getComputedStyle(document.documentElement)
             const dur = toMs(cs.getPropertyValue('--sb-anim-ms') || '380ms')
             const delay = toMs(cs.getPropertyValue('--sb-anim-delay') || '20ms')
-            return Math.max(120, dur + delay + 80) // buffer
+            return Math.max(120, dur + delay + 80)
         }
         function trackFor(ms) {
             const target = performance.now() + ms
@@ -1258,7 +1074,6 @@
             rafId = requestAnimationFrame(loop)
         }
 
-        // Toggle menu
         function setOpen(open) {
             wrap.classList.toggle('open', open)
             btn.setAttribute('aria-expanded', open ? 'true' : 'false')
@@ -1284,10 +1099,9 @@
             }
         })
 
-            // Bám theo thay đổi của sidebar
-            ;['transitionrun', 'transitionstart', 'animationstart'].forEach((ev) => {
-                sidebar.addEventListener(ev, () => trackFor(getAnimWindowMs()), { passive: true })
-            })
+        ;['transitionrun', 'transitionstart', 'animationstart'].forEach((ev) => {
+            sidebar.addEventListener(ev, () => trackFor(getAnimWindowMs()), { passive: true })
+        })
         sidebar.addEventListener('mouseenter', () => trackFor(getAnimWindowMs()), { passive: true })
         sidebar.addEventListener('mouseleave', () => trackFor(getAnimWindowMs()), { passive: true })
 
