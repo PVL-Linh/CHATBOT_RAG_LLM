@@ -762,7 +762,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
     /* luôn dưới toàn khối */
     left: 0;
     min-width: 210px;
-    background: #000000ff;
+    background: rgb(236, 234, 234);
     color: #000000ff;
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.06);
