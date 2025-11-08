@@ -3,7 +3,7 @@ src/app/models/
 Trash/
 Documents/
 ingest/
-
+_deleted/
 
 # Bỏ FAISS_Vector trong src
 src/app/Data/
@@ -13,7 +13,7 @@ instance/
 *.db-shm
 logs/
 ingest/
-
+src/app/route/test_chat.py
 
 TRASH/
 src/app/chat_logs/

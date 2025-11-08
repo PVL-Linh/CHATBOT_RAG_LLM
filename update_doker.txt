@@ -24,8 +24,6 @@ docker compose logs cloudflared | Select-String 'trycloudflare.com' | Select -La
 
 
 
-
-
 fix error
 
 cloudflared tunnel --url http://localhost:10000 --protocol http2

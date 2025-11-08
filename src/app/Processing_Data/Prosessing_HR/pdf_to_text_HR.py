@@ -394,7 +394,7 @@ import zipfile
 from typing import Dict, List, Tuple
 
 import fitz  # PyMuPDF
-from Data_processing import clean_page_text  # sử dụng hàm clean của bạn
+from Data_processing import clean_page_text
 
 # XML parsers
 try:
@@ -802,24 +802,15 @@ def process_documents(input_folder: str, output_folder: str = None) -> Dict[str,
 # ========================
 # CLI wrapper theo layout của bạn
 # ========================
-def processing_Data_doclinkToText():
-    # CHỈNH LẠI ĐƯỜNG DẪN CHO PHÙ HỢP
-    # Ví dụ: input_dir = "Documents" hoặc "Documents/HR" hoặc r"E:\Chatbot\documents"
-    input_dir = "./Documents/HR/txt"
-    output_dir = "./src/app/Data/HR/txt"
-
+def processing_Data_doclinkToText(input_dir = "./Documents/HR/txt", output_dir = "./src/app/Data/HR/txt", 
+                                input_txt_diagram = "./Documents/HR/Diagram/documents_workflowAndText", 
+                                output_txt_diagram = "./src/app/Data/HR/Diagram/documents_workflowAndText",
+                                input_dir_org_tree = "./Documents/HR/Diagram/procedure",
+                                output_dir_org_tree = "./src/app/Data/HR/Diagram/procedure"):
     process_documents(input_dir, output_dir)
-
-    # Txt and Diagram
-    input_txt_diagram = "./Documents/HR/Diagram/documents_workflowAndText"
-    output_txt_diagram = "./src/app/Data/HR/Diagram/documents_workflowAndText"
     stats = tree_run(input_txt_diagram, output_txt_diagram)
-
-    # diagram -> txt  (GIỮ NGUYÊN như bạn yêu cầu)
-    input_dir_org_tree = "./Documents/HR/Diagram/procedure"
-    output_dir_org_tree = "./src/app/Data/HR/Diagram/procedure"
     org_tree_run(input_dir_org_tree, output_dir_org_tree)
 
+def processing_Data_dockinkToText_v2 (input_dir, output_dir):
+    process_documents(input_dir, output_dir)
 
-
-processing_Data_doclinkToText()

@@ -368,7 +368,7 @@ from app.config.settings import Gemini_Config_LLM
 def _repo_root() -> Path:
     """Gốc repo để join path tương đối khi REPO_ROOT chưa set."""
     # __file__ = .../src/app/Model_LLM/model_llm.py
-    return Path(__file__).resolve().parents[2]  # .../src/app
+    return Path(__file__).resolve().parents[3]  # .../src/app
 
 
 def _as_path(p: Union[str, Path, None]) -> Optional[Path]:
@@ -549,7 +549,8 @@ def _maybe_download_faiss_from_hub(default_dir: Union[str, Path]) -> str:
         return local_dir
 
     repo_type = os.getenv("FAISS_HUB_REPO_TYPE") or getattr(Gemini_Config_LLM, "repo_type", "dataset") or "dataset"
-    subdir = os.getenv("FAISS_HUB_SUBDIR") or getattr(Gemini_Config_LLM, "subdir", Path(FAISS_ALL_DIR).name)
+    subdir = os.getenv("FAISS_HUB_SUBDIR") or "./src/app/vectorstore/FAISS_Vector_All" or getattr(Gemini_Config_LLM, "subdir", Path(FAISS_ALL_DIR).name)
+
 
     print(f"[model_llm] Tải FAISS index từ Hub: {repo_type}:{repo_id}/{subdir}")
     snap_path = snapshot_download(
