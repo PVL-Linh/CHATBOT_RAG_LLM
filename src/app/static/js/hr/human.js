@@ -109,7 +109,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch {}
+    } catch { }
   }
   function lockScroll(on) {
     document.body.style.overflow = on ? "hidden" : "";
@@ -151,7 +151,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch {}
+    } catch { }
   }
   function loadMsgs(id) {
     try {
@@ -164,7 +164,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch {}
+    } catch { }
   }
   function anyLocalMessagesExist() {
     const sessions = loadSessions();
@@ -187,7 +187,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch {}
+    } catch { }
   }
   function ensureLocalSchema() {
     const v = Number(localStorage.getItem(LSCHEMA_KEY) || 0);
@@ -216,13 +216,13 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch {}
+    } catch { }
   }
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch {}
+    } catch { }
   }
 
   function adoptServerSid(newSid) {
@@ -495,7 +495,7 @@
       wrapper.querySelectorAll("pre code").forEach((b) => {
         try {
           hljs.highlightElement(b);
-        } catch {}
+        } catch { }
       });
     }
     return wrapper;
@@ -555,26 +555,29 @@
       persistMessage(role, content);
       try {
         window.sessionHistory = sessionHistory;
-      } catch {}
+      } catch { }
     }
   }
 
   function addTyping() {
     if (!els.chatList) return;
     if (document.getElementById("typingRow")) return;
+
     const li = document.createElement("li");
     li.id = "typingRow";
     li.className = "msg assistant";
     li.innerHTML = `
-      <div class="bubble">
-        <span class="typing" aria-live="polite" aria-label="Đang soạn...">
-          <span class="label">Thinking</span>
-          <span class="dots3"><span></span><span></span><span></span></span>
-        </span>
-      </div>`;
+    <div class="bubble" aria-live="polite" aria-label="Đang soạn">
+      <span class="typing-neo">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </span>
+    </div>`;
     els.chatList.appendChild(li);
     scrollToBottom(true);
   }
+
   function removeTyping() {
     const t = document.getElementById("typingRow");
     if (t) t.remove();
@@ -737,7 +740,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch {}
+    } catch { }
   }
   function renderItemNode(s) {
     if (!isSidebarMode()) {
@@ -748,8 +751,7 @@
       row.className = "row";
       row.innerHTML = `
         <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện HR")}</div>
-        <div class="meta">${
-          s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+        <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
         }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
@@ -782,8 +784,8 @@
         <div class="chat-avatar"><i data-lucide="user"></i></div>
         <div class="chat-text">
           <div class="chat-title">${htmlEscape(
-            s.title || "Cuộc trò chuyện HR"
-          )}</div>
+      s.title || "Cuộc trò chuyện HR"
+    )}</div>
           <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
           <div class="chat-time">${formatTime(s.last_ts)}</div>
         </div>
@@ -847,7 +849,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch {}
+    } catch { }
     updateLocalSession(id, (s) => {
       s.name = newTitle;
     });
@@ -864,7 +866,7 @@
       });
       const d = await r.json().catch(() => ({}));
       serverOk = r.ok && d.ok;
-    } catch {}
+    } catch { }
     clearLocal(id);
 
     const deletingCurrent =
@@ -880,7 +882,7 @@
           (a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0)
         );
         if (filtered.length) candidateId = filtered[0].id;
-      } catch {}
+      } catch { }
       localStorage.removeItem(CURR_KEY);
       currentSessionId = null;
       exposeCurrentSessionId();
@@ -890,7 +892,7 @@
       } else {
         try {
           await createNewSession();
-        } catch {}
+        } catch { }
       }
     }
     await startRenderSessions();
@@ -903,7 +905,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch {}
+    } catch { }
     // fallback local only
     ensureSession(true);
     resetUIToEmpty();
@@ -940,7 +942,7 @@
         scrollToBottom(true);
         return;
       }
-    } catch {}
+    } catch { }
     // fallback local
     openLocalSession(sessionId);
     closeContainer();
@@ -968,7 +970,7 @@
           scrollToBottom(true);
         }
       }
-    } catch {}
+    } catch { }
   }
 
   function updateLocalSession(id, mutator) {
@@ -979,7 +981,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch {}
+    } catch { }
   }
   function clearLocal(id) {
     try {
@@ -987,10 +989,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch {}
+    } catch { }
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch {}
+    } catch { }
   }
 
   /* =========================
@@ -1061,7 +1063,7 @@
             scrollToBottom(true);
           }
         }
-      } catch {}
+      } catch { }
     }
   }
 
@@ -1192,7 +1194,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch {}
+  } catch { }
 
   document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) lucide.createIcons();
@@ -1200,7 +1202,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch {}
+    } catch { }
     bootstrapFromLocalThenServer();
     useIdle(startRenderSessions);
     scrollToBottom(true);

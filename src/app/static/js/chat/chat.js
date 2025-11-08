@@ -332,22 +332,22 @@
 
   function addTyping() {
     if (!els.chatList) return;
-    if (document.getElementById("typingRow")) return; // tránh trùng
+    if (document.getElementById("typingRow")) return;
 
     const li = document.createElement("li");
     li.id = "typingRow";
     li.className = "msg assistant";
     li.innerHTML = `
-    <div class="bubble">
-      <span class="typing" aria-live="polite" aria-label="Đang soạn...">
-        <span class="label">Thinking</span>
-        <span class="dots3"><span></span><span></span><span></span></span>
+    <div class="bubble" aria-live="polite" aria-label="Đang soạn">
+      <span class="typing-neo">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
       </span>
     </div>`;
     els.chatList.appendChild(li);
     scrollToBottom(true);
   }
-
 
   function removeTyping() {
     const t = document.getElementById("typingRow");

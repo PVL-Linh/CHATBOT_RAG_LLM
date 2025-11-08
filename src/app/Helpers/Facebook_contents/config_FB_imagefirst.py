@@ -6,8 +6,8 @@ Tách file để dễ quản lý và điều chỉnh độc lập nếu cần.
 import os, time, random
 import google.generativeai as genai_old
 from google import genai as genai_new
-from app.config.utils_env import load_env_near
-load_env_near(__file__)
+# from app.config.utils_env import load_env_near
+# load_env_near(__file__)
 
 API_KEY_MKT_FB = os.getenv("GEMINI_API_KEY_IMGFB") or os.getenv("GEMINI_API_KEY_FB")
 if not API_KEY_MKT_FB:

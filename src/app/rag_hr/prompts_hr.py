@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional, List
 from app.config.config_HR import HR_TONE, HR_OUTPUT
 from app.config.paths import USERS_PROMPTS
+
 GENERIC_SYSTEM_PROMPT = f"""
     Bạn là trợ lý RAG tiếng Việt và chỉ trả lời dựa trên NGỮ CẢNH được cung cấp.
     - Nếu thiếu thông tin, hãy nói rõ: "không tìm thấy trong tài liệu".

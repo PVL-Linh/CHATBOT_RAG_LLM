@@ -48,13 +48,18 @@ FAISS_HR_DIR_1 = VECTORSTORE_DIR / "FAISS_Vector_HR"
 # INDEX HR FILE
 DATA_DIR_HR_1 = get_path("DATA_DIR_HR", APP_DIR / "Data" / "HR")
 DATA_DIR_HR  = _resolve_path(DATA_DIR_HR_1)
-# INDEX_HR_TXT = DATA_DIR_HR / "txt"
-# INDEX_HR_DIAGRAM = DATA_DIR_HR / "diagram"
-
 FAISS_DIR_HR = _resolve_path(FAISS_HR_DIR_1 or os.environ.get("FAISS_DIR_HR"))
 GEMINI_MODEL_ANSWER_HR = os.getenv("GEMINI_MODEL_ANSWER_HR", "gemini-2.0-flash")
 GEMINI_MODEL_JUDGE_HR  = os.getenv("GEMINI_MODEL_JUDGE_HR", "gemini-2.0-flash")
 
+# INDEX ACCOUNTANT FILE
+FAISS_ACCOUNTANT_DIR_1 = VECTORSTORE_DIR / "FAISS_Vector_Accountant"
+
+DATA_DIR_ACCOUNTANT_1 = get_path("DATA_DIR_ACCOUNTANT", APP_DIR / "Data" / "Accountant")
+DATA_DIR_ACCOUNTANT  = _resolve_path(DATA_DIR_ACCOUNTANT_1)
+FAISS_DIR_ACCOUNTANT = _resolve_path(FAISS_ACCOUNTANT_DIR_1 or os.environ.get("FAISS_DIR_Accountant"))
+GEMINI_MODEL_ANSWER_ACCOUNTANT = os.getenv("GEMINI_MODEL_ANSWER_ACCOUNTANT", "gemini-2.0-flash")
+GEMINI_MODEL_JUDGE_ACCOUNTANT  = os.getenv("GEMINI_MODEL_JUDGE_ACCOUNTANT", "gemini-2.0-flash")
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
