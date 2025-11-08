@@ -27,7 +27,7 @@
 }
 
 .msg .bubble {
-  background: #bbd7f2;
+  background: #ffffff;
   border-radius: 16px;
   display: inline-flex;
   align-items: center;
@@ -36,6 +36,7 @@
   max-width: 90%;
   min-width: 0;
   overflow-wrap: anywhere;
+  font-size: 15px;
 }
 
 .msg.user {
@@ -593,3 +594,184 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 }
 /* Nền trang dịu hơn để tách ô nhập */
 body{ background: var(--page-bg); }
+/* =======================
+   Bubble effects (float OFF)
+   ======================= */
+
+/* Tham số chỉnh nhanh */
+:root{
+  --float-amp: 4px;          /* không dùng nữa, để nguyên */
+  --float-shadow: 12px;
+  --float-dur: 6s;
+  --enter-dur: 260ms;         /* pop-in */
+  --hover-lift: 4px;          /* nhấc lên khi hover */
+}
+
+/* Pop-in khi bubble mới render (GIỮ) */
+@keyframes txm-pop-in{
+  0%   {opacity:0; transform:translateY(6px) scale(.98); filter:saturate(.9)}
+  60%  {opacity:1; transform:translateY(-2px) scale(1.01)}
+  100% {opacity:1; transform:translateY(0) scale(1); filter:none}
+}
+
+/* (TẮT) Keyframes txm-float vẫn giữ nguyên nhưng sẽ không được gọi */
+/* Giữ lại để tránh lỗi tham chiếu nếu nơi khác import */
+@keyframes txm-float{
+  0%   {transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.06)}
+  50%  {transform:translateY(calc(-1 * var(--float-amp)));
+        box-shadow:0 var(--float-shadow) 24px rgba(0,0,0,.06)}
+  100% {transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.06)}
+}
+
+/* Áp dụng mặc định cho mọi bubble — TẮT float */
+.msg .bubble{
+  will-change: transform, box-shadow;
+  animation: none !important;                 /* <— NGẮT txm-float */
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
+  animation-delay: 0s !important;
+}
+
+/* Khi mới thêm vào DOM — CHỈ pop-in 1 lần, KHÔNG float tiếp */
+.msg .bubble.is-enter{
+  animation: txm-pop-in var(--enter-dur) cubic-bezier(.22,1,.36,1) 1 !important;
+}
+
+/* Reduce motion: như cũ */
+@media (prefers-reduced-motion: reduce){
+  .msg .bubble,
+  .msg .bubble.is-enter{
+    animation:none !important;
+    transition:none !important;
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
+  }
+}
+/* ===== Typing: Neo Dots — Lively ===== */
+:root{
+  --typing-size: 9px;                 /* đường kính chấm */
+  --typing-gap: 12px;                 /* khoảng cách giữa chấm */
+  --typing-color: #111827;            /* màu chấm mặc định */
+  --typing-dur: 900ms;                /* chu kỳ nhịp */
+  --typing-halo: rgba(99,102,241,.45);/* màu halo */
+  --typing-underline: rgba(99,102,241,.22);
+}
+
+#typingRow .bubble{
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* khối chứa 3 chấm */
+.typing-neo{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--typing-gap);
+  filter: saturate(1.05);
+}
+
+/* underline có shimmer + parallax rất nhẹ */
+.typing-neo::after{
+  content:"";
+  position:absolute;
+  left:-4px; right:-4px; bottom:-8px;
+  height:2px; border-radius:2px;
+  background: linear-gradient(90deg, transparent, var(--typing-underline), transparent);
+  animation: typing-underline 1600ms ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes typing-underline{
+  0%,100%{ opacity:.35; transform:translateX(0) }
+  50%    { opacity:.85; transform:translateX(8px) }
+}
+
+/* chấm */
+.typing-neo .dot{
+  position: relative;
+  width: var(--typing-size);
+  height: var(--typing-size);
+  border-radius: 50%;
+  background: var(--typing-color);
+  box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  transform: translateY(0) scale(.88);
+  opacity: .7;
+  animation: typing-bounce var(--typing-dur) cubic-bezier(.2,.65,.25,1.35) infinite;
+  will-change: transform, opacity, filter;
+}
+
+/* halo phát sáng (parallax) */
+.typing-neo .dot::before{
+  content:"";
+  position:absolute; inset:-8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--typing-halo) 0%, rgba(99,102,241,0) 60%);
+  filter: blur(6px);
+  opacity:.0;                         /* sẽ tăng ở đỉnh */
+  transform: translateZ(0);
+  transition: opacity 180ms ease;
+}
+
+/* lệch pha từng chấm + parallax ngang */
+.typing-neo .dot:nth-child(1){ animation-delay: 0ms;    }
+.typing-neo .dot:nth-child(2){ animation-delay: 120ms;  }
+.typing-neo .dot:nth-child(3){ animation-delay: 240ms;  }
+
+@keyframes typing-bounce{
+  0%,100%{
+    transform: translateY(0) translateX(0) scale(.88);
+    opacity:.7; filter: none;
+  }
+  35%{
+    transform: translateY(-5px) translateX(2px) scale(1.08);
+    opacity:1;
+    filter: hue-rotate(6deg);         /* đổi sắc rất nhẹ */
+  }
+}
+
+/* tăng halo đúng thời điểm đỉnh */
+.typing-neo .dot{
+  animation-name: typing-bounce, typing-halo;
+  animation-duration: var(--typing-dur), var(--typing-dur);
+  animation-timing-function: cubic-bezier(.2,.65,.25,1.35), ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+@keyframes typing-halo{
+  0%,100%{ }
+  35%{ }
+}
+/* dùng selector để bật opacity halo tại đỉnh */
+.typing-neo .dot:nth-child(1){ --phase: 0ms; }
+.typing-neo .dot:nth-child(2){ --phase: 120ms; }
+.typing-neo .dot:nth-child(3){ --phase: 240ms; }
+.typing-neo .dot{
+  /* “hack” nhỏ: theo dõi state bằng drop-shadow biến thiên */
+  filter: drop-shadow(0 0 0 rgba(0,0,0,0));
+}
+.typing-neo .dot::before{
+  animation: haloPulse var(--typing-dur) ease-in-out infinite;
+}
+.typing-neo .dot:nth-child(2)::before{ animation-delay: 120ms; }
+.typing-neo .dot:nth-child(3)::before{ animation-delay: 240ms; }
+@keyframes haloPulse{
+  0%,100%{ opacity:0 }
+  35%    { opacity:.9 }
+}
+
+/* Bubble người dùng (nền vàng): chấm đậm hơn để tương phản */
+.msg.user #typingRow .dot,
+.msg.user .typing-neo .dot{
+  background:#0f172a;
+}
+.msg.user .typing-neo::after{
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,.18), transparent);
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .typing-neo::after,
+  .typing-neo .dot,
+  .typing-neo .dot::before{
+    animation:none !important;
+    opacity:.85;
+  }
+}

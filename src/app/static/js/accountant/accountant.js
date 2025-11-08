@@ -339,7 +339,7 @@
         // Highlight code (nếu có) — vẫn giữ cho Markdown khác
         if (window.hljs) {
             wrapper.querySelectorAll("pre code").forEach((b) => {
-                try { hljs.highlightElement(b); } catch {}
+                try { hljs.highlightElement(b); } catch { }
             });
         }
         return wrapper;
@@ -378,19 +378,23 @@
     function addTyping() {
         if (!els.chatList) return;
         if (document.getElementById("typingRow")) return;
+
         const li = document.createElement("li");
         li.id = "typingRow";
         li.className = "msg assistant";
         li.innerHTML = `
-      <div class="bubble">
-        <span class="typing" aria-live="polite" aria-label="Đang soạn...">
-          <span class="label">Thinking</span>
-          <span class="dots3"><span></span><span></span><span></span></span>
-        </span>
-      </div>`;
+    <div class="bubble" aria-live="polite" aria-label="Đang soạn">
+      <span class="typing-neo">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </span>
+    </div>
+  `;
         els.chatList.appendChild(li);
         scrollToBottom(true);
     }
+
     function removeTyping() {
         const t = document.getElementById("typingRow");
         if (t) t.remove();
@@ -1099,9 +1103,9 @@
             }
         })
 
-        ;['transitionrun', 'transitionstart', 'animationstart'].forEach((ev) => {
-            sidebar.addEventListener(ev, () => trackFor(getAnimWindowMs()), { passive: true })
-        })
+            ;['transitionrun', 'transitionstart', 'animationstart'].forEach((ev) => {
+                sidebar.addEventListener(ev, () => trackFor(getAnimWindowMs()), { passive: true })
+            })
         sidebar.addEventListener('mouseenter', () => trackFor(getAnimWindowMs()), { passive: true })
         sidebar.addEventListener('mouseleave', () => trackFor(getAnimWindowMs()), { passive: true })
 
@@ -1114,4 +1118,55 @@
         updateOnce()
         if (window.lucide) window.lucide.createIcons()
     })()
+    /* ========= Bubble FX helpers ========= */
+    function enhanceBubble(el) {
+        if (!el) return;
+        // pop-in 1 lần
+        el.classList.add('is-enter');
+        // delay ngẫu nhiên để các bubble không nổi đồng bộ
+        const d = (Math.random() * 1.2).toFixed(2); // 0–1.2s
+        el.style.setProperty('--float-delay', `${d}s`);
+        // dọn class sau hiệu ứng vào
+        setTimeout(() => el.classList.remove('is-enter'), 400);
+    }
+
+    /* Hàm tiện ích: thêm message vào UL (#chatList) */
+    function appendMessage({ text, role = 'bot' }) {
+        const li = document.createElement('li');
+        li.className = `msg ${role === 'user' ? 'user' : ''}`;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+
+        li.appendChild(bubble);
+        document.getElementById('chatList').appendChild(li);
+
+        // cuộn xuống cuối
+        const scroll = document.getElementById('chatScroll');
+        scroll.scrollTop = scroll.scrollHeight;
+
+        // kích hoạt hiệu ứng
+        enhanceBubble(bubble);
+        return bubble;
+    }
+
+    /* Ví dụ: gắn vào form submit nếu bạn chưa có */
+    (function wireDemoSubmit() {
+        const form = document.getElementById('chatForm');
+        const input = document.getElementById('chatInput');
+        if (!form || !input) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const q = input.value.trim();
+            if (!q) return;
+
+            appendMessage({ text: q, role: 'user' });
+            input.value = '';
+
+            // TODO: gọi API thật, sau đó:
+            appendMessage({ text: 'Đang xử lý yêu cầu…', role: 'bot' });
+        });
+    })();
 })();

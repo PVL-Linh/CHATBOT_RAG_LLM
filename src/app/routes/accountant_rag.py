@@ -342,7 +342,6 @@ def chat_api():
         answer, _trace = answer_with_rag_accountant(user_text)
         add_accountant_message(session_id, "assistant", answer)
         t1 = time.time()
-        print(f"[DBG] Trả lời: {answer}")
         return jsonify({
             "ok": True,
             "answer": answer,
