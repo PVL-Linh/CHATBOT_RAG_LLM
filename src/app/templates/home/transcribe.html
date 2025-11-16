@@ -1,125 +1,192 @@
-{% extends 'home/base.html' %} {% block title %}
-  Speech to Text · Tiximax
-{% endblock %} {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/transcribe/transcribe.css') }}" />
-{% endblock %} {% block topbar %}
+{% extends 'home/base.html' %} {% block title %} Speech to Text · Tiximax {%
+endblock %} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/transcribe/transcribe.css') }}"
+/>
+{% endblock %} {% block topbar %} {% endblock %} {% block history_panel %} {%
+endblock %} {% block footer %} {% endblock %} {% block content %}
+<div id="sttPage" class="container-fluid py-3">
+  <div class="row g-4 align-items-start">
+    <!-- LEFT -->
+    <aside class="col-12 col-lg-5 col-xl-4 col-xxl-5 stt-left">
+      <div class="card sticky-lg-top" style="top: 12px" id="tk_form_card">
+        <div class="card-body">
+          <h2 class="h4 stt-page-title mb-3">🗣️ Speech - to - Text</h2>
 
-{% endblock %}
-{% block history_panel %}
-
-{% endblock %}
-{% block footer %}
-
-{% endblock %} {% block content %}
-  <div id="sttPage" class="container-fluid py-3">
-    <div class="row g-4 align-items-start">
-      <!-- LEFT -->
-      <aside class="col-12 col-lg-5 col-xl-4 col-xxl-5 stt-left">
-        <div class="card sticky-lg-top" style="top: 12px" id="tk_form_card">
-          <div class="card-body">
-            <h2 class="h4 stt-page-title mb-3">🗣️ Speech - to - Text</h2>
-
-            <!-- Ngôn ngữ -->
-            <div class="row g-3 align-items-center stt-row">
-              <label for="stt_lang" class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold">Ngôn ngữ</label>
-              <div class="col">
-                <select id="stt_lang" class="form-select">
-                  <option value="vi" selected>Tiếng Việt (vi)</option>
-                  <option value="en">English (en)</option>
-                  <option value="auto">Tự động (auto)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Tệp -->
-            <div class="row g-3 align-items-center stt-row mt-2">
-              <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold">Tệp</label>
-              <div class="col">
-                <div class="d-flex flex-wrap gap-2 align-items-center stt-file">
-                  <input id="stt_file" type="file" accept="audio/*,video/*" class="form-control" />
-                  <button id="stt_upload_btn" class="btn btn-primary">⬆ Tải file & nhận dạng</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Xem trước -->
-            <div class="row g-3 align-items-center stt-row mt-2">
-              <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold">Xem trước</label>
-              <div class="col">
-                <div class="stt-preview">
-                  <audio id="stt_preview_audio" controls preload="metadata" class="w-100 rounded-pill bg-light"></audio>
-                </div>
-              </div>
-            </div>
-
-            <!-- Ghi âm -->
-            <div class="row g-3 align-items-center stt-row mt-2">
-              <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold">Ghi âm</label>
-              <div class="col">
-                <div class="d-flex flex-wrap gap-2 align-items-center stt-rec">
-                  <button id="stt_record" class="btn btn-outline-danger">⏺ Ghi âm</button>
-                  <button id="stt_stop" class="btn btn-danger" disabled>⏹ Dừng & nhận dạng</button>
-                  <span id="stt_timer" class="stt-timer ms-auto ms-sm-0">00:00</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Status + Progress -->
-            <div id="stt_status" class="alert alert-secondary py-2 mt-3 mb-2 stt-status">Sẵn sàng.</div>
-            <div class="stt-progress">
-              <span></span>
+          <!-- Ngôn ngữ -->
+          <div class="row g-3 align-items-center stt-row">
+            <label
+              for="stt_lang"
+              class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold"
+              >Ngôn ngữ</label
+            >
+            <div class="col">
+              <select id="stt_lang" class="form-select">
+                <option value="vi" selected>Tiếng Việt (vi)</option>
+                <option value="en">English (en)</option>
+                <option value="auto">Tự động (auto)</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <!-- loader -->
-        <div class="local-loader hidden">
-          <div class="spinner"></div>
-          <p class="loader-msg">Đang xử lý…</p>
-        </div>
-      </aside>
-
-      <!-- RIGHT -->
-      <main class="col-12 col-lg-7 col-xl-8 col-xxl-7 stt-right">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between stt-topbar flex-wrap gap-2">
-              <div class="pill-tabs nav nav-pills" data-scope="stt">
-                <button class="pill nav-link active" data-tab="result">Result</button>
-                <button class="pill nav-link" data-tab="segments">Segments</button>
-                <button class="pill nav-link" data-tab="history">History</button>
-              </div>
-              <div class="icon-actions d-flex gap-2">
-                <button id="stt_copy" class="btn btn-outline-secondary icon-btn" title="Sao chép">📋</button>
-                <button id="stt_download" class="btn btn-outline-secondary icon-btn" title="Tải TXT">💾</button>
-                <button id="stt_save" class="btn btn-primary icon-btn" title="Lưu vào lịch sử">📌</button>
+          <!-- Tệp -->
+          <div class="row g-3 align-items-center stt-row mt-2">
+            <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold"
+              >Tệp</label
+            >
+            <div class="col">
+              <div class="d-flex flex-wrap gap-2 align-items-center stt-file">
+                <input
+                  id="stt_file"
+                  type="file"
+                  accept="audio/*,video/*"
+                  class="form-control"
+                />
+                <button id="stt_upload_btn" class="btn btn-primary">
+                  ⬆ Tải file & nhận dạng
+                </button>
               </div>
             </div>
+          </div>
 
-            <section class="stt-panel">
-              <div id="stt_tab_result" class="tab-panel active">
-                <textarea id="stt_text" class="form-control stt-textarea" rows="14" placeholder="Kết quả sẽ hiện ở đây..."></textarea>
+          <!-- Xem trước -->
+          <div class="row g-3 align-items-center stt-row mt-2">
+            <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold"
+              >Xem trước</label
+            >
+            <div class="col">
+              <div class="stt-preview">
+                <audio
+                  id="stt_preview_audio"
+                  controls
+                  preload="metadata"
+                  class="w-100 rounded-pill bg-light"
+                ></audio>
               </div>
+            </div>
+          </div>
 
-              <div id="stt_tab_segments" class="tab-panel">
-                <div id="stt_segments" class="stt-segments"></div>
+          <!-- Ghi âm -->
+          <div class="row g-3 align-items-center stt-row mt-2">
+            <label class="col-sm-4 col-md-3 col-lg-4 col-form-label fw-semibold"
+              >Ghi âm</label
+            >
+            <div class="col">
+              <div class="d-flex flex-wrap gap-2 align-items-center stt-rec">
+                <button id="stt_record" class="btn btn-outline-danger">
+                  ⏺ Ghi âm
+                </button>
+                <button id="stt_stop" class="btn btn-danger" disabled>
+                  ⏹ Dừng & nhận dạng
+                </button>
+                <span id="stt_timer" class="stt-timer ms-auto ms-sm-0"
+                  >00:00</span
+                >
               </div>
+            </div>
+          </div>
 
-              <div id="stt_tab_history" class="tab-panel">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <div class="hist-toolbar">
-                    <button id="stt_history_clear" class="btn btn-outline-danger icon-btn" title="Xóa hết">🗑</button>
-                  </div>
-                </div>
-                <div id="stt_history_list" class="stt-history-list"></div>
-              </div>
-            </section>
+          <!-- Status + Progress -->
+          <div
+            id="stt_status"
+            class="alert alert-secondary py-2 mt-3 mb-2 stt-status"
+          >
+            Sẵn sàng.
+          </div>
+          <div class="stt-progress">
+            <span></span>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+
+      <!-- loader -->
+      <div class="local-loader hidden">
+        <div class="spinner"></div>
+        <p class="loader-msg">Đang xử lý…</p>
+      </div>
+    </aside>
+
+    <!-- RIGHT -->
+    <main class="col-12 col-lg-7 col-xl-8 col-xxl-7 stt-right">
+      <div class="card">
+        <div class="card-body">
+          <div
+            class="d-flex align-items-center justify-content-between stt-topbar flex-wrap gap-2"
+          >
+            <div class="pill-tabs nav nav-pills" data-scope="stt">
+              <button class="pill nav-link active" data-tab="result">
+                Result
+              </button>
+              <button class="pill nav-link" data-tab="segments">
+                Segments
+              </button>
+              <button class="pill nav-link" data-tab="history">History</button>
+            </div>
+            <div class="icon-actions d-flex gap-2">
+              <button
+                id="stt_copy"
+                class="btn btn-outline-secondary icon-btn"
+                title="Sao chép"
+              >
+                📋
+              </button>
+              <button
+                id="stt_download"
+                class="btn btn-outline-secondary icon-btn"
+                title="Tải TXT"
+              >
+                💾
+              </button>
+              <button
+                id="stt_save"
+                class="btn btn-primary icon-btn"
+                title="Lưu vào lịch sử"
+              >
+                📌
+              </button>
+            </div>
+          </div>
+
+          <section class="stt-panel">
+            <div id="stt_tab_result" class="tab-panel active">
+              <textarea
+                id="stt_text"
+                class="form-control stt-textarea"
+                rows="14"
+                placeholder="Kết quả sẽ hiện ở đây..."
+              ></textarea>
+            </div>
+
+            <div id="stt_tab_segments" class="tab-panel">
+              <div id="stt_segments" class="stt-segments"></div>
+            </div>
+
+            <div id="stt_tab_history" class="tab-panel">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <div class="hist-toolbar">
+                  <button
+                    id="stt_history_clear"
+                    class="btn btn-outline-danger icon-btn"
+                    title="Xóa hết"
+                  >
+                    🗑
+                  </button>
+                </div>
+              </div>
+              <div id="stt_history_list" class="stt-history-list"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
   </div>
-{% endblock %}
-{% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/transcribe/transcribe.js') }}?v=6"></script>
+</div>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/transcribe/transcribe.js') }}?v=6"
+></script>
 {% endblock %}

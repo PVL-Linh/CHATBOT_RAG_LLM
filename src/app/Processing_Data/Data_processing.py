@@ -1,18 +1,17 @@
-# Processing_Data/Data_processing.py
 import re
 import unicodedata
 from typing import List
+from Pdf_Images_to_Text import normalize_unicode
 
-# ===== Regex =====
-HR_RULE = re.compile(r"^[-=_\u2500\u2014\s]{3,}$")  # ----- ===== ────
+HR_RULE = re.compile(r"^[-=_\u2500\u2014\s]{3,}$")
 PAGE_MARK = re.compile(r"^(?:page|trang)\s*\d{1,3}(?:\s*/\s*\d{1,3})?$", re.IGNORECASE)
 HEADER_TAIL = re.compile(r"(giáo trình|tài liệu|chương|phần|section|chapter|page|trang).{0,40}\b\d{1,3}\b$",
                          re.IGNORECASE)
 BULLET = re.compile(r"""^(
-    [\-\+\*\u2022\u2023\u25E6\u2219\u00B7\u2043]\s+ |   # • - + *
-    \d{1,3}[\.\)]\s+                                    # 1. / 1)
+    [\-\+\*\u2022\u2023\u25E6\u2219\u00B7\u2043]\s+ |
+    \d{1,3}[\.\)]\s+
 )$""", re.VERBOSE)
-TABLE_LIKE = re.compile(r"\s{2,}|\t|\s\|\s")            # nhiều space/tab/pipe
+TABLE_LIKE = re.compile(r"\s{2,}|\t|\s\|\s")
 MATH_EXPR = re.compile(r"(?=.*\d)(?=.*[\+\-\*/=<>])[A-Za-z0-9\s\+\-\*/=<>\(\)\[\]\.,:^_\\%]+$")
 
 def _normalize_spaces(s: str) -> str:
@@ -41,7 +40,6 @@ def _should_drop_header_footer(line: str, idx: int, total: int) -> bool:
     return False
 
 def looks_like_table_cell(s: str) -> bool:
-    """Heuristic nhận diện ô bảng ngay cả khi không có nhiều khoảng trắng."""
     s = (s or "").strip().lower()
     if not s:
         return False
@@ -54,7 +52,6 @@ def looks_like_table_cell(s: str) -> bool:
     return False
 
 def _latexify(line: str) -> str:
-    """LaTeX hoá thận trọng: chỉ với biểu thức thật sự, KHÔNG áp cho các dòng bảng."""
     raw = (line or "").strip()
     if 2 <= len(raw) <= 240 and MATH_EXPR.match(raw) and not re.search(r"[.!?]$", raw):
         op = len(re.findall(r"[\+\-\*/=<>]", raw))
@@ -64,7 +61,6 @@ def _latexify(line: str) -> str:
     return raw
 
 def _flush_table_seq(table_buffer: List[str], result: List[str], mode: str = "flatten"):
-    """Gộp các dòng bảng thành hàng: category | detail | fee (nếu nhận diện được)."""
     if not table_buffer:
         return
     if mode == "keep":
@@ -95,26 +91,20 @@ def _flush_table_seq(table_buffer: List[str], result: List[str], mode: str = "fl
             pending_detail = None
             continue
 
-        # fallback: không match heuristic thì giữ nguyên
         result.append(ln)
 
     table_buffer.clear()
 
-# ===== Main cleaner =====
 def clean_page_text(
     text: str,
     *,
     drop_headers: bool = True,
     keep_tables: bool = True,
-    table_mode: str = "flatten",   # "keep" | "flatten" | "drop"
+    table_mode: str = "flatten",
     latex_math: bool = True,
-) -> str:
-    """
-    - drop_headers: bỏ header/footer/số trang ở rìa.
-    - keep_tables + table_mode: xử lý bảng (giữ, gộp, bỏ).
-    - latex_math: LaTeX hoá biểu thức (không áp cho dòng bảng).
-    """
-    text = unicodedata.normalize("NFKC", text or "")
+    ) -> str:
+    # text = unicodedata.normalize("NFKC", text or "")
+    text = normalize_unicode(text)
     lines = text.splitlines()
     total = len(lines)
 
@@ -143,7 +133,7 @@ def clean_page_text(
         elif table_mode == "keep":
             result.extend(table_buffer)
             table_buffer.clear()
-        else:  # drop
+        else:
             table_buffer.clear()
 
     for ln in filtered:
@@ -154,7 +144,6 @@ def clean_page_text(
             flush_paragraph()
             continue
 
-        # Bảng? (ưu tiên nhận diện bảng trước; không LaTeX hóa dòng bảng)
         if keep_tables and (TABLE_LIKE.search(ln) or looks_like_table_cell(ln)):
             flush_paragraph()
             table_buffer.append(ln)
@@ -162,13 +151,11 @@ def clean_page_text(
         else:
             flush_table()
 
-        # Bullet?
         if BULLET.match(ln):
             flush_paragraph()
             result.append(ln)
             continue
 
-        # LaTeX?
         if latex_math:
             latex_ln = _latexify(ln)
             if latex_ln.startswith("$$") and latex_ln.endswith("$$"):
@@ -177,7 +164,6 @@ def clean_page_text(
                 continue
             ln = latex_ln
 
-        # Ghép câu
         if re.search(r"[.!?]$", ln):
             paragraph += ln + " "
             flush_paragraph()

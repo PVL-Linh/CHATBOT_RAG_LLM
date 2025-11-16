@@ -1,28 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Batch TXT "TREE_V2" — Local/VS Code version (PyMuPDF → pdfminer → optional EasyOCR)
-
-Usage (examples):
-  python batch_tree_v2_local.py \
-      --input ./documents_workflowAndText \
-      --output ./output_txt
-
-  # Bật OCR (EasyOCR) cho PDF scan + chỉ định ngôn ngữ và DPI:
-  python batch_tree_v2_local.py --ocr --langs vi,en --dpi 220
-
-Notes:
-- OCR là tùy chọn; chỉ cần cài easyocr + torch nếu dùng --ocr
-- Mặc định duyệt đệ quy các file .pdf, .docx, .txt, .md trong --input
-- Kết quả lưu từng file *_tree.txt vào --output
-- Không nén ZIP; mỗi file được xuất riêng lẻ.
-
-Programmatic use (import as a module):
-  from batch_tree_v2_local import configure_paths
-  configure_paths(r"D:\data\documents_workflowAndText", r"D:\data\output_txt")
-  # ... sau đó có thể gọi các hàm xử lý riêng nếu bạn mở rộng API.
-"""
-
 import argparse
 import io
 import logging
@@ -33,9 +8,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-# ---------- Third-party (bắt buộc nếu xử lý PDF/DOCX) ----------
 try:
-    import fitz  # PyMuPDF
+    import fitz
 except Exception as e:
     print("[FATAL] PyMuPDF (fitz) chưa cài. Hãy: pip install pymupdf", file=sys.stderr)
     raise
@@ -45,17 +19,13 @@ try:
 except Exception as e:
     print("[FATAL] pdfminer.six chưa cài. Hãy: pip install pdfminer.six", file=sys.stderr)
     raise
-
-# DOCX optional (chỉ cho .docx)
 try:
     from docx import Document
     DOCX_AVAILABLE = True
 except Exception:
     DOCX_AVAILABLE = False
 
-import xml.etree.ElementTree as ET  # fallback document.xml
-
-# ---------- Path configuration ----------
+import xml.etree.ElementTree as ET
 PATH_DOCUMENTS = Path("./documents_workflowAndText").resolve() and "./Documents/HR/Diagram/documents_workflowAndText"
 PATH_OUTPUT = Path("./output_txt").resolve() and "./src/app/Data/HR/Diagram/documents_workflowAndText"
 
@@ -71,11 +41,8 @@ def configure_paths(path_documents: str = None, path_output: str = None) -> tupl
         PATH_DOCUMENTS = Path(path_documents).resolve()
     if path_output is not None:
         PATH_OUTPUT = Path(path_output).resolve()
-    # bảo đảm thư mục output tồn tại
     PATH_OUTPUT.mkdir(parents=True, exist_ok=True)
     return PATH_DOCUMENTS, PATH_OUTPUT
-
-# ---------- Helpers: quality checks ----------
 
 def space_score(s: str) -> float:
     """Đánh giá chất lượng khoảng trắng: tỉ lệ space/độ dài + số từ/1000 ký tự."""
@@ -84,20 +51,16 @@ def space_score(s: str) -> float:
     L = len(s)
     spaces = s.count(" ")
     words = len(re.findall(r"\b\w+\b", s, flags=re.UNICODE))
-    return (spaces / max(L, 1)) * 0.6 + (words / max(L / 6, 1)) * 0.4  # heuristics
+    return (spaces / max(L, 1)) * 0.6 + (words / max(L / 6, 1)) * 0.4
 
 
 def normalize_text(s: str) -> str:
     if not s:
         return ""
     s = s.replace("\r", "\n").replace("\xa0", " ")
-    # nối từ bị gãy dòng do PDF: "từ-\nngữ" -> "từngữ"
     s = re.sub(r"(\w)-\n(\w)", r"\1\2", s)
-    # chuẩn hoá bullet " - " (nếu PDF dính dấu gạch)
     s = re.sub(r"(?m)(^|\s)-(\S)", r"\1- \2", s)
-    # gộp nhiều spaces
     lines = [re.sub(r"[ \t]+", " ", ln).strip() for ln in s.split("\n")]
-    # bỏ dòng trắng dư
     lines = [ln for ln in lines if ln]
     return "\n".join(lines)
 
@@ -111,8 +74,6 @@ def uniq_keep_order(lines: List[str]) -> List[str]:
             out.append(x)
     return out
 
-# ---------- Trích PDF với PyMuPDF: dùng 'words' để giữ khoảng trắng ----------
-
 def extract_pdf_text_fitz_words(pdf_path: Path) -> str:
     try:
         doc = fitz.open(str(pdf_path))
@@ -120,11 +81,9 @@ def extract_pdf_text_fitz_words(pdf_path: Path) -> str:
         return ""
     blocks_all: List[str] = []
     for page in doc:
-        # (x0, y0, x1, y1, "word", block_no, line_no, word_no)
         words = page.get_text("words")
         if not words:
             continue
-        # group theo (block, line), sort theo x0
         words.sort(key=lambda w: (w[5], w[6], w[0], w[1]))
         last_blk, last_line = None, None
         line_buf: List[str] = []
@@ -137,11 +96,9 @@ def extract_pdf_text_fitz_words(pdf_path: Path) -> str:
             line_buf.append(word)
         if line_buf:
             blocks_all.append(" ".join(line_buf))
-        blocks_all.append("")  # tách trang
+        blocks_all.append("")
     return "\n".join(blocks_all)
 
-
-# ---------- Fallback pdfminer ----------
 
 def extract_pdf_text_pdfminer(pdf_path: Path) -> str:
     try:
@@ -149,8 +106,6 @@ def extract_pdf_text_pdfminer(pdf_path: Path) -> str:
     except Exception:
         return ""
 
-
-# ---------- OCR bằng EasyOCR (lazy import) ----------
 
 def ocr_pdf_easyocr(pdf_path: Path, reader, dpi: int = 220) -> str:
     if reader is None:
@@ -162,7 +117,7 @@ def ocr_pdf_easyocr(pdf_path: Path, reader, dpi: int = 220) -> str:
         return ""
     zoom = dpi / 72.0
     mat = fitz.Matrix(zoom, zoom)
-    from PIL import Image  # only if OCR used
+    from PIL import Image
     import numpy as np
 
     for page in doc:
@@ -178,8 +133,6 @@ def ocr_pdf_easyocr(pdf_path: Path, reader, dpi: int = 220) -> str:
     return "\n\n".join([x for x in out if x and x.strip()])
 
 
-# ---------- Đọc TXT ----------
-
 def read_txt_text(txt_path: Path) -> str:
     for enc in ("utf-8", "cp1258", "latin-1"):
         try:
@@ -188,8 +141,6 @@ def read_txt_text(txt_path: Path) -> str:
             pass
     return ""
 
-
-# ---------- DOCX: paragraphs + tables (+ fallback XML) ----------
 
 def extract_docx_text(docx_path: Path) -> str:
     if not DOCX_AVAILABLE:
@@ -201,13 +152,11 @@ def extract_docx_text(docx_path: Path) -> str:
     except Exception:
         return ""
 
-    # Paragraphs
     for p in doc.paragraphs:
         t = (p.text or "").strip()
         if t:
             lines.append(t)
 
-    # Tables (nối ô bằng tab để giữ cột)
     for tbl in doc.tables:
         for row in tbl.rows:
             cells: List[str] = []
@@ -217,7 +166,6 @@ def extract_docx_text(docx_path: Path) -> str:
             if row_txt.strip():
                 lines.append(row_txt)
 
-    # Fallback: bóc toàn bộ w:p trong document.xml để bắt textboxes/shapes
     try:
         with zipfile.ZipFile(str(docx_path)) as zf:
             if "word/document.xml" in zf.namelist():
@@ -233,8 +181,6 @@ def extract_docx_text(docx_path: Path) -> str:
     lines = uniq_keep_order([ln for ln in lines if ln and ln.strip()])
     return "\n".join(lines)
 
-
-# ---------- Tách vùng / phân tích ----------
 
 def slice_body(full_text: str):
     text = full_text
@@ -373,8 +319,6 @@ def render_fixed_format_txt(title: str, src_path: str, sections: Dict[str, str],
     return "\n".join(lines)
 
 
-# ---------- Pipeline 1 file ----------
-
 def extract_text_any(path: Path, use_ocr: bool, ocr_reader, ocr_dpi: int) -> str:
     ext = path.suffix.lower()
     if ext in (".txt", ".md"):
@@ -384,19 +328,14 @@ def extract_text_any(path: Path, use_ocr: bool, ocr_reader, ocr_dpi: int) -> str
         return normalize_text(extract_docx_text(path))
 
     if ext != ".pdf":
-        return ""  # mở rộng thêm sau nếu cần
+        return ""
 
-    # 1) PyMuPDF (words)
     t1 = normalize_text(extract_pdf_text_fitz_words(path))
     sc1 = space_score(t1)
-
-    # 2) pdfminer
     t2 = normalize_text(extract_pdf_text_pdfminer(path))
     sc2 = space_score(t2)
 
     best_text, best_score = (t1, sc1) if sc1 >= sc2 else (t2, sc2)
-
-    # 3) OCR (EasyOCR) nếu quá tệ (ít dấu cách)
     if best_score < 0.08 and use_ocr and ocr_reader is not None:
         logging.info(f"  ⚠️ {path.name}: spacing kém (score={best_score:.3f}) → thử EasyOCR ...")
         t3 = normalize_text(ocr_pdf_easyocr(path, ocr_reader, dpi=ocr_dpi))
@@ -424,8 +363,6 @@ def process_one_file(fp: Path, out_dir: Path, use_ocr: bool, ocr_reader, ocr_dpi
     return out_path
 
 
-# ---------- Batch runner (callable API) ----------
-
 def run_one_file(in_file: Path, out_dir: Path, *, use_ocr: bool = False, ocr_langs: list | None = None, ocr_dpi: int = 220, log_level: str = "INFO") -> dict:
     """Xử lý DUY NHẤT 1 file và xuất TXT TREE_V2. Trả về dict {'ok','fail','results':[{'src','out'}], 'input','output'}"""
     logging.basicConfig(level=getattr(logging, (log_level or "INFO").upper(), logging.INFO), format="%(levelname)s - %(message)s")
@@ -437,11 +374,10 @@ def run_one_file(in_file: Path, out_dir: Path, *, use_ocr: bool = False, ocr_lan
     if not in_file.exists() or not in_file.is_file():
         return {"ok": 0, "fail": 1, "results": [], "input": str(in_file), "output": str(out_dir)}
 
-    # OCR lazy init (riêng cho 1 file)
     ocr_reader = None
     if use_ocr:
         try:
-            import easyocr  # type: ignore
+            import easyocr
             langs = ocr_langs or ["vi", "en"]
             logging.info(f"Khởi tạo EasyOCR với ngôn ngữ: {langs}")
             ocr_reader = easyocr.Reader(langs)
@@ -465,28 +401,18 @@ def main_one_file(path_input_file: str, path_output: str, *, ocr: bool = False, 
 
 
 def run_batch(in_dir: Path, out_dir: Path, *, use_ocr: bool = False, ocr_langs: list | None = None, ocr_dpi: int = 220, exts: set | str | None = None, log_level: str = "INFO") -> dict:
-    """
-    Chạy toàn bộ pipeline trích xuất TREE_V2.
-    Trả về dict thống kê + danh sách kết quả: {ok, fail, count, results:[{src, out}, ...], input, output}
-    """
     logging.basicConfig(level=getattr(logging, (log_level or "INFO").upper(), logging.INFO), format="%(levelname)s - %(message)s")
-
-    # chuẩn hoá đường dẫn + bảo đảm tồn tại output
     configure_paths(str(in_dir), str(out_dir))
-
-    # chuẩn hoá exts
     if exts is None:
         exts_set = {".pdf", ".docx", ".txt", ".md"}
     elif isinstance(exts, str):
         exts_set = {"." + x.strip().lower().lstrip(".") for x in exts.split(",") if x.strip()}
     else:
         exts_set = {"." + x.strip().lower().lstrip(".") for x in exts}
-
-    # OCR lazy init
     ocr_reader = None
     if use_ocr:
         try:
-            import easyocr  # type: ignore
+            import easyocr
             langs = ocr_langs or ["vi", "en"]
             logging.info(f"Khởi tạo EasyOCR với ngôn ngữ: {langs}")
             ocr_reader = easyocr.Reader(langs)
@@ -518,18 +444,10 @@ def run_batch(in_dir: Path, out_dir: Path, *, use_ocr: bool = False, ocr_langs: 
 
 
 def main_to_pdf(path_input: str, path_output: str, *, ocr: bool = False, langs: str = "vi,en", dpi: int = 220, exts: str = "pdf,docx,txt,md", log: str = "INFO") -> dict:
-    """
-    API tiện dụng để chạy batch bằng code (tên hàm giữ theo yêu cầu):
-    - Dù tên là *main_to_pdf*, HÀM XUẤT RA CÁC FILE **TXT** (TREE_V2), không phải PDF.
-    - Trả về dict thống kê tương tự run_batch().
-    """
     in_dir = Path(path_input).resolve()
     out_dir = Path(path_output).resolve()
     langs_list = [x.strip() for x in (langs or "").split(",") if x.strip()] or ["vi", "en"]
     return run_batch(in_dir, out_dir, use_ocr=ocr, ocr_langs=langs_list, ocr_dpi=dpi, exts=exts, log_level=log)
-
-
-# ---------- CLI ----------
 
 def build_argparser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Batch TREE_V2 extractor (local)")
@@ -546,18 +464,14 @@ def build_argparser() -> argparse.ArgumentParser:
 
 def main():
     args = build_argparser().parse_args()
-
-    # Logging
     logging.basicConfig(
         level=getattr(logging, args.log.upper(), logging.INFO),
         format="%(levelname)s - %(message)s",
     )
 
-    # Cho phép cấu hình đường dẫn qua hàm
     configure_paths(args.input, args.output)
     in_dir, out_dir = PATH_DOCUMENTS, PATH_OUTPUT
 
-    # ---- Single-file mode (nếu truyền --file) ----
     if args.file:
         stats = main_one_file(args.file, args.output, ocr=args.ocr, langs=args.langs, dpi=args.dpi, log=args.log)
         if stats.get("ok"):
@@ -577,11 +491,10 @@ def main():
         print(f"[ERROR] Thư mục đầu vào không tồn tại: {in_dir}", file=sys.stderr)
         sys.exit(2)
 
-    # OCR reader (lazy)
     ocr_reader = None
     if args.ocr:
         try:
-            import easyocr  # type: ignore
+            import easyocr
             langs = [x.strip() for x in args.langs.split(",") if x.strip()]
             logging.info(f"Khởi tạo EasyOCR với ngôn ngữ: {langs}")
             ocr_reader = easyocr.Reader(langs)
@@ -589,9 +502,7 @@ def main():
             logging.error("Không khởi tạo được EasyOCR (bỏ qua OCR). Lý do: %s", e)
             ocr_reader = None
 
-    # Tập phần mở rộng
     exts = {"." + x.strip().lower().lstrip(".") for x in args.exts.split(",") if x.strip()}
-
     all_files = sorted([p for p in in_dir.rglob("*") if p.is_file() and p.suffix.lower() in exts])
     print(f"🔎 Tìm thấy {len(all_files)} file trong {in_dir}")
 
@@ -615,16 +526,7 @@ if __name__ == "__main__":
     main()
 
 
-# ---------- Two-arg convenience API ----------
-
 def tree_run(input_path: str, output_path: str) -> dict:
-    """
-    Hàm tiện lợi CHỈ 2 THAM SỐ: (input_path, output_path)
-    - Nếu input_path là THƯ MỤC: chạy batch toàn bộ → xuất TXT vào output_path
-    - Nếu input_path là FILE: chạy đúng 1 file → xuất TXT vào output_path
-    - OCR: tự động BẬT nếu easyocr khả dụng; nếu không có thì chạy không OCR.
-    Trả về dict thống kê tương tự run_batch/run_one_file.
-    """
     in_p = Path(input_path).resolve()
     out_p = Path(output_path).resolve()
 
@@ -632,7 +534,7 @@ def tree_run(input_path: str, output_path: str) -> dict:
     use_ocr = False
     ocr_langs = ["vi", "en"]
     try:
-        import easyocr  # type: ignore
+        import easyocr
         use_ocr = True
     except Exception:
         use_ocr = False

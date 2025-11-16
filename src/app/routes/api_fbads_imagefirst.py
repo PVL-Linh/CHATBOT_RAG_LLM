@@ -10,8 +10,8 @@ from app.Helpers.Image_generation_and_processing import (
 )
 
 from app.Helpers.Content_generation import (
-    generate_caption,                         # không ảnh → caption cũ
-    generate_caption_from_image_and_inputs,     # có ảnh → caption kết hợp
+    generate_caption,                         
+    generate_caption_from_image_and_inputs,
 )
 
 bp = Blueprint("fbads_imagefirst", __name__)

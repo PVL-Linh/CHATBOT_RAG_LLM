@@ -38,7 +38,7 @@ from pathlib import Path
 from typing import List
 
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from app.config.paths import FAISS_DIR_HR, EMBED_MODEL_DIR
 from .utils_hr import select_device

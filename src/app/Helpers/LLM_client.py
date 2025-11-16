@@ -1,20 +1,14 @@
-
 import os, re, time, threading
 from typing import List, Optional, Tuple
-
 import google.generativeai as genai_old
 from langchain_core.messages import HumanMessage, AIMessage
-
-# from .prompt_KT import persona_vi  # nếu cần
 from .Occasion_Classifier import classify_occasion_1
 from app.config.config_FB_contents import TEXT_MODEL_MKT_FB, TEMPERATURE_MKT, MAX_TOKENS_MKT, RETRY_MAX_MKT
 from app.config.config_MKT import TEXT_MODEL_MKT 
 from .rate_limit import get_text_limiter
 
-# ===================== Semaphore (đồng thời cho LLM)
 LLM_SEM = threading.Semaphore(int(os.getenv("SEM_LLM", "24")))
 
-# ===================== Helpers
 def to_gemini_history(msgs: List[object]) -> List[dict]:
     out = []
     for m in msgs or []:
@@ -27,12 +21,7 @@ def to_gemini_history(msgs: List[object]) -> List[dict]:
 def _estimate_tokens(prompt: str, out_tokens: int) -> int:
     return int(1.3 * max(1, len((prompt or "").split()))) + int(out_tokens or 512)
 
-# ===================== LLM (TEXT)
 def call_gemini_flash(user_prompt: str, system_instruction: str, history_msgs: List[object] = None) -> str:
-    """
-    Gọi Gemini Flash có: limiter (RPM/TPM) + semaphore + retry/backoff.
-    API giữ nguyên chữ ký để các route cũ dùng được.
-    """
     if history_msgs is None:
         history_msgs = []
 
@@ -66,10 +55,6 @@ def call_gemini_flash(user_prompt: str, system_instruction: str, history_msgs: L
 
 
 def call_gemini_flash_planner(user_prompt: str, system_instruction: str, history_msgs: List[object] = None) -> str:
-    """
-    Gọi Gemini Flash có: limiter (RPM/TPM) + semaphore + retry/backoff.
-    API giữ nguyên chữ ký để các route cũ dùng được.
-    """
     if history_msgs is None:
         history_msgs = []
 
@@ -101,9 +86,7 @@ def call_gemini_flash_planner(user_prompt: str, system_instruction: str, history
             break
     raise RuntimeError(f"Quá số lần retry khi gọi Gemini. Chi tiết: {last_err}")
 
-# ===================== Prompt utils
 def ensure_english_prompt(text: str) -> str:
-    """Dịch/chỉnh prompt ảnh sang English (dùng limiter + semaphore)."""
     try:
         limiter = get_text_limiter()
         tokens_est = _estimate_tokens(text, 150)
@@ -135,7 +118,6 @@ def extract_image_prompt(text: str) -> Optional[str]:
     return None
 
 def apply_occasion_lock(user_prompt: str, system_instruction: str) -> Tuple[str, str]:
-    """Chèn constraint theo dịp (không dựng lại prompt từ đầu)."""
     try:
         occasion = classify_occasion_1(user_prompt)
     except NameError:

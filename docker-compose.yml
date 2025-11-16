@@ -16,7 +16,7 @@ services:
       WEB_THREADS: "${WEB_THREADS:-8}"
       WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
-      # Paths trong container — NHỚ: app phải đọc các env này
+      VECTORSTORE_ROOT: "/app/src/app/vectorstore"
       DATA_DIR: /var/lib/tiximax/Data_app
       USERS_DB: /var/lib/tiximax/Data_app/users.db
       SQLITE_PATH: /var/lib/tiximax/Data_app/users.db
@@ -24,18 +24,14 @@ services:
       HF_HOME: /var/lib/tiximax/models
       TRANSFORMERS_CACHE: /var/lib/tiximax/models/cache
     volumes:
-      # Data_app thực tế nằm: src/app/Data_app  (users.csv, channels.json…)
       - "./src/app/Data_app:/var/lib/tiximax/Data_app"
       - "./src/app/Data_app:/app/src/app/Data_app"
-      # Vectorstore thực tế nằm: src/app/vectorstore
       - "./src/app/vectorstore:/var/lib/tiximax/vectorstore"
-      # (Tùy) models cục bộ nếu bạn có thư mục này
       - "./src/app/models:/var/lib/tiximax/models"
     dns:
       - 1.1.1.1
       - 8.8.8.8
 
-  # Tuỳ chọn: expose nhanh qua Cloudflare Tunnel nội bộ
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: tiximax-tunnel

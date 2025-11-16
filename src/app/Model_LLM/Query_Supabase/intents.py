@@ -34,6 +34,42 @@ MONTH_VN_FULL_RE  = re.compile(r"(?:thang|tháng)\s*0?(\d{1,2})", re.I)
 MONTH_VN_SHORT_RE = re.compile(r"(?:thg|t)\s*0?(\d{1,2})\b", re.I)
 YEAR_RE           = re.compile(r"\b(20\d{2})\b")
 QUARTER_RE        = re.compile(r"(?:quy|quý)\s*0?([1-4])\b", re.I)
+_REL_DAY_PAT     = re.compile(r"\bdoanh\s*thu\b.*\b(?:1|một)\s*ngày\b", re.IGNORECASE)
+_REL_WEEK_PAT    = re.compile(r"\bdoanh\s*thu\b.*\b(?:1|một)\s*tuần\b", re.IGNORECASE)
+_TODAY_PAT       = re.compile(r"\b(h[oô]m\s*nay)\b", re.IGNORECASE)
+_THIS_WEEK_PAT   = re.compile(r"\b(tu[aâ]n\s*n[aà]y)\b", re.IGNORECASE)
+_LAST_7D_PAT     = re.compile(r"\b(7\s*ng[aà]y\s*qua)\b", re.IGNORECASE)
+_LAST_1D_PAT     = re.compile(r"\b(24h|24\s*gi[oờ]|1\s*ng[aà]y\s*qua)\b", re.IGNORECASE)
+
+# intents.py
+def parse_relative_revenue(text: str):
+    raw = (text or "").strip()
+    low = raw.lower()
+    fld = _fold(raw)  # bò dấu: "ngay", "tuan", "hom nay", "tuan nay"
+
+    def _mk(key):  # helper
+        return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": key}}
+
+    has_dt = ("doanh thu" in low) or ("doanhthu" in fld)
+
+    # 1 ngày / 24h gần nhất
+    if has_dt and (("1 ngày" in low) or ("1 ngay" in fld) or ("24h" in low) or ("24 h" in low) or ("1 ngay qua" in fld)):
+        return _mk("last_1d")
+
+    # 1 tuần / 7 ngày qua
+    if has_dt and (("1 tuần" in low) or ("1 tuan" in fld) or ("7 ngày qua" in low) or ("7 ngay qua" in fld)):
+        return _mk("last_7d")
+
+    # hôm nay
+    if has_dt and (("hôm nay" in low) or ("hom nay" in fld)):
+        return _mk("today")
+
+    # tuần này (Mon→Sun theo VN_TZ)
+    if has_dt and (("tuần này" in low) or ("tuan nay" in fld)):
+        return _mk("this_week")
+
+    return None
+
 
 def _is_this_month(raw: str) -> bool:
     f = _fold(raw)
@@ -166,6 +202,9 @@ def _extract_payment_type(tf: str) -> Optional[str]:
     if ("chuyen khoan" in tf) or ("chuy?n kho?n" in tf) or ("chuyển khoản" in tf): return "BANK"
     return None
 
+def _mk(intent_key: str):
+    return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": intent_key}}
+
 def _extract_route_pair(raw: str) -> Optional[Dict[str, str]]:
     """
     Bắt các cụm 'indo - việt nam', 'japan→vn', 'JP -> VN', 'us > vn'...
@@ -186,30 +225,65 @@ def _has_order_word(raw: str, tf: str) -> bool:
     return any([
         "don" in tf, "don hang" in tf, "s? don" in tf, "so don" in tf, "đơn" in l, "đơn hàng" in l
     ])
-def _mk_table(columns, rows):
-    return {"columns": columns, "rows": rows}
+# def _mk_table(columns, rows):
+#     return {"columns": columns, "rows": rows}
 
-def _mk_csv_bytes(columns, rows) -> bytes:
-    buf = io.StringIO()
-    w = csv.DictWriter(buf, fieldnames=columns, extrasaction="ignore")
-    w.writeheader()
-    for r in rows:
-        w.writerow({k: r.get(k) if isinstance(r, dict) else r[i] for i,k in enumerate(columns)} if not isinstance(r, dict) else r)
-    return buf.getvalue().encode("utf-8-sig")
+# def _mk_csv_bytes(columns, rows) -> bytes:
+#     buf = io.StringIO()
+#     w = csv.DictWriter(buf, fieldnames=columns, extrasaction="ignore")
+#     w.writeheader()
+#     for r in rows:
+#         w.writerow({k: r.get(k) if isinstance(r, dict) else r[i] for i,k in enumerate(columns)} if not isinstance(r, dict) else r)
+#     return buf.getvalue().encode("utf-8-sig")
+
+def _detect_relative_period_key(_txt: str):
+    t = (_txt or "").lower()
+    if "doanh thu" not in t and "doanhthu" not in t.replace(" ", ""):
+        return None
+    t_fold = _fold(t)
+
+    if any(k in t for k in ["24h", "24 h"]) or ("1 ngay qua" in t_fold) or ("1 ngày qua" in t) \
+       or re.search(r"(^|\s)1\s*ng[aà]y($|\s)", t_fold):
+        return "last_1d"
+
+    if ("7 ngày qua" in t) or ("7 ngay qua" in t_fold) or re.search(r"(^|\s)1\s*tu[aâ]n($|\s)", t_fold):
+        return "last_7d"
+
+    if ("hôm nay" in t) or ("hom nay" in t_fold):
+        return "today"
+
+    if ("tuần này" in t) or ("tuan nay" in t_fold):
+        return "this_week"
+
+    return None
+
 
 def normalize_query(text: str) -> Dict[str, Any]:
-    """
-    Trả về {intent, norm}
-    Bao phủ phần lớn các câu trong danh sách của bạn; có thể nối trực tiếp với services.py.
-    """
     raw = (text or "").strip()
     tf  = _fold(raw)
     now = NOW()
+    _t = raw.lower()
 
     code_only = _extract_order_code(raw)
+
+    if ("doanh thu" in _t) or ("doanhthu" in tf):
+        if ("24h" in _t) or ("24 h" in _t) or ("1 ngày qua" in _t) or ("1 ngay qua" in tf) \
+           or (" 1 ngày" in _t) or (" 1 ngay" in tf) or _t.endswith("1 ngày") or tf.endswith("1 ngay"):
+            return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": "last_1d"}}
+        if ("7 ngày qua" in _t) or ("7 ngay qua" in tf) or ("1 tuần" in _t) or ("1 tuan" in tf):
+            return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": "last_7d"}}
+        if ("hôm nay" in _t) or ("hom nay" in tf):
+            return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": "today"}}
+        if ("tuần này" in _t) or ("tuan nay" in tf):
+            return {"intent": "GET_REVENUE_TOTAL_BY_PERIOD", "norm": {"period_key": "this_week"}}
+        
+    _rel = parse_relative_revenue(raw)
+    if _rel:
+        return _rel
+
     if code_only and raw.strip().upper() == code_only:
         return {"intent": "GET_ORDER_STATUS_BY_CODE", "norm": {"order_code": code_only}}
-    
+ 
     if any(k in tf for k in [
         "cua ai","thuoc ai","cua ai?","thuoc ai?","owner la ai","owner la",
         "cua nhan vien nao","cua ai "
@@ -283,9 +357,9 @@ def normalize_query(text: str) -> Dict[str, Any]:
             return {"intent": "GET_ORDER_COUNT_BY_STATUS", "norm": {"period": p, "status": st}}
         return {"intent": "LIST_ORDERS_BY_STATUS", "norm": {"period": p, "status": st}}
 
-    if (("ty le" in tf) or ("t? le" in tf) or ("tỷ lệ" in raw.lower())) and (("huy" in tf) or ("hủy" in raw.lower())):
-        p = _parse_period(raw)
-        return {"intent": "GET_CASH_FLOW_DAILY", "norm": {"period": p}}
+        if (("ty le" in tf) or ("tỷ lệ" in raw.lower())) and (("huy" in tf) or ("hủy" in raw.lower())):
+            p = _parse_period(raw)
+            return {"intent": "CANCEL_RATE", "norm": {"period": p}}
 
     if ("danh sach" in tf or "list" in tf) and _has_order_word(raw, tf):
         st2 = _extract_status(raw)
@@ -525,7 +599,7 @@ def normalize_query(text: str) -> Dict[str, Any]:
     p = _parse_period(raw)
     if p.get("granularity") in ("month","quarter","year"):
         return {"intent": "FOLLOWUP_SET_PERIOD", "norm": p}
-
+    
     return {
         "intent": "SMALLTALK",
         "norm": {}

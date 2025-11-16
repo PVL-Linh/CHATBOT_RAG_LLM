@@ -7,7 +7,6 @@ from app.config.paths import FAISS_DIR_ACCOUNTANT, EMBED_MODEL_DIR
 from app.rag_hr.utils_hr import select_device
 
 
-# ---------------- helpers ----------------
 def _to_str(x) -> str:
     """Ép mọi kiểu (Path, WindowsPath, PosixPath, None) về str an toàn."""
     if isinstance(x, Path):
@@ -19,14 +18,14 @@ def _read_index_dim(index_path: str) -> int:
         import faiss
         return int(faiss.read_index(index_path).d)
     except Exception:
-        return 768  # fallback phổ biến cho e5-base
+        return 768
 
 def _is_local_path(model_id: str) -> bool:
     p = Path(_to_str(model_id))
     if p.exists():
         return True
     s = _to_str(model_id)
-    if s.startswith("ocal_"):  # user gõ thiếu chữ 'l'
+    if s.startswith("ocal_"):
         return Path("l" + s).exists()
     return False
 
@@ -35,17 +34,9 @@ def _fix_typo_local(model_id: str) -> str:
     return "l" + s if s.startswith("ocal_") else s
 
 def _pick_model_id(dim: int) -> str:
-    """
-    Ưu tiên:
-      1) EMBED_MODEL_DIR (local path nếu có)
-      2) Local default nếu tồn tại
-      3) Map theo index.d
-    """
-    # 1) Từ config.paths (có thể là Path) -> ép str
     if EMBED_MODEL_DIR:
         return _to_str(EMBED_MODEL_DIR)
 
-    # 2) local default
     for c in [
         "./src/app/models/local_multilingual_e5_large_instruct",
         "./src/app/models/local_multilingual_e5_large",
@@ -53,7 +44,6 @@ def _pick_model_id(dim: int) -> str:
         if Path(c).exists():
             return _to_str(c)
 
-    # 3) map theo dim
     by_dim = {
         384: "intfloat/multilingual-e5-small",
         768: "intfloat/multilingual-e5-base",
@@ -62,7 +52,6 @@ def _pick_model_id(dim: int) -> str:
     return _to_str(by_dim.get(dim, "intfloat/multilingual-e5-large"))
 
 class WithE5Prefixes:
-    """Bọc thêm prefix cho E5-Instruct (query/passsage)."""
     def __init__(self, base_embed: HuggingFaceEmbeddings,
                  query_prefix: str = "query: ",
                  doc_prefix: str = "passage: "):
@@ -78,23 +67,18 @@ class WithE5Prefixes:
         return self.base.embed_query(self.query_prefix + (text or ""))
 
 def _build_embeddings(model_id: str, device: str):
-    # 🔒 CHỐT: luôn là string thuần
     model_id = _fix_typo_local(model_id)
     model_id = _to_str(model_id)
-
     use_local = _is_local_path(model_id)
-
     model_kwargs = {"device": device}
     encode_kwargs = {
         "normalize_embeddings": True,
         "batch_size": 32 if device == "cuda" else 16,
     }
 
-    # ép offline đúng nơi (SentenceTransformer)
     if use_local:
         model_kwargs["local_files_only"] = True
 
-    # 👉 Pydantic yêu cầu str cho model_name
     base = HuggingFaceEmbeddings(
         model_name=model_id,
         model_kwargs=model_kwargs,
@@ -105,7 +89,6 @@ def _build_embeddings(model_id: str, device: str):
         return WithE5Prefixes(base, query_prefix="query: ", doc_prefix="passage: ")
     return base
 
-# ---------------- main loader ----------------
 def load_vectorstore():
     index_path = os.path.join(_to_str(FAISS_DIR_ACCOUNTANT), "index.faiss")
     if not os.path.isfile(index_path):
@@ -115,8 +98,6 @@ def load_vectorstore():
     model_id = _pick_model_id(dim)
     device = select_device()
     emb = _build_embeddings(model_id, device)
-
-    # Log gọn: nếu là path local, in absolute path
     show = _to_str(Path(model_id).resolve()) if _is_local_path(model_id) else _to_str(model_id)
     print(f"🔤 Embedding model: {show} (index.d={dim}, device={device})")
 

@@ -7,50 +7,37 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
 from pdf_to_text import process_pdf_documents
-
+import torch
 try:
-    from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
+    from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText, processing_Data_dockinkToText_v2
     from .DataBase_Web.web_crawler import web_crawler
 except ImportError:
     from DataBase_Web.web_crawler import web_crawler
-    from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText
-# =======================
-# Tham số
-# =======================
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1200))       # khuyến nghị
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))  # khuyến nghị
+    from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText, processing_Data_dockinkToText_v2
+
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
-DOCS_DIR = "./Documents/Data_All"  # thư mục PDF gốc (sẽ convert -> txt)
-
-# =======================
-# Đường dẫn Data all
-# =======================
+DOCS_DIR = "./Documents/Data_All"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))          # nơi chứa .txt/.csv sau khi convert
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All")) # nơi lưu FAISS index
-
-
-
+DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))
+INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All"))
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
-# =======================
-# Helpers
-# =======================
 def _select_device() -> str:
-    """Chọn 'cuda' nếu có GPU, ngược lại 'cpu'."""
-    try:
-        import torch
-        if torch.cuda.is_available():
-            gpu_name = torch.cuda.get_device_name(0)
-            print(f"🟢 Using CUDA GPU: {gpu_name}")
-            return "cuda"
-        print("🟡 CUDA is not available → using CPU")
-    except Exception as e:
-        print(f"🟡 torch import failed ({e}) → using CPU")
-    return "cpu"
+    if torch.backends.mps.is_available():
+        print("🟢 Using MPS (Apple GPU)")
+        return "mps"
+    elif torch.cuda.is_available():
+        gpu_name = torch.cuda.get_device_name(0)
+        print(f"🟢 Using CUDA GPU: {gpu_name}")
+        return "cuda"
+    else:
+        print("🟡 Defaulting to CPU")
+        return "cpu"
 
 def _clean_text(s: str) -> str:
     if not s:
@@ -76,26 +63,22 @@ def _load_text_files(folder: str) -> Dict[str, str]:
 
     for root, _dirs, files in os.walk(folder):
         for fn in files:
-            # chỉ nhận .txt
             if not fn.lower().endswith(".txt"):
                 continue
-            # bỏ qua urls.txt ở mọi cấp
             if fn.lower() in excluded:
                 skipped += 1
                 continue
 
             path = os.path.join(root, fn)
-            rel_name = os.path.relpath(path, folder)  # lưu tên tương đối để nhận biết thuộc thư mục nào
+            rel_name = os.path.relpath(path, folder)
 
             try:
-                # cố gắng đọc UTF-8 trước, fallback nếu có BOM/lỗi
                 try:
                     with open(path, "r", encoding="utf-8") as f:
                         txt = f.read()
                 except UnicodeDecodeError:
                     with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
                         txt = f.read()
-
                 if txt:
                     data[rel_name] = txt
                     loaded += 1
@@ -108,25 +91,18 @@ def _load_text_files(folder: str) -> Dict[str, str]:
     print(f"📄 Loaded {loaded} .txt files (skipped {skipped}, excluded: {', '.join(sorted(excluded))}) from {folder}")
     return data
 
-
-# =======================
-# Main
-# =======================
 def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
-
-    # B1) Convert PDF -> TXT (luôn chạy trước khi build FAISS)
-    #    - pdf_to_text sẽ xử lý header/footer, table_mode theo bạn cấu hình ở đó.
     process_pdf_documents(DOCS_DIR, DATA_DIR)
     web_crawler("Data_All")
-    # B2) Load TXT/CSV để embed
+    processing_Data_doclinkToText(input_dir = "./Documents/HR/txt", output_dir = "./src/app/Data/Data_All/txt", 
+                                input_txt_diagram = "./Documents/HR/Diagram/documents_workflowAndText", output_txt_diagram = "./src/app/Data/Data_All/Diagram/documents_workflowAndText",
+                                input_dir_org_tree = "./Documents/HR/Diagram/procedure", output_dir_org_tree = "./src/app/Data/Data_All/Diagram/procedure")
+    processing_Data_dockinkToText_v2(input_dir="./Documents/Accountant", output_dir="./src/app/Data/Data_All/Accountant")
     raw = _load_text_files(DATA_DIR)
     if not raw:
         raise RuntimeError(f"Không có TXT/CSV trong {DATA_DIR}")
-
-    # B3) Build document list
-    #  - KHÔNG nhét SOURCE_FILE vào page_content, chỉ để metadata để tránh model nhại lại.
     docs: List[Document] = []
     for fname, text in raw.items():
         t = _clean_text(text)
@@ -134,7 +110,6 @@ def main_All():
             continue
         docs.append(Document(page_content=t, metadata={"source": fname, "page": -1}))
 
-    # B4) Chunking
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
@@ -145,17 +120,20 @@ def main_All():
     for i, d in enumerate(chunks):
         d.metadata["chunk_id"] = i
 
-    # B5) Embeddings (GPU nếu có)
     device = _select_device()
-    batch = int(os.environ.get("EMB_BATCH", 32 if device == "cuda" else 8))
+    batch = 64 if device=='cuda' and torch.cuda.mem_get_info()[0] > 8e9 else 16
 
+    device = _select_device()
+    model_kwargs = {"device": device}
+    if os.environ.get("EMBED_QUANTIZE", "0") == "1":
+        from transformers import BitsAndBytesConfig
+        model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
     emb = HuggingFaceEmbeddings(
         model_name=EMBED_MODEL_NAME,
-        model_kwargs={"device": device},  # KHÔNG truyền torch_dtype vào đây
+        model_kwargs=model_kwargs,
         encode_kwargs={"normalize_embeddings": True, "batch_size": batch},
     )
 
-    # B6) Build & save FAISS
     print(f"⚙️ Building FAISS… (chunks={len(chunks)}, size={CHUNK_SIZE}, overlap={CHUNK_OVERLAP}, device={device}, batch={batch})")
     vs = FAISS.from_documents(chunks, emb)
     vs.save_local(INDEX_DIR)

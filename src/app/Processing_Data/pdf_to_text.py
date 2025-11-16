@@ -1,10 +1,8 @@
-# Processing_Data/pdf_to_text.py
 import os
 from typing import Dict
-import fitz  # PyMuPDF
-from .Data_processing import clean_page_text
+import fitz
+from Data_processing import clean_page_text
 
-# OCR fallback (tự động khi trang gần như không có text)
 USE_OCR_FALLBACK = True
 try:
     import pytesseract
@@ -13,8 +11,10 @@ try:
 except Exception:
     USE_OCR_FALLBACK = False
 
+MIN_OCR_LEN = int(os.getenv("MIN_OCR_LEN", 40))
+OCR_DPI = int(os.getenv("OCR_DPI", 200))
+
 def _extract_text(page: fitz.Page) -> str:
-    """Ưu tiên trích xuất dict/spans để ít rơi ký tự (như số 0 trong ô)."""
     try:
         data = page.get_text("dict")
         out = []
@@ -29,10 +29,6 @@ def _extract_text(page: fitz.Page) -> str:
     return page.get_text() or ""
 
 def process_pdf_documents(input_folder: str, output_folder: str = "src/app/Data/Data_All") -> Dict[str, str]:
-    """
-    Trích xuất toàn bộ PDF -> TXT (có lọc header/footer + xử lý bảng).
-    Trả về dict {txt_filename: content}.
-    """
     input_folder = os.path.abspath(input_folder)
     output_folder = os.path.abspath(output_folder)
     os.makedirs(output_folder, exist_ok=True)
@@ -52,8 +48,7 @@ def process_pdf_documents(input_folder: str, output_folder: str = "src/app/Data/
         for page in doc:
             raw = _extract_text(page)
 
-            # OCR fallback chỉ khi trang gần như rỗng (scan/ảnh)
-            if USE_OCR_FALLBACK and len(raw.strip()) < 40:
+            if USE_OCR_FALLBACK and len(raw.strip()) < MIN_OCR_LEN:
                 try:
                     pix = page.get_pixmap(dpi=200)
                     img = Image.open(io.BytesIO(pix.tobytes("png")))
@@ -66,7 +61,7 @@ def process_pdf_documents(input_folder: str, output_folder: str = "src/app/Data/
                 raw,
                 drop_headers=True,
                 keep_tables=True,
-                table_mode="flatten",  # "keep" | "flatten" | "drop"
+                table_mode="flatten",
                 latex_math=True,
             )
             page_texts.append(cleaned)

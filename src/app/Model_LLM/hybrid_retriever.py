@@ -3,10 +3,13 @@ from typing import List, Dict, Tuple
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.ensemble import EnsembleRetriever
+from sentence_transformers import SentenceTransformer
 from app.config.paths import DATA_DIR, FAISS_ALL_DIR
 from app.config.settings import hybrid_retriever as chatall
+from sentence_transformers import CrossEncoder
 
-
+CHUNKS = 1000
+OVERLAP = 250
 # ==== Tham số hybrid / rerank (bạn có thể chỉnh) ====
 TOP_K = chatall.TOP_K              # k cuối cùng dùng làm context
 K_SEM = chatall.K_SEM              # k semantic (FAISS) trước khi hợp nhất
@@ -45,32 +48,61 @@ def _clean_text(s: str) -> str:
     s = re.sub(r"[ \t]{2,}", " ", s)
     return s.strip()
 
-def _split_text(text: str, chunk_size=1200, overlap=300) -> List[str]:
-    # Split thô theo đoạn xuống dòng trước để giảm vỡ ý
-    parts = []
-    paragraphs = re.split(r"\n{2,}", text)
-    for p in paragraphs:
-        p = p.strip()
-        if not p:
-            continue
-        # cắt sliding window
-        start = 0
-        while start < len(p):
-            end = min(len(p), start + chunk_size)
-            parts.append(p[start:end])
-            if end == len(p): break
-            start = max(end - overlap, 0)
-    return parts
+def _split_text(text: str, chunk_size=1000, overlap=250) -> List[str]:
+    if os.environ.get("SEMANTIC_CHUNK", "0") == "1":
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        sentences = re.split(r'(?<=[\n.!?])\s+', text)
+        chunks = []
+        current = []
+        current_len = 0
+        for sent in sentences:
+            sent_len = len(sent)
+            if current_len + sent_len > chunk_size:
+                chunks.append(' '.join(current))
+                current = current[-overlap//len(current[0]):] if overlap else []  # Overlap sentences
+                current_len = sum(len(s) for s in current)
+            current.append(sent)
+            current_len += sent_len
+        if current:
+            chunks.append(' '.join(current))
+        return chunks
+    else :
+        # Split thô theo đoạn xuống dòng trước để giảm vỡ ý
+        parts = []
+        paragraphs = re.split(r"\n{2,}", text)
+        for p in paragraphs:
+            p = p.strip()
+            if not p:
+                continue
+            # cắt sliding window
+            start = 0
+            while start < len(p):
+                end = min(len(p), start + chunk_size)
+                parts.append(p[start:end])
+                if end == len(p): break
+                start = max(end - overlap, 0)
+        return parts
 
 def _load_txt_folder(folder: str) -> Dict[str, str]:
     data = {}
     folder = os.path.abspath(folder)
     if not os.path.isdir(folder):
         return data
-    for fn in os.listdir(folder):
-        if fn.lower().endswith(".txt"):
-            with open(os.path.join(folder, fn), "r", encoding="utf-8") as f:
-                data[fn] = f.read()
+
+    # for root, _, files in os.walk(folder):
+    #     for fn in files:
+    #         if fn.lower().endswith(".txt"):
+    #             file_path = os.path.join(root, fn)
+    #             rel_path = os.path.relpath(file_path, folder)
+    #             with open(file_path, "r", encoding="utf-8") as f:
+    #                 data[rel_path] = f.read()
+    for root, _, files in os.walk(folder):
+        for fn in files:
+            if fn.lower().endswith(".txt"):
+                file_path = os.path.join(root, fn)
+                rel_path = os.path.relpath(file_path, folder)
+                with open(file_path, "r", encoding="utf-8") as f:
+                    data[rel_path] = f.read(1024*1024*10)
     return data
 
 def _save_corpus_jsonl(docs: List[Document]):
@@ -120,7 +152,7 @@ def prepare_bm25_docs() -> List[Document]:
         if not t:
             continue
         t_norm = _normalize_case(t)  # <<< ép lowercase/uppercase đồng bộ cho BM25
-        for piece in _split_text(t_norm, chunk_size=1200, overlap=300):
+        for piece in _split_text(t_norm, chunk_size=CHUNKS, overlap=OVERLAP):
             out_docs.append(Document(
                 page_content=piece,
                 metadata={"source": fname, "page": -1, "chunk_id": chunk_id, "norm_case": CASE_NORM}
@@ -147,16 +179,28 @@ def build_hybrid_retriever(vs) -> EnsembleRetriever:
     bm25 = BM25Retriever.from_documents(bm25_docs)
     bm25.k = K_LEX
 
-    # Hợp nhất (BM25 0.35, Semantic 0.65)
-    ens = EnsembleRetriever(retrievers=[bm25, sem], weights=[0.35, 0.65])
+    weights_str = os.environ.get("ENSEMBLE_WEIGHTS", "[0.35, 0.65]")
+    try:
+        weights = json.loads(weights_str)
+        if len(weights) != 2 or sum(weights) != 1.0:
+            raise ValueError("Invalid weights")
+    except Exception:  
+        # Hợp nhất (BM25 0.35, Semantic 0.65)
+        weights = [0.35, 0.65]
+    ens = EnsembleRetriever(retrievers=[bm25, sem], weights=weights)
     return ens
 
+# Trong rerank (hybrid_retriever.py)
 def rerank(query: str, docs: List[Document], top_k: int = RERANK_TOP_K) -> List[Tuple[Document, float]]:
     if not USE_RERANK or not docs:
         return [(d, None) for d in docs[:top_k]]
     from sentence_transformers import CrossEncoder
-    ce = CrossEncoder(RERANK_MODEL)  # cache tại process
-    pairs = [(query, d.page_content) for d in docs[:RERANK_CANDIDATES]]
-    scores = ce.predict(pairs, convert_to_numpy=True).tolist()
-    ranked = sorted(zip(docs[:RERANK_CANDIDATES], scores), key=lambda x: x[1], reverse=True)
-    return ranked[:top_k]
+    try:
+        ce = CrossEncoder(RERANK_MODEL)  # Di chuyển vào đây
+        pairs = [(query, d.page_content) for d in docs[:RERANK_CANDIDATES]]
+        scores = ce.predict(pairs, convert_to_numpy=True).tolist()
+        ranked = sorted(zip(docs[:RERANK_CANDIDATES], scores), key=lambda x: x[1], reverse=True)
+        return ranked[:top_k]
+    except Exception as e:
+        print(f"[ERROR] Rerank failed: {e} - Fallback to no rerank")
+        return [(d, None) for d in docs[:top_k]]

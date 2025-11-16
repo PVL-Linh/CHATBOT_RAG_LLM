@@ -11,6 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     EMBED_DEVICE=cpu \
     EMBED_AUTO_DOWNGRADE=1 \
     DATA_DIR=/var/lib/tiximax/Data_app \
+    VECTORSTORE_ROOT=/app/src/app/vectorstore \
     EMBED_MODEL_ID=intfloat/multilingual-e5-large \
     EMBED_MODEL_PATH=/var/lib/tiximax/models/local_multilingual_e5_large \
     USERS_DB=/var/lib/tiximax/Data_app/users.db \
@@ -23,9 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# --- APT (bookworm) cố định mirrors + ForceIPv4 + retries + tesseract ---
 RUN set -eux; \
-  # cấu hình retry & IPv4 để tránh sự cố mạng khi build
+
   printf '%s\n' \
     'Acquire::Retries "5";' \
     'Acquire::http::Timeout "30";' \
@@ -35,12 +35,10 @@ RUN set -eux; \
     'Acquire::http::Pipeline-Depth "0";' \
     'Acquire::ForceIPv4 "true";' \
     > /etc/apt/apt.conf.d/80-network-tuning; \
-  # viết sẵn 3 biến mirror (deb, mirror1, mirror2) + security
   DEB_MAIN_1="https://deb.debian.org/debian"; \
   DEB_MAIN_2="https://ftp.hk.debian.org/debian"; \
   DEB_MAIN_3="https://mirror.sjtu.edu.cn/debian"; \
   DEB_SEC="https://security.debian.org/debian-security"; \
-  # hàm helper thực hiện cài đặt với một mirror main cụ thể
   install_with_mirror() { \
     local MAIN="$1"; \
     echo ">>> Using main mirror: $MAIN"; \
@@ -52,7 +50,6 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends ca-certificates gnupg; \
     update-ca-certificates; \
-    # 3 lần retry cho bundle gói
     for i in 1 2 3; do \
       if apt-get update && \
          apt-get install -y --no-install-recommends \
@@ -65,7 +62,6 @@ RUN set -eux; \
     done; \
     return 1; \
   }; \
-  # thử mirror 1 → 2 → 3
   if ! install_with_mirror "$DEB_MAIN_1"; then \
     echo "Primary mirror failed, trying HK mirror..."; \
     if ! install_with_mirror "$DEB_MAIN_2"; then \
@@ -73,12 +69,11 @@ RUN set -eux; \
       install_with_mirror "$DEB_MAIN_3"; \
     fi; \
   fi; \
-  # xác nhận tesseract đã có
   command -v tesseract >/dev/null 2>&1 || { echo "tesseract not installed"; exit 1; }; \
   rm -rf /var/lib/apt/lists/*
 
 
-# Install Python deps (Torch CPU trước)
+
 COPY requirements.txt constraints.txt ./
 RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -86,7 +81,6 @@ RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt -c constraints.txt && \
     pip install --no-cache-dir gunicorn
 
-# Copy source (đã exclude thư mục nặng nhờ .dockerignore)
 COPY src ./src
 COPY wsgi.py gunicorn.conf.py ./
 

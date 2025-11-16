@@ -1,9 +1,11 @@
 import os, csv, sqlite3, re, tempfile, shutil, secrets
 from typing import Dict, List, Optional
 from werkzeug.security import generate_password_hash
-from app.config.paths import USERS_CSV, USERS_DB
+try:
+    from app.config.paths import USERS_CSV, USERS_DB
+except:
+    from src.app.config.paths import USERS_CSV, USERS_DB
 
-# ===== Options =====
 WRITE_BACK_CSV = os.getenv("WRITE_BACK_CSV", "0").strip().lower() in {"1","true","yes"}
 AUTO_GEN_WHEN_MISSING = os.getenv("AUTO_GEN_WHEN_MISSING", "0").strip().lower() in {"1","true","yes"}
 DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD", "").strip()
@@ -64,7 +66,6 @@ def _sniff_csv(path: str):
     """Trả về (dialect, has_header)."""
     with open(path, "rb") as fb:
         raw = fb.read(65536)
-    # xử lý BOM + sniff text
     text_sample = raw.decode("utf-8-sig", errors="ignore")
     sniffer = csv.Sniffer()
     try:
@@ -97,7 +98,6 @@ def migrate():
     ensure_db()
 
     dialect, _ = _sniff_csv(USERS_CSV)
-    # đọc với utf-8-sig để ăn BOM nếu có
     with open(USERS_CSV, "r", newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f, dialect=dialect)
         rows = list(reader)
@@ -106,7 +106,6 @@ def migrate():
     print(f"[migrate] fieldnames = {fieldnames}")
     print(f"[migrate] total rows = {len(rows)}")
 
-    # map cột linh hoạt
     uname_key = _pick_field(fieldnames, "username", "email", "user", "account", "login", "id")
     roles_key = _pick_field(fieldnames, "roles", "role", "groups", "permissions")
     pass_key  = _pick_field(fieldnames, "password", "pass", "pwd", "plain_password")
@@ -120,7 +119,7 @@ def migrate():
         return
 
     con = sqlite3.connect(USERS_DB, timeout=30)
-    generated = []  # [(username, password)]
+    generated = []
     upserted = 0
     skipped  = 0
     empties  = 0
@@ -148,10 +147,9 @@ def migrate():
                 else:
                     ph = generate_password_hash(pw)
 
-            # Chuẩn hoá roles
             toks = [_normalize_role_token(x) for x in _split_roles(role_raw)]
             toks = [t for t in toks if t in ALLOWED_ROLES]
-            roles_str = ",".join(dict.fromkeys(toks))  # unique + giữ thứ tự
+            roles_str = ",".join(dict.fromkeys(toks))
 
             con.execute(
                 "INSERT INTO users(username,password_hash,roles,password) VALUES(?,?,?,?) "
@@ -167,13 +165,11 @@ def migrate():
     finally:
         con.close()
 
-    # Ghi lại CSV (tuỳ chọn)
     if WRITE_BACK_CSV:
         if 'password_hash' not in fieldnames:
             fieldnames.append('password_hash')
         if 'password' not in fieldnames:
             fieldnames.append('password')
-        # Cập nhật rows nếu có tự sinh password (chỉ khi muốn ghi CSV)
         rows_map: Dict[str, dict] = { (r.get(uname_key) or '').strip(): r for r in rows }
         for u, pw in generated:
             if u in rows_map:

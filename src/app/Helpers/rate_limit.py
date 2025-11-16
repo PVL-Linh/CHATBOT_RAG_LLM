@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Limits:
-    rpm: int                 # Requests per minute
-    tpm: int                 # Tokens per minute (ước lượng)
-    max_queue_s: int         # Tối đa đợi trong hàng (giây)
+    rpm: int
+    tpm: int
+    max_queue_s: int
 
 class TokenRPMShaper:
     """
@@ -16,10 +16,10 @@ class TokenRPMShaper:
     def __init__(self, limits: Limits, name="default"):
         self.limits = limits
         self.name = name
-        self._req = deque()       # timestamps request trong 60s
-        self._tok = deque()       # (ts, tokens) trong 60s
+        self._req = deque()
+        self._tok = deque()
         self._lock = threading.Lock()
-        self._aimd_k = 1.0        # hệ số AIMD cho RPM hiệu dụng
+        self._aimd_k = 1.0
 
     def _gc(self):
         now = time.time()
@@ -53,7 +53,6 @@ class TokenRPMShaper:
         with self._lock:
             self._aimd_k = min(1.0, self._aimd_k + 0.05)
 
-# ---- Singletons đọc từ .env ----
 _text_limiter = None
 _img_limiter  = None
 

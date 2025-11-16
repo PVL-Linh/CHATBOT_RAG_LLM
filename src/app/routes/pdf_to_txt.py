@@ -7,7 +7,6 @@ from werkzeug.utils import secure_filename
 import fitz
 
 from app.config.paths import PDF_TEXT_DIR, PDF_TMP_DIR
-# Helper from your Processing_Data
 try:
     from app.Processing_Data.Pdf_Images_to_Text import pdf_to_txt_vi
 except Exception:

@@ -1,4 +1,3 @@
-# Helpers/media_convert.py
 import subprocess
 import imageio_ffmpeg
 

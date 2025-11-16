@@ -5,16 +5,12 @@ import json
 import re
 from pathlib import Path
 from typing import Iterable, List, Dict, Any, Optional
-
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 from .config_indexing import CHUNK_SIZE, CHUNK_OVERLAP
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 
-
-# --------- Text helpers ---------
 
 def clean_text(s: str) -> str:
     if not s:
@@ -39,8 +35,6 @@ def chunk_text_to_docs(text: str, rel_source: str) -> List[Document]:
     return chunks
 
 
-# --------- JSONL helpers (corpus.jsonl) ---------
-
 def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     if not path or not Path(path).is_file():
         return []
@@ -53,7 +47,6 @@ def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
             try:
                 rows.append(json.loads(line))
             except Exception:
-                # bỏ qua dòng hỏng
                 continue
     return rows
 
@@ -66,11 +59,6 @@ def _write_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> None:
 
 
 def _extract_source(row: Dict[str, Any]) -> Optional[str]:
-    """
-    Cố gắng lấy 'source' từ nhiều dạng:
-    - row['source']
-    - row['metadata']['source']
-    """
     if "source" in row and isinstance(row["source"], str):
         return row["source"]
     meta = row.get("metadata")
@@ -86,13 +74,6 @@ def filter_corpus_by_sources(
     keep_sources: Optional[List[str]] = None,
     drop_sources: Optional[List[str]] = None,
 ) -> Dict[str, int]:
-    """
-    Lọc corpus.jsonl theo danh sách source:
-      - Nếu truyền keep_sources: chỉ giữ các dòng có source nằm trong keep.
-      - Nếu truyền drop_sources: loại bỏ các dòng có source nằm trong drop.
-    Nếu cả 2 đều None → không làm gì.
-    Trả về { "before": N, "after": M, "removed": N-M }.
-    """
     cpath = Path(corpus_path)
     if not cpath.is_file():
         return {"before": 0, "after": 0, "removed": 0}
@@ -117,7 +98,6 @@ def filter_corpus_by_sources(
             if (src is None) or (src not in drop_set):
                 new_rows.append(r)
     else:
-        # Không có tiêu chí -> giữ nguyên
         return {"before": before, "after": before, "removed": 0}
 
     _write_jsonl(cpath, new_rows)

@@ -39,5 +39,4 @@ def add_message(role, content, session_id: str = ""):
     user = session.get("user")
     if not user:
         return None
-    # trả lại sid để phía gọi có thể dùng tiếp
     return log_message(user, role, content, None, session_id or "")

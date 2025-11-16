@@ -5,7 +5,7 @@ import datetime as dt, json
 from typing import Dict, Any, List, Tuple, Optional
 import api_client as ac
 from app.config.config_supabase import VN_TZ, CURRENCY
-from intents import normalize_query
+from .intents import _detect_relative_period_key, normalize_query
 from api_client import (
     fetch_payment_range, sum_revenue_from_payments, group_revenue_by_staff,
     fetch_staff_by_id, fetch_account_by_id, fetch_orders_range, fetch_order_by_code, group_orders_count_by_staff,
@@ -17,7 +17,7 @@ from api_client import (
     agg_flight_completion_rate, agg_avg_transit_time_foreign_to_vn, sum_amount_by_payment_type
 )
 from app.Model_LLM.Query_Supabase.sql3 import init_db
-import inspect
+import inspect, re
 from api_client import group_orders_count_by_staff
 
 
@@ -625,6 +625,74 @@ def handle_avg_transit_foreign_to_vn(period: Dict[str, Any]) -> Dict[str, Any]:
     hours = sec/3600.0
     return _ok_reply(f"🕒 Trung bình vận chuyển từ kho NN → VN: **{hours:.2f} giờ**.")
 
+def _start_of_day(d: dt.datetime) -> dt.datetime:
+    return d.replace(hour=0, minute=0, second=0, microsecond=0)
+
+def _end_of_day(d: dt.datetime) -> dt.datetime:
+    return d.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+def _monday_of_week(d: dt.datetime) -> dt.datetime:
+    return _start_of_day(d - dt.timedelta(days=d.weekday()))  # Mon=0
+
+def resolve_period_key(period_key: str) -> tuple[str, str, str]:
+    """
+    Trả về (dt_from_iso, dt_to_iso, label_vn)
+    - last_1d  : 24 giờ gần nhất
+    - last_7d  : 7 ngày gần nhất
+    - today    : hôm nay (00:00–23:59)
+    - this_week: tuần này (T2–CN)
+    """
+    now = dt.datetime.now(VN_TZ)
+    pk = (period_key or "").lower().strip()
+    if pk == "last_1d":
+        dt_to = now; dt_from = now - dt.timedelta(days=1)
+        return dt_from.isoformat(), dt_to.isoformat(), "24 giờ qua"
+    if pk == "last_7d":
+        dt_to = now; dt_from = now - dt.timedelta(days=7)
+        return dt_from.isoformat(), dt_to.isoformat(), "7 ngày qua"
+    if pk == "today":
+        s, e = _start_of_day(now), _end_of_day(now)
+        return s.isoformat(), e.isoformat(), "hôm nay"
+    if pk == "this_week":
+        s = _monday_of_week(now); e = _end_of_day(s + dt.timedelta(days=6))
+        return s.isoformat(), e.isoformat(), "tuần này"
+    # fallback
+    s, e = _start_of_day(now), _end_of_day(now)
+    return s.isoformat(), e.isoformat(), "hôm nay"
+def handle_revenue_total_by_range(dt_from: str, dt_to: str, label_vn: str = "") -> Dict[str, Any]:
+    pays = fetch_payment_range(dt_from, dt_to, paid_only=True, end_inclusive=True)
+    total = sum_revenue_from_payments(pays)
+    series = agg_cashflow_daily(dt_from, dt_to) or []
+    day2codes = _resolve_order_codes_for_payments(pays)
+
+    def _ddmmyyyy(s: str) -> str:
+        try:
+            d = dt.datetime.fromisoformat(s); return f"{d.day:02d}/{d.month:02d}/{d.year}"
+        except Exception:
+            if len(s) == 10 and s[4] == '-' and s[7] == '-':
+                y, m, d = s.split('-'); return f"{int(d):02d}/{int(m):02d}/{int(y)}"
+            return s
+
+    chart = table = None
+    lines_txt = ""
+    if series:
+        chart = {"kind":"line","x":[d for d,_ in series],"y":[v for _,v in series],
+                 "title": f"Doanh thu theo ngày – {label_vn or (dt_from+'→'+dt_to)}"}
+        table = {"filename":"revenue_daily.csv","data":{"columns":["date","amount"],"rows":series}}
+        detail = []
+        for d, v in series:
+            codes = day2codes.get(d, [])
+            if codes:
+                show = codes[:5]; tail = " …" if len(codes) > 5 else ""
+                detail.append(f"- {_ddmmyyyy(d)}: {_fmt_money(v)}  ({', '.join(show)}{tail})")
+            else:
+                detail.append(f"- {_ddmmyyyy(d)}: {_fmt_money(v)}")
+        lines_txt = "\nPhân rã theo ngày ({} dòng):\n".format(len(series)) + "\n".join(detail)
+
+    reply = f"💰 **Tổng doanh thu {label_vn or ''}**: **{_fmt_money(total)}**\nKhoảng thời gian: {_ddmmyyyy(dt_from)} → {_ddmmyyyy(dt_to)}{lines_txt}"
+    return _ok_reply(reply, table, chart, meta={"no_summarize": True})
+
+
 # ========================= legacy revenue / top =========================
 def _today_range() -> Tuple[str, str]:
     now = dt.datetime.now(VN_TZ)
@@ -753,7 +821,7 @@ def handle_top_staff_by_orders(period: Dict[str, Any], topn: int, *, session_id:
         items_for_ctx.append({"name": name, "staff_code": scode, "count": int(cnt)})
 
     if session_id and db_path:
-        from sql3 import set_last_top
+        from app.Model_LLM.Query_Supabase.sql3 import set_last_top
         set_last_top(session_id, {"items": items_for_ctx, "meta": {
             "label": f"Top theo số đơn ({_fmt_period_label(period)})",
             "period": _fmt_period_label(period)
@@ -762,6 +830,7 @@ def handle_top_staff_by_orders(period: Dict[str, Any], topn: int, *, session_id:
     lines = [f"- {n} ({sc}): **{c} đơn**" for n, c, sc in rows]
     table = {"filename": "top_staff_by_orders.csv", "data": {"columns": ["staff","orders","staff_code"], "rows": rows}}
     return _ok_reply(f"🏆 **Top {len(rows)} nhân viên theo số đơn**:\n" + "\n".join(lines), table, None)
+
 
 # ========================= Entry point =========================
 def handle_message(user_text: str, session_id: str, db_path: str) -> Dict[str, Any]:
@@ -780,8 +849,20 @@ def handle_message(user_text: str, session_id: str, db_path: str) -> Dict[str, A
         init_db(db_path)
     except Exception:
         pass
+
+    _rel_pk = _detect_relative_period_key(user_text)
+    if _rel_pk:
+        set_last_topic(session_id, "metric", db_path)
+        dt_from, dt_to, label_vn = resolve_period_key(_rel_pk)
+        try:
+            set_last_period(session_id, dt_from, dt_to, db_path, last_intent="GET_REVENUE_TOTAL_BY_PERIOD")
+        except Exception:
+            pass
+        print(f"[DEBUG] relative_guard hit: period_key={_rel_pk}  {dt_from} -> {dt_to}")
+        return handle_revenue_total_by_range(dt_from, dt_to, label_vn)
     
     parsed = normalize_query(user_text)
+    print("DEBUG_INTENT:", normalize_query(user_text))
     intent = parsed["intent"]
     norm = parsed["norm"]
 
@@ -889,10 +970,25 @@ def handle_message(user_text: str, session_id: str, db_path: str) -> Dict[str, A
 
     if intent == "GET_REVENUE_TOTAL_BY_PERIOD":
         set_last_topic(session_id, "metric", db_path)
+        period_key = (norm.get("period_key") or "").strip().lower()
+        if period_key:
+            dt_from, dt_to, label_vn = resolve_period_key(period_key)
+            try:
+                set_last_period(session_id, dt_from, dt_to, db_path, last_intent=intent)
+            except Exception:
+                pass
+            return handle_revenue_total_by_range(dt_from, dt_to, label_vn)
+        # Fallback tháng/quý/năm:
         period = norm.get("period") or {}
-        # ❗ Chỉ gọi 1 handler duy nhất – có daily lines + meta.has_daily_lines
-        return handle_revenue_total_by_period(period)
-    
+        res = handle_revenue_total_by_period(period)
+        try:
+            _f, _t = _period_to_range(period, inclusive_for_month=True)
+            set_last_period(session_id, _f, _t, db_path, last_intent=intent)
+        except Exception:
+            pass
+        res["intent"] = intent
+        return res
+
     # ===== REVENUE BY STAFF =====
     if intent == "GET_REVENUE_BY_SALE":
         set_last_topic(session_id, "metric", db_path)
