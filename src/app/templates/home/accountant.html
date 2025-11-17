@@ -1,50 +1,81 @@
-{% extends 'home/base.html' %}
-{% block title %}
-  Tiximax Chatbot Accountant
-{% endblock %}
+{% extends 'home/base.html' %} {% block title %} Tiximax Chatbot Accountant {%
+endblock %} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/accountant/chat_accountant.css', v='1') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/accountant/chat_history_accountant.css', v='1') }}"
+/>
+{% endblock %} {% block content %}
+<!-- Quick Switch -->
+<div class="quick-nav" id="quickNav" style="--qn-top: 12px">
+  <button
+    type="button"
+    class="quick-nav__btn"
+    id="quickNavBtn"
+    aria-expanded="false"
+    aria-controls="quickNavMenu"
+    title="Chuyển nhanh"
+  >
+    <i data-lucide="menu"></i>
+  </button>
+  <span class="quick-nav__label" id="quickNavLabel" title="Tính năng"
+    >Feature</span
+  >
+  <nav
+    class="quick-nav__menu"
+    id="quickNavMenu"
+    role="menu"
+    aria-label="Chuyển nhanh"
+  >
+    <a class="quick-nav__item" role="menuitem" href="/accountant"
+      ><i data-lucide="message-circle"></i> <span>Chat Accountant</span></a
+    >
+    <hr class="quick-nav__divider" />
+    <a class="quick-nav__item" role="menuitem" href="#"
+      ><i data-lucide="bar-chart-3"></i> <span>Static</span></a
+    >
+  </nav>
+</div>
+<!-- /Quick Switch -->
 
-{% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/accountant/chat_accountant.css', v='1') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/accountant/chat_history_accountant.css', v='1') }}" />
-{% endblock %}
+{% include 'partials/chat_history.html' %}
 
-{% block content %}
-  <!-- Quick Switch -->
-  <div class="quick-nav" id="quickNav" style="--qn-top:12px;">
-    <button type="button" class="quick-nav__btn" id="quickNavBtn" aria-expanded="false" aria-controls="quickNavMenu" title="Chuyển nhanh"><i data-lucide="menu"></i></button>
-    <span class="quick-nav__label" id="quickNavLabel" title="Tính năng">Feature</span>
-    <nav class="quick-nav__menu" id="quickNavMenu" role="menu" aria-label="Chuyển nhanh">
-      <a class="quick-nav__item" role="menuitem" href="/accountant"><i data-lucide="message-circle"></i> <span>Chat Accountant</span></a>
-      <hr class="quick-nav__divider" />
-      <a class="quick-nav__item" role="menuitem" href="#"><i data-lucide="bar-chart-3"></i> <span>Static</span></a>
-    </nav>
-  </div>
-  <!-- /Quick Switch -->
-
-  {% include 'partials/chat_history.html' %}
-
-  <main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
-    <div class="row justify-content-center flex-grow-1 h-100">
-      <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">
-        <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
-          <ul id="chatList" class="chat-list mb-3"></ul>
-          <div id="greeting" class="greeting">
-            <div class="g-title-xl">Hello, Can I help you?</div>
-          </div>
+<main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
+  <div class="row justify-content-center flex-grow-1 h-100">
+    <div
+      class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3"
+      id="chatShell"
+    >
+      <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
+        <ul id="chatList" class="chat-list mb-3"></ul>
+        <div id="greeting" class="greeting">
+          <div class="g-title-xl">Hello, Can I help you?</div>
         </div>
-        <footer class="composer position-sticky bottom-0">
-          <form id="chatForm" class="composer-inner">
-            <div class="input-wrap">
-              <textarea id="chatInput" rows="1" placeholder="Ask anything about Tiximax Company" autocomplete="off"></textarea>
-              <button id="sendBtn" class="send-btn" type="submit" title="Gửi"><i data-lucide="send"></i></button>
-            </div>
-          </form>
-        </footer>
       </div>
+      <footer class="composer position-sticky bottom-0">
+        <form id="chatForm" class="composer-inner">
+          <div class="input-wrap">
+            <textarea
+              id="chatInput"
+              rows="1"
+              placeholder="Ask anything about Tiximax Company"
+              autocomplete="off"
+            ></textarea>
+            <button id="sendBtn" class="send-btn" type="submit" title="Gửi">
+              <i data-lucide="send"></i>
+            </button>
+          </div>
+        </form>
+      </footer>
     </div>
-  </main>
-{% endblock %}
-
-{% block extra_scripts %}
-  <script defer src="{{ url_for('static', filename='js/accountant/accountant.js', v='1') }}"></script>
+  </div>
+</main>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/accountant/accountant.js', v='1') }}"
+></script>
 {% endblock %}

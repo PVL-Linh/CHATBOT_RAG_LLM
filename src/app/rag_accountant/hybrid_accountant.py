@@ -5,9 +5,10 @@ from langchain_core.documents import Document
 from .faiss_store_accountant import load_vectorstore
 from .bm25_accountant import get_bm25
 from app.config.config_accountant import (
-    DEBUG_QE_ACCOUNTANT, K_SEM_ACCOUNTANT, K_LEX_ACCOUNTANT, RAG_TOPK_ACCOUNTANT as TOP_K_ACCOUNTANT, MMR_FETCH_K_ACCOUNTANT, MMR_LAMBDA_ACCOUNTANT,
-    W_SEM_ACCOUNTANT, W_LEX_ACCOUNTANT, FAST_MODE_ACCOUNTANT
-)
+    DEBUG_QE_ACCOUNTANT, K_SEM_ACCOUNTANT, K_LEX_ACCOUNTANT,
+    RAG_TOPK_ACCOUNTANT as TOP_K_ACCOUNTANT, MMR_FETCH_K_ACCOUNTANT,
+    MMR_LAMBDA_ACCOUNTANT, W_SEM_ACCOUNTANT, W_LEX_ACCOUNTANT, FAST_MODE_ACCOUNTANT
+    )
 
 def _norm(s: str) -> str:
     s = re.sub(r"\s+", " ", (s or "")).strip().lower()

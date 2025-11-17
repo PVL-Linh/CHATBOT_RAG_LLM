@@ -46,9 +46,6 @@ from app.rag_hr.context_hr import build_context as _build_context
 
 __all__ = ["answer_with_rag_accountant", "continue_with_last_accountant"]
 
-# =====================================================================
-#  State
-# =====================================================================
 _LAST: Dict[str, Any] = {
     "question": "",
     "answer": "",
@@ -57,22 +54,14 @@ _LAST: Dict[str, Any] = {
     "source": "",
 }
 
-# === Passthrough flags ===
 STRICT_ORG_PASSTHRU = (os.environ.get("STRICT_ORG_PASSTHRU","1").lower() not in ("0","false","no"))
 STRICT_JD_PASSTHRU  = (os.environ.get("STRICT_JD_PASSTHRU","1").lower() not in ("0","false","no"))
 STRICT_FORM_PASSTHRU= (os.environ.get("STRICT_FORM_PASSTHRU","1").lower() not in ("0","false","no"))
 WRAP_TREE_AS_CODE   = (os.environ.get("WRAP_TREE_AS_CODE","1").lower() not in ("0","false","no"))
 
-# =====================================================================
-#  Follow-up patterns
-# =====================================================================
 FOLLOWUP_REDRAW_PAT = re.compile(r"\b(v[eê]̃?\s*l[ạ]i|ve lai|draw|redraw|nh[á]nh|branch|ve|vẽ)\b", re.I)
 FOLLOWUP_CONT_PAT   = re.compile(r"\b(ti[ế]p|ti[ế]p tục|tiếp tục|show\s*again|continue|hi[ẹ]n thị lại)\b", re.I)
 FOLLOWUP_REVIEW_PAT = re.compile(r"\b(nh[ậ]n x[é]t|d[á]nh gi[á]|review|g[ó]p [ýy]|t[ôo]́i [u]u|cải ti[êe]́n|đề xuất|de xuat)\b", re.I)
-
-# =====================================================================
-#  Dept synonyms -> filename hints
-# =====================================================================
 
 def _strip_accents(s: str) -> str:
     if not s:
@@ -80,8 +69,6 @@ def _strip_accents(s: str) -> str:
     s = unicodedata.normalize("NFD", s)
     return "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
 
-# Khóa logic cho từng sơ đồ chuyên biệt
-# --- THAY TOÀN BỘ KHỐI NÀY ---
 DEPT_SYNONYMS: Dict[str, List[str]] = {
     "ke_toan": [
         "kế toán", "ke toan", "ketoan",
@@ -94,7 +81,6 @@ DEPT_SYNONYMS: Dict[str, List[str]] = {
 def _dept_key_from_text(s: str) -> Optional[str]:
     s0 = _strip_accents((s or "").lower())
     s0 = re.sub(r"\s+", " ", s0)
-    # Ưu tiên indo trước nếu xuất hiện
     if any(k in s0 for k in DEPT_SYNONYMS["kinh_doanh_indonesia"]):
         return "kinh_doanh_indonesia"
     for k, arr in DEPT_SYNONYMS.items():
@@ -109,13 +95,8 @@ def _filename_hints_for_dept(key: Optional[str]) -> List[str]:
     if not key:
         return []
     if key == "ke_toan":
-        # các biến thể tên file/thư mục bạn đang dùng
         return ["ke_toan", "accountant", "accounting", "tai_chinh", "finance"]
     return []
-
-# =====================================================================
-#  File / source helpers
-# =====================================================================
 
 def _read_full_source_text(source_rel: str) -> Optional[str]:
     if not source_rel:
@@ -152,10 +133,8 @@ def _pick_best_source_from_trace(trace: List[Dict[str, Any]]) -> Optional[str]:
 
 
 def _prefer_diagram_source(ranked: List[Tuple[Document, Optional[float]]], dept_key: Optional[str]) -> Optional[str]:
-    """Ưu tiên chọn đúng file TREE theo bộ phận (nếu có)."""
     hints = _filename_hints_for_dept(dept_key)
 
-    # Nếu là sơ đồ tổng và có hint cấu hình → dùng ngay
     if not dept_key and ORG_SOURCE_HINT_ACCOUNTANT:
         return ORG_SOURCE_HINT_ACCOUNTANT
 
@@ -163,25 +142,19 @@ def _prefer_diagram_source(ranked: List[Tuple[Document, Optional[float]]], dept_
         s = (src or "").lower()
         return ("tree" in s) or s.endswith("_tree.txt")
 
-    # 1) file tree khớp dept hints
     for d, _ in ranked:
         src = (d.metadata or {}).get("source", "")
         s = (src or "").lower()
         if dept_key and looks_tree(s) and any(h in s for h in hints):
             return src
 
-    # 2) bất kỳ file tree nào
     for d, _ in ranked:
         src = (d.metadata or {}).get("source", "")
         if looks_tree(src):
             return src
 
-    # 3) fallback: top-1 source
     return (ranked[0][0].metadata or {}).get("source")
 
-# =====================================================================
-#  QE / Retrieval helpers
-# =====================================================================
 
 def _norm(s: str) -> str:
     s = (s or "").lower()
@@ -236,9 +209,6 @@ def _prf_phrases(vs, question: str) -> List[str]:
         print(f"[PRF] phrases={out}")
     return out
 
-# =====================================================================
-#  JD helpers — curated expansion + source picking + dedup join
-# =====================================================================
 
 def _is_jd_query(q: str) -> bool:
     n = _norm(q)
@@ -328,9 +298,6 @@ def _pick_best_jd_source(ranked, question: str) -> Optional[str]:
             return (d.metadata or {}).get("source")
     return (ranked[0][0].metadata or {}).get("source")
 
-# =====================================================================
-#  Org subtree extractors
-# =====================================================================
 _CODE_FENCE = re.compile(r"^```.*?$|^```$", re.MULTILINE)
 
 
@@ -354,10 +321,8 @@ def _number_prefix(line: str) -> Optional[str]:
 
 
 def _match_line_title(line: str, title_regex: str) -> bool:
-    # Match nguyên bản
     if re.search(title_regex, line, re.I):
         return True
-    # Match không dấu
     return bool(re.search(title_regex, _strip_accents(line).lower(), re.I))
 
 
@@ -370,7 +335,6 @@ def _relax_patterns_for_token(token: str) -> List[str]:
         pats = [rf"\b{re.escape(t)}\b", re.escape(t)]
     else:
         pats = [re.escape(t)]
-    # Chỉ giữ nhóm Kế toán/Tài chính
     if t in ("ke toan", "ketoan", "ke_toan", "kế toán",
              "tai chinh", "tài chính",
              "accounting", "accountant", "finance", "fin"):
@@ -398,7 +362,6 @@ def extract_subtree_by_title(ascii_tree: str, title_regex: str = r"marketing") -
     tried = [title_regex]
     start_idx, base_indent, base_num = _find_start(title_regex)
     if start_idx < 0:
-        # nới pattern nếu token
         for pat in _relax_patterns_for_token(title_regex):
             if pat in tried:
                 continue
@@ -430,16 +393,11 @@ def extract_subtree_by_title(ascii_tree: str, title_regex: str = r"marketing") -
             break
     return "\n".join(out).strip()
 
-# =====================================================================
-#  Follow-up action detection
-# =====================================================================
-
 def detect_followup_action(text: str) -> str:
     """Nhận diện follow-up theo từ khóa KHÔNG DẤU (ổn định hơn)."""
     s_raw = (text or "").strip()
     s = _strip_accents(s_raw).lower()
 
-    # REDRAW / VẼ LẠI / VẼ NHÁNH
     redraw_keys = [
         "ve lai", "ve tiep", "ve nhanh",
         "redraw", "draw again", "draw", "branch", "nhanh", "ve", "hien thi lai", "show again"
@@ -447,7 +405,6 @@ def detect_followup_action(text: str) -> str:
     if any(k in s for k in redraw_keys):
         return "REDRAW"
 
-    # REVIEW / NHẬN XÉT / GÓP Ý / ĐÁNH GIÁ
     review_keys = [
         "nhan xet", "review", "comment", "gop y", "danh gia", "nhan dinh",
         "de xuat", "nhan xet phan tren", "nhan xet tren", "nhan xet so do"
@@ -455,7 +412,6 @@ def detect_followup_action(text: str) -> str:
     if any(k in s for k in review_keys):
         return "REVIEW"
 
-    # CONTINUE
     continue_keys = ["tiep tuc", "continue"]
     if any(k in s for k in continue_keys):
         return "CONTINUE"
@@ -483,18 +439,7 @@ def _extract_branch_key(followup: str) -> Optional[str]:
                 return kw
     return None
 
-# =====================================================================
-#  PUBLIC: New question
-# =====================================================================
-
 def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]]:
-    """
-    NEW ASK:
-    - Nếu câu mới thực ra là follow-up (vẽ/tiếp tục/nhận xét) và có _LAST → route sang continue_with_last_accountant.
-    - Nếu là 'sơ đồ <bộ phận>' → ƯU TIÊN chọn đúng file tree của bộ phận (full copy).
-    - Các trường hợp khác → RAG + LLM như cũ.
-    """
-    # Nếu câu mới là follow-up và có bối cảnh, chuyển sang continue
     if _LAST.get("trace"):
         act = detect_followup_action(question)
         if act in ("REDRAW", "REVIEW", "CONTINUE"):
@@ -508,17 +453,14 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
     aliases = _qr_llm_aliases(question)
     phrases = _prf_phrases(vs, question)
 
-    # Nếu là truy vấn JD → dùng curated aliases/phrases (tránh "Just Do It")
     if _is_jd_query(question):
         aliases, jd_phrases = _curated_jd_aliases_and_phrases(question)
         phrases = (phrases or []) + jd_phrases
 
-    # build lex
     if intent == "ORG":
         extra_alias = [
             "sơ đồ tổ chức", "cơ cấu tổ chức", "organizational chart", "org chart",
             "sơ đồ công ty", "sơ đồ nhân sự", "organizational structure", "company structure",
-            # Ưu tiên phòng kế toán
             "kế toán", "accounting", "tài chính", "finance"
         ]
         seen = {_norm(a) for a in aliases}
@@ -553,27 +495,23 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
         _LAST.update(question=question, answer=answer, trace=[], intent=intent, source="")
         return answer, []
 
-    # ===== ORG: CHỌN FILE TREE ĐÚNG BỘ PHẬN (FULL COPY) =====
     if intent == "ORG" and ORG_FULLCOPY_ACCOUNTANT:
-        dept_key = _dept_key_from_text(question)  # vd: "marketing"/"kinh_doanh"/"kinh_doanh_indonesia"/None
+        dept_key = _dept_key_from_text(question)
         src = _prefer_diagram_source(ranked, dept_key)
         raw = _read_full_source_text(src) if src else None
         if not raw:
-            # Fallback: ghép các chunk cùng source
             raw = "".join(d.page_content for d, _ in ranked if (d.metadata or {}).get("source") == src)
 
         tree_text = (raw or "").strip()
         if STRICT_ORG_PASSTHRU:
             ans = f"```text\n{tree_text}\n```" if WRAP_TREE_AS_CODE else tree_text
         else:
-            # chế độ cũ: strip_citations + cleanup (không khuyến nghị)
             ans = strip_citations(tree_text) if STRIP_CITATIONS_ACCOUNTANT else tree_text
             ans = cleanup_org_answer(ans)
         trace = _make_trace(ranked)
         _LAST.update(question=question, answer=ans, trace=trace, intent="ORG", source=(src or ""))
         return ans, trace
 
-    # ===== JD FULL COPY (đã làm sạch & không lặp) =====
     qn_norm = _norm(question)
     is_jd = bool(re.search(r"\b(jd|mô tả công việc|job description|mtcv)\b", qn_norm))
     if JD_FULLCOPY_ACCOUNTANT and is_jd:
@@ -591,7 +529,6 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
         _LAST.update(question=question, answer=ans, trace=trace, intent=intent, source=(best_src or ""))
         return ans, trace
 
-    # ===== LLM compose (OTHER) =====
     ctx = _build_context(ranked, max_chars=MAX_CHARS_CTX_ACCOUNTANT)
     trace = _make_trace(ranked)
     genai = init_gemini()
@@ -619,8 +556,6 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
     try:
         report = judge_answer(question, answer, trace, GEMINI_MODEL_JUDGE_ACCOUNTANT)
         g = float(report.get("groundedness")) if report and report.get("groundedness") is not None else None
-        # if (g is not None) and (g < 0.5):
-        #     answer = "không tìm thấy trong tài liệu"
     except Exception as e:
         print(f"[WARN] judge failed: {e}")
 
@@ -629,10 +564,6 @@ def answer_with_rag_accountant(question: str) -> Tuple[str, List[Dict[str, Any]]
 
     _LAST.update(question=question, answer=answer, trace=trace, intent=intent, source=(trace[0].get("source") if trace else ""))
     return answer, trace
-
-# =====================================================================
-#  PUBLIC: Follow-up
-# =====================================================================
 
 def _make_trace(ranked: List[Tuple[Document, Optional[float]]]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
@@ -683,11 +614,7 @@ def _redraw_from_source(prev_trace: List[Dict[str, Any]], followup: str, last_so
     key = _extract_branch_key(followup or "")
     if not key:
         return None
-
-    # ưu tiên dùng nguồn lần trước nếu có
     src = last_source or _pick_best_source_from_trace(prev_trace)
-
-    # nếu follow-up có dept rõ ràng → cố chọn file tree đúng dept trong trace
     dept_key = _dept_key_from_text(key)
     if dept_key:
         hints = _filename_hints_for_dept(dept_key)
@@ -721,22 +648,18 @@ def continue_with_last_accountant(followup: str) -> Tuple[str, List[Dict[str, An
     if DEBUG_QE_ACCOUNTANT:
         print(f"[FOLLOW-UP] act={act} | text={followup}")
 
-    # 1) REDRAW (vẽ nhánh)
     if act == "REDRAW":
-        # cắt ngay trên prev_ans
         if prev_ans:
             ans = _redraw_from_prev(prev_ans, followup)
             if ans:
                 _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
                 return ans, prev_trace
-        # fallback: đọc từ source
         ans = _redraw_from_source(prev_trace, followup, last_source)
         if ans:
             _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
             return ans, prev_trace
         return (f"Không tìm thấy nhánh phù hợp để vẽ lại cho yêu cầu: '{followup}'. Hãy thử: 'vẽ nhánh Marketing' hoặc 'vẽ nhánh 1.3'.", prev_trace)
 
-    # 2) REVIEW (nhận xét/đánh giá)
     if act == "REVIEW":
         if not prev_ans:
             return ("Chưa có sơ đồ để nhận xét. Hãy hỏi 'Sơ đồ tổ chức' trước.", prev_trace)
@@ -746,12 +669,10 @@ def continue_with_last_accountant(followup: str) -> Tuple[str, List[Dict[str, An
         _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=review, trace=prev_trace, intent=prev_intent, source=last_source)
         return review, prev_trace
 
-    # 3) CONTINUE (hiển thị lại)
     if act == "CONTINUE":
         _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=prev_ans, trace=prev_trace, intent=prev_intent, source=last_source)
         return prev_ans, prev_trace
 
-    # 4) Nếu follow-up chứa tên bộ phận quen thuộc → coi như REDRAW nhẹ
     quick_key = _dept_key_from_text(followup)
     if quick_key and prev_ans:
         ans = _redraw_from_prev(prev_ans, followup)
@@ -759,5 +680,4 @@ def continue_with_last_accountant(followup: str) -> Tuple[str, List[Dict[str, An
             _LAST.update(question=f"{prev_q}  (follow-up: {followup})", answer=ans, trace=prev_trace, intent="ORG", source=last_source)
             return ans, prev_trace
 
-    # fallback: trả lại sơ đồ cũ
     return (prev_ans or "Không rõ yêu cầu tiếp tục.", prev_trace)

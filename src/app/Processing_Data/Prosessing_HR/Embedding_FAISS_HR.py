@@ -7,13 +7,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from .pdf_to_text_HR import processing_Data_doclinkToText
-try:
-    from ..DataBase_Web.web_crawler import web_crawler
-except ImportError:
-    from DataBase_Web.web_crawler import web_crawler
-# =======================
-# Tham số
-# =======================
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))       # khuyến nghị
 CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 200))  # khuyến nghị
 if CHUNK_OVERLAP >= CHUNK_SIZE:
@@ -34,17 +27,17 @@ EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_NAME_HR", "./src/app/models/local
 # Helpers
 # =======================
 def _select_device() -> str:
-    """Chọn 'cuda' nếu có GPU, ngược lại 'cpu'."""
-    try:
-        import torch
-        if torch.cuda.is_available():
-            gpu_name = torch.cuda.get_device_name(0)
-            print(f"🟢 Using CUDA GPU: {gpu_name}")
-            return "cuda"
-        print("🟡 CUDA is not available → using CPU")
-    except Exception as e:
-        print(f"🟡 torch import failed ({e}) → using CPU")
-    return "cpu"
+    import torch
+    if torch.backends.mps.is_available():  # macOS
+        print("🟢 Using MPS (Apple GPU)")
+        return "mps"
+    elif torch.cuda.is_available():
+        gpu_name = torch.cuda.get_device_name(0)
+        print(f"🟢 Using CUDA GPU: {gpu_name}")
+        return "cuda"
+    else:
+        print("🟡 Defaulting to CPU")
+        return "cpu"
 
 def _clean_text(s: str) -> str:
     if not s:

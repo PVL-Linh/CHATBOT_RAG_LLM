@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-DOCX → TXT (Org-Tree) — VS Code / Local version
-- Đọc trực tiếp .docx (không cần Google Colab). Không nén ZIP.
-- Xuất mỗi file *_tree.txt vào thư mục output, có thể ghi BOM để Notepad hiển thị dấu tiếng Việt chuẩn.
-- Cung cấp HÀM 2 THAM SỐ: org_tree_run(input_path, output_path).
-  * input_path: đường dẫn tới 1 file .docx hoặc 1 thư mục (sẽ duyệt đệ quy).
-  * output_path: thư mục để ghi kết quả .txt.
-
-Phụ thuộc: lxml
-  pip install lxml
-"""
-
 from __future__ import annotations
 import re, zipfile, os
 from dataclasses import dataclass, field
@@ -19,29 +5,31 @@ from typing import Dict, List, Tuple, Optional
 from pathlib import Path
 from lxml import etree
 
-# ===== Tuỳ chọn mặc định =====
 FALLBACK_TOP_LABEL = "Nhánh {i}"
-UTF8_BOM_DEFAULT = True   # Ghi BOM để Notepad nhận UTF-8 và hiện dấu
-
-# ==============================
+UTF8_BOM_DEFAULT = True
 @dataclass
 class Node:
     num: str
     title: str
     children: List["Node"] = field(default_factory=list)
 
-
 def num_key(n: str):
-    return [int(x) for x in n.split(".") if x.isdigit()]
-
+    parts = re.split(r'[.]', n)
+    key = []
+    for p in parts:
+        if p.isdigit():
+            key.append(int(p))
+        elif p.isalpha():
+            key.append(ord(p.upper()) - ord('A') + 1)
+        else:
+            key.append(0)
+    return key
 
 def parent_num(n: str) -> Optional[str]:
     return n.rsplit(".", 1)[0] if "." in n else None
 
-
 def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", (s or "").strip()).lower()
-
 
 def _find_ceo_title(raw: str) -> Optional[str]:
     s = _norm(raw)
@@ -102,7 +90,6 @@ def extract_items_from_docx(path: str) -> Tuple[List[Tuple[str, int, str]], str,
             level = num.count(".") + 1
             items.append((num, level, title))
 
-    # Dedup-by-num: giữ title dài nhất cho mỗi num
     best: Dict[str, Tuple[int, str]] = {}
     for n, l, t in items:
         t2 = re.sub(r"\s+", " ", t).strip()
@@ -110,9 +97,6 @@ def extract_items_from_docx(path: str) -> Tuple[List[Tuple[str, int, str]], str,
             best[n] = (l, t2)
     clean = [(n, best[n][0], best[n][1]) for n in sorted(best.keys(), key=num_key)]
     return clean, raw, doc_title
-
-
-# --- LẤY TIÊU ĐỀ (trước mục đánh số đầu tiên) ---
 
 def extract_heading_from_raw(raw: str) -> Optional[str]:
     m = re.search(r"(\d+(?:\.\d+)*)(?:\.\s*|\s+)", raw)
@@ -122,15 +106,13 @@ def extract_heading_from_raw(raw: str) -> Optional[str]:
         return heading
     return None
 
-
 def resolve_doc_title(doc_title: Optional[str], path: str, raw: str) -> str:
     return extract_heading_from_raw(raw) or doc_title or friendly_title_from_filename(path)
 
-
 def _capture_top_title_from_raw(top: str, raw: str) -> Optional[str]:
     pat = re.compile(
-        rf"(?<!\d){re.escape(top)}(?:\s*[\.\)])?\s*"  # 1. | 1) | 1⎵
-        rf"([^\d]+?)"                                   # title
+        rf"(?<!\d){re.escape(top)}(?:\s*[\.\)])?\s*"
+        rf"([^\d]+?)"
         rf"(?=(\d+(?:\.\d+)*)\s|$)",
         flags=re.DOTALL,
     )
@@ -140,7 +122,6 @@ def _capture_top_title_from_raw(top: str, raw: str) -> Optional[str]:
     cand = re.sub(r"\s+", " ", m.group(1)).strip()
     cand = re.sub(r"\s*(?:–|-|:)\s*$", "", cand).strip()
     return cand or None
-
 
 def ensure_top_nodes_with_titles(items: List[Tuple[str, int, str]], raw: str) -> List[Tuple[str, int, str]]:
     """Đảm bảo node đầu cho mỗi chỉ số top (1,2,3...). 1->CEO nếu thiếu tiêu đề level-1."""
@@ -154,7 +135,6 @@ def ensure_top_nodes_with_titles(items: List[Tuple[str, int, str]], raw: str) ->
             t = _find_ceo_title(raw)
         titles[top] = t or FALLBACK_TOP_LABEL.format(i=top)
 
-    # Chuẩn hoá: bắt buộc có (top,1,title) và đồng bộ title/top
     result: Dict[str, Tuple[int, str]] = {}
     for top in tops:
         result[top] = (1, titles[top])
@@ -166,7 +146,6 @@ def ensure_top_nodes_with_titles(items: List[Tuple[str, int, str]], raw: str) ->
 
     return [(n, result[n][0], result[n][1]) for n in sorted(result.keys(), key=num_key)]
 
-
 def build_tree(items: List[Tuple[str, int, str]]) -> Dict[str, Node]:
     nodes: Dict[str, Node] = {n: Node(n, t) for n, l, t in items}
     for n, l, t in items:
@@ -175,7 +154,7 @@ def build_tree(items: List[Tuple[str, int, str]]) -> Dict[str, Node]:
             parent, child = nodes[p], nodes[n]
             if all(c.num != child.num for c in parent.children):
                 parent.children.append(child)
-    # sort children
+
     def sort_subtree(nd: Node):
         nd.children.sort(key=lambda c: num_key(c.num))
         for ch in nd.children:
@@ -184,7 +163,6 @@ def build_tree(items: List[Tuple[str, int, str]]) -> Dict[str, Node]:
     for nd in nodes.values():
         sort_subtree(nd)
     return nodes
-
 
 def render_tree(nodes: Dict[str, Node], *, single_tree: bool = False, title_line: Optional[str] = None, print_num: bool = True) -> str:
     nums = set(nodes.keys())
@@ -205,7 +183,7 @@ def render_tree(nodes: Dict[str, Node], *, single_tree: bool = False, title_line
 
     lines: List[str] = []
     if title_line:
-        lines.append(title_line)  # giữ nguyên dấu
+        lines.append(title_line)
 
     def rec(n: Node, prefix=""):
         for i, ch in enumerate(n.children):
@@ -221,9 +199,6 @@ def render_tree(nodes: Dict[str, Node], *, single_tree: bool = False, title_line
         lines.append(show(tn))
         rec(tn, "")
     return "\n".join(lines)
-
-
-# ====== Xử lý 1 file & nhiều file ======
 
 def process_one_docx_file(docx_path: Path, out_dir: Path, *, print_num: bool = True, single_tree: bool = False, utf8_bom: bool = UTF8_BOM_DEFAULT) -> Path:
     items, raw, core_title = extract_items_from_docx(str(docx_path))
@@ -245,17 +220,6 @@ def process_one_docx_file(docx_path: Path, out_dir: Path, *, print_num: bool = T
 
 
 def org_tree_run(input_path: str, output_path: str, *, print_num: bool = True, single_tree: bool = False, utf8_bom: bool = UTF8_BOM_DEFAULT, recurse: bool = True) -> dict:
-    """
-    HÀM 2 THAM SỐ (theo yêu cầu): chạy trên 1 FILE .docx hoặc 1 THƯ MỤC đựng .docx.
-    - input_path: file .docx hoặc thư mục
-    - output_path: thư mục để ghi kết quả *_tree.txt
-    Tuỳ chọn:
-      + print_num: in kèm số cho mọi node
-      + single_tree: in trực tiếp các node đầu (không root ảo)
-      + utf8_bom: ghi BOM (Notepad thân thiện)
-      + recurse: nếu là thư mục, có duyệt đệ quy không
-    Trả về: dict {ok, fail, count, results:[{src, out}], input, output}
-    """
     in_p = Path(input_path).resolve()
     out_p = Path(output_path).resolve()
     out_p.mkdir(parents=True, exist_ok=True)
@@ -285,14 +249,7 @@ def org_tree_run(input_path: str, output_path: str, *, print_num: bool = True, s
 
     return {"ok": 0, "fail": 1, "count": 0, "results": [], "input": str(in_p), "output": str(out_p), "error": "input_path không tồn tại"}
 
-
-# ====== Convenience no-stats API ======
-
 def org_tree_run_simple(input_path: str, output_path: str, *, print_num: bool = True, single_tree: bool = False, utf8_bom: bool = UTF8_BOM_DEFAULT, recurse: bool = True, quiet: bool = False) -> None:
-    """
-    Bản đơn giản KHÔNG TRẢ VỀ stats. Chỉ nhận 2 path bắt buộc (input, output) và in tối thiểu.
-    - Nếu muốn im lặng hoàn toàn, đặt quiet=True.
-    """
     res = org_tree_run(
         input_path,
         output_path,
@@ -315,7 +272,6 @@ def org_tree_run_simple(input_path: str, output_path: str, *, print_num: bool = 
     except Exception:
         pass
 
-# ====== (Tuỳ chọn) CLI đơn giản ======
 if __name__ == "__main__":
     import argparse
     p = argparse.ArgumentParser(description="DOCX → TXT Org-Tree (local)")

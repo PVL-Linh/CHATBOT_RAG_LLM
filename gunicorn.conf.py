@@ -1,4 +1,3 @@
-# gunicorn.conf.py (root)
 import os, multiprocessing
 
 bind = ":" + os.environ.get("PORT", "10000")
@@ -10,5 +9,5 @@ worker_class = "gthread"
 preload_app = True
 
 loglevel = os.environ.get("LOGLEVEL", "info")
-accesslog = "-"   # stdout
-errorlog  = "-"   # stderr
+accesslog = "-"
+errorlog  = "-"

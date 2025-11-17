@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os, json, re
 from typing import List, Optional
 from langchain_core.documents import Document

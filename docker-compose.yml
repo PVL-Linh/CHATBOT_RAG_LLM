@@ -1,66 +1,4 @@
-# services:
-#   app:
-#     build: .
-#     env_file: .env
-#     container_name: app-1
-#     environment:
-#       - PYTHONPATH=/app/src
-#     restart: unless-stopped
-#     expose:
-#       - "${PORT:-8000}"
-#     volumes:
-#       - ./logs:/app/logs
-#       - ./ingest:/app/ingest
-#     command: >
-#       sh -lc 'gunicorn -w ${GUNICORN_WORKERS:-1}
-#       -b 0.0.0.0:${PORT:-8000}
-#       "app.app_factory:create_app()"
-#       --timeout ${GUNICORN_TIMEOUT:-60} --access-logfile - --error-logfile -'
-#     healthcheck:
-#       test:
-#         [
-#           "CMD-SHELL",
-#           "curl -fsS http://localhost:${PORT:-8000}/health || exit 1",
-#         ]
-#       interval: 30s
-#       timeout: 5s
-#       retries: 5
-#       start_period: 20s
-#     logging:
-#       driver: json-file
-#       options: { max-size: "10m", max-file: "3" }
-
-#   caddy:
-#     image: caddy:2.8
-#     env_file: .env
-#     container_name: caddy-1
-#     environment:
-#       DOMAIN: ${DOMAIN}
-#       ACME_EMAIL: ${ACME_EMAIL}
-#     restart: unless-stopped
-#     ports:
-#       - "80:80"
-#       - "443:443"
-#     volumes:
-#       - ./deploy/Caddyfile:/etc/caddy/Caddyfile
-#       - caddy_data:/data
-#       - caddy_config:/config
-#     depends_on:
-#       app:
-#         condition: service_started
-#     healthcheck:
-#       test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
-#       interval: 30s
-#       timeout: 5s
-#       retries: 5
-#       start_period: 10s
-#     logging:
-#       driver: json-file
-#       options: { max-size: "10m", max-file: "3" }
-
-# volumes:
-#   caddy_data:
-#   caddy_config:
+# version: "3.9"
 
 # services:
 #   tiximax:
@@ -70,29 +8,57 @@
 #       dockerfile: Dockerfile
 #     image: tiximax:local
 #     restart: unless-stopped
-
-#     # Khớp với PORT trong Dockerfile/app (10000)
 #     ports:
 #       - "10000:10000"
-
-#     env_file:
-#       - ./.env
+#     env_file: ./.env
 #     environment:
 #       PORT: "${PORT:-10000}"
 #       WEB_THREADS: "${WEB_THREADS:-8}"
 #       WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
 #       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
+#       VECTORSTORE_ROOT: "/app/src/app/vectorstore"
+#       DATA_DIR: /var/lib/tiximax/Data_app
+#       USERS_DB: /var/lib/tiximax/Data_app/users.db
+#       SQLITE_PATH: /var/lib/tiximax/Data_app/users.db
+#       CHAT_DB_PATH: /var/lib/tiximax/Data_app/chat.db
+#       HF_HOME: /var/lib/tiximax/models
+#       TRANSFORMERS_CACHE: /var/lib/tiximax/models/cache
 
-#     # Tạo 2 thư mục trên host để mount (chọn 1 trong 2 cách dưới)
+#       REDIS_URL: "redis://redis:6379/0"
+#       REDIS_HOST: "redis"
+#       REDIS_PORT: "6379"
+#       REDIS_DB: "0"
 #     volumes:
-#       - "E:/ChatAll/src/app/Data_app:/var/lib/tiximax/Data_app"
-#       - "E:/ChatAll/src/app/models:/var/lib/tiximax/models"
-#       - "E:/ChatAll/src/app/vectorstore/FAISS_Vector:/var/lib/tiximax/vectorstore/FAISS_Vector"
-#       # Cách B: nếu bạn đã dùng E:/tixi/...
-#       # - "E:/tixi/data:/var/lib/tiximax/data"
-#       # - "E:/tixi/models:/var/lib/tiximax/models"
+#       - "./src/app/Data_app:/var/lib/tiximax/Data_app"
+#       - "./src/app/Data_app:/app/src/app/Data_app"
+#       - "./src/app/vectorstore:/var/lib/tiximax/vectorstore"
+#       - "./src/app/models:/var/lib/tiximax/models"
+#     dns:
+#       - 1.1.1.1
+#       - 8.8.8.8
+#     depends_on:
+#       - redis
 
-# docker-compose.yml
+#   redis:
+#     image: redis:7-alpine
+#     container_name: tiximax_redis
+#     restart: unless-stopped
+#     command: ["redis-server", "--appendonly", "yes"]
+#     volumes:
+#       - redis_data:/data
+#     networks:
+#       - web
+
+#   cloudflared:
+#     image: cloudflare/cloudflared:latest
+#     container_name: tiximax-tunnel
+#     restart: unless-stopped
+#     depends_on:
+#       - tiximax
+#     command: ["tunnel", "--no-autoupdate", "--url", "http://tiximax:10000"]
+
+version: "3.9"
+
 services:
   tiximax:
     container_name: tiximax
@@ -103,20 +69,51 @@ services:
     restart: unless-stopped
     ports:
       - "10000:10000"
-    env_file:
-      - ./.env
+    env_file: ./.env
     environment:
       PORT: "${PORT:-10000}"
       WEB_THREADS: "${WEB_THREADS:-8}"
       WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
+
+      VECTORSTORE_ROOT: "/app/src/app/vectorstore"
+      DATA_DIR: /var/lib/tiximax/Data_app
       USERS_DB: /var/lib/tiximax/Data_app/users.db
       SQLITE_PATH: /var/lib/tiximax/Data_app/users.db
       CHAT_DB_PATH: /var/lib/tiximax/Data_app/chat.db
+      HF_HOME: /var/lib/tiximax/models
+      TRANSFORMERS_CACHE: /var/lib/tiximax/models/cache
+
+      REDIS_URL: "redis://redis:6379/0"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
+
     volumes:
-      - "E:/ChatAll/src/app/Data_app:/var/lib/tiximax/Data_app"
-      - "E:/ChatAll/src/app/models:/var/lib/tiximax/models"
-      - "E:/ChatAll/src/app/vectorstore/FAISS_Vector:/var/lib/tiximax/vectorstore/FAISS_Vector"
+      - ./src/app/Data_app:/var/lib/tiximax/Data_app
+      - ./src/app/Data_app:/app/src/app/Data_app
+      - ./src/app/vectorstore:/var/lib/tiximax/vectorstore
+      - ./src/app/models:/var/lib/tiximax/models
+
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+
+    depends_on:
+      - redis
+
+    networks:
+      - web
+
+  redis:
+    image: redis:7-alpine
+    container_name: tiximax_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - web
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -124,4 +121,17 @@ services:
     restart: unless-stopped
     depends_on:
       - tiximax
-    command: ["tunnel", "--no-autoupdate", "--url", "http://tiximax:10000"]
+    command:
+      - "tunnel"
+      - "--no-autoupdate"
+      - "--url"
+      - "http://tiximax:10000"
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  redis_data:

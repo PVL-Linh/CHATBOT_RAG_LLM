@@ -1,14 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-app/rag_hr_cli.py — CLI test cho HR RAG (đặt trong thư mục app)
-
-Cách dùng:
-  # chạy từ thư mục cha chứa cả "app/" và "rag_hr/":
-  python app/rag_hr_cli.py --ask "Sơ đồ tổ chức"
-  # hoặc chạy như module (nếu muốn):
-  python -m app.rag_hr_cli --ask "Sơ đồ tổ chức"
-"""
-
 from __future__ import annotations
 import os
 import sys
@@ -17,15 +6,11 @@ import json
 import re
 from typing import Any, Dict, List
 
-# ------------------------------------------------------------
-# 1) Chuẩn hoá PYTHONPATH: thêm thư mục CHỨA 'app/' và 'rag_hr/'
-# ------------------------------------------------------------
-CUR = os.path.dirname(os.path.abspath(__file__))        # .../app
-PROJECT_ROOT = os.path.abspath(os.path.join(CUR, "..")) # thư mục cha (chứa app/ và rag_hr/)
+CUR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(CUR, ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# đảm bảo app là package (tránh lỗi khi chạy trực tiếp)
 init_app = os.path.join(CUR, "__init__.py")
 if not os.path.exists(init_app):
     try:
@@ -33,16 +18,11 @@ if not os.path.exists(init_app):
     except Exception:
         pass
 
-# ------------------------------------------------------------
-# 2) Import engine — ƯU TIÊN rag_hr.engine_hr (đúng layout của bạn)
-# ------------------------------------------------------------
 try:
-    # TH layout A (khuyên dùng): <project_root>/rag_hr/engine_hr.py
-    from rag_hr.engine_hr import answer_with_rag, continue_with_last  # type: ignore
+    from rag_hr.engine_hr import answer_with_rag, continue_with_last
 except Exception as e_a:
     try:
-        # TH layout B (cũ): <project_root>/app/Model_LLM/hr/engine_hr.py
-        from app.Model_LLM.hr import answer_with_rag, continue_with_last  # type: ignore
+        from app.Model_LLM.hr import answer_with_rag, continue_with_last
     except Exception as e_b:
         print("[ERR] Không import được engine HR.")
         print("Hãy đảm bảo một trong hai layout sau tồn tại:")
@@ -53,9 +33,6 @@ except Exception as e_a:
         print(" - app.Model_LLM.hr:", repr(e_b))
         sys.exit(1)
 
-# ------------------------------------------------------------
-# 3) Helpers in/ra
-# ------------------------------------------------------------
 def _color(s: str, name: str) -> str:
     if not sys.stdout.isatty():
         return s
@@ -99,20 +76,17 @@ def _as_json(ans: str, trace: List[Dict[str, Any]]):
 
 BANNER = _color(
     r"""
-HR RAG CLI (app/)
-────────────
-Lệnh nhanh:
-  --ask  "Câu hỏi"          Hỏi 1 câu
-  --cont "Câu follow-up"    Tiếp tục/vẽ lại (giữ cùng nguồn lần trước)
-Gợi ý chạy:
-  python app/rag_hr_cli.py --ask "Sơ đồ tổ chức"
-""",
-    "cyan",
-)
+        HR RAG CLI (app/)
+        ────────────
+        Lệnh nhanh:
+        --ask  "Câu hỏi"          Hỏi 1 câu
+        --cont "Câu follow-up"    Tiếp tục/vẽ lại (giữ cùng nguồn lần trước)
+        Gợi ý chạy:
+        python app/rag_hr_cli.py --ask "Sơ đồ tổ chức"
+        """,
+            "cyan",
+        )
 
-# ------------------------------------------------------------
-# 4) Argparse
-# ------------------------------------------------------------
 def build_parser():
     p = argparse.ArgumentParser(description="CLI test cho HR RAG (app/)")
     p.add_argument("--ask", "-q", type=str, help="Câu hỏi đầu vào")
@@ -130,9 +104,6 @@ def _apply_env(args: argparse.Namespace):
     if args.rebuild_corpus:
         os.environ["FORCE_REBUILD_CORPUS_HR"] = "1"
 
-# ------------------------------------------------------------
-# 5) Chức năng chính
-# ------------------------------------------------------------
 def run_once_ask(q: str, show_json: bool, show_trace: bool, max_trace_text: int):
     _print_header("ASK")
     print(_color(f"Q: {q}", "magenta"))
@@ -175,14 +146,12 @@ def repl(show_trace_default: bool, max_trace_text: int):
             if show_trace_default:
                 _print_trace(trace, max_trace_text)
             continue
-        # Auto follow-up nếu user quên dùng :cont
         if FOLLOWUP_REDRAW_PAT.search(raw) or FOLLOWUP_BRANCH_PAT.search(raw):
             ans, trace = continue_with_last(raw)
             _print_answer(ans)
             if show_trace_default:
                 _print_trace(trace, max_trace_text)
             continue
-        # Mặc định: hỏi mới
         ans, trace = answer_with_rag(raw)
         _print_answer(ans)
         if show_trace_default:

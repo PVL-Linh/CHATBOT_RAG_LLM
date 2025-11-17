@@ -24,14 +24,29 @@
     scroll: document.getElementById("chatScroll"),
 
     // History UI (auto-detect both panel and sidebar styles)
-    openBtn: document.getElementById("historyBtn") || document.getElementById("historyToggle"),
-    newBtn: document.getElementById("newChatBtn") || document.getElementById("newSession") || document.getElementById("newSessionTop"),
-    overlay: document.getElementById("overlay") || document.getElementById("sidebarOverlay"),
-    panel: document.getElementById("historyPanel") || document.getElementById("chatSidebar"),
-    closeBtn: document.getElementById("closeHistory") || document.getElementById("closeSidebar"),
-    list: document.getElementById("historyList") || document.getElementById("chatHistory") ||
-      document.querySelector(".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"),
-    search: document.getElementById("searchInput")
+    openBtn:
+      document.getElementById("historyBtn") ||
+      document.getElementById("historyToggle"),
+    newBtn:
+      document.getElementById("newChatBtn") ||
+      document.getElementById("newSession") ||
+      document.getElementById("newSessionTop"),
+    overlay:
+      document.getElementById("overlay") ||
+      document.getElementById("sidebarOverlay"),
+    panel:
+      document.getElementById("historyPanel") ||
+      document.getElementById("chatSidebar"),
+    closeBtn:
+      document.getElementById("closeHistory") ||
+      document.getElementById("closeSidebar"),
+    list:
+      document.getElementById("historyList") ||
+      document.getElementById("chatHistory") ||
+      document.querySelector(
+        ".history-list, [data-role='history-list'], .chat-list, [data-role='chat-history']"
+      ),
+    search: document.getElementById("searchInput"),
   };
 
   // =========================
@@ -52,9 +67,15 @@
   // =========================
   // Utility Functions
   // =========================
-  function nowTS() { return new Date().toISOString(); }
-  function genId() { return Math.random().toString(36).slice(2, 10); }
-  function msgKey(id) { return MSG_KEY_PREFIX + id; }
+  function nowTS() {
+    return new Date().toISOString();
+  }
+  function genId() {
+    return Math.random().toString(36).slice(2, 10);
+  }
+  function msgKey(id) {
+    return MSG_KEY_PREFIX + id;
+  }
 
   function htmlEscape(s) {
     if (!s) return "";
@@ -64,7 +85,9 @@
   }
 
   function lucideRefresh() {
-    try { if (window.lucide) window.lucide.createIcons(); } catch { }
+    try {
+      if (window.lucide) window.lucide.createIcons();
+    } catch {}
   }
 
   function lockScroll(on) {
@@ -78,7 +101,8 @@
     const sc = els.scroll || document.getElementById("chatScroll");
     if (!sc) return;
     const threshold = 48; // px: coi như đã ở gần đáy
-    const atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight <= threshold;
+    const atBottom =
+      sc.scrollHeight - sc.scrollTop - sc.clientHeight <= threshold;
     if (force || atBottom) {
       sc.scrollTo({ top: sc.scrollHeight, behavior: "smooth" });
     }
@@ -90,31 +114,40 @@
   }
 
   const useIdle = (cb, timeout = 500) =>
-    (window.requestIdleCallback ? requestIdleCallback(cb, { timeout }) : setTimeout(cb, 0));
+    window.requestIdleCallback
+      ? requestIdleCallback(cb, { timeout })
+      : setTimeout(cb, 0);
 
   // =========================
   // Local Storage Functions
   // =========================
   function loadSessions() {
-    try { return JSON.parse(localStorage.getItem(SESS_KEY) || "[]"); }
-    catch (_) { return []; }
+    try {
+      return JSON.parse(localStorage.getItem(SESS_KEY) || "[]");
+    } catch (_) {
+      return [];
+    }
   }
 
   function saveSessions(list) {
-    try { localStorage.setItem(SESS_KEY, JSON.stringify(list)); }
-    catch (_) { }
+    try {
+      localStorage.setItem(SESS_KEY, JSON.stringify(list));
+    } catch (_) {}
   }
 
   function loadMsgs(id) {
-    try { return JSON.parse(localStorage.getItem(msgKey(id)) || "[]"); }
-    catch (_) { return []; }
+    try {
+      return JSON.parse(localStorage.getItem(msgKey(id)) || "[]");
+    } catch (_) {
+      return [];
+    }
   }
 
   function saveMsgs(id, msgs) {
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function anyLocalMessagesExist() {
@@ -134,7 +167,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function ensureLocalSchema() {
@@ -149,8 +182,10 @@
     const sessions = loadSessions();
     if (!sessions.find((x) => x.id === id)) {
       sessions.unshift({
-        id, name: "Cuộc trò chuyện mới",
-        createdAt: nowTS(), updatedAt: nowTS(),
+        id,
+        name: "Cuộc trò chuyện mới",
+        createdAt: nowTS(),
+        updatedAt: nowTS(),
       });
       saveSessions(sessions);
       saveMsgs(id, []);
@@ -161,12 +196,16 @@
   // Session Management Functions
   // =========================
   function exposeCurrentSessionId() {
-    try { window.currentSessionId = currentSessionId; } catch (_) { }
+    try {
+      window.currentSessionId = currentSessionId;
+    } catch (_) {}
   }
 
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
-    try { window.sessionHistory = sessionHistory; } catch (_) { }
+    try {
+      window.sessionHistory = sessionHistory;
+    } catch (_) {}
   }
 
   // FIXED: Proper session adoption without message merging
@@ -216,8 +255,10 @@
     const id = genId();
     const sessions = loadSessions();
     sessions.unshift({
-      id, name: "Cuộc trò chuyện mới",
-      createdAt: nowTS(), updatedAt: nowTS(),
+      id,
+      name: "Cuộc trò chuyện mới",
+      createdAt: nowTS(),
+      updatedAt: nowTS(),
     });
     saveSessions(sessions);
     localStorage.setItem(CURR_KEY, id);
@@ -273,7 +314,12 @@
   // Markdown Rendering
   // =========================
   if (window.marked) {
-    marked.setOptions({ gfm: true, breaks: true, headerIds: false, mangle: false });
+    marked.setOptions({
+      gfm: true,
+      breaks: true,
+      headerIds: false,
+      mangle: false,
+    });
   }
 
   function renderMarkdown(md) {
@@ -294,7 +340,9 @@
 
     if (window.hljs) {
       wrapper.querySelectorAll("pre code").forEach((block) => {
-        try { hljs.highlightElement(block); } catch (_) { }
+        try {
+          hljs.highlightElement(block);
+        } catch (_) {}
       });
     }
     return wrapper;
@@ -326,7 +374,9 @@
     if (opts.persist) {
       sessionHistory.push({ role, content });
       persistMessage(role, content);
-      try { window.sessionHistory = sessionHistory; } catch (_) { }
+      try {
+        window.sessionHistory = sessionHistory;
+      } catch (_) {}
     }
   }
 
@@ -369,13 +419,14 @@
     if (!els.panel) return;
     const w = els.panel.getBoundingClientRect().width || 0;
     const effective = Math.min(w, 400);
-    document.documentElement.style.setProperty('--history-w', effective + 'px');
+    document.documentElement.style.setProperty("--history-w", effective + "px");
 
-    const btnW = Math.max(
-      (els.openBtn && els.openBtn.offsetWidth) || 0,
-      (els.newBtn && els.newBtn.offsetWidth) || 0
-    ) || 56;
-    document.documentElement.style.setProperty('--float-btn-w', btnW + 'px');
+    const btnW =
+      Math.max(
+        (els.openBtn && els.openBtn.offsetWidth) || 0,
+        (els.newBtn && els.newBtn.offsetWidth) || 0
+      ) || 56;
+    document.documentElement.style.setProperty("--float-btn-w", btnW + "px");
   }
 
   function openContainer() {
@@ -385,9 +436,9 @@
     els.panel.classList.add(isSidebarMode() ? "active" : "open");
     els.overlay.classList.add(isSidebarMode() ? "active" : "open");
 
-    document.body.classList.add('sidebar-open');
+    document.body.classList.add("sidebar-open");
     syncHistoryWidth();
-    window.addEventListener('resize', syncHistoryWidth, { passive: true });
+    window.addEventListener("resize", syncHistoryWidth, { passive: true });
 
     lockScroll(true);
     useIdle(startRenderSessions);
@@ -399,16 +450,19 @@
     els.panel.classList.remove(isSidebarMode() ? "active" : "open");
     els.overlay.classList.remove(isSidebarMode() ? "active" : "open");
 
-    document.body.classList.remove('sidebar-open');
-    window.removeEventListener('resize', syncHistoryWidth);
-    document.documentElement.style.setProperty('--history-w', '0px');
+    document.body.classList.remove("sidebar-open");
+    window.removeEventListener("resize", syncHistoryWidth);
+    document.documentElement.style.setProperty("--history-w", "0px");
 
     lockScroll(false);
     cancelHistoryRender();
   }
 
   function cancelHistoryRender() {
-    if (renderCtrl) { renderCtrl.abort(); renderCtrl = null; }
+    if (renderCtrl) {
+      renderCtrl.abort();
+      renderCtrl = null;
+    }
   }
 
   // =========================
@@ -426,7 +480,9 @@
         last_ts: s.last_ts || s.first_ts || "",
       }));
       return arr;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
 
   function loadLocalSessions() {
@@ -437,7 +493,9 @@
         preview: s.preview || "",
         last_ts: s.updatedAt || s.createdAt || "",
       }));
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }
 
   async function getSessions() {
@@ -504,19 +562,25 @@
     if (!els.list) return;
     try {
       // gỡ cờ cũ
-      els.list.querySelectorAll('.chat-item.active, .hp-item.active')
-        .forEach(n => n.classList.remove('active'));
+      els.list
+        .querySelectorAll(".chat-item.active, .hp-item.active")
+        .forEach((n) => n.classList.remove("active"));
 
       if (!currentSessionId) return;
-      const id = (window.CSS && CSS.escape) ? CSS.escape(String(currentSessionId)) : String(currentSessionId);
+      const id =
+        window.CSS && CSS.escape
+          ? CSS.escape(String(currentSessionId))
+          : String(currentSessionId);
 
       // tìm item theo data-id
-      const node = els.list.querySelector(`.chat-item[data-id="${id}"], .hp-item[data-id="${id}"]`);
+      const node = els.list.querySelector(
+        `.chat-item[data-id="${id}"], .hp-item[data-id="${id}"]`
+      );
       if (node) {
-        node.classList.add('active');
-        node.scrollIntoView({ block: 'nearest' });
+        node.classList.add("active");
+        node.scrollIntoView({ block: "nearest" });
       }
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function renderItemNode(s) {
@@ -529,7 +593,9 @@
       row.className = "row";
       row.innerHTML = `
           <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-          <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""}</div>`;
+          <div class="meta">${
+            s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+          }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
       acts.innerHTML = `
@@ -542,11 +608,13 @@
         openSessionAndRender(s.id);
       });
       acts.querySelector(".act-rename").addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         inlineRename(s.id, s.title);
       });
       acts.querySelector(".act-delete").addEventListener("click", (e) => {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         onDelete(s.id);
       });
       return li;
@@ -560,7 +628,9 @@
         <div class="chat-content gap-2 gap-md-3">
           <div class="chat-avatar"><i data-lucide="user"></i></div>
           <div class="chat-text">
-            <div class="chat-title">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
+            <div class="chat-title">${htmlEscape(
+              s.title || "Cuộc trò chuyện"
+            )}</div>
             <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
             <div class="chat-time">${formatTime(s.last_ts)}</div>
           </div>
@@ -574,14 +644,20 @@
       if (e.target.closest(".chat-actions")) return;
       openSessionAndRender(s.id);
     });
-    wrap.querySelector('[data-action="rename"]').addEventListener("click", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      inlineRename(s.id, s.title);
-    });
-    wrap.querySelector('[data-action="delete"]').addEventListener("click", (e) => {
-      e.preventDefault(); e.stopPropagation();
-      onDelete(s.id);
-    });
+    wrap
+      .querySelector('[data-action="rename"]')
+      .addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        inlineRename(s.id, s.title);
+      });
+    wrap
+      .querySelector('[data-action="delete"]')
+      .addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete(s.id);
+      });
     return wrap;
   }
 
@@ -592,7 +668,11 @@
     const now = new Date();
     const diff = now - date;
     const days = Math.floor(diff / 86400000);
-    if (days === 0) return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+    if (days === 0)
+      return date.toLocaleTimeString("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     if (days === 1) return "Hôm qua";
     if (days < 7) return `${days} ngày trước`;
     return date.toLocaleDateString("vi-VN");
@@ -602,7 +682,10 @@
   // Session Actions
   // =========================
   function inlineRename(id, currentTitle) {
-    const newName = prompt("Đặt tên đoạn chat:", currentTitle || "Cuộc trò chuyện");
+    const newName = prompt(
+      "Đặt tên đoạn chat:",
+      currentTitle || "Cuộc trò chuyện"
+    );
     if (!newName || !newName.trim()) return;
     commitRename(id, newName.trim());
   }
@@ -612,12 +695,14 @@
       await fetch("/api/history/rename_session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: id, title: newTitle })
+        body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch { }
+    } catch {}
 
     // Update local mirrors
-    updateLocalSession(id, (s) => { s.name = newTitle; });
+    updateLocalSession(id, (s) => {
+      s.name = newTitle;
+    });
     await startRenderSessions();
   }
 
@@ -630,27 +715,36 @@
       const r = await fetch("/api/history/delete_session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: id })
+        body: JSON.stringify({ session_id: id }),
       });
       const d = await r.json().catch(() => ({}));
       serverOk = r.ok && d.ok;
-    } catch { /* bỏ qua */ }
+    } catch {
+      /* bỏ qua */
+    }
 
     // 2) Xóa bản local (session list + messages)
     clearLocal(id);
 
     // 3) Nếu đang xóa CHÍNH phiên làm việc hiện tại → chọn phiên gần nhất và chuyển sang
-    const deletingCurrent = currentSessionId && String(currentSessionId) === String(id);
+    const deletingCurrent =
+      currentSessionId && String(currentSessionId) === String(id);
     if (deletingCurrent) {
       // Lấy danh sách còn lại (ưu tiên server, fallback local), loại id vừa xóa
       let candidateId = null;
       try {
         const list = await getSessions(); // {id, title, preview, last_ts}
-        const filtered = (list || []).filter(s => String(s.id) !== String(id));
+        const filtered = (list || []).filter(
+          (s) => String(s.id) !== String(id)
+        );
         // Sắp theo thời gian giảm dần và chọn cái "gần nhất" (mới nhất còn lại)
-        filtered.sort((a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0));
+        filtered.sort(
+          (a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0)
+        );
         if (filtered.length) candidateId = filtered[0].id;
-      } catch { /* bỏ qua */ }
+      } catch {
+        /* bỏ qua */
+      }
 
       // Reset trạng thái current trước khi chuyển
       localStorage.removeItem(CURR_KEY);
@@ -665,7 +759,9 @@
         await openSessionAndRender(candidateId);
       } else {
         // Không còn phiên nào -> tạo phiên mới
-        try { await createNewSession(); } catch { }
+        try {
+          await createNewSession();
+        } catch {}
       }
     }
 
@@ -675,7 +771,6 @@
     if (!serverOk) console.warn("Server delete failed; cleared locally only.");
   }
 
-
   async function createNewSession() {
     // Try server first
     try {
@@ -684,14 +779,14 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch { }
+    } catch {}
 
     // Try API directly
     try {
       const r = await fetch("/api/history/new_session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: "Cuộc trò chuyện" })
+        body: JSON.stringify({ title: "Cuộc trò chuyện" }),
       });
       if (r.ok) {
         const d = await r.json();
@@ -704,7 +799,7 @@
           return;
         }
       }
-    } catch { }
+    } catch {}
 
     // Local fallback
     ensureSession(true);
@@ -718,28 +813,33 @@
     if (!sessionId) return;
 
     try {
-      const r = await fetch(`/api/history/by_session?session_id=${encodeURIComponent(sessionId)}`);
+      const r = await fetch(
+        `/api/history/by_session?session_id=${encodeURIComponent(sessionId)}`
+      );
       if (r.ok) {
         const data = await r.json();
         const items = data.items || [];
 
         // Clean session switch
         if (els.chatList) els.chatList.innerHTML = "";
-        if (els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
+        if (els.greeting)
+          els.greeting.style.display = items.length ? "none" : "flex";
 
         // Set new current session
         adoptServerSid(data.session_id || sessionId);
 
         // Load messages for this session only
         items.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-        setSessionHistoryRef(items.map(({ role, content }) => ({ role, content })));
+        setSessionHistoryRef(
+          items.map(({ role, content }) => ({ role, content }))
+        );
 
         // Save to local storage
         if (currentSessionId) {
           const msgs = items.map((m) => ({
             role: m.role,
             content: m.content,
-            at: m.ts || nowTS()
+            at: m.ts || nowTS(),
           }));
           saveMsgs(currentSessionId, msgs);
 
@@ -750,7 +850,7 @@
         closeContainer();
         return;
       }
-    } catch { }
+    } catch {}
 
     // Local fallback
     openLocalSession(sessionId);
@@ -771,17 +871,22 @@
           localStorage.setItem(CURR_KEY, id);
           exposeCurrentSessionId();
           useIdle(markActiveSessionInList);
-          msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-          setSessionHistoryRef(msgs.map(m => ({ role: m.role, content: m.content })));
+          msgs.forEach((m) =>
+            addMessage(m.role, m.content, { persist: false })
+          );
+          setSessionHistoryRef(
+            msgs.map((m) => ({ role: m.role, content: m.content }))
+          );
         }
       }
-    } catch { }
+    } catch {}
   }
 
   function showMessages(messages) {
     if (!els.chatList) return;
     els.chatList.innerHTML = "";
-    if (els.greeting) els.greeting.style.display = messages.length ? "none" : "flex";
+    if (els.greeting)
+      els.greeting.style.display = messages.length ? "none" : "flex";
 
     let i = 0;
     (function pump() {
@@ -806,17 +911,19 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch { }
+    } catch {}
   }
 
   function clearLocal(id) {
     try {
-      const filtered = loadSessions().filter((s) => String(s.id) !== String(id));
+      const filtered = loadSessions().filter(
+        (s) => String(s.id) !== String(id)
+      );
       saveSessions(filtered);
-    } catch { }
+    } catch {}
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch { }
+    } catch {}
   }
 
   // =========================
@@ -825,7 +932,9 @@
   // FIXED: Get current session specifically
   async function hydrateFromServer() {
     try {
-      const res = await fetch(`/api/history/current_session`, { method: "GET" });
+      const res = await fetch(`/api/history/current_session`, {
+        method: "GET",
+      });
       const data = await res.json();
 
       const items = data.items || [];
@@ -844,16 +953,19 @@
       if (sid) adoptServerSid(sid);
 
       if (els.chatList) els.chatList.innerHTML = "";
-      if (els.greeting) els.greeting.style.display = items.length ? "none" : "flex";
+      if (els.greeting)
+        els.greeting.style.display = items.length ? "none" : "flex";
 
       items.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-      setSessionHistoryRef(items.map(({ role, content }) => ({ role, content })));
+      setSessionHistoryRef(
+        items.map(({ role, content }) => ({ role, content }))
+      );
 
       if (currentSessionId) {
         const msgs = items.map((m) => ({
           role: m.role,
           content: m.content,
-          at: m.ts || nowTS()
+          at: m.ts || nowTS(),
         }));
         saveMsgs(currentSessionId, msgs);
 
@@ -868,7 +980,8 @@
   async function bootstrapFromLocalThenServer() {
     await hydrateFromServer();
 
-    const hasUI = els.chatList && els.chatList.children && els.chatList.children.length > 0;
+    const hasUI =
+      els.chatList && els.chatList.children && els.chatList.children.length > 0;
     if (!hasUI) {
       try {
         currentSessionId = localStorage.getItem(CURR_KEY) || null;
@@ -878,11 +991,15 @@
           if (msgs.length) {
             if (els.greeting) els.greeting.style.display = "none";
             els.chatList.innerHTML = "";
-            msgs.forEach((m) => addMessage(m.role, m.content, { persist: false }));
-            setSessionHistoryRef(msgs.map((m) => ({ role: m.role, content: m.content })));
+            msgs.forEach((m) =>
+              addMessage(m.role, m.content, { persist: false })
+            );
+            setSessionHistoryRef(
+              msgs.map((m) => ({ role: m.role, content: m.content }))
+            );
           }
         }
-      } catch (_) { }
+      } catch (_) {}
     }
   }
 
@@ -907,7 +1024,10 @@
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, session_id: currentSessionId || "" }),
+          body: JSON.stringify({
+            message: text,
+            session_id: currentSessionId || "",
+          }),
         });
         const data = await res.json();
 
@@ -954,13 +1074,17 @@
     });
 
     // Set session title from first user message
-    els.chatForm.addEventListener("submit", () => {
-      const text = (els.chatInput?.value || "").trim();
-      if (text) {
-        if (!currentSessionId) ensureSession(true);
-        setSessionTitleFromFirstUser(text);
-      }
-    }, true);
+    els.chatForm.addEventListener(
+      "submit",
+      () => {
+        const text = (els.chatInput?.value || "").trim();
+        if (text) {
+          if (!currentSessionId) ensureSession(true);
+          setSessionTitleFromFirstUser(text);
+        }
+      },
+      true
+    );
   }
 
   // =========================
@@ -1016,7 +1140,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch (_) { }
+  } catch (_) {}
 
   // =========================
   // Initialization
@@ -1029,7 +1153,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch (_) { }
+    } catch (_) {}
 
     // Bootstrap from server, fallback to local
     bootstrapFromLocalThenServer();
@@ -1037,5 +1161,4 @@
     // Auto-render history if container is visible
     useIdle(startRenderSessions);
   });
-
 })();

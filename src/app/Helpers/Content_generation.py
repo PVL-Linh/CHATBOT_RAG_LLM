@@ -1,26 +1,25 @@
 from __future__ import annotations
 import textwrap
+import time as _time
 from app.Helpers.Marketing_Planner.helpers_resolve import resolve_channel
 from app.Helpers.Marketing_Planner.Content_Planner import build_user_prompt_body
 from app.Helpers.Marketing_Planner.bounded_writer import generate_bounded_longform
 from app.Helpers.Marketing_Planner.prompt_builder import build_system_prompt_dynamic
 from app.Helpers.Marketing_Planner.text_postprocess import patch_meta
-# --- Tùy chọn: các dependency cho Gemini (có thì dùng, không có vẫn chạy) ---
 try:
-    from langchain_core.messages import SystemMessage  # type: ignore
+    from langchain_core.messages import SystemMessage
 except Exception:
-    SystemMessage = None  # fallback
+    SystemMessage = None
 
 try:
     from .LLM_client import call_gemini_flash_planner, apply_occasion_lock, call_gemini_flash  # type: ignore
 except Exception:
-    call_gemini_flash_planner = None   # fallback
-    call_gemini_flash = None           # fallback
+    call_gemini_flash_planner = None
+    call_gemini_flash = None
     def apply_occasion_lock(user_prompt: str, system_prompt: str):
         return user_prompt, system_prompt
-
 try:
-    from .prompt_KT import persona_vi  # type: ignore
+    from .prompt_KT import persona_vi
 except Exception:
     persona_vi = "Bạn là trợ lý marketing của Tiximax, viết ngắn gọn, súc tích."
 
@@ -36,23 +35,15 @@ __all__ = [
     "generate_rephrase_content",
     "generate_tiktok_content",
     "generate_fab_content",
-    "generate_caption",  # dùng cho flow KHÔNG ảnh
-    "generate_caption_from_image_and_inputs",  # dùng cho flow CÓ ảnh
+    "generate_caption",
+    "generate_caption_from_image_and_inputs",
 ]
 
-# ---------------------------
-# Các hàm dùng Gemini (nếu có)
-# ---------------------------
 def generate_facebook_ads_content(
     product_desc: str,
     customer: str,
     lang: str = "Tiếng Việt",
-) -> str:
-    """
-    Generate Facebook Ads content using Gemini Flash (nếu có).
-    Nếu Gemini chưa cấu hình -> fallback về caption chuẩn.
-    """
-    # Nếu có Gemini: gọi
+    ) -> str:
     if call_gemini_flash is not None and SystemMessage is not None:
         user_prompt = f"""
         Create marketing content following the fixed template below for a Facebook contents campaign.
@@ -65,9 +56,8 @@ def generate_facebook_ads_content(
         try:
             return call_gemini_flash(user_prompt, system_instruction, [SystemMessage(persona_vi)])
         except Exception:
-            pass  # fallback phía dưới
+            pass
 
-    # Fallback không dùng Gemini
     return generate_caption(
         product_desc=product_desc,
         customer=customer,
@@ -95,7 +85,6 @@ def generate_rephrase_content(
             return call_gemini_flash_planner(user_prompt, system_prompt, [])
         except Exception:
             pass
-    # Fallback
     return f"[Rephrase/{lang}/{tone}] {text_src}".strip()
 
 def generate_tiktok_content(
@@ -118,7 +107,6 @@ def generate_tiktok_content(
             return call_gemini_flash_planner(user_prompt, system_prompt, [])
         except Exception:
             pass
-    # Fallback
     return textwrap.dedent(f"""
     **TikTok Ideas ({lang}, ~{duration}s, mục tiêu: {objective})**
     1) Hook mạnh + 1 lợi ích chính
@@ -144,7 +132,6 @@ def generate_fab_content(
             return call_gemini_flash_planner(user_prompt, system_prompt, [])
         except Exception:
             pass
-    # Fallback
     return textwrap.dedent(f"""
     **FAB ({lang})**
     - Features: {benefits or '(chưa nhập)'}
@@ -152,9 +139,6 @@ def generate_fab_content(
     - Benefits: Lợi ích trực tiếp cho khách hàng
     """).strip()
 
-# ---------------------------
-# Hàm caption CHUẨN cho flow KHÔNG ảnh (route /api/fbads/generate_text dùng)
-# ---------------------------
 def generate_caption(
     product_desc: str,
     customer: str,
@@ -166,7 +150,6 @@ def generate_caption(
     KHÔNG ẢNH → tạo caption từ mô tả + khách hàng.
     Có Gemini thì ưu tiên gọi; nếu không có -> fallback offline.
     """
-    # Ưu tiên gọi Gemini nếu có
     if call_gemini_flash is not None and SystemMessage is not None:
         try:
             user_prompt = f"""
@@ -182,7 +165,6 @@ def generate_caption(
         except Exception:
             pass
 
-    # Fallback không dùng Gemini
     product_desc = (product_desc or "").strip()
     customer     = (customer or "").strip()
     brand        = (brand or "Tiximax Logistics").strip()
@@ -210,9 +192,6 @@ def generate_caption(
     CTA: **Nhắn tin ngay để được báo giá!**
     """).strip()
 
-# ---------------------------
-# Caption KẾT HỢP cho flow CÓ ảnh (route /api/fbads/generate_text_from_image dùng)
-# ---------------------------
 def generate_caption_from_image_and_inputs(
     *,
     features: dict,
@@ -258,7 +237,6 @@ def generate_caption_from_image_and_inputs(
         ])
         return "\n".join(lines).strip()
 
-    # Vietnamese
     lines = [
         f"**{brand} — Caption dựa trên ảnh ({tone})**",
         "",
@@ -274,10 +252,6 @@ def generate_caption_from_image_and_inputs(
     ])
     return "\n".join(lines).strip()
 
-
-# =========================
-#      Bounded Planner
-# =========================
 def _cg_as_tones_line(tones) -> str:
     if isinstance(tones, (list, tuple)) and tones:
         return ", ".join([str(t) for t in tones if str(t).strip()])
@@ -308,16 +282,10 @@ def _cg_parse_outline_from_payload(d: dict) -> list[str]:
     return []
 
 def planner_generate_bounded(payload: dict) -> tuple[dict, int]:
-    """
-    Sinh nội dung longform theo bounded-writer (~2.000 từ, ít call).
-    Trả về (json_body, http_status).
-    """
     if resolve_channel is None or build_system_prompt_dynamic is None:
         return {"error": "Planner modules missing. Hãy cài đặt Marketing_Planner/*."}, 500
 
     d = payload or {}
-
-    # Inputs chung
     lang = (d.get("lang") or "Tiếng Việt").strip()
     tones_line = _cg_as_tones_line(d.get("tones", []))
     include_toc = bool(d.get("include_toc", False))
@@ -335,12 +303,10 @@ def planner_generate_bounded(payload: dict) -> tuple[dict, int]:
     except Exception:
         tolerance_pct = 6
 
-    # Channel
     ch = resolve_channel(d.get("channel", ""))
     if not ch:
         return {"error": "Channel not found"}, 404
 
-    # System & User prompts
     system_prompt = build_system_prompt_dynamic(
         ch=ch,
         lang=lang,
@@ -353,11 +319,8 @@ def planner_generate_bounded(payload: dict) -> tuple[dict, int]:
         "include_toc": include_toc
     })
 
-    # Outline (nếu có)
-    outline = _cg_parse_outline_from_payload(d)
 
-    # Gọi bounded-writer
-    import time as _time
+    outline = _cg_parse_outline_from_payload(d)
     t0 = _time.time()
     try:
         text, wc, did_microfix = generate_bounded_longform(
@@ -373,7 +336,6 @@ def planner_generate_bounded(payload: dict) -> tuple[dict, int]:
         return {"error": f"LLM error: {e}"}, 500
     latency = round(_time.time() - t0, 2)
 
-    # Patch meta/slug nếu client gửi
     if any([meta_title, meta_desc, slug]):
         text = patch_meta(text, meta_title, meta_desc, slug)
 
@@ -393,7 +355,7 @@ def planner_generate_bounded(payload: dict) -> tuple[dict, int]:
             "target_words": target_words,
             "tolerance_pct": tolerance_pct,
             "latency_sec": latency,
-            "used_sectioned_writer": False,   # bounded-writer không section-by-section
+            "used_sectioned_writer": False,
             "outline_cnt": len(outline_preview),
             "outline_preview": outline_preview,
             "word_count_est": wc,

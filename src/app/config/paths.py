@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from app.config.utils_config import _resolve_path
+from .utils_config import _resolve_path
 
 # Lấy thư mục gốc của dự án 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent

@@ -6,7 +6,7 @@ def list_index_sources(root: str, dept: str):
     _dept_dir, _data_dir, index_dir, _corpus, _update = dept_paths(root, dept)
     if not faiss_exists(index_dir):
         return []
-    vs = load_faiss(index_dir)  # hoặc load_faiss(index_dir, emb=None)
+    vs = load_faiss(index_dir)
     store = getattr(vs.docstore, "_dict", {})
     counter = {}
     for _id, doc in store.items():

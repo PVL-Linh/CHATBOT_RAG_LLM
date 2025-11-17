@@ -3,17 +3,17 @@ src/app/models/
 Trash/
 Documents/
 ingest/
-
+_deleted/
 
 # Bỏ FAISS_Vector trong src
-# src/app/Data/
+src/app/Data/
 instance/
 *.db
 *.db-wal
 *.db-shm
 logs/
 ingest/
-
+src/app/route/test_chat.py
 
 TRASH/
 src/app/chat_logs/
@@ -24,16 +24,51 @@ instance/
 src/app/Data/
 src/test.py
 src/uploads/
-# Bỏ file tạm Python
+
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-
-
-# Bỏ thư mục venv
+*.pyd
+*.egg-info/
+.venv/
 venv/
-.env
-
-# Bỏ file tạm IDE
+env/
 .vscode/
-.idea/
+
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Logs & temp
+logs/
+*.log
+.tmp/
+.cache/
+*.tmp
+
+
+
+# DB & big artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.parquet
+*.pt
+*.bin
+*.h5
+*.onnx
+# Docs/bundles
+*.pdf
+*.docx
+*.xlsx
+*.zip
+*.tar
+*.tar.gz
+
+# OS junk
+.DS_Store
+Thumbs.db
+

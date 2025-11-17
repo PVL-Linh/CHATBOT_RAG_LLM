@@ -7,9 +7,9 @@ services:
     # Mount các dữ liệu cần persist / lớn
     volumes:
       - ./instance:/app/instance
-      - ./src/FAISS_Vector:/app/src/FAISS_Vector
+      - ./src/app/vectorstore:/app/src/app/vectorstore
       - ./src/uploads:/app/src/uploads
-      - ./src/Model_LLM/models/local_multilingual_e5_large:/app/src/Model_LLM/models/local_multilingual_e5_large:ro
+      - ./src/app/models/local_multilingual_e5_large:/app/src/app/models/local_multilingual_e5_large:ro
     networks: [web]
 
   caddy:

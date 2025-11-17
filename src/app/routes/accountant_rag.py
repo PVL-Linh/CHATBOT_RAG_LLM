@@ -5,7 +5,9 @@ from __future__ import annotations
 import os
 import json
 import time
+import sys
 import sqlite3
+import traceback
 from uuid import uuid4
 from datetime import datetime
 from typing import Dict, Any, Optional, List
@@ -449,3 +451,4 @@ def current_session():
     if not data:
         return jsonify({"session_id": None, "items": []})
     return jsonify(data)
+
