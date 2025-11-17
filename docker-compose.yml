@@ -1,3 +1,62 @@
+# version: "3.9"
+
+# services:
+#   tiximax:
+#     container_name: tiximax
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     image: tiximax:local
+#     restart: unless-stopped
+#     ports:
+#       - "10000:10000"
+#     env_file: ./.env
+#     environment:
+#       PORT: "${PORT:-10000}"
+#       WEB_THREADS: "${WEB_THREADS:-8}"
+#       WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
+#       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
+#       VECTORSTORE_ROOT: "/app/src/app/vectorstore"
+#       DATA_DIR: /var/lib/tiximax/Data_app
+#       USERS_DB: /var/lib/tiximax/Data_app/users.db
+#       SQLITE_PATH: /var/lib/tiximax/Data_app/users.db
+#       CHAT_DB_PATH: /var/lib/tiximax/Data_app/chat.db
+#       HF_HOME: /var/lib/tiximax/models
+#       TRANSFORMERS_CACHE: /var/lib/tiximax/models/cache
+
+#       REDIS_URL: "redis://redis:6379/0"
+#       REDIS_HOST: "redis"
+#       REDIS_PORT: "6379"
+#       REDIS_DB: "0"
+#     volumes:
+#       - "./src/app/Data_app:/var/lib/tiximax/Data_app"
+#       - "./src/app/Data_app:/app/src/app/Data_app"
+#       - "./src/app/vectorstore:/var/lib/tiximax/vectorstore"
+#       - "./src/app/models:/var/lib/tiximax/models"
+#     dns:
+#       - 1.1.1.1
+#       - 8.8.8.8
+#     depends_on:
+#       - redis
+
+#   redis:
+#     image: redis:7-alpine
+#     container_name: tiximax_redis
+#     restart: unless-stopped
+#     command: ["redis-server", "--appendonly", "yes"]
+#     volumes:
+#       - redis_data:/data
+#     networks:
+#       - web
+
+#   cloudflared:
+#     image: cloudflare/cloudflared:latest
+#     container_name: tiximax-tunnel
+#     restart: unless-stopped
+#     depends_on:
+#       - tiximax
+#     command: ["tunnel", "--no-autoupdate", "--url", "http://tiximax:10000"]
+
 version: "3.9"
 
 services:
@@ -16,6 +75,7 @@ services:
       WEB_THREADS: "${WEB_THREADS:-8}"
       WEB_CONCURRENCY: "${WEB_CONCURRENCY:-1}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
+
       VECTORSTORE_ROOT: "/app/src/app/vectorstore"
       DATA_DIR: /var/lib/tiximax/Data_app
       USERS_DB: /var/lib/tiximax/Data_app/users.db
@@ -23,14 +83,37 @@ services:
       CHAT_DB_PATH: /var/lib/tiximax/Data_app/chat.db
       HF_HOME: /var/lib/tiximax/models
       TRANSFORMERS_CACHE: /var/lib/tiximax/models/cache
+
+      REDIS_URL: "redis://redis:6379/0"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
+
     volumes:
-      - "./src/app/Data_app:/var/lib/tiximax/Data_app"
-      - "./src/app/Data_app:/app/src/app/Data_app"
-      - "./src/app/vectorstore:/var/lib/tiximax/vectorstore"
-      - "./src/app/models:/var/lib/tiximax/models"
+      - ./src/app/Data_app:/var/lib/tiximax/Data_app
+      - ./src/app/Data_app:/app/src/app/Data_app
+      - ./src/app/vectorstore:/var/lib/tiximax/vectorstore
+      - ./src/app/models:/var/lib/tiximax/models
+
     dns:
       - 1.1.1.1
       - 8.8.8.8
+
+    depends_on:
+      - redis
+
+    networks:
+      - web
+
+  redis:
+    image: redis:7-alpine
+    container_name: tiximax_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - web
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -38,4 +121,17 @@ services:
     restart: unless-stopped
     depends_on:
       - tiximax
-    command: ["tunnel", "--no-autoupdate", "--url", "http://tiximax:10000"]
+    command:
+      - "tunnel"
+      - "--no-autoupdate"
+      - "--url"
+      - "http://tiximax:10000"
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  redis_data:
