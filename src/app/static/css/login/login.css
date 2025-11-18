@@ -90,7 +90,7 @@ body.bg {
   --c1: #2e9e86; --c2: #2b8f7a;
   background-image: linear-gradient(180deg, var(--c1), var(--c2));
   border: 0; color: #fff;
-  border-radius: 12px;
+  border-radius: 999px;
   box-shadow: 0 8px 20px rgba(39,154,132,.18);
 }
 .btn-login:hover{ filter: brightness(1.03); }
@@ -229,4 +229,25 @@ button, .btn, .tixi-eye{ touch-action: manipulation; }
   .tixi-eye{ height: 46px; }
   .tixi-ig-icon{ width: 48px; min-width: 48px; height: 46px; }
   .tixi-field{ min-height: 48px; }
+}
+.btn-outlook {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+}
+
+.btn-outlook:hover {
+  background: #005ea6;
+  color: #fff;
+}
+
+.outlook-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #fff;
+  color: #0078d4;
+  font-weight: 700;
+  font-size: 14px;
 }
