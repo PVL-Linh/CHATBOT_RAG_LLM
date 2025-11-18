@@ -609,9 +609,8 @@ from app.config.paths import USERS_DB
 DB_PATH = USERS_DB
 
 ALLOWED_ROLES = {
-    "marketing", "manager_marketing", "sales", "hr", "admin", "manager_sales"
+    "marketing", "manager_marketing", "sales", "hr", "admin", "manager_sales", "accountant"
 }
-
 _ROLE_SPLIT_RE = re.compile(r"[,\s;|/]+")
 _DB_READY = False
 _DB_LOCK = threading.Lock()
