@@ -56,20 +56,20 @@ endblock %} {% block page_css %}
         </div>
       </div>
       <footer class="composer position-sticky bottom-0">
-        <form id="chatForm" class="composer-inner">
-          <div class="input-wrap">
-            <textarea
-              id="chatInput"
-              rows="1"
-              placeholder="Ask anything about Tiximax Company"
-              autocomplete="off"
-            ></textarea>
-            <button id="sendBtn" class="send-btn" type="submit" title="Gửi">
-              <i data-lucide="send"></i>
-            </button>
-          </div>
-        </form>
-      </footer>
+          <form id="chatForm" class="composer-inner">
+            <div id="filePreviewContainer" class="px-4 mb-2" style="display: none;">
+              <div id="filePreview" class="d-flex flex-wrap gap-2"></div>
+            </div>
+            <div class="input-wrap">
+              <label for="fileInput" class="attach-btn me-2" title="Đính kèm file">
+                <i data-lucide="paperclip"></i>
+              </label>
+              <input type="file" id="fileInput" class="d-none" multiple accept=".pdf,.doc,.txt,.jpg,.jpeg,.png,.gif,.webp,.docx" />
+              <textarea id="chatInput" rows="1" placeholder="Ask anything" autocomplete="off"></textarea>
+              <button id="sendBtn" class="send-btn" type="submit" title="Gửi"><i data-lucide="send"></i></button>
+            </div>
+          </form>
+        </footer>
     </div>
   </div>
 </main>

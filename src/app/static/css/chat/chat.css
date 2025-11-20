@@ -44,9 +44,21 @@
 }
 
 .msg.user .bubble {
-  background: #ffd062;
-  border-color: #c7d2fe;
-  border-radius: 16px;
+  background: linear-gradient(135deg, #FBC02D 0%, #FFA000 100%);
+  color: #000;
+  border: none;
+  border-radius: 20px;
+  position: relative;
+
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+.msg.user .bubble::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .msg .avatar {
@@ -774,4 +786,136 @@ body{ background: var(--page-bg); }
     animation:none !important;
     opacity:.85;
   }
+}
+.input-wrap:focus-within {
+  border-color: #0066ff;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
+.attach-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e3e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.attach-btn:hover {
+  background: #d0d8e8;
+  transform: scale(1.05);
+}
+
+.attach-btn i {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+  color: #444;
+}
+
+.send-btn i {
+  width: 20px;
+  height: 20px;
+  color: white;
+  stroke-width: 2.5;
+}
+
+/* Đảm bảo textarea tự mở rộng chiều cao */
+#chatInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.5;
+  max-height: 150px;
+  overflow-y: auto;
+}
+/* Pill file giống hệt Grok */
+.file-pill {
+  background: #f1f3f5;
+  border-radius: 12px;
+  padding: 6px 10px 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #1f2328;
+  max-width: 280px;
+  border: 1px solid #e0e2e5;
+}
+
+.file-pill i {
+  width: 16px;
+  height: 16px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.file-pill .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60px;
+}
+
+.file-pill .remove-file {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.file-pill .remove-file:hover {
+  background: #e0e2e5;
+  color: #333;
+}
+
+/* Input wrap giống Grok */
+.input-wrap {
+  display: flex;
+  align-items: flex-end;
+  background: #f8f9fa;
+  ;
+  border: 1px solid #e0e0e0;
+  border-radius: 28px;
+  padding: 10px 16px;
+  transition: all 0.2s;
+}
+
+.input-wrap:focus-within {
+  border-color: #c0c4cc;
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+
+.attach-btn, .send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.attach-btn:hover { background: #e9ecef; }
+.send-btn:hover { background: #e9ecef; }
+
+.send-btn i {
+  width: 20px;
+  height: 20px;
+  color: #1f2328;
 }
