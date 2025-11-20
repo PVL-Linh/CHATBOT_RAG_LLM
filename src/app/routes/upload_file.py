@@ -1,5 +1,5 @@
 import os
-import time  # 🔴 dùng module time, KHÔNG dùng from time import time
+import time
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, session
 
@@ -34,14 +34,11 @@ def upload_file():
             "allowed": list(ALLOWED_EXTENSIONS),
         }), 400
 
-    # Tạo thư mục lưu tạm
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     save_path = os.path.join(UPLOAD_DIR, f"{int(time.time())}_{filename}")
     f.save(save_path)
 
-    # Gắn file vào session để chat_api biết đang ở mode doc_qa
     session["uploaded_file"] = save_path
-
     return jsonify({
         "ok": True,
         "message": "Đã tải file lên. Bạn có thể hỏi nội dung trong file này.",
