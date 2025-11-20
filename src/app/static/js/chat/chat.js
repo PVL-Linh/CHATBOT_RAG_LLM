@@ -87,7 +87,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch {}
+    } catch { }
   }
 
   function lockScroll(on) {
@@ -132,7 +132,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function loadMsgs(id) {
@@ -147,7 +147,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function anyLocalMessagesExist() {
@@ -167,7 +167,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function ensureLocalSchema() {
@@ -198,14 +198,14 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // FIXED: Proper session adoption without message merging
@@ -342,7 +342,7 @@
       wrapper.querySelectorAll("pre code").forEach((block) => {
         try {
           hljs.highlightElement(block);
-        } catch (_) {}
+        } catch (_) { }
       });
     }
     return wrapper;
@@ -351,7 +351,9 @@
   // =========================
   // Chat UI Functions
   // =========================
-  function addMessage(role, content, opts = { persist: true }) {
+  let currentTypingController = null;
+
+  function addMessage(role, content, opts = { persist: true, isNew: false }) {
     if (!content) return;
     if (els.greeting) els.greeting.style.display = "none";
 
@@ -361,23 +363,129 @@
     const bubble = document.createElement("div");
     bubble.className = "bubble";
 
-    const node = renderMarkdown(content);
-    if (node.dataset.hasTable === "1") bubble.classList.add("is-table");
-    bubble.appendChild(node);
+    const contentWrapper = document.createElement("div");
+    bubble.appendChild(contentWrapper);
 
     li.appendChild(bubble);
-    if (els.chatList) {
-      els.chatList.appendChild(li);
-      scrollToBottom(true);
+    els.chatList.appendChild(li);
+    scrollToBottom(true);
+
+    // === Tin nhắn người dùng: hiện luôn ===
+    if (role === "user") {
+      const node = renderMarkdown(content);
+      if (node.dataset.hasTable === "1") bubble.classList.add("is-table");
+      contentWrapper.appendChild(node);
+
+      if (opts.persist) {
+        sessionHistory.push({ role, content });
+        persistMessage(role, content);
+      }
+      return;
     }
 
-    if (opts.persist) {
-      sessionHistory.push({ role, content });
-      persistMessage(role, content);
-      try {
-        window.sessionHistory = sessionHistory;
-      } catch (_) {}
+    // === ASSISTANT ===
+    // Nếu là tin nhắn cũ (load từ lịch sử, chuyển session, hydrate) → hiện luôn
+    if (!opts.isNew) {
+      const node = renderMarkdown(content);
+      if (node.dataset.hasTable === "1") bubble.classList.add("is-table");
+      contentWrapper.appendChild(node);
+
+      if (opts.persist) {
+        sessionHistory.push({ role, content });
+        persistMessage(role, content);
+      }
+
+      // Highlight code nếu có
+      if (window.hljs) {
+        contentWrapper.querySelectorAll("pre code").forEach(block => {
+          try { hljs.highlightElement(block); } catch { }
+        });
+      }
+      return;
     }
+
+        // === CHỈ KHI LÀ TIN NHẮN MỚI (isNew: true) → bật typewriter (HOẠT ĐỘNG DÙ CHUYỂN TAB) ===
+    if (currentTypingController) {
+      currentTypingController.abort();
+    }
+    currentTypingController = new AbortController();
+    const signal = currentTypingController.signal;
+
+    const fullNode = renderMarkdown(content);
+    if (fullNode.dataset.hasTable === "1") bubble.classList.add("is-table");
+
+    let textSoFar = "";
+    let charIndex = 0;
+    const fullText = content;
+
+    // Tốc độ gõ như ChatGPT (đã tối ưu)
+    const getDelay = (char) => {
+      if (/[.,!?;]/.test(char)) return 50;
+      if (/[\u4e00-\u9fff]/.test(char)) return 25;
+      if (/[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/.test(char)) return 25;
+      if (/\s/.test(char)) return 8;
+      return 11;
+    };
+
+    let lastTimestamp = performance.now();
+
+    const typeNext = (now) => {
+      if (signal.aborted) return;
+
+      // Tính thời gian đã trôi qua kể từ lần cuối
+      const delta = now - lastTimestamp;
+      let accumulatedDelay = (typeNext.accumulated ||= 0) + delta;
+
+      // Gõ hết các ký tự mà thời gian đã đủ
+      while (accumulatedDelay >= getDelay(fullText[charIndex - 1] || " ")) {
+        if (charIndex >= fullText.length) {
+          // HOÀN THÀNH
+          contentWrapper.innerHTML = fullNode.innerHTML;
+
+          if (window.hljs) {
+            contentWrapper.querySelectorAll("pre code").forEach(block => {
+              try { hljs.highlightElement(block); } catch {}
+            });
+          }
+
+          if (opts.persist) {
+            sessionHistory.push({ role: "assistant", content });
+            persistMessage("assistant", content);
+          }
+
+          currentTypingController = null;
+          removeTyping();
+          typeNext.accumulated = 0;
+          return;
+        }
+
+        textSoFar += fullText[charIndex];
+        charIndex++;
+
+        const nextDelay = getDelay(fullText[charIndex - 1]);
+        accumulatedDelay -= nextDelay;
+      }
+
+      // Cập nhật UI với nội dung hiện tại + con trỏ nháy
+      const temp = renderMarkdown(textSoFar + "<span class='typing-cursor'>|</span>");
+      contentWrapper.innerHTML = temp.innerHTML;
+      scrollToBottom();
+
+      // Lưu lại thời gian và delay còn lại
+      lastTimestamp = now;
+      typeNext.accumulated = accumulatedDelay;
+
+      // Vòng lặp tiếp theo (luôn chạy dù tab bị ẩn)
+      requestAnimationFrame(typeNext);
+    };
+
+    // Bắt đầu sau 30ms để mượt
+    setTimeout(() => {
+      if (!signal.aborted) {
+        lastTimestamp = performance.now();
+        requestAnimationFrame(typeNext);
+      }
+    }, 10); // delay nhẹ trước khi bắt đầu gõ
   }
 
   function addTyping() {
@@ -580,7 +688,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function renderItemNode(s) {
@@ -593,9 +701,8 @@
       row.className = "row";
       row.innerHTML = `
           <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-          <div class="meta">${
-            s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
-          }</div>`;
+          <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+        }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
       acts.innerHTML = `
@@ -629,8 +736,8 @@
           <div class="chat-avatar"><i data-lucide="user"></i></div>
           <div class="chat-text">
             <div class="chat-title">${htmlEscape(
-              s.title || "Cuộc trò chuyện"
-            )}</div>
+      s.title || "Cuộc trò chuyện"
+    )}</div>
             <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
             <div class="chat-time">${formatTime(s.last_ts)}</div>
           </div>
@@ -697,7 +804,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch {}
+    } catch { }
 
     // Update local mirrors
     updateLocalSession(id, (s) => {
@@ -761,7 +868,7 @@
         // Không còn phiên nào -> tạo phiên mới
         try {
           await createNewSession();
-        } catch {}
+        } catch { }
       }
     }
 
@@ -779,7 +886,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch {}
+    } catch { }
 
     // Try API directly
     try {
@@ -799,7 +906,7 @@
           return;
         }
       }
-    } catch {}
+    } catch { }
 
     // Local fallback
     ensureSession(true);
@@ -850,7 +957,7 @@
         closeContainer();
         return;
       }
-    } catch {}
+    } catch { }
 
     // Local fallback
     openLocalSession(sessionId);
@@ -879,7 +986,7 @@
           );
         }
       }
-    } catch {}
+    } catch { }
   }
 
   function showMessages(messages) {
@@ -911,7 +1018,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch {}
+    } catch { }
   }
 
   function clearLocal(id) {
@@ -920,10 +1027,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch {}
+    } catch { }
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch {}
+    } catch { }
   }
 
   // =========================
@@ -999,27 +1106,47 @@
             );
           }
         }
-      } catch (_) {}
+      } catch (_) { }
     }
   }
 
   // =========================
-  // Chat Form Handler
+  // Chat Form Handler (ĐÃ FIX: KHÓA HOÀN TOÀN KHI ĐANG GỬI)
   // =========================
   if (els.chatForm) {
+    let isSubmitting = false; // <-- Cờ trạng thái quan trọng
+
+    const setSubmitting = (state) => {
+      isSubmitting = state;
+      els.sendBtn.disabled = state;
+      els.chatForm.style.opacity = state ? "0.6" : "1";
+      els.chatInput.style.pointerEvents = state ? "none" : "auto";
+      if (state) {
+        els.sendBtn.classList.add("disabled");
+      } else {
+        els.sendBtn.classList.remove("disabled");
+      }
+    };
+
     els.chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (isSubmitting) return; // ← Ngăn gửi kép
+
       const text = (els.chatInput?.value || "").trim();
       if (!text) return;
 
+      // 1. Khóa ngay lập tức
+      setSubmitting(true);
+
+      // 2. Thêm tin nhắn người dùng
       addMessage("user", text);
-      scrollToBottom(true);
       els.chatInput.value = "";
       els.chatInput.style.height = "auto";
-
-      if (els.sendBtn) els.sendBtn.disabled = true;
-      addTyping();
       scrollToBottom(true);
+
+      // 3. Hiển thị typing
+      addTyping();
+
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -1031,60 +1158,48 @@
         });
         const data = await res.json();
 
+        // Nhận session_id từ server nếu có
         if (data.session_id) adoptServerSid(data.session_id);
 
         removeTyping();
-        if (els.sendBtn) els.sendBtn.disabled = false;
 
         if (!data.ok) {
-          addMessage("assistant", `⚠️ Lỗi: ${data.error || "Không rõ"}`);
+          addMessage("assistant", `Lỗi: ${data.error || "Không rõ"}`);
           return;
         }
 
         const answer = data.answer || "";
-        addMessage("assistant", answer);
+        addMessage("assistant", answer, { isNew: true });
 
+        // Hiển thị timing nếu có
         if (data.timing && els.timingEl) {
           const t = data.timing;
-          const total = Number(t.total ?? 0);
-          const emb = Number(t.embedding ?? 0);
-          const search = Number(t.search ?? 0);
-          const llm = Number(t.llm ?? 0);
-          els.timingEl.textContent =
-            `Tổng: ${total.toFixed(2)}s | Embedding: ${emb.toFixed(2)}s | ` +
-            `Tìm kiếm: ${search.toFixed(2)}s | LLM: ${llm.toFixed(2)}s`;
+          els.timingEl.textContent = `Tổng: ${(+t.total).toFixed(2)}s | Embedding: ${(+t.embedding).toFixed(2)}s | Tìm kiếm: ${(+t.search).to(2)}s | LLM: ${(+t.llm).toFixed(2)}s`;
         }
       } catch (err) {
         removeTyping();
-        if (els.sendBtn) els.sendBtn.disabled = false;
-        addMessage("assistant", `❌ Lỗi kết nối: ${err}`);
+        addMessage("assistant", `Lỗi kết nối: ${err}`);
+        console.error(err);
+      } finally {
+        // 4. Bỏ khóa dù thành công hay thất bại
+        setSubmitting(false);
       }
     });
 
+    // Auto resize textarea
     els.chatInput?.addEventListener("input", () => {
+      if (isSubmitting) return;
       els.chatInput.style.height = "auto";
       els.chatInput.style.height = els.chatInput.scrollHeight + "px";
     });
 
-    els.chatInput?.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && !e.shiftKey) {
+    // Enter để gửi, Shift+Enter để xuống dòng
+    els.chatInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey && !isSubmitting) {
         e.preventDefault();
-        els.chatForm.dispatchEvent(new Event("submit", { cancelable: true }));
+        els.chatForm.dispatchEvent(new Event("submit"));
       }
     });
-
-    // Set session title from first user message
-    els.chatForm.addEventListener(
-      "submit",
-      () => {
-        const text = (els.chatInput?.value || "").trim();
-        if (text) {
-          if (!currentSessionId) ensureSession(true);
-          setSessionTitleFromFirstUser(text);
-        }
-      },
-      true
-    );
   }
 
   // =========================
@@ -1140,7 +1255,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch (_) {}
+  } catch (_) { }
 
   // =========================
   // Initialization
@@ -1153,7 +1268,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch (_) {}
+    } catch (_) { }
 
     // Bootstrap from server, fallback to local
     bootstrapFromLocalThenServer();
