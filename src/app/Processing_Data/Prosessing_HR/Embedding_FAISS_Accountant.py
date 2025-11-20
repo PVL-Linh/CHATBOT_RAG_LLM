@@ -9,7 +9,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from .pdf_to_text_HR import processing_Data_dockinkToText_v2
 
 CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))       # khuyến nghị
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 200))  # khuyến nghị
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))  # khuyến nghị
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 

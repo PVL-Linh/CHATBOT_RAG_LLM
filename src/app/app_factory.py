@@ -4,14 +4,13 @@ from flask_compress import Compress
 from app.routes import register_blueprints, register_error_handlers
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app.tools.migrate_users_csv_to_sqlite import migrate
-from app.Login.login_required import init_auth_storage
+# from app.routes.auth import init_auth
 from app.config.settings import AppConfig
 
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder="static")
     app.config.from_object(AppConfig)
-    
     try:
         app.config.from_object('app.config.Config')
     except (ImportError, AttributeError):
@@ -36,6 +35,5 @@ def create_app() -> Flask:
 
     register_blueprints(app)
     register_error_handlers(app)
-    migrate()
-    init_auth_storage()
+    # migrate()
     return app

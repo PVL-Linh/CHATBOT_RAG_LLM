@@ -108,6 +108,8 @@ Hướng dẫn đăng bài trên Fanpage
 
 Chuẩn bị trước khi đăng:
 
+Kiểm tra caption, hình ảnh/video, hashtag.
+
 Dùng checklist đăng bài.
 
 Các bước đăng bài (Meta Business Suite/Facebook Page):
@@ -115,6 +117,8 @@ Các bước đăng bài (Meta Business Suite/Facebook Page):
 Truy cập Meta Business Suite.
 
 Chọn “Tạo bài viết”.
+
+Nhập caption → thêm hình ảnh/video → gắn hashtag.
 
 Chọn lịch đăng (ngay hoặc hẹn giờ).
 

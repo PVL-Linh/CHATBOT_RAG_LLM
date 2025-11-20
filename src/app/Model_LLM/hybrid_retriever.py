@@ -48,40 +48,64 @@ def _clean_text(s: str) -> str:
     s = re.sub(r"[ \t]{2,}", " ", s)
     return s.strip()
 
-def _split_text(text: str, chunk_size=1000, overlap=250) -> List[str]:
-    if os.environ.get("SEMANTIC_CHUNK", "0") == "1":
-        embedder = SentenceTransformer('all-MiniLM-L6-v2')
-        sentences = re.split(r'(?<=[\n.!?])\s+', text)
-        chunks = []
-        current = []
-        current_len = 0
-        for sent in sentences:
-            sent_len = len(sent)
-            if current_len + sent_len > chunk_size:
-                chunks.append(' '.join(current))
-                current = current[-overlap//len(current[0]):] if overlap else []  # Overlap sentences
+def _split_text(text: str, chunk_size: int = CHUNKS, overlap: int = OVERLAP):
+    """
+    Chunk theo câu, nhưng giới hạn chunk_size (ký tự)
+    và giữ overlap (ký tự) giữa các chunk, giống semantics chunk_overlap.
+    """
+    if not text or not text.strip():
+        return []
+
+    # Tách câu, có thể chỉnh regex nếu cần
+    sentences = re.split(r'(?<=[.!?。！？])\s+', text)
+    chunks: List[str] = []
+    current: List[str] = []
+    current_len = 0  # tổng số ký tự trong current
+
+    for sent in sentences:
+        sent = sent.strip()
+        if not sent:
+            continue
+
+        sent_len = len(sent)
+
+        # Nếu thêm câu này vào vượt quá chunk_size -> chốt chunk hiện tại
+        # (current không rỗng thì mới chốt, để tránh chunk rỗng)
+        if current and current_len + 1 + sent_len > chunk_size:
+            # Đẩy chunk hiện tại
+            chunks.append(" ".join(current))
+
+            # Tính overlap theo ký tự
+            if overlap > 0 and current:
+                kept: List[str] = []
+                total = 0
+                # đi từ cuối về đầu, giữ lại đến khi đủ overlap ký tự
+                for s in reversed(current):
+                    if total >= overlap and kept:
+                        break
+                    kept.append(s)
+                    total += len(s)
+                current = list(reversed(kept))
                 current_len = sum(len(s) for s in current)
-            current.append(sent)
-            current_len += sent_len
+            else:
+                current = []
+                current_len = 0
+
+        # Thêm câu hiện tại vào chunk
         if current:
-            chunks.append(' '.join(current))
-        return chunks
-    else :
-        # Split thô theo đoạn xuống dòng trước để giảm vỡ ý
-        parts = []
-        paragraphs = re.split(r"\n{2,}", text)
-        for p in paragraphs:
-            p = p.strip()
-            if not p:
-                continue
-            # cắt sliding window
-            start = 0
-            while start < len(p):
-                end = min(len(p), start + chunk_size)
-                parts.append(p[start:end])
-                if end == len(p): break
-                start = max(end - overlap, 0)
-        return parts
+            # +1 cho khoảng trắng khi join
+            current_len += 1 + sent_len
+        else:
+            current_len = sent_len
+        current.append(sent)
+
+    # Đẩy phần còn lại
+    if current:
+        chunks.append(" ".join(current))
+
+    return chunks
+
+
 
 def _load_txt_folder(folder: str) -> Dict[str, str]:
     data = {}
@@ -117,22 +141,29 @@ def _save_corpus_jsonl(docs: List[Document]):
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 def _load_corpus_jsonl() -> List[Document]:
-    """
-    Chỉ nạp nếu corpus đã được build với norm_case khớp CASE_NORM hiện tại.
-    Nếu thiếu cờ hoặc không khớp → trả [] để buộc rebuild.
-    """
     if not os.path.isfile(CORPUS_PATH):
         return []
-    docs = []
-    with open(CORPUS_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            rec = json.loads(line)
-            meta = rec.get("metadata", {})
-            # Kiểm tra cờ norm_case
-            if meta.get("norm_case") != CASE_NORM:
-                return []  # Force rebuild với chuẩn mới
-            docs.append(Document(page_content=rec["text"], metadata=meta))
+    docs: List[Document] = []
+    try:
+        with open(CORPUS_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    # Nếu có line hỏng -> bỏ cả corpus, rebuild lại
+                    return []
+                meta = rec.get("metadata", {})
+                if meta.get("norm_case") != CASE_NORM:
+                    return []
+                docs.append(Document(page_content=rec["text"], metadata=meta))
+    except Exception as e:
+        print(f"[WARN] Failed to load corpus.jsonl: {e} -> rebuild")
+        return []
     return docs
+
 
 def prepare_bm25_docs() -> List[Document]:
     """
