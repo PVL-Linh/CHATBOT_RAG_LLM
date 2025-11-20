@@ -5,12 +5,13 @@ from app.Helpers.rate_limit import get_text_limiter
 from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
 from app.Model_LLM.model_llm import LLM_model
-# from app.Helpers.prompt_KT import persona_vi
 from app.Model_LLM.hybrid_retriever import rerank, TOP_K
 from app.config.settings import ChatConfig
 from app.Login.login_required import build_principal_from_session
 from app.Model_LLM.Chat_Database.db_router import handle_db_message
 from app.Model_LLM.Chat_Database.redis_ctx import get_ctx, update_ctx
+import fitz
+import docx as docx_lib
 
 bp = Blueprint('chat', __name__)
 
@@ -57,6 +58,90 @@ _SOURCE_TAG_PAT = re.compile(
     r"\s*[\(\[](?=[^)\]]{0,240}?\b(?:source|nguồn|chunk)\b)[^)\]]+[\)\]]",
     re.IGNORECASE,
 )
+
+def _extract_text_from_uploaded_file(path: str) -> str:
+    ext = os.path.splitext(path)[1].lower()
+
+    # TXT
+    if ext == ".txt":
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception:
+            return ""
+
+    # DOCX
+    if ext == ".docx":
+        try:
+            d = docx_lib.Document(path)
+            lines = []
+            for p in d.paragraphs:
+                t = (p.text or "").strip()
+                if t:
+                    lines.append(t)
+            for tbl in d.tables:
+                for row in tbl.rows:
+                    cells = [(cell.text or "").strip() for cell in row.cells]
+                    line = " | ".join(c for c in cells if c)
+                    if line:
+                        lines.append(line)
+            return "\n".join(lines)
+        except Exception:
+            return ""
+
+    # PDF
+    if ext == ".pdf":
+        try:
+            doc = fitz.open(path)
+            pages = []
+            for p in doc:
+                t = p.get_text()
+                if t.strip():
+                    pages.append(t)
+            doc.close()
+            return "\n".join(pages)
+        except Exception:
+            return ""
+    return ""
+
+
+def doc_qa_answer(user_text: str, file_path: str, gclient, GEMINI_MODEL, GEN_CFG) -> str:
+    """
+    Trả lời câu hỏi dựa trên nội dung 1 file người dùng đã upload (session['uploaded_file']).
+    Không gọi DB, không gọi RAG global.
+    """
+
+    raw = _extract_text_from_uploaded_file(file_path)
+    if not raw.strip():
+        return "Không đọc được nội dung trong file đã tải lên. Kiểm tra lại loại file hoặc cách xử lý upload."
+
+    # Cắt bớt nếu file quá dài cho an toàn (bạn có thể nâng cấp sau thành chunk + retrieve)
+    max_chars = 8000
+    context = raw[:max_chars]
+
+    prompt = f"""{SYSTEM_PRIMER}
+
+Bạn là trợ lý nội bộ, trả lời dựa trên nội dung tài liệu sau:
+
+[TÀI LIỆU BẮT ĐẦU]
+{context}
+[TÀI LIỆU KẾT THÚC]
+
+Câu hỏi của người dùng: {user_text}
+
+YÊU CẦU:
+- Chỉ trả lời dựa trên nội dung trong tài liệu.
+- Nếu tài liệu không có thông tin liên quan, hãy nói rõ: "Trong tài liệu không thấy ghi rõ nội dung này.".
+"""
+
+    contents = [
+        {
+            "role": "user",
+            "parts": [{"text": prompt}],
+        }
+    ]
+    out, _ = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
+    return strip_source_citations(out or "").strip()
 
 
 def strip_source_citations(text: str) -> str:
@@ -205,6 +290,53 @@ def chat_api():
     # Lưu user message
     add_message("user", user_text, session_id=session_id)
     full_start = time.time()
+
+    # ===== 0) NHÁNH DOC_QA: nếu phiên đang gắn với 1 file upload =====
+    uploaded_file = session.get("uploaded_file")
+    if uploaded_file and os.path.exists(uploaded_file):
+        # Nếu user muốn bỏ file khỏi phiên
+        if user_text.lower() in ["xóa file", "xoá file", "hủy file", "huy file", "delete file"]:
+            session.pop("uploaded_file", None)
+            final_answer = "Đã xoá file khỏi phiên. Các câu hỏi tiếp theo sẽ dùng DB/RAG như bình thường."
+            add_message("assistant", final_answer, session_id=session_id)
+            elapsed = time.time() - full_start
+            return jsonify(
+                {
+                    "ok": True,
+                    "answer": final_answer,
+                    "session_id": session_id,
+                    "branch": "doc_qa",
+                    "meta": None,
+                    "timing": {
+                        "total": round(elapsed, 2),
+                        "embedding": 0.0,
+                        "search": 0.0,
+                        "llm": round(elapsed, 2),
+                    },
+                }
+            )
+
+        # Mặc định: trả lời dựa trên file (KHÔNG gọi DB, KHÔNG gọi RAG)
+        final_answer = doc_qa_answer(
+            user_text, uploaded_file, gclient, GEMINI_MODEL, GEN_CFG
+        )
+        add_message("assistant", final_answer, session_id=session_id)
+        elapsed = time.time() - full_start
+        return jsonify(
+            {
+                "ok": True,
+                "answer": final_answer,
+                "session_id": session_id,
+                "branch": "doc_qa",
+                "meta": None,
+                "timing": {
+                    "total": round(elapsed, 2),
+                    "embedding": 0.0,
+                    "search": 0.0,
+                    "llm": round(elapsed, 2),
+                },
+            }
+        )
 
     # ===== 1) Thử nhánh DB trước (intent-based) =====
     handled, db_answer, meta = handle_db_message(
