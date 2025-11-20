@@ -1295,4 +1295,58 @@
       appendMessage({ text: "Đang xử lý yêu cầu…", role: "bot" });
     });
   })();
+  const fileInput = document.getElementById('fileInput');
+  const filePreviewContainer = document.getElementById('filePreviewContainer');
+  const filePreview = document.getElementById('filePreview');
+  let selectedFiles = []; // Lưu danh sách file để gửi đi
+
+  fileInput.addEventListener('change', function () {
+    const newFiles = Array.from(this.files);
+
+    // Thêm file mới vào danh sách (tránh trùng)
+    newFiles.forEach(file => {
+      if (!selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+        selectedFiles.push(file);
+      }
+    });
+
+    renderFilePills();
+    this.value = ''; // reset input để có thể chọn lại cùng file
+  });
+
+  function renderFilePills() {
+    filePreview.innerHTML = '';
+
+    if (selectedFiles.length === 0) {
+      filePreviewContainer.style.display = 'none';
+      return;
+    }
+
+    filePreviewContainer.style.display = 'flex';
+    filePreviewContainer.style.display = 'block';
+
+    selectedFiles.forEach((file, index) => {
+      const pill = document.createElement('div');
+      pill.className = 'file-pill';
+
+      const ext = file.name.split('.').pop().toUpperCase();
+      const isImage = ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'].includes(ext);
+
+      pill.innerHTML = `
+      <i data-lucide="${isImage ? 'image' : 'file-text'}"></i>
+      <span class="file-name" title="${file.name}">${file.name}</span>
+      <button type="button" class="remove-file" data-index="${index}">×</button>
+    `;
+
+      // Xử lý xóa file
+      pill.querySelector('.remove-file').addEventListener('click', () => {
+        selectedFiles.splice(index, 1);
+        renderFilePills();
+      });
+
+      filePreview.appendChild(pill);
+    });
+
+    lucide.createIcons();
+  }
 })();
