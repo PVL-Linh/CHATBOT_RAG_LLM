@@ -70,3 +70,6 @@ PLANNER_MINIBODY_CAP = int(os.getenv("PLANNER_MINIBODY_CAP", "600"))
 PLANNER_ENDING_CAP = int(os.getenv("PLANNER_ENDING_CAP", "200"))
 PLANNER_TOKEN_BOOST = float(os.getenv("PLANNER_TOKEN_BOOST", "1.10"))
 PLANNER_SHORT_CAP = int(os.getenv("PLANNER_SHORT_CAP", 512))
+
+# upload file
+UPLOAD_DIR = APP_DIR / "uploads"

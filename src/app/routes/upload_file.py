@@ -2,12 +2,11 @@ import os
 import time
 from werkzeug.utils import secure_filename
 from flask import Blueprint, request, jsonify, session
+from app.config.paths import UPLOAD_DIR
 
 bp = Blueprint("upload_file", __name__)
 
 ALLOWED_EXTENSIONS = {".txt", ".pdf", ".docx"}
-UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/tmp/tiximax_uploads")
-
 
 def _allowed_file(filename: str) -> bool:
     ext = os.path.splitext(filename)[1].lower()
@@ -17,31 +16,57 @@ def _allowed_file(filename: str) -> bool:
 @bp.route("/api/upload", methods=["POST"])
 def upload_file():
     """
-    Upload 1 file để dùng cho Q&A trong phiên (doc_qa).
+    Upload 1 hoặc nhiều file để dùng cho Q&A trong phiên (doc_qa).
     File sẽ KHÔNG tự động đưa vào RAG/DB, chỉ dùng tạm trong session.
+    - Form field: "file" (có thể nhiều file, dùng input multiple)
     """
-    if "file" not in request.files:
+    files = request.files.getlist("file")
+    if not files:
         return jsonify({"error": "Missing file"}), 400
 
-    f = request.files["file"]
-    if not f or not f.filename:
-        return jsonify({"error": "Empty filename"}), 400
-
-    filename = secure_filename(f.filename)
-    if not _allowed_file(filename):
-        return jsonify({
-            "error": "File type not allowed",
-            "allowed": list(ALLOWED_EXTENSIONS),
-        }), 400
+    saved_files = []
+    errors = []
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
-    save_path = os.path.join(UPLOAD_DIR, f"{int(time.time())}_{filename}")
-    f.save(save_path)
 
-    session["uploaded_file"] = save_path
+    for f in files:
+        if not f or not f.filename:
+            errors.append({"filename": None, "error": "Empty filename"})
+            continue
+
+        filename = secure_filename(f.filename)
+
+        if not _allowed_file(filename):
+            errors.append({
+                "filename": filename,
+                "error": "File type not allowed",
+                "allowed": list(ALLOWED_EXTENSIONS),
+            })
+            continue
+
+        ts = int(time.time() * 1000)
+        save_path = os.path.join(UPLOAD_DIR, f"{ts}_{filename}")
+        f.save(save_path)
+
+        saved_files.append({
+            "name": filename,
+            "path": save_path,
+        })
+
+    if not saved_files:
+        return jsonify({
+            "ok": False,
+            "message": "Không có file hợp lệ được upload",
+            "errors": errors,
+        }), 400
+
+    existing = session.get("uploaded_files", [])
+    existing.extend(saved_files)
+    session["uploaded_files"] = existing
+
     return jsonify({
         "ok": True,
-        "message": "Đã tải file lên. Bạn có thể hỏi nội dung trong file này.",
-        "file": filename,
-        "path": save_path,
+        "message": "Đã tải file lên. Bạn có thể hỏi nội dung trong các file này.",
+        "files": saved_files,
+        "errors": errors,
     })
