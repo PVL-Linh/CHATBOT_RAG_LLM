@@ -1,0 +1,1 @@
+passwordEncoder.encode(registerRequest.getPassword())

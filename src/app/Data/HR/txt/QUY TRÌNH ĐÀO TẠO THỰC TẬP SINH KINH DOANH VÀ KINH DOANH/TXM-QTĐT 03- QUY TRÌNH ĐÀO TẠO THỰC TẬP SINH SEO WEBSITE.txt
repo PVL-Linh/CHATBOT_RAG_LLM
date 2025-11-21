@@ -20,7 +20,7 @@ Sáng tạo, chuyên nghiệp, tập trung vào giá trị khách hàng.
 
 Tôn trọng thương hiệu và giữ hình ảnh tích cực trên mọi nền tảng.
 
- Giới thiệu ngành Logistics Khái niệm & vai trò của Logistics trong chuỗi cung ứng.
+Training cơ bản về sản phẩm/dịch vụ Logistics  Giới thiệu ngành Logistics Khái niệm & vai trò của Logistics trong chuỗi cung ứng.
 
 Các dịch vụ chính: Vận tải quốc tế, khai báo hải quan, kho bãi, phân phối hàng hóa, logistics thương mại điện tử.
 
@@ -48,11 +48,15 @@ Google Search Console (GSC) → theo dõi index, CTR, lỗi website.
 
 Google Analytics (GA4) → phân tích hành vi người dùng.
 
+Yoast SEO / Rank Math → hỗ trợ tối ưu SEO on-page trên Wordpress.
+
  Sử dụng Wordpress:
 
 Đăng nhập Dashboard & giới thiệu các module cơ bản.
 
 Tạo bài viết (Post) → nhập tiêu đề, nội dung, hình ảnh.
+
+Cài plugin SEO (Yoast/Rank Math).
 
 Cách tối ưu permalink, meta title, meta description.
 

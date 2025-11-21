@@ -190,9 +190,7 @@ Người lao động được nghỉ làm việc, hưởng nguyên lương 10 ng
 
 + Tết Nguyên đán: 05 ngày (ngày 01/01 âm lịch)
 
-+ Giỗ Tổ Hùng Vương: 01 ngày (mồng 10/3 âm lịch)
-
-+ Ngày Chiến thắng: 01 ngày (30/4 dương lịch)
++ Giỗ Tổ Hùng Vương: 01 ngày (mồng 10/3 âm lịch) + Ngày Chiến thắng: 01 ngày (30/4 dương lịch)
 
 + Ngày Quốc tế Lao động: 01 ngày (01/5 dương lịch)
 

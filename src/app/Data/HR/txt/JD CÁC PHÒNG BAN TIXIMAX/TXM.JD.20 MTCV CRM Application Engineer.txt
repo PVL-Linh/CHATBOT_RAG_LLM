@@ -24,6 +24,8 @@ C. Yêu cầu về trình độ và kỹ năng
 
 Tốt nghiệp chuyên ngành CNTT, Khoa học máy tính hoặc liên quan.
 
+Có kinh nghiệm phát triển phần mềm bằng một số ngôn ngữ: Python, JavaScript (Vue/React), PHP hoặc .NET.
+
 Có kiến thức cơ bản hoặc đã từng làm việc với hệ thống CRM.
 
 Hiểu biết về ngành logistics, quy trình chăm sóc khách hàng và vận hành đơn hàng.
@@ -49,6 +51,8 @@ Sẵn sàng học hỏi công nghệ mới và mô hình hoạt động logistic
 Môi trường làm việc năng động, định hướng chuyển đổi số ngành logistics
 
 Được đào tạo chuyên sâu về CRM và các quy trình logistics
+
+Cơ hội phát triển nghề nghiệp lên các vị trí Team Lead / BA / Quản lý dự án CRM
 
 Hưởng đầy đủ các chế độ BHXH, thưởng KPI, phụ cấp và nghỉ phép theo quy định
 

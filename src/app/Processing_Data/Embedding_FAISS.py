@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
-from pdf_to_text import process_pdf_documents
+from pdf_to_text import process_documents
 import torch
 try:
     from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText, processing_Data_dockinkToText_v2
@@ -94,12 +94,13 @@ def _load_text_files(folder: str) -> Dict[str, str]:
 def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
-    process_pdf_documents(DOCS_DIR, DATA_DIR)
+    process_documents(DOCS_DIR, DATA_DIR)
+    process_documents(input_folder="./Documents/Accountant", output_folder="./src/app/Data/Data_All/Accountant")
     web_crawler("Data_All")
     processing_Data_doclinkToText(input_dir = "./Documents/HR/txt", output_dir = "./src/app/Data/Data_All/txt", 
                                 input_txt_diagram = "./Documents/HR/Diagram/documents_workflowAndText", output_txt_diagram = "./src/app/Data/Data_All/Diagram/documents_workflowAndText",
                                 input_dir_org_tree = "./Documents/HR/Diagram/procedure", output_dir_org_tree = "./src/app/Data/Data_All/Diagram/procedure")
-    processing_Data_dockinkToText_v2(input_dir="./Documents/Accountant", output_dir="./src/app/Data/Data_All/Accountant")
+    # processing_Data_dockinkToText_v2(input_dir="./Documents/Accountant", output_dir="./src/app/Data/Data_All/Accountant")
     raw = _load_text_files(DATA_DIR)
     if not raw:
         raise RuntimeError(f"Không có TXT/CSV trong {DATA_DIR}")

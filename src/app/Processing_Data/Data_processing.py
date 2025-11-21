@@ -13,6 +13,8 @@ BULLET = re.compile(r"""^(
 )$""", re.VERBOSE)
 TABLE_LIKE = re.compile(r"\s{2,}|\t|\s\|\s")
 MATH_EXPR = re.compile(r"(?=.*\d)(?=.*[\+\-\*/=<>])[A-Za-z0-9\s\+\-\*/=<>\(\)\[\]\.,:^_\\%]+$")
+URL_PATTERN = re.compile(r'https?://\S+|www\.\S+', re.IGNORECASE)
+
 
 def _normalize_spaces(s: str) -> str:
     s = unicodedata.normalize("NFKC", s or "")
@@ -40,16 +42,30 @@ def _should_drop_header_footer(line: str, idx: int, total: int) -> bool:
     return False
 
 def looks_like_table_cell(s: str) -> bool:
-    s = (s or "").strip().lower()
-    if not s:
+    raw = (s or "").strip()
+    if not raw:
         return False
+
+    if URL_PATTERN.search(raw):
+        return False
+
+    s = raw.lower()
+
     if any(k in s for k in ["tr/sản phẩm", "cái", "vnd", "đ", "phụ thu", "chi tiết"]):
         return True
-    if "<" in s or ">" in s or "/" in s:
+
+    if "<" in s or ">" in s:
         return True
+
+    if re.search(r"/\s*(cái|thùng|kg|sp|sản phẩm)\b", s):
+        return True
+
     if re.search(r"(\b0\b|\d{1,3}(?:[.,]\d{3})+|\d+[.,]\d+)", s):
         return True
+
     return False
+
+
 
 def _latexify(line: str) -> str:
     raw = (line or "").strip()

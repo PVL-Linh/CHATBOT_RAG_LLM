@@ -44,6 +44,8 @@ E. Trách nhiệm chính
 
 A. Chứng từ Logistics:
 
+Chuẩn bị, kiểm tra và xử lý bộ chứng từ xuất nhập khẩu (HBL, MBL, invoice, packing list, C/O, booking note, manifest, v.v...).
+
 Theo dõi tiến trình lô hàng từ khi booking đến khi hàng về kho / giao khách.
 
 Làm việc với các hãng tàu, forwarder, kho bãi và đại lý để đảm bảo lô hàng vận chuyển đúng tiến độ.

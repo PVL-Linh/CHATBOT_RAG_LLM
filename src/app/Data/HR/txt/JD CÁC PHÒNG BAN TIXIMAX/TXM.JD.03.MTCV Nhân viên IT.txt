@@ -40,7 +40,7 @@ Trung thực, chủ động, có tinh thần trách nhiệm cao và chịu đư�
 
 D. Trách nhiệm chính Quản trị hệ thống phần mềm logistics: TMS (Transportation Management System), WMS (Warehouse Management System), ERP, CRM...
 
-Quản lý máy chủ, hệ thống mạng, camera, thiết bị văn phòng (PC, máy in, scanner,...)
+Quản lý máy chủ, hệ thống mạng, camera, thiết bị văn phòng (PC, máy in, scanner,...) Hỗ trợ người dùng nội bộ khắc phục sự cố phần cứng/phần mềm
 
 Phối hợp với nhà cung cấp dịch vụ CNTT để triển khai hoặc bảo trì hệ thống
 

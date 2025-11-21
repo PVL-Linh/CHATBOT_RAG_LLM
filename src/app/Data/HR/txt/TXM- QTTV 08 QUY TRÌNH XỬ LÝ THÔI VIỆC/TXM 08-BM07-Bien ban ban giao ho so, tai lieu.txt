@@ -14,6 +14,8 @@ Biên bản được lập vào lúc ... giờ ... phút và kết thúc lúc ..
 
 Biên bản được lập thành 03 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau./.
 
+$$ Link: https://byvn.net/VBZ8 $$
+
 CÔNG TY CỔ PHẦN TIXIMAX	TÀI LIỆU ĐÀO TẠO	TÀI LIỆU ĐÀO TẠO
 
 CÔNG TY CỔ PHẦN TIXIMAX	BIÊN BẢN BÀN GIAO HỒ SƠ, TÀI LIỆU	Số hồ sơ:TXM.QT 01
@@ -28,6 +30,6 @@ hồ sơ
 
 tài liệu	Số lượng	Tình trạng	Vị trí để hồ sơ tài liệu
 
-1 2 3 4 5
+1 2 3 4 5 CBQL PHÒNG/BAN
 
 (Ký và ghi rõ họ tên)

@@ -11,7 +11,7 @@ AUTO_GEN_WHEN_MISSING = os.getenv("AUTO_GEN_WHEN_MISSING", "0").strip().lower() 
 DEFAULT_PASSWORD = os.getenv("DEFAULT_PASSWORD", "").strip()
 STORE_PLAIN_IN_DB = os.getenv("STORE_PLAIN_IN_DB", "1").strip().lower() in {"1","true","yes"}
 
-ALLOWED_ROLES = {"marketing", "manager_marketing", "sales", "hr", "admin", "manager_sales", "accountant"}
+ALLOWED_ROLES = {"marketing", "manager_marketing", "sales", "hr", "admin", "manager_sales"}
 _SPLIT_RE = re.compile(r"[,\s;|/]+")
 
 def _normalize_role_token(tok: str) -> str:

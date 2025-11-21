@@ -10,6 +10,8 @@ Biên bản được lập vào lúc ... giờ ... phút và kết thúc lúc ..
 
 Biên bản được lập thành 03 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau./.
 
+Link: https://byvn.net/xMsu
+
 Phiên bản:
 
 Lần sửa đổi:
@@ -28,6 +30,6 @@ Ngày BH:
 
 Trang:
 
-1 2 3 4 5 6 7
+1 2 3 4 5 6 7 CBQL PHÒNG/BAN
 
 (Ký và ghi rõ họ tên)

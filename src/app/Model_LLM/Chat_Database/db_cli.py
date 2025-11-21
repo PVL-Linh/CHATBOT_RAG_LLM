@@ -2381,8 +2381,8 @@ import requests
 try:
     from .config_supabase import BASE_API_URL, API_KEY, DEFAULT_PAGE_SIZE, VN_TZ
 except Exception:
-    BASE_API_URL = os.environ.get("BASE_API_URL", "https://ordering-sound-myers-buried.trycloudflare.com").rstrip("/")
-    API_KEY = os.environ.get("API_KEY", "super-secret-xyz").strip()
+    BASE_API_URL = os.environ.get("BASE_API_URL", "https://get-api-supabase-tiximax.onrender.com").rstrip("/")
+    API_KEY = os.environ.get("API_KEY", "123456").strip()
     DEFAULT_PAGE_SIZE = int(os.environ.get("DEFAULT_PAGE_SIZE", "200"))
     try:
         import pytz
@@ -2439,6 +2439,33 @@ _MONTH_RANGE_RE = re.compile(
     r"(?:\s*năm\s*(?P<y2>\d{4}))?",
     re.IGNORECASE | re.UNICODE
 )
+
+def fetch_account_routes(account_id: int) -> List[int]:
+    """
+    Lấy danh sách route_id mà account này được gán trong bảng account_route.
+    """
+    if not account_id:
+        return []
+    try:
+        rows = fetch_table_all(
+            "account_route",
+            params={"eq__account_id": int(account_id)},
+            page_size=200,
+            max_pages=5,
+        )
+    except Exception as e:
+        print(f"[db_cli.fetch_account_routes] error: {e}")
+        return []
+
+    out: List[int] = []
+    for r in rows or []:
+        rid = r.get("route_id")
+        try:
+            if rid is not None:
+                out.append(int(rid))
+        except Exception:
+            continue
+    return out
 
 # =========================
 # Helpers chung
@@ -2585,14 +2612,36 @@ def process_logs_by_order(oid: int) -> List[Dict[str, Any]]:
 
 def order_snapshot_by_code(code: str) -> Optional[Dict[str, Any]]:
     od = fetch_order_by_code(code)
-    if not od: return None
+    if not od: 
+        return None
     oid = int(od["order_id"])
     pays = payments_by_order(oid)
     paid = sum(_f(p.get("collected_amount", p.get("amount", 0))) for p in pays if (p.get("status") or "").upper() in PAID_STATUSES)
     pending = sum(_f(p.get("amount", 0)) for p in pays if (p.get("status") or "").upper() in UNPAID_STATUSES)
     logs = process_logs_by_order(oid)
     last_log = logs[0] if logs else None
-    routes = fetch_routes_map(); dests = fetch_destinations_map()
+    last_log_info = None
+    if last_log:
+        log_staff_id = last_log.get("staff_id")
+        log_staff_name = None
+        log_staff_code = None
+        if log_staff_id:
+            try:
+                acc = fetch_account_by_id(int(log_staff_id)) or {}
+                stf = fetch_staff_by_id(int(log_staff_id)) or {}
+                log_staff_name = acc.get("name")
+                log_staff_code = stf.get("staff_code")
+            except Exception:
+                pass
+        last_log_info = {
+            "action": last_log.get("action"),
+            "timestamp": last_log.get("timestamp"),
+            "staff_id": log_staff_id,
+            "staff_name": log_staff_name,
+            "staff_code": log_staff_code,
+        }
+    routes = fetch_routes_map()
+    dests = fetch_destinations_map()
     return {
         "order_id": oid,
         "order_code": od.get("order_code"),
@@ -2608,7 +2657,7 @@ def order_snapshot_by_code(code: str) -> Optional[Dict[str, Any]]:
         "destination_id": od.get("destination_id"),
         "destination_name": dests.get(int(od.get("destination_id")), f"DEST#{od.get('destination_id')}") if od.get("destination_id") else None,
         "payments": {"count": len(pays), "paid_total": paid, "pending_total": pending},
-        "last_log": {"action": last_log.get("action"), "timestamp": last_log.get("timestamp"), "staff_id": last_log.get("staff_id")} if last_log else None
+        "last_log": last_log_info,
     }
 
 def format_snapshot(snap: Dict[str, Any]) -> str:
@@ -2625,7 +2674,27 @@ def format_snapshot(snap: Dict[str, Any]) -> str:
     parts.append(f"💰 Thanh toán: đã thu {money_fmt(pay.get('paid_total',0))} | còn chờ {money_fmt(pay.get('pending_total',0))} | giao dịch: {pay.get('count',0)}")
     lg = snap.get("last_log")
     if lg:
-        parts.append(f"📝 Log gần nhất: {lg.get('action')} @ {lg.get('timestamp')} (staff_id={lg.get('staff_id')})")
+        staff_id = lg.get("staff_id")
+        staff_name = lg.get("staff_name") or ""
+        staff_code = lg.get("staff_code") or ""
+
+        # build chuỗi mô tả nhân viên log
+        staff_bits = []
+        if staff_name:
+            staff_bits.append(staff_name)
+        if staff_id is not None:
+            staff_bits.append(f"({staff_id})")
+        if staff_code:
+            staff_bits.append(f"- {staff_code}")
+
+        staff_str = ""
+        if staff_bits:
+            staff_str = " bởi nhân viên " + " ".join(staff_bits)
+
+        parts.append(
+            f"📝 Log gần nhất: {lg.get('action')} @ {lg.get('timestamp')}{staff_str}"
+        )
+
     return "\n".join(parts)
 
 def fetch_account_by_field(field: str, value: Union[str,int]) -> Optional[Dict[str, Any]]:
@@ -3343,101 +3412,205 @@ def person_full_profile(identifier_type: str, identifier_value: Union[str,int], 
 def classify_query(text: str) -> Tuple[str, Dict[str, Any], float]:
     s = _fold(text)
     m = _EMAIL_RE.search(text or "")
-    if m: return ("profile_by", {"field":"email","value":m.group(0)}, 0.95)
-    if _PHONE_FULL_RE.fullmatch((text or "").strip()):
-        return ("profile_by", {"field":"phone","value":text.strip()}, 0.92)
-    code = extract_order_code_from_text(text or "")
-    if code: return ("order_lookup", {"code": code}, 0.98)
+    text_lower = (text or "").lower().strip()
+    m_detail_cust = re.search(r"thông tin chi tiết.*khách hàng\s+(.+)", text_lower)
+    if m_detail_cust:
+        raw_val = m_detail_cust.group(1).strip()
+        # bỏ dấu ? . ! ở cuối nếu có
+        raw_val = re.sub(r"[?.!]+$", "", raw_val).strip()
 
-    # Revenue ranges
+        # Nếu giống pattern user + số (user9, User 9, user   9) → coi là username
+        if re.match(r"user\s*\d+", raw_val, re.IGNORECASE):
+            username = re.sub(r"\s+", "", raw_val)  # "user 9" -> "user9"
+            username = username.lower()
+            return ("profile_by", {"field": "username", "value": username}, 0.95)
+
+        # Còn lại: giữ nguyên, coi là name (tên hiển thị)
+        return ("profile_by", {"field": "name", "value": raw_val}, 0.93)
+
+    # === 1. Hồ sơ theo email / phone / account_id ===
+    if m:
+        return ("profile_by", {"field": "email", "value": m.group(0)}, 0.95)
+
+    if _PHONE_FULL_RE.fullmatch((text or "").strip()):
+        return ("profile_by", {"field": "phone", "value": text.strip()}, 0.92)
+
+    code = extract_order_code_from_text(text or "")
+    if code:
+        return ("order_lookup", {"code": code}, 0.98)
+
+    # === 2. Revenue ranges (tháng / tuần / ngày) ===
     if "doanh thu thang" in s or s.endswith("thang nay"):
         return ("revenue_month", {}, 0.90)
+
     if "doanh thu tuan" in s or s.endswith("tuan nay"):
         return ("revenue_week", {}, 0.88)
-    if "doanh thu ngay" in s or "hom nay" in s or "hôm nay" in text.lower():
+
+    if "doanh thu ngay" in s or "hom nay" in s or "hôm nay" in text_lower:
         return ("revenue_day", {}, 0.80)
 
-    # Others classic
+    # === 3. Câu kiểu: "đơn đã thanh toán của ai / nhân viên nào / thuộc ai" ===
+    # Ví dụ: "2 đơn hàng đã thanh toán của ai", "những đơn đã thanh toán thuộc ai"
+    if re.search(r"đ[ãa]?\s*đơn?.*thanh to[aá]n.*(của ai|nhân viên nào|thuộc ai)", text_lower):
+        return ("paid_orders_owner", {}, 0.92)
+
+    # === 4. Các intent classic khác ===
     if "cash flow" in s or "dong tien" in s:
         return ("cashflow", {}, 0.85)
+
     if "doanh thu theo tuyen" in s or "doanh thu theo tuyến" in text:
         return ("revenue_by_route", {}, 0.85)
+
     if "doanh thu theo diem den" in s:
         return ("revenue_by_destination", {}, 0.80)
+
     if "doanh thu theo nhan vien" in s or "nhan vien sale" in s:
         return ("revenue_by_staff", {}, 0.90)
+
     if "top 10 khach hang" in s:
         return ("top_customers", {}, 0.90)
+
     if "trung binh gia tri don hang" in s:
         return ("aov_by_customer", {}, 0.85)
+
     if "don cho mua" in s:
         return ("orders_wait_buy", {}, 0.90)
+
     if "don da mua" in s or "da mua hang" in s:
         return ("orders_purchased", {}, 0.90)
+
     if "hang trong kho" in s or "kho hien co" in s or "ton kho" in s:
         return ("warehouse_inventory", {}, 0.85)
+
     if "chuyen bay cho" in s or "cho bay" in s:
         return ("flights_waiting", {}, 0.85)
 
+    # --- Thông tin ID / SĐT / email dạng chung ---
     if "thong tin id" in s:
-        m = re.search(r"(\d+)", text or "")
-        if m: return ("profile_by", {"field":"account_id","value":int(m.group(1))}, 0.85)
+        m_id = re.search(r"(\d+)", text or "")
+        if m_id:
+            return ("profile_by", {"field": "account_id", "value": int(m_id.group(1))}, 0.85)
+
     if "thong tin sdt" in s:
-        m = re.search(r"(\+?\d{9,13})", text or "")
-        if m: return ("profile_by", {"field":"phone","value":m.group(1)}, 0.92)
+        m_phone = re.search(r"(\+?\d{9,13})", text or "")
+        if m_phone:
+            return ("profile_by", {"field": "phone", "value": m_phone.group(1)}, 0.92)
+
     if "thong tin email" in s:
-        m = _EMAIL_RE.search(text or "")
-        if m: return ("profile_by", {"field":"email","value":m.group(0)}, 0.95)
+        m_mail = _EMAIL_RE.search(text or "")
+        if m_mail:
+            return ("profile_by", {"field": "email", "value": m_mail.group(0)}, 0.95)
 
     # ======= Mua hộ tổng thể =======
-    if "tong so don mua ho hom nay" in s or "tổng số đơn mua hộ hôm nay" in text.lower(): return ("mh_total_today", {}, 0.92)
-    if "tong so don mua ho tuan nay" in s or "tổng số đơn mua hộ tuần này" in text.lower(): return ("mh_total_week", {}, 0.92)
-    if "tong so don mua ho thang nay" in s or "tổng số đơn mua hộ tháng này" in text.lower(): return ("mh_total_month", {}, 0.92)
-    if "dang cho dat hang" in s or "đang chờ đặt hàng" in text.lower(): return ("mh_wait_buy", {}, 0.92)
-    if ("da dat" in s and "chua thanh toan" in s) or ("đã đặt" in text.lower() and "chưa thanh toán" in text.lower()): return ("mh_ordered_not_paid_seller", {}, 0.92)
-    if "dang cho ve kho tq" in s or "đang chờ về kho tq" in text.lower(): return ("mh_wait_cn_wh", {"hint": "CN"}, 0.90)
-    if "da ve kho tq" in s and ("cho van chuyen" in s or "chờ vận chuyển" in text.lower()): return ("mh_arrived_cn_wait_vn", {}, 0.90)
-    if "cang" in s or "hai quan" in s or "hải quan" in text.lower(): return ("mh_at_port", {}, 0.88)
-    if "trang thai tat ca don mua ho" in s or "trạng thái tất cả đơn mua hộ" in text.lower(): return ("mh_realtime_status", {}, 0.90)
-    if "bi seller huy" in s or "hết hàng" in text.lower() or "het hang" in s: return ("mh_seller_cancel_oos", {}, 0.88)
-    if "van de can xu ly gap" in s or "cần xử lý gấp" in text.lower(): return ("mh_urgent_issues", {}, 0.88)
+    if "tong so don mua ho hom nay" in s or "tổng số đơn mua hộ hôm nay" in text_lower:
+        return ("mh_total_today", {}, 0.92)
+
+    if "tong so don mua ho tuan nay" in s or "tổng số đơn mua hộ tuần này" in text_lower:
+        return ("mh_total_week", {}, 0.92)
+
+    if "tong so don mua ho thang nay" in s or "tổng số đơn mua hộ tháng này" in text_lower:
+        return ("mh_total_month", {}, 0.92)
+
+    if "dang cho dat hang" in s or "đang chờ đặt hàng" in text_lower:
+        return ("mh_wait_buy", {}, 0.92)
+
+    if ("da dat" in s and "chua thanh toan" in s) or ("đã đặt" in text_lower and "chưa thanh toán" in text_lower):
+        return ("mh_ordered_not_paid_seller", {}, 0.92)
+
+    if "dang cho ve kho tq" in s or "đang chờ về kho tq" in text_lower:
+        return ("mh_wait_cn_wh", {"hint": "CN"}, 0.90)
+
+    if "da ve kho tq" in s and ("cho van chuyen" in s or "chờ vận chuyển" in text_lower):
+        return ("mh_arrived_cn_wait_vn", {}, 0.90)
+
+    if "cang" in s or "hai quan" in s or "hải quan" in text_lower:
+        return ("mh_at_port", {}, 0.88)
+
+    if "trang thai tat ca don mua ho" in s or "trạng thái tất cả đơn mua hộ" in text_lower:
+        return ("mh_realtime_status", {}, 0.90)
+
+    if "bi seller huy" in s or "hết hàng" in text_lower or "het hang" in s:
+        return ("mh_seller_cancel_oos", {}, 0.88)
+
+    if "van de can xu ly gap" in s or "cần xử lý gấp" in text_lower:
+        return ("mh_urgent_issues", {}, 0.88)
 
     # ======= Seller =======
-    if "danh sach shop thuong xuyen" in s or "danh sách shop thường xuyên" in text.lower() or "danh sach shop" in s: return ("seller_frequent", {}, 0.90)
-    if "ti le giao hang dung han" in s or "tỷ lệ giao hàng đúng hạn" in text.lower(): return ("seller_on_time_rate", {}, 0.90)
+    if "danh sach shop thuong xuyen" in s or "danh sách shop thường xuyên" in text_lower or "danh sach shop" in s:
+        return ("seller_frequent", {}, 0.90)
+
+    if "ti le giao hang dung han" in s or "tỷ lệ giao hàng đúng hạn" in text_lower:
+        return ("seller_on_time_rate", {}, 0.90)
+
     if "shop" in s or "seller" in s:
         mshop = _RE_SHOP_NAME.search(text or "")
-        if mshop and ("dang xu ly" in s or "đang xử lý" in text.lower()): return ("seller_inprogress_for_name", {"shop": mshop.group(1).strip()}, 0.92)
-        if mshop and ("uy tin" in s or "uy tín" in text.lower()): return ("seller_reputation", {"shop": mshop.group(1).strip()}, 0.90)
-        if mshop and ("mat bao lau ve kho" in s or "mất bao lâu về kho" in text.lower()): return ("seller_avg_to_cn", {"shop": mshop.group(1).strip()}, 0.90)
-    if "seller hay giao cham" in s or "giao chậm" in text.lower() or "huy don" in s or "hủy đơn" in text.lower(): return ("seller_late_or_cancel", {}, 0.90)
-    if "blacklist" in s: return ("seller_blacklist", {}, 0.88)
+        if mshop and ("dang xu ly" in s or "đang xử lý" in text_lower):
+            return ("seller_inprogress_for_name", {"shop": mshop.group(1).strip()}, 0.92)
+        if mshop and ("uy tin" in s or "uy tín" in text_lower):
+            return ("seller_reputation", {"shop": mshop.group(1).strip()}, 0.90)
+        if mshop and ("mat bao lau ve kho" in s or "mất bao lâu về kho" in text_lower):
+            return ("seller_avg_to_cn", {"shop": mshop.group(1).strip()}, 0.90)
+
+    if "seller hay giao cham" in s or "giao chậm" in text_lower or "huy don" in s or "hủy đơn" in text_lower:
+        return ("seller_late_or_cancel", {}, 0.90)
+
+    if "blacklist" in s:
+        return ("seller_blacklist", {}, 0.88)
 
     # ======= Kho Trung Quốc =======
-    if "bao nhieu kien hang dang o kho tq" in s or "bao nhieu kien hang dang o kho trung quoc" in s or "bao nhiêu kiện hàng đang ở kho tq" in text.lower(): return ("cn_count_items", {}, 0.90)
-    if "hang cua don" in s and ("ve kho tq chua" in s or "về kho tq chưa" in text.lower()):
+    if "bao nhieu kien hang dang o kho tq" in s or "bao nhieu kien hang dang o kho trung quoc" in s or "bao nhiêu kiện hàng đang ở kho tq" in text_lower:
+        return ("cn_count_items", {}, 0.90)
+
+    if "hang cua don" in s and ("ve kho tq chua" in s or "về kho tq chưa" in text_lower):
         code = extract_order_code_from_text(text or "")
-        if code: return ("cn_order_arrived", {"code": code}, 0.92)
-    if "cho dong goi o kho tq" in s or "chờ đóng gói ở kho tq" in text.lower(): return ("cn_wait_packing", {}, 0.90)
-    if "ton kho tq qua lau" in s or "tồn kho tq quá lâu" in text.lower(): return ("cn_overstay", {}, 0.88)
-    if "chi phi luu kho tq" in s or "chi phí lưu kho tq" in text.lower(): return ("cn_storage_cost", {}, 0.80)
-    if "kho tq qua tai" in s or "kho tq nào đang quá tải" in text.lower(): return ("cn_overloaded", {}, 0.80)
-    if "can nang thuc te hang ve kho tq" in s or "cân nặng thực tế hàng về kho tq" in text.lower(): return ("cn_total_weight", {}, 0.90)
+        if code:
+            return ("cn_order_arrived", {"code": code}, 0.92)
+
+    if "cho dong goi o kho tq" in s or "chờ đóng gói ở kho tq" in text_lower:
+        return ("cn_wait_packing", {}, 0.90)
+
+    if "ton kho tq qua lau" in s or "tồn kho tq quá lâu" in text_lower:
+        return ("cn_overstay", {}, 0.88)
+
+    if "chi phi luu kho tq" in s or "chi phí lưu kho tq" in text_lower:
+        return ("cn_storage_cost", {}, 0.80)
+
+    if "kho tq qua tai" in s or "kho tq nào đang quá tải" in text_lower:
+        return ("cn_overloaded", {}, 0.80)
+
+    if "can nang thuc te hang ve kho tq" in s or "cân nặng thực tế hàng về kho tq" in text_lower:
+        return ("cn_total_weight", {}, 0.90)
 
     # ======= Vận chuyển quốc tế =======
-    if "bao nhieu lo hang dang tren duong" in s or "đang trên đường từ tq về vn" in text.lower(): return ("intl_in_transit", {}, 0.90)
-    if "lo hang" in s and ("du kien ve" in s or "dự kiến về" in text.lower()): return ("intl_eta", {}, 0.80)
+    if "bao nhieu lo hang dang tren duong" in s or "đang trên đường từ tq về vn" in text_lower:
+        return ("intl_in_transit", {}, 0.90)
+
+    if "lo hang" in s and ("du kien ve" in s or "dự kiến về" in text_lower):
+        return ("intl_eta", {}, 0.80)
+
     if "don" in s and "nam trong lo hang nao" in s:
         code = extract_order_code_from_text(text or "")
-        if code: return ("intl_order_batch", {"code": code}, 0.90)
-    if "ket hai quan" in s or "kẹt ở hải quan" in text.lower(): return ("intl_customs_stuck", {}, 0.80)
-    if "chi phi van chuyen quoc te" in s: return ("intl_cost", {}, 0.80)
-    if "doi tac van chuyen hieu qua" in s or "đối tác vận chuyển nào hiệu quả" in text.lower(): return ("intl_partner", {}, 0.80)
-    if "thoi gian van chuyen trung binh" in s or "thời gian vận chuyển trung bình" in text.lower(): return ("intl_avg_time", {}, 0.90)
-    if "tracking lo hang" in s or "tracking lô hàng" in text.lower():
-        m = re.search(r"(?:packing|lo|lô)\s*([A-Za-z0-9\-]+)", text or "", re.IGNORECASE)
-        if m: return ("intl_tracking", {"packing_code": m.group(1)}, 0.90)
+        if code:
+            return ("intl_order_batch", {"code": code}, 0.90)
 
+    if "ket hai quan" in s or "kẹt ở hải quan" in text_lower:
+        return ("intl_customs_stuck", {}, 0.80)
+
+    if "chi phi van chuyen quoc te" in s:
+        return ("intl_cost", {}, 0.80)
+
+    if "doi tac van chuyen hieu qua" in s or "đối tác vận chuyển nào hiệu quả" in text_lower:
+        return ("intl_partner", {}, 0.80)
+
+    if "thoi gian van chuyen trung binh" in s or "thời gian vận chuyển trung bình" in text_lower:
+        return ("intl_avg_time", {}, 0.90)
+
+    if "tracking lo hang" in s or "tracking lô hàng" in text_lower:
+        mtrack = re.search(r"(?:packing|lo|lô)\s*([A-Za-z0-9\-]+)", text or "", re.IGNORECASE)
+        if mtrack:
+            return ("intl_tracking", {"packing_code": mtrack.group(1)}, 0.90)
+
+    # Fallback
     return ("unknown", {}, 0.40)
 
 # =========================
