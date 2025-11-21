@@ -353,7 +353,8 @@
   // =========================
   let currentTypingController = null;
 
-  function addMessage(role, content, opts = { persist: true, isNew: false }) {
+  function addMessage(role, content, opts = {}) {
+    const { persist = true, isNew = false, files = null } = opts;
     if (!content) return;
     if (els.greeting) els.greeting.style.display = "none";
 
@@ -370,15 +371,42 @@
     els.chatList.appendChild(li);
     scrollToBottom(true);
 
-    // === Tin nhắn người dùng: hiện luôn ===
+    // === Tin nhắn người dùng: hiện luôn + HIỂN THỊ FILE ĐÍNH KÈM ===
     if (role === "user") {
       const node = renderMarkdown(content);
       if (node.dataset.hasTable === "1") bubble.classList.add("is-table");
       contentWrapper.appendChild(node);
 
-      if (opts.persist) {
-        sessionHistory.push({ role, content });
-        persistMessage(role, content);
+      // === HIỂN THỊ DANH SÁCH FILE ĐÍNH KÈM (nếu có) ===
+      const filesToShow = files || window.lastUploadedFiles || [];
+      if (filesToShow.length > 0) {
+        // Hàng file nằm TRÊN bubble
+        const header = document.createElement("div");
+        header.className = "msg-file-header";
+
+        filesToShow.forEach(file => {
+          const name = file.name || file.filename || file.file || file.path || "";
+          const ext = (name.split(".").pop() || "").toUpperCase();
+          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
+
+          const pill = document.createElement("div");
+          // dùng lại style .file-pill cho đồng bộ, thêm class riêng nếu cần
+          pill.className = "file-pill msg-file-pill";
+          pill.innerHTML = `
+          <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
+          <span class="file-name">${htmlEscape(name)}</span>
+        `;
+          header.appendChild(pill);
+        });
+
+        // chèn header lên TRÊN bubble
+        li.insertBefore(header, bubble);
+        lucideRefresh();
+      }
+
+      if (persist) {
+        sessionHistory.push({ role: "user", content, files: filesToShow });
+        persistMessage("user", content);
       }
       return;
     }
@@ -1109,6 +1137,49 @@
       } catch (_) { }
     }
   }
+  // =========================
+  // Upload file tạm cho doc_qa
+  // =========================
+  async function uploadSelectedFiles() {
+    // Không có file thì coi như OK, bỏ qua
+    if (!selectedFiles || !selectedFiles.length) {
+      return { ok: true, uploaded: false };
+    }
+
+    const formData = new FormData();
+    selectedFiles.forEach(file => {
+      formData.append("file", file); // backend: request.files.getlist("file")
+    });
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_) {
+      // ignore parse error, sẽ ném ở dưới
+    }
+
+    if (!res.ok || !data || data.ok === false) {
+      const msg =
+        (data && (data.message || data.error)) ||
+        "Upload file thất bại. Vui lòng thử lại.";
+      throw new Error("Upload file thất bại: " + msg);
+    }
+
+    // Upload OK → clear danh sách file đã chọn trên UI
+    selectedFiles = [];
+    renderFilePills();
+    window.lastUploadedFiles = data.files || data.saved_files || [];
+    return {
+      ok: true,
+      uploaded: true,
+      data,
+    };
+  }
 
   // =========================
   // Chat Form Handler (ĐÃ FIX: KHÓA HOÀN TOÀN KHI ĐANG GỬI)
@@ -1130,16 +1201,23 @@
 
     els.chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (isSubmitting) return; // ← Ngăn gửi kép
+      if (isSubmitting) return;
 
       const text = (els.chatInput?.value || "").trim();
       if (!text) return;
+
+      // chụp lại danh sách file đang chọn để hiển thị trên bubble
+      const attachedForBubble = [...(selectedFiles || [])];
 
       // 1. Khóa ngay lập tức
       setSubmitting(true);
 
       // 2. Thêm tin nhắn người dùng
-      addMessage("user", text);
+      addMessage("user", text, {
+        persist: true,
+        files: attachedForBubble,
+      });
+      window.lastUploadedFiles = [];
       els.chatInput.value = "";
       els.chatInput.style.height = "auto";
       scrollToBottom(true);
@@ -1148,6 +1226,12 @@
       addTyping();
 
       try {
+        // 3a. Nếu có file được chọn → upload trước
+        if (selectedFiles && selectedFiles.length > 0) {
+          await uploadSelectedFiles(); // sẽ throw Error nếu fail
+        }
+
+        // 3b. Gọi API chat (doc_qa / db / rag tuỳ server quyết định)
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1174,11 +1258,18 @@
         // Hiển thị timing nếu có
         if (data.timing && els.timingEl) {
           const t = data.timing;
-          els.timingEl.textContent = `Tổng: ${(+t.total).toFixed(2)}s | Embedding: ${(+t.embedding).toFixed(2)}s | Tìm kiếm: ${(+t.search).to(2)}s | LLM: ${(+t.llm).toFixed(2)}s`;
+          // (chỗ .to(2) hình như typo, nên là .toFixed(2))
+          els.timingEl.textContent =
+            `Tổng: ${(+t.total).toFixed(2)}s | ` +
+            `Embedding: ${(+t.embedding).toFixed(2)}s | ` +
+            `Tìm kiếm: ${(+t.search).toFixed(2)}s | ` +
+            `LLM: ${(+t.llm).toFixed(2)}s`;
         }
       } catch (err) {
         removeTyping();
-        addMessage("assistant", `Lỗi kết nối: ${err}`);
+        const msg = err && err.message ? err.message : String(err);
+        // Nếu lỗi do uploadSelectedFiles ném ra → msg đã có tiền tố "Upload file thất bại"
+        addMessage("assistant", msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`);
         console.error(err);
       } finally {
         // 4. Bỏ khóa dù thành công hay thất bại

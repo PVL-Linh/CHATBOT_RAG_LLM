@@ -85,7 +85,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 .msg {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -1000,4 +1000,17 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   width: 20px;
   height: 20px;
   color: #1f2328;
+}
+/* Mỗi message của user xếp dọc: file-pill ở trên, bubble ở dưới */
+.msg.user {
+  display: flex;
+  flex-direction: column;   /* quan trọng: xếp các con theo cột */
+  align-items: flex-end;    /* căn về bên phải như cũ */
+}
+
+/* Có thể giữ lại style pill cũ */
+.msg.user .msg-file-pill {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
 }

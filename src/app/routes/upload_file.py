@@ -8,6 +8,7 @@ bp = Blueprint("upload_file", __name__)
 
 ALLOWED_EXTENSIONS = {".txt", ".pdf", ".docx"}
 
+
 def _allowed_file(filename: str) -> bool:
     ext = os.path.splitext(filename)[1].lower()
     return ext in ALLOWED_EXTENSIONS
@@ -18,7 +19,11 @@ def upload_file():
     """
     Upload 1 hoặc nhiều file để dùng cho Q&A trong phiên (doc_qa).
     File sẽ KHÔNG tự động đưa vào RAG/DB, chỉ dùng tạm trong session.
-    - Form field: "file" (có thể nhiều file, dùng input multiple)
+
+    - Form field: "file" (có thể nhiều file, input multiple)
+    - Sau khi upload OK:
+        session["uploaded_file"] = path của file cuối cùng (dùng cho doc_qa)
+        session["uploaded_files"] = danh sách tất cả file đã up trong phiên (tuỳ bạn xử lý thêm)
     """
     files = request.files.getlist("file")
     if not files:
@@ -63,6 +68,8 @@ def upload_file():
     existing = session.get("uploaded_files", [])
     existing.extend(saved_files)
     session["uploaded_files"] = existing
+
+    session["uploaded_file"] = saved_files[-1]["path"]
 
     return jsonify({
         "ok": True,

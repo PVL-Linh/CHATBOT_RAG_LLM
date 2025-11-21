@@ -105,7 +105,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch {}
+    } catch { }
   }
   function lockScroll(on) {
     document.body.style.overflow = on ? "hidden" : "";
@@ -147,7 +147,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch {}
+    } catch { }
   }
   function loadMsgs(id) {
     try {
@@ -160,7 +160,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch {}
+    } catch { }
   }
   function anyLocalMessagesExist() {
     const sessions = loadSessions();
@@ -183,7 +183,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch {}
+    } catch { }
   }
   function ensureLocalSchema() {
     const v = Number(localStorage.getItem(LSCHEMA_KEY) || 0);
@@ -212,13 +212,13 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch {}
+    } catch { }
   }
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch {}
+    } catch { }
   }
 
   function adoptServerSid(newSid) {
@@ -335,7 +335,7 @@
       wrapper.querySelectorAll("pre code").forEach((b) => {
         try {
           hljs.highlightElement(b);
-        } catch {}
+        } catch { }
       });
     }
     return wrapper;
@@ -346,7 +346,8 @@
        ========================= */
   let currentTypingController = null;
 
-  function addMessage(role, content, opts = { persist: true, isNew: false }) {
+  function addMessage(role, content, opts = {}) {
+    const { persist = true, isNew = false, files = null } = opts;
     if (!content) return;
     if (els.greeting) els.greeting.style.display = "none";
 
@@ -369,9 +370,36 @@
       if (node.dataset.hasTable === "1") bubble.classList.add("is-table");
       contentWrapper.appendChild(node);
 
-      if (opts.persist) {
-        sessionHistory.push({ role, content });
-        persistMessage(role, content);
+      // === HIỂN THỊ DANH SÁCH FILE ĐÍNH KÈM (nếu có) ===
+      const filesToShow = files || window.lastUploadedFiles || [];
+      if (filesToShow.length > 0) {
+        // Hàng file nằm TRÊN bubble
+        const header = document.createElement("div");
+        header.className = "msg-file-header";
+
+        filesToShow.forEach(file => {
+          const name = file.name || file.filename || file.file || file.path || "";
+          const ext = (name.split(".").pop() || "").toUpperCase();
+          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
+
+          const pill = document.createElement("div");
+          // dùng lại style .file-pill cho đồng bộ, thêm class riêng nếu cần
+          pill.className = "file-pill msg-file-pill";
+          pill.innerHTML = `
+          <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
+          <span class="file-name">${htmlEscape(name)}</span>
+        `;
+          header.appendChild(pill);
+        });
+
+        // chèn header lên TRÊN bubble
+        li.insertBefore(header, bubble);
+        lucideRefresh();
+      }
+
+      if (persist) {
+        sessionHistory.push({ role: "user", content, files: filesToShow });
+        persistMessage("user", content);
       }
       return;
     }
@@ -398,7 +426,7 @@
     }
 
     // === CHỈ KHI LÀ TIN NHẮN MỚI (isNew: true) → bật typewriter ===
-        // === CHỈ KHI LÀ TIN NHẮN MỚI (isNew: true) → bật typewriter (HOẠT ĐỘNG DÙ CHUYỂN TAB) ===
+    // === CHỈ KHI LÀ TIN NHẮN MỚI (isNew: true) → bật typewriter (HOẠT ĐỘNG DÙ CHUYỂN TAB) ===
     if (currentTypingController) {
       currentTypingController.abort();
     }
@@ -438,7 +466,7 @@
 
           if (window.hljs) {
             contentWrapper.querySelectorAll("pre code").forEach(block => {
-              try { hljs.highlightElement(block); } catch {}
+              try { hljs.highlightElement(block); } catch { }
             });
           }
 
@@ -664,7 +692,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch {}
+    } catch { }
   }
   function renderItemNode(s) {
     if (!isSidebarMode()) {
@@ -675,8 +703,7 @@
       row.className = "row";
       row.innerHTML = `
         <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện HR")}</div>
-        <div class="meta">${
-          s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+        <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
         }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
@@ -709,8 +736,8 @@
         <div class="chat-avatar"><i data-lucide="user"></i></div>
         <div class="chat-text">
           <div class="chat-title">${htmlEscape(
-            s.title || "Cuộc trò chuyện HR"
-          )}</div>
+      s.title || "Cuộc trò chuyện HR"
+    )}</div>
           <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
           <div class="chat-time">${formatTime(s.last_ts)}</div>
         </div>
@@ -774,7 +801,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch {}
+    } catch { }
     updateLocalSession(id, (s) => {
       s.name = newTitle;
     });
@@ -791,7 +818,7 @@
       });
       const d = await r.json().catch(() => ({}));
       serverOk = r.ok && d.ok;
-    } catch {}
+    } catch { }
     clearLocal(id);
 
     const deletingCurrent =
@@ -807,7 +834,7 @@
           (a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0)
         );
         if (filtered.length) candidateId = filtered[0].id;
-      } catch {}
+      } catch { }
       localStorage.removeItem(CURR_KEY);
       currentSessionId = null;
       exposeCurrentSessionId();
@@ -817,7 +844,7 @@
       } else {
         try {
           await createNewSession();
-        } catch {}
+        } catch { }
       }
     }
     await startRenderSessions();
@@ -830,7 +857,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch {}
+    } catch { }
     // fallback local only
     ensureSession(true);
     resetUIToEmpty();
@@ -867,7 +894,7 @@
         scrollToBottom(true);
         return;
       }
-    } catch {}
+    } catch { }
     // fallback local
     openLocalSession(sessionId);
     closeContainer();
@@ -895,7 +922,7 @@
           scrollToBottom(true);
         }
       }
-    } catch {}
+    } catch { }
   }
 
   function updateLocalSession(id, mutator) {
@@ -906,7 +933,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch {}
+    } catch { }
   }
   function clearLocal(id) {
     try {
@@ -914,10 +941,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch {}
+    } catch { }
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch {}
+    } catch { }
   }
 
   /* =========================
@@ -988,10 +1015,52 @@
             scrollToBottom(true);
           }
         }
-      } catch {}
+      } catch { }
     }
   }
+  // =========================
+  // Upload file tạm cho doc_qa
+  // =========================
+  async function uploadSelectedFiles() {
+    // Không có file thì coi như OK, bỏ qua
+    if (!selectedFiles || !selectedFiles.length) {
+      return { ok: true, uploaded: false };
+    }
 
+    const formData = new FormData();
+    selectedFiles.forEach(file => {
+      formData.append("file", file); // backend: request.files.getlist("file")
+    });
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_) {
+      // ignore parse error, sẽ ném ở dưới
+    }
+
+    if (!res.ok || !data || data.ok === false) {
+      const msg =
+        (data && (data.message || data.error)) ||
+        "Upload file thất bại. Vui lòng thử lại.";
+      throw new Error("Upload file thất bại: " + msg);
+    }
+
+    // Upload OK → clear danh sách file đã chọn trên UI
+    selectedFiles = [];
+    renderFilePills();
+    window.lastUploadedFiles = data.files || data.saved_files || [];
+    return {
+      ok: true,
+      uploaded: true,
+      data,
+    };
+  }
   /* =========================
        Chat Form Handler
        ========================= */
@@ -1012,16 +1081,23 @@
 
     els.chatForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (isSubmitting) return; // ← Ngăn gửi kép
+      if (isSubmitting) return;
 
       const text = (els.chatInput?.value || "").trim();
       if (!text) return;
+
+      // chụp lại danh sách file đang chọn để hiển thị trên bubble
+      const attachedForBubble = [...(selectedFiles || [])];
 
       // 1. Khóa ngay lập tức
       setSubmitting(true);
 
       // 2. Thêm tin nhắn người dùng
-      addMessage("user", text);
+      addMessage("user", text, {
+        persist: true,
+        files: attachedForBubble,
+      });
+      window.lastUploadedFiles = [];
       els.chatInput.value = "";
       els.chatInput.style.height = "auto";
       scrollToBottom(true);
@@ -1030,6 +1106,12 @@
       addTyping();
 
       try {
+        // 3a. Nếu có file được chọn → upload trước
+        if (selectedFiles && selectedFiles.length > 0) {
+          await uploadSelectedFiles(); // sẽ throw Error nếu fail
+        }
+
+        // 3b. Gọi API chat (doc_qa / db / rag tuỳ server quyết định)
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1056,11 +1138,18 @@
         // Hiển thị timing nếu có
         if (data.timing && els.timingEl) {
           const t = data.timing;
-          els.timingEl.textContent = `Tổng: ${(+t.total).toFixed(2)}s | Embedding: ${(+t.embedding).toFixed(2)}s | Tìm kiếm: ${(+t.search).to(2)}s | LLM: ${(+t.llm).toFixed(2)}s`;
+          // (chỗ .to(2) hình như typo, nên là .toFixed(2))
+          els.timingEl.textContent =
+            `Tổng: ${(+t.total).toFixed(2)}s | ` +
+            `Embedding: ${(+t.embedding).toFixed(2)}s | ` +
+            `Tìm kiếm: ${(+t.search).toFixed(2)}s | ` +
+            `LLM: ${(+t.llm).toFixed(2)}s`;
         }
       } catch (err) {
         removeTyping();
-        addMessage("assistant", `Lỗi kết nối: ${err}`);
+        const msg = err && err.message ? err.message : String(err);
+        // Nếu lỗi do uploadSelectedFiles ném ra → msg đã có tiền tố "Upload file thất bại"
+        addMessage("assistant", msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`);
         console.error(err);
       } finally {
         // 4. Bỏ khóa dù thành công hay thất bại
@@ -1124,7 +1213,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch {}
+  } catch { }
 
   document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) lucide.createIcons();
@@ -1132,7 +1221,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch {}
+    } catch { }
     bootstrapFromLocalThenServer();
     useIdle(startRenderSessions);
     scrollToBottom(true);
