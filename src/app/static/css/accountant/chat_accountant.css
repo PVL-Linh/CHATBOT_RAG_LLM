@@ -113,7 +113,7 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 }
 
 .msg.user .bubble {
-  background: linear-gradient(135deg, #FBC02D 0%, #FFA000 100%);
+  background: linear-gradient(135deg, #fbc02d 0%, #ffa000 100%);
   color: #000;
   border: none;
   border-radius: 20px;
@@ -123,10 +123,17 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   overflow: hidden;
 }
 .msg.user .bubble::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 50%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
@@ -1201,7 +1208,6 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   display: flex;
   align-items: flex-end;
   background: #f8f9fa;
-  ;
   border: 1px solid #e0e0e0;
   border-radius: 28px;
   padding: 10px 16px;
@@ -1213,7 +1219,8 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   box-shadow: 0 0 0 4px rgba(81, 255, 18, 0.05);
 }
 
-.attach-btn, .send-btn {
+.attach-btn,
+.send-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1226,8 +1233,12 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   transition: background 0.2s;
 }
 
-.attach-btn:hover { background: #e9ecef; }
-.send-btn:hover { background: #e9ecef; }
+.attach-btn:hover {
+  background: #e9ecef;
+}
+.send-btn:hover {
+  background: #e9ecef;
+}
 
 .send-btn i {
   width: 20px;
@@ -1237,8 +1248,8 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 /* Mỗi message của user xếp dọc: file-pill ở trên, bubble ở dưới */
 .msg.user {
   display: flex;
-  flex-direction: column;   /* quan trọng: xếp các con theo cột */
-  align-items: flex-end;    /* căn về bên phải như cũ */
+  flex-direction: column; /* quan trọng: xếp các con theo cột */
+  align-items: flex-end; /* căn về bên phải như cũ */
 }
 
 /* Có thể giữ lại style pill cũ */
