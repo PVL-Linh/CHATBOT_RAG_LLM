@@ -109,7 +109,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch { }
+    } catch {}
   }
   function lockScroll(on) {
     document.body.style.overflow = on ? "hidden" : "";
@@ -151,7 +151,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch { }
+    } catch {}
   }
   function loadMsgs(id) {
     try {
@@ -164,7 +164,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch { }
+    } catch {}
   }
   function anyLocalMessagesExist() {
     const sessions = loadSessions();
@@ -187,7 +187,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch { }
+    } catch {}
   }
   function ensureLocalSchema() {
     const v = Number(localStorage.getItem(LSCHEMA_KEY) || 0);
@@ -216,13 +216,13 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch { }
+    } catch {}
   }
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch { }
+    } catch {}
   }
 
   function adoptServerSid(newSid) {
@@ -495,7 +495,7 @@
       wrapper.querySelectorAll("pre code").forEach((b) => {
         try {
           hljs.highlightElement(b);
-        } catch { }
+        } catch {}
       });
     }
     return wrapper;
@@ -564,8 +564,9 @@
         const header = document.createElement("div");
         header.className = "msg-file-header";
 
-        filesToShow.forEach(file => {
-          const name = file.name || file.filename || file.file || file.path || "";
+        filesToShow.forEach((file) => {
+          const name =
+            file.name || file.filename || file.file || file.path || "";
           const ext = (name.split(".").pop() || "").toUpperCase();
           const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
 
@@ -573,7 +574,9 @@
           // dùng lại style .file-pill cho đồng bộ, thêm class riêng nếu cần
           pill.className = "file-pill msg-file-pill";
           pill.innerHTML = `
-          <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
+          <i data-lucide="${
+            isImage ? "image" : "file-text"
+          }" class="file-icon"></i>
           <span class="file-name">${htmlEscape(name)}</span>
         `;
           header.appendChild(pill);
@@ -605,8 +608,10 @@
 
       // Highlight code nếu có
       if (window.hljs) {
-        contentWrapper.querySelectorAll("pre code").forEach(block => {
-          try { hljs.highlightElement(block); } catch { }
+        contentWrapper.querySelectorAll("pre code").forEach((block) => {
+          try {
+            hljs.highlightElement(block);
+          } catch {}
         });
       }
       return;
@@ -631,7 +636,12 @@
     const getDelay = (char) => {
       if (/[.,!?;]/.test(char)) return 50;
       if (/[\u4e00-\u9fff]/.test(char)) return 25;
-      if (/[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/.test(char)) return 25;
+      if (
+        /[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/.test(
+          char
+        )
+      )
+        return 25;
       if (/\s/.test(char)) return 8;
       return 11;
     };
@@ -652,8 +662,10 @@
           contentWrapper.innerHTML = fullNode.innerHTML;
 
           if (window.hljs) {
-            contentWrapper.querySelectorAll("pre code").forEach(block => {
-              try { hljs.highlightElement(block); } catch { }
+            contentWrapper.querySelectorAll("pre code").forEach((block) => {
+              try {
+                hljs.highlightElement(block);
+              } catch {}
             });
           }
 
@@ -676,7 +688,9 @@
       }
 
       // Cập nhật UI với nội dung hiện tại + con trỏ nháy
-      const temp = renderMarkdown(textSoFar + "<span class='typing-cursor'>|</span>");
+      const temp = renderMarkdown(
+        textSoFar + "<span class='typing-cursor'>|</span>"
+      );
       contentWrapper.innerHTML = temp.innerHTML;
       scrollToBottom();
 
@@ -878,7 +892,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch { }
+    } catch {}
   }
   function renderItemNode(s) {
     if (!isSidebarMode()) {
@@ -889,7 +903,8 @@
       row.className = "row";
       row.innerHTML = `
         <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện HR")}</div>
-        <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+        <div class="meta">${
+          s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
         }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
@@ -922,8 +937,8 @@
         <div class="chat-avatar"><i data-lucide="user"></i></div>
         <div class="chat-text">
           <div class="chat-title">${htmlEscape(
-      s.title || "Cuộc trò chuyện HR"
-    )}</div>
+            s.title || "Cuộc trò chuyện HR"
+          )}</div>
           <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
           <div class="chat-time">${formatTime(s.last_ts)}</div>
         </div>
@@ -987,7 +1002,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch { }
+    } catch {}
     updateLocalSession(id, (s) => {
       s.name = newTitle;
     });
@@ -1004,7 +1019,7 @@
       });
       const d = await r.json().catch(() => ({}));
       serverOk = r.ok && d.ok;
-    } catch { }
+    } catch {}
     clearLocal(id);
 
     const deletingCurrent =
@@ -1020,7 +1035,7 @@
           (a, b) => new Date(b.last_ts || 0) - new Date(a.last_ts || 0)
         );
         if (filtered.length) candidateId = filtered[0].id;
-      } catch { }
+      } catch {}
       localStorage.removeItem(CURR_KEY);
       currentSessionId = null;
       exposeCurrentSessionId();
@@ -1030,7 +1045,7 @@
       } else {
         try {
           await createNewSession();
-        } catch { }
+        } catch {}
       }
     }
     await startRenderSessions();
@@ -1043,7 +1058,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch { }
+    } catch {}
     // fallback local only
     ensureSession(true);
     resetUIToEmpty();
@@ -1080,7 +1095,7 @@
         scrollToBottom(true);
         return;
       }
-    } catch { }
+    } catch {}
     // fallback local
     openLocalSession(sessionId);
     closeContainer();
@@ -1108,7 +1123,7 @@
           scrollToBottom(true);
         }
       }
-    } catch { }
+    } catch {}
   }
 
   function updateLocalSession(id, mutator) {
@@ -1119,7 +1134,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch { }
+    } catch {}
   }
   function clearLocal(id) {
     try {
@@ -1127,10 +1142,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch { }
+    } catch {}
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch { }
+    } catch {}
   }
 
   /* =========================
@@ -1201,7 +1216,7 @@
             scrollToBottom(true);
           }
         }
-      } catch { }
+      } catch {}
     }
   }
   // =========================
@@ -1214,7 +1229,7 @@
     }
 
     const formData = new FormData();
-    selectedFiles.forEach(file => {
+    selectedFiles.forEach((file) => {
       formData.append("file", file); // backend: request.files.getlist("file")
     });
 
@@ -1298,7 +1313,7 @@
         }
 
         // 3b. Gọi API chat (doc_qa / db / rag tuỳ server quyết định)
-        const res = await fetch("/api/chat", {
+        const res = await fetch("/api/hr/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1335,7 +1350,10 @@
         removeTyping();
         const msg = err && err.message ? err.message : String(err);
         // Nếu lỗi do uploadSelectedFiles ném ra → msg đã có tiền tố "Upload file thất bại"
-        addMessage("assistant", msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`);
+        addMessage(
+          "assistant",
+          msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`
+        );
         console.error(err);
       } finally {
         // 4. Bỏ khóa dù thành công hay thất bại
@@ -1399,7 +1417,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch { }
+  } catch {}
 
   document.addEventListener("DOMContentLoaded", () => {
     if (window.lucide) lucide.createIcons();
@@ -1407,56 +1425,63 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch { }
+    } catch {}
     bootstrapFromLocalThenServer();
     useIdle(startRenderSessions);
     scrollToBottom(true);
   });
-  const fileInput = document.getElementById('fileInput');
-  const filePreviewContainer = document.getElementById('filePreviewContainer');
-  const filePreview = document.getElementById('filePreview');
+  const fileInput = document.getElementById("fileInput");
+  const filePreviewContainer = document.getElementById("filePreviewContainer");
+  const filePreview = document.getElementById("filePreview");
   let selectedFiles = []; // Lưu danh sách file để gửi đi
 
-  fileInput.addEventListener('change', function () {
+  fileInput.addEventListener("change", function () {
     const newFiles = Array.from(this.files);
 
     // Thêm file mới vào danh sách (tránh trùng)
-    newFiles.forEach(file => {
-      if (!selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+    newFiles.forEach((file) => {
+      if (
+        !selectedFiles.some(
+          (f) =>
+            f.name === file.name &&
+            f.size === file.size &&
+            f.lastModified === file.lastModified
+        )
+      ) {
         selectedFiles.push(file);
       }
     });
 
     renderFilePills();
-    this.value = ''; // reset input để có thể chọn lại cùng file
+    this.value = ""; // reset input để có thể chọn lại cùng file
   });
 
   function renderFilePills() {
-    filePreview.innerHTML = '';
+    filePreview.innerHTML = "";
 
     if (selectedFiles.length === 0) {
-      filePreviewContainer.style.display = 'none';
+      filePreviewContainer.style.display = "none";
       return;
     }
 
-    filePreviewContainer.style.display = 'flex';
-    filePreviewContainer.style.display = 'block';
+    filePreviewContainer.style.display = "flex";
+    filePreviewContainer.style.display = "block";
 
     selectedFiles.forEach((file, index) => {
-      const pill = document.createElement('div');
-      pill.className = 'file-pill';
+      const pill = document.createElement("div");
+      pill.className = "file-pill";
 
-      const ext = file.name.split('.').pop().toUpperCase();
-      const isImage = ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'].includes(ext);
+      const ext = file.name.split(".").pop().toUpperCase();
+      const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
 
       pill.innerHTML = `
-      <i data-lucide="${isImage ? 'image' : 'file-text'}"></i>
+      <i data-lucide="${isImage ? "image" : "file-text"}"></i>
       <span class="file-name" title="${file.name}">${file.name}</span>
       <button type="button" class="remove-file" data-index="${index}">×</button>
     `;
 
       // Xử lý xóa file
-      pill.querySelector('.remove-file').addEventListener('click', () => {
+      pill.querySelector(".remove-file").addEventListener("click", () => {
         selectedFiles.splice(index, 1);
         renderFilePills();
       });

@@ -1,5 +1,3 @@
-# app/routes/chat.py
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import os
@@ -7,7 +5,8 @@ import re
 import time
 import json
 from typing import List, Dict, Any, Tuple, Optional
-
+from app.services.history import get_history, add_message
+from app.Model_LLM.Chat_Database.redis_ctx import redis_client
 from flask import (
     Blueprint,
     request,
@@ -166,9 +165,9 @@ def _rewrite_last_answer_for_lang(
         )
 
     prompt = f"""{instr}
-[ANSWER]
-{last_answer}
-"""
+    [ANSWER]
+    {last_answer}
+    """
 
     contents = [
         {
@@ -248,15 +247,15 @@ def _analyze_followup_and_lang(
 
     prompt = f"""{sys_instr}
 
-[CURRENT_PREFERRED_LANG]
-{current_lang}
+    [CURRENT_PREFERRED_LANG]
+    {current_lang}
 
-[PREVIOUS_ANSWER]
-{last_ans}
+    [PREVIOUS_ANSWER]
+    {last_ans}
 
-[USER_REQUEST]
-{user_text}
-"""
+    [USER_REQUEST]
+    {user_text}
+    """
 
     contents = [
         {
@@ -373,15 +372,12 @@ _SOURCE_TAG_PAT = re.compile(
 def strip_source_citations(text: str) -> str:
     if not text:
         return text
-    text = re.sub(r'source["\']?\s*:\s*["\'][^"\'\\]*\\[^"\'\\]*\\.txt[^"\'\\]*["\']?', '', text, flags=re.IGNORECASE)
-    
-    text = re.sub(r'[\(\[][^)\]]{0,400}?\b(?:source|chunk_id|metadata|norm_case)\b[^)\]]*[\)\]]', '', text, flags=re.IGNORECASE)
-    
-    text = re.sub(r'\b link\s*:\s*https?://surl\.(li|lt)/[a-zA-Z0-9]+', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'\b link\s*:\s*https?://byvn\.net/[a-zA-Z0-9]+', '', text, flags=re.IGNORECASE)
 
+    text = re.sub(r'source["\']?\s*:\s*["\'].*?\\.txt["\']?', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'[\(\[\{]\s*(?:source|chunk_id|metadata|norm_case)[\s:][^\)\]\}]{0,400}[\)\]\}]', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\b[Ll]ink\s*:\s*https?://surl\.[a-z]+\.[a-z]+/[A-Za-z0-9]+', '', text)
     text = re.sub(r'[ \t]{2,}', ' ', text)
-    text = re.sub(r'\s+([.,!?;])', r'\1', text)
+    text = re.sub(r'\s+([.,!?;:\)])', r'\1', text)
     text = re.sub(r'\(\s*\)', '', text)
     text = text.strip()
 
@@ -878,7 +874,9 @@ def chat_api():
         except Exception:
             session_id = ""
 
+    # Ghi tin nhắn người dùng trước (để history chính xác khi đếm)
     add_message("user", user_text, session_id=session_id)
+
     full_start = time.time()
 
     # ==== LOAD CTX & PHÂN TÍCH NGỮ CẢNH + NGÔN NGỮ ====
@@ -926,17 +924,14 @@ def chat_api():
             }
         )
 
-    # ==== XỬ LÝ LỆNH XOÁ FILE (NẾU CÓ) ====
+    # ==== XÓA FILE UPLOAD (nếu yêu cầu) ====
     normalized = user_text.lower().strip()
     if normalized in ["xóa file", "xoá file", "hủy file", "huy file", "delete file"]:
         session.pop("uploaded_files", None)
         session.pop("session_docs_dirty", None)
         _clear_session_doc_vs(session_id)
 
-        final_answer = (
-            "Đã xoá danh sách file đã upload trong phiên hiện tại. "
-            "Các câu hỏi tiếp theo sẽ chỉ dùng DB/RAG global."
-        )
+        final_answer = "Đã xoá danh sách file đã upload trong phiên hiện tại. Các câu hỏi tiếp theo sẽ chỉ dùng DB/RAG global."
         add_message("assistant", final_answer, session_id=session_id)
         elapsed = time.time() - full_start
         return jsonify(
@@ -946,17 +941,11 @@ def chat_api():
                 "session_id": session_id,
                 "branch": "doc_clear",
                 "meta": {"doc_qa": {"cleared": True}},
-                "timing": {
-                    "total": round(elapsed, 2),
-                    "embedding": 0.0,
-                    "search": 0.0,
-                    "llm": round(elapsed, 2),
-                },
+                "timing": {"total": round(elapsed, 2), "embedding": 0.0, "search": 0.0, "llm": 0.0},
             }
         )
 
-    # ==== LẤY DANH SÁCH FILE UPLOAD ĐỂ DÙNG LÀM SESSION DOCS ====
-        # ==== LẤY DANH SÁCH FILE UPLOAD LÀM SESSION DOCS ====
+    # ==== LẤY DANH SÁCH FILE UPLOAD ====
     uploaded_files_meta = session.get("uploaded_files", [])
     session_doc_paths: list[str] = []
     if isinstance(uploaded_files_meta, list):
@@ -966,20 +955,16 @@ def chat_api():
                 if p and isinstance(p, str) and os.path.exists(p):
                     session_doc_paths.append(p)
 
-    # ==== NHÁNH DỊCH / TÓM TẮT TÀI LIỆU THEO YÊU CẦU ====
+    # ==== NHÁNH DỊCH / TÓM TẮT FILE ====
     if session_doc_paths and _is_translate_session_docs_request(user_text):
         final_answer = _translate_session_docs(
-            user_text,
-            gclient,
-            GEMINI_MODEL,
-            GEN_CFG,
-            session_doc_paths,
+            user_text, gclient, GEMINI_MODEL, GEN_CFG, session_doc_paths
         )
         add_message("assistant", final_answer, session_id=session_id)
 
         try:
             ctx_to_save = dict(ctx)
-            ctx_to_save["lang"] = "en"   # phần cuối là English summary
+            ctx_to_save["lang"] = "en"
             ctx_to_save["last_branch"] = "doc_translate"
             ctx_to_save["last_docs"] = [os.path.basename(p) for p in session_doc_paths]
             update_ctx(session_id, ctx_to_save)
@@ -994,26 +979,17 @@ def chat_api():
                 "session_id": session_id,
                 "branch": "doc_translate",
                 "meta": {"doc_translate": {"files_used": session_doc_paths[-1:]}},
-                "timing": {
-                    "total": round(elapsed, 2),
-                    "embedding": 0.0,
-                    "search": 0.0,
-                    "llm": round(elapsed, 2),
-                },
+                "timing": {"total": round(elapsed, 2), "embedding": 0.0, "search": 0.0, "llm": round(elapsed, 2)},
             }
         )
 
-    # ==== 1) NHÁNH DB TRƯỚC ====
-    handled, db_answer, meta = handle_db_message(
-        user_text, session_id, principal=principal
-    )
+    # ==== NHÁNH DB TRƯỚC ====
+    handled, db_answer, meta = handle_db_message(user_text, session_id, principal=principal)
     branch = "db" if handled else "rag"
     timing = {"embedding": 0.0, "search": 0.0, "llm": 0.0}
 
     if handled:
-        final_answer = _rewrite_db_answer(
-            gclient, GEMINI_MODEL, GEN_CFG, db_answer, lang_hint=ctx.get("lang")
-        )
+        final_answer = _rewrite_db_answer(gclient, GEMINI_MODEL, GEN_CFG, db_answer, lang_hint=ctx.get("lang"))
         try:
             ctx_to_save = dict(ctx)
             if isinstance(meta, dict):
@@ -1026,7 +1002,7 @@ def chat_api():
         except Exception:
             pass
     else:
-        # ==== 2) NHÁNH RAG: merge global + session_doc_vs ====
+        # ==== NHÁNH RAG ====
         final_answer, timing = _rag_answer(
             user_text,
             gclient,
@@ -1046,8 +1022,44 @@ def chat_api():
             update_ctx(session_id, ctx_to_save)
         except Exception:
             pass
-
     add_message("assistant", final_answer, session_id=session_id)
+    try:
+
+        history = get_history()
+        user_messages_count = len([m for m in history if m.get("role") == "user"])
+        if user_messages_count >= 7 and user_messages_count % 7 == 0:
+            summary_prompt = (
+                "Bạn là trợ lý nội bộ cực kỳ thông minh. Hãy tóm tắt cuộc trò chuyện sau đây sao cho "
+                "vẫn giữ được toàn bộ ngữ cảnh quan trọng, chi tiết quy trình, biểu mẫu, số tiền, "
+                "tên người/tên phòng ban đã nhắc đến (nếu có). Viết dưới góc nhìn thứ nhất như người dùng đang nói.\n"
+                "Độ dài: 3–5 câu, tối đa 250 từ. Bắt đầu bằng 'Người dùng đang hỏi về...'\n\n"
+                "Cuộc trò chuyện gần nhất:\n"
+                + "\n".join([f"{m['role']}: {m['content'][:800]}" for m in history[-15:]])
+                + "\n\nTóm tắt:"
+            )
+
+            from google.generativeai import GenerativeModel
+            summary_model = GenerativeModel("gemini-2.0-flash")
+            summary_resp = summary_model.generate_content(
+                summary_prompt,
+                generation_config={
+                    "temperature": 0.4,
+                    "max_output_tokens": 300,
+                    "top_p": 0.95
+                }
+            )
+            summary_text = summary_resp.text.strip()
+
+            redis_client.delete(f"history:{session_id}")
+            redis_client.delete(f"ctx:{session_id}")
+            redis_client.delete(f"session_doc_vs:{session_id}")
+            add_message(session_id, "system", f"[TÓM TẮT NGỮ CẢNH]: {summary_text}")
+            add_message(session_id, "user", user_text)
+
+            print(f"[SMART SUMMARY] Đã tóm tắt & reset Redis cho session {session_id}")
+
+    except Exception as e:
+        print(f"[SUMMARY ERROR] {e}")
 
     elapsed = time.time() - full_start
     return jsonify(

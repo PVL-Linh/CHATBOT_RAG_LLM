@@ -34,14 +34,14 @@ class Chat_HR:
 
 
 class hybrid_retriever:
-    TOP_K = os.environ.get("TOP_K", 15) # 22
-    K_SEM = os.environ.get("K_SEM", 18) # 20 
-    K_LEX = os.environ.get("K_LEX", 22) # 20
-    MMR_FETCH_K = os.environ.get("MMR_FETCH_K", 70) # 80
-    MMR_LAMBDA = os.environ.get("MMR_LAMBDA", 0.6) # 0.45
+    TOP_K = os.environ.get("TOP_K", 14) # 15
+    K_SEM = os.environ.get("K_SEM", 15) # 18 
+    K_LEX = os.environ.get("K_LEX", 18) # 22
+    MMR_FETCH_K = os.environ.get("MMR_FETCH_K", 60) # 70
+    MMR_LAMBDA = os.environ.get("MMR_LAMBDA", 0.5) # 0.6
 
     USE_RERANK = os.environ.get("USE_RERANK", "True").lower() == "true"
-    RERANK_CANDIDATES = os.environ.get("RERANK_CANDIDATES", 70) # 80
+    RERANK_CANDIDATES = os.environ.get("RERANK_CANDIDATES", 60) # 70
     RERANK_TOP_K = os.environ.get("RERANK_TOP_K", TOP_K)
     RERANK_MODEL = os.environ.get("RERANK_MODEL", "BAAI/bge-reranker-v2-m3") # BAAI/bge-reranker-v2-m3
 

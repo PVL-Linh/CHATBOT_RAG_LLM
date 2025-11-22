@@ -1,4 +1,4 @@
-# app/services/redis_ctx.py
+# app/Model_LLM/Chat_Database/redis_ctx.py  (hoặc app/services/redis_ctx.py)
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import os, json, time
@@ -7,8 +7,11 @@ import redis
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
+# TẠO CLIENT TOÀN CỤC – DÙNG ĐƯỢC Ở chat.py, history.py, v.v.
+redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+
 def _client() -> redis.Redis:
-    return redis.Redis.from_url(REDIS_URL, decode_responses=True)
+    return redis_client  # giờ chỉ cần return cái toàn cục
 
 def _k(session_id: str) -> str:
     return f"tiximax:chatctx:{session_id}"
@@ -17,14 +20,12 @@ DEFAULT_TTL = int(os.environ.get("REDIS_CHATCTX_TTL", "86400"))  # 1 ngày
 
 def get_ctx(session_id: str) -> Dict[str, Any]:
     if not session_id: return {}
-    r = _client()
-    raw = r.get(_k(session_id))
+    raw = redis_client.get(_k(session_id))
     return json.loads(raw) if raw else {}
 
 def set_ctx(session_id: str, data: Dict[str, Any]) -> None:
     if not session_id: return
-    r = _client()
-    r.setex(_k(session_id), DEFAULT_TTL, json.dumps(data or {}))
+    redis_client.setex(_k(session_id), DEFAULT_TTL, json.dumps(data or {}))
 
 def update_ctx(session_id: str, patch: Dict[str, Any]) -> Dict[str, Any]:
     cur = get_ctx(session_id)
