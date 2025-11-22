@@ -334,7 +334,7 @@ def LLM_model() -> Tuple[
     if callable(build_hybrid_retriever):
         retriever = build_hybrid_retriever(vector_store)
     else:
-        retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 6})
+        retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 11})
 
     # ====== Gemini ======
     gclient = get_gemini_client()

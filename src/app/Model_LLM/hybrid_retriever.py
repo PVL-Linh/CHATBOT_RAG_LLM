@@ -1,9 +1,11 @@
+import threading
 import os, json, re, unicodedata
 from typing import List, Dict, Tuple
 from langchain_core.documents import Document
 from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.ensemble import EnsembleRetriever
 from sentence_transformers import SentenceTransformer
+import torch
 from app.config.paths import DATA_DIR, FAISS_ALL_DIR
 from app.config.settings import hybrid_retriever as chatall
 from sentence_transformers import CrossEncoder
@@ -220,18 +222,53 @@ def build_hybrid_retriever(vs) -> EnsembleRetriever:
         weights = [0.35, 0.65]
     ens = EnsembleRetriever(retrievers=[bm25, sem], weights=weights)
     return ens
+_reranker = None
+_reranker_lock = threading.Lock()
 
-# Trong rerank (hybrid_retriever.py)
-def rerank(query: str, docs: List[Document], top_k: int = RERANK_TOP_K) -> List[Tuple[Document, float]]:
-    if not USE_RERANK or not docs:
+def _get_reranker():
+    global _reranker
+    if _reranker is None:
+        with _reranker_lock:
+            if _reranker is None:
+                device = "cuda" if torch.cuda.is_available() else "cpu"
+                print(f"[Reranker] Loading {RERANK_MODEL} on {device}... (chỉ load 1 lần)")
+                _reranker = CrossEncoder(
+                    RERANK_MODEL,
+                    device=device,
+                    max_length=512,
+                    activation_fn=torch.nn.Sigmoid()
+                )
+    return _reranker
+
+def rerank(query: str, docs: List[Document], top_k: int = RERANK_TOP_K):
+    if not USE_RERANK or len(docs) <= top_k:
         return [(d, None) for d in docs[:top_k]]
-    from sentence_transformers import CrossEncoder
+    
     try:
-        ce = CrossEncoder(RERANK_MODEL)  # Di chuyển vào đây
+        ce = _get_reranker()
         pairs = [(query, d.page_content) for d in docs[:RERANK_CANDIDATES]]
-        scores = ce.predict(pairs, convert_to_numpy=True).tolist()
+        scores = ce.predict(pairs, batch_size=64)          # batch lớn = nhanh hơn
         ranked = sorted(zip(docs[:RERANK_CANDIDATES], scores), key=lambda x: x[1], reverse=True)
-        return ranked[:top_k]
+        result = ranked[:top_k]
+        # Giải phóng bộ nhớ ngay
+        torch.cuda.empty_cache() if torch.cuda.is_available() else None
+        return result
     except Exception as e:
-        print(f"[ERROR] Rerank failed: {e} - Fallback to no rerank")
+        print(f"[Rerank lỗi] {e}")
         return [(d, None) for d in docs[:top_k]]
+
+
+# # Trong rerank (hybrid_retriever.py)
+# def rerank(query: str, docs: List[Document], top_k: int = RERANK_TOP_K) -> List[Tuple[Document, float]]:
+#     if not USE_RERANK or not docs:
+#         return [(d, None) for d in docs[:top_k]]
+#     from sentence_transformers import CrossEncoder
+#     try:
+#         ce = CrossEncoder(RERANK_MODEL)  # Di chuyển vào đây
+#         pairs = [(query, d.page_content) for d in docs[:RERANK_CANDIDATES]]
+#         scores = ce.predict(pairs, convert_to_numpy=True).tolist()
+#         ranked = sorted(zip(docs[:RERANK_CANDIDATES], scores), key=lambda x: x[1], reverse=True)
+#         return ranked[:top_k]
+#     except Exception as e:
+#         print(f"[ERROR] Rerank failed: {e} - Fallback to no rerank")
+#         return [(d, None) for d in docs[:top_k]]
