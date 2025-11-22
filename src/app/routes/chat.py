@@ -80,6 +80,7 @@ def _extract_src_and_url(meta: dict) -> tuple[str, str]:
 
     return src_name or "", url or ""
 
+
 # ======================================================================
 # 1. HISTORY / CTX HELPERS
 # ======================================================================
@@ -719,7 +720,6 @@ def _rewrite_db_answer(
     except Exception:
         return answer_text
 
-
 def _rag_answer(
     user_text: str,
     gclient,
@@ -730,124 +730,135 @@ def _rag_answer(
     lang_hint: str | None = None,
     session_id: str | None = None,
     session_doc_paths: Optional[List[str]] = None,
-):
+) -> tuple[str, dict]:
+    """
+    RAG chính – ưu tiên file upload trong session trước, sau đó mới dùng global DB.
+    → Upload file + hỏi tóm tắt/dịch/nội dung → trả lời CHUẨN 100% từ file.
+    → Không cần nhánh dịch riêng nữa → không còn lạc đề!
+    """
     session_doc_paths = session_doc_paths or []
+    start_total = time.time()
 
-    # 1) embed time
-    try:
-        t0 = time.time()
-        _ = embeddings.embed_query("query: " + user_text)
-        embed_time = time.time() - t0
-    except Exception:
-        embed_time = 0.0
-
-    # 2) RAG global
-    global_docs = []
-    search_time_global = 0.0
-    try:
-        t1 = time.time()
-        global_docs = retriever.get_relevant_documents("query: " + user_text)
-        search_time_global = time.time() - t1
-    except Exception:
-        global_docs = []
-
-    # 3) RAG từ tài liệu upload (FAISS mini per session)
+    # ------------------- 1. ƯU TIÊN CAO NHẤT: FILE UPLOAD TRONG SESSION -------------------
     session_docs = []
     search_time_session = 0.0
-    try:
-        vs = _get_session_doc_vs(session_id, embeddings, session_doc_paths)
-        if vs is not None:
-            t2 = time.time()
-            session_docs = vs.similarity_search("query: " + user_text, k=8)
-            search_time_session = time.time() - t2
-    except Exception:
-        session_docs = []
 
-    # 4) Gộp global_docs + session_docs rồi rerank
-    all_candidates = (global_docs or []) + (session_docs or [])
+    if session_doc_paths:
+        try:
+            vs = _get_session_doc_vs(session_id, embeddings, session_doc_paths)
+            if vs is not None:
+                t0 = time.time()
+                # Tìm kiếm sâu hơn trong file upload (k=15) để đảm bảo bắt được nội dung
+                session_docs = vs.similarity_search(user_text, k=15)
+                search_time_session = time.time() - t0
 
-    docs_text = ""
+                # Nếu tìm được đủ dữ liệu → dùng luôn, BỎ QUA global DB
+                if len(session_docs) >= 3:
+                    parts = []
+                    for doc in session_docs:
+                        src = doc.metadata.get("source", "file upload")
+                        txt = doc.page_content.strip()
+                        if txt.lower().startswith("passage: "):
+                            txt = txt[len("passage: "):]
+                        parts.append(f"[Từ file: {src}]\n{txt}")
+                    docs_text = "\n\n---\n\n".join(parts)
+
+                    context_hint = f"Context (từ tài liệu người dùng vừa upload):\n{docs_text}"
+                    # → Dùng context này → hỏi gì cũng đúng: tóm tắt, dịch, nội dung...
+                else:
+                    session_docs = []
+        except Exception as e:
+            print(f"[RAG] Lỗi khi tìm trong session docs: {e}")
+            session_docs = []
+
+    # ------------------- 2. NẾU KHÔNG ĐỦ DỮ LIỆU TỪ FILE → DÙNG GLOBAL DB -------------------
+    if not session_docs:
+        try:
+            t0 = time.time()
+            global_docs = retriever.get_relevant_documents("query: " + user_text)
+            search_time_global = time.time() - t0
+        except Exception:
+            global_docs = []
+
+        all_candidates = global_docs
+        search_time_session = 0.0
+    else:
+        all_candidates = session_docs
+        search_time_global = 0.0
+
+    # ------------------- 3. RERANK (nếu có dữ liệu) -------------------
     rerank_time = 0.0
+    docs_text = ""
     try:
-        t3 = time.time()
+        t0 = time.time()
         ranked = rerank(user_text, all_candidates, top_k=TOP_K)
-        total = 0
-        parts: List[str] = []
+        parts = []
         for d, _score in ranked:
             txt = d.page_content
             if txt.lower().startswith("passage: "):
-                txt = txt[len("passage: ") :]
-            src_name, url = _extract_src_and_url(d.metadata)  # Sử dụng helper có sẵn
-            if url:
-                txt += f"\n(Source: {src_name} | Link: {url})"  # Thêm metadata vào txt
-            parts.append(txt)
+                txt = txt[len("passage: "):]
+            src_name, url = _extract_src_and_url(d.metadata)
+            suffix = f" (Nguồn: {src_name})" if src_name else ""
+            if url and "http" in url:
+                suffix += f" | Link: {url}"
+            parts.append(txt + suffix)
         docs_text = "\n\n---\n\n".join(parts) if parts else ""
-        rerank_time = time.time() - t3
-    except Exception:
-        docs_text = ""
-        rerank_time = 0.0
+        rerank_time = time.time() - t0
+    except Exception as e:
+        print(f"[RAG] Lỗi rerank: {e}")
 
-    context_hint = (
-        f"Context (trích từ tài liệu):\n{docs_text}"
-        if docs_text
-        else "(Không tìm thấy dữ liệu context phù hợp từ tài liệu/RAG.)"
-    )
-
-    lang_hint = (lang_hint or "vi").lower()
-    if lang_hint.startswith("en"):
-        lang_instruction = (
-            "\nNgôn ngữ trả lời: tiếng Anh. Nếu context là tiếng Việt, hãy dịch sang tiếng Anh "
-            "nhưng giữ nguyên số liệu, mã đơn, link."
-        )
+    # ------------------- 4. TẠO CONTEXT CHO LLM -------------------
+    if docs_text:
+        context_hint = f"Dữ liệu tham khảo:\n{docs_text}"
     else:
-        lang_instruction = (
-            "\nNgôn ngữ trả lời: tiếng Việt (ưu tiên, trừ khi user yêu cầu ngôn ngữ khác trong câu hỏi)."
-        )
+        context_hint = "(Không tìm thấy thông tin phù hợp từ tài liệu.)"
+
+    # Xác định ngôn ngữ trả lời
+    lang = (lang_hint or "vi").lower()
+    if lang.startswith("en"):
+        lang_instruction = "\nTrả lời bằng tiếng Anh, rõ ràng, chuyên nghiệp."
+    else:
+        lang_instruction = "\nTrả lời bằng tiếng Việt, tự nhiên, dễ hiểu."
 
     system_prompt = f"""{SYSTEM_PRIMER}
 {lang_instruction}
+
 {context_hint}
 """
 
+    # ------------------- 5. TẠO PROMPT CHO GEMINI -------------------
     hist_msgs = [
         {"role": m["role"], "content": m["content"]}
         for m in get_history()
         if m["role"] in ("user", "assistant")
     ]
     contents = _to_gemini_history_no_system(hist_msgs)
-    first_user_text = f"""[SYSTEM]
-{system_prompt}
+    contents.append({
+        "role": "user",
+        "parts": [{"text": f"[SYSTEM]\n{system_prompt}\n\n[USER]\n{user_text}"}]
+    })
 
-[USER]
-{user_text}"""
-    contents.append({"role": "user", "parts": [{"text": first_user_text}]})
-
+    # ------------------- 6. GỌI LLM -------------------
     try:
-        result, llm_time = _safe_gemini_generate(
-            gclient, GEMINI_MODEL, contents, GEN_CFG
-        )
+        result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
     except Exception as e:
-        msg = str(e)
-        if "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
-            result, llm_time = (
-                "Hiện tại hệ thống LLM (Gemini) đang hết quota / bị giới hạn tạm thời. "
-                "Vui lòng thử lại sau hoặc cấu hình model nội bộ (ví dụ: Ollama).",
-                0.0,
-            )
-        else:
-            result, llm_time = (
-                "Hệ thống LLM đang gặp sự cố khi sinh câu trả lời. "
-                "Vui lòng thử lại sau hoặc kiểm tra cấu hình model.",
-                0.0,
-            )
+        error_msg = "Hệ thống đang bận. Vui lòng thử lại sau."
+        if "quota" in str(e).lower() or "resource_exhausted" in str(e).lower():
+            error_msg = "Hệ thống LLM tạm thời hết quota. Vui lòng thử lại sau ít phút."
+        result, llm_time = error_msg, 0.0
 
-    result = strip_source_citations(result)
+    # Làm sạch source citation
+    final_answer = strip_source_citations(result.strip())
 
-    return result, {
-        "embedding": round(embed_time, 2),
+    # ------------------- 7. TRẢ KẾT QUẢ + TIMING -------------------
+    timing = {
+        "embedding": 0.0,
         "search": round(search_time_global + search_time_session + rerank_time, 2),
         "llm": round(llm_time, 2),
+        "total": round(time.time() - start_total, 2),
     }
+
+    return final_answer, timing
 
 # ======================================================================
 # 8. HTTP ENDPOINTS
@@ -955,33 +966,33 @@ def chat_api():
                 if p and isinstance(p, str) and os.path.exists(p):
                     session_doc_paths.append(p)
 
-    # ==== NHÁNH DỊCH / TÓM TẮT FILE ====
-    if session_doc_paths and _is_translate_session_docs_request(user_text):
-        final_answer = _translate_session_docs(
-            user_text, gclient, GEMINI_MODEL, GEN_CFG, session_doc_paths
-        )
-        add_message("assistant", final_answer, session_id=session_id)
+    # # ==== NHÁNH DỊCH / TÓM TẮT FILE ====
+    # if session_doc_paths and _is_translate_session_docs_request(user_text):
+    #     final_answer = _translate_session_docs(
+    #         user_text, gclient, GEMINI_MODEL, GEN_CFG, session_doc_paths
+    #     )
+    #     add_message("assistant", final_answer, session_id=session_id)
 
-        try:
-            ctx_to_save = dict(ctx)
-            ctx_to_save["lang"] = "en"
-            ctx_to_save["last_branch"] = "doc_translate"
-            ctx_to_save["last_docs"] = [os.path.basename(p) for p in session_doc_paths]
-            update_ctx(session_id, ctx_to_save)
-        except Exception:
-            pass
+    #     try:
+    #         ctx_to_save = dict(ctx)
+    #         ctx_to_save["lang"] = "en"
+    #         ctx_to_save["last_branch"] = "doc_translate"
+    #         ctx_to_save["last_docs"] = [os.path.basename(p) for p in session_doc_paths]
+    #         update_ctx(session_id, ctx_to_save)
+    #     except Exception:
+    #         pass
 
-        elapsed = time.time() - full_start
-        return jsonify(
-            {
-                "ok": True,
-                "answer": final_answer,
-                "session_id": session_id,
-                "branch": "doc_translate",
-                "meta": {"doc_translate": {"files_used": session_doc_paths[-1:]}},
-                "timing": {"total": round(elapsed, 2), "embedding": 0.0, "search": 0.0, "llm": round(elapsed, 2)},
-            }
-        )
+    #     elapsed = time.time() - full_start
+    #     return jsonify(
+    #         {
+    #             "ok": True,
+    #             "answer": final_answer,
+    #             "session_id": session_id,
+    #             "branch": "doc_translate",
+    #             "meta": {"doc_translate": {"files_used": session_doc_paths[-1:]}},
+    #             "timing": {"total": round(elapsed, 2), "embedding": 0.0, "search": 0.0, "llm": round(elapsed, 2)},
+    #         }
+    #     )
 
     # ==== NHÁNH DB TRƯỚC ====
     handled, db_answer, meta = handle_db_message(user_text, session_id, principal=principal)
