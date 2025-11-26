@@ -343,7 +343,8 @@ ALLOWED_ROLES = {
     "hr",
     "admin",
     "manager_sales",
-    "accounting",
+    "accountant",
+    "warehouse",
 }
 
 _ROLE_SPLIT_RE = re.compile(r"[,\s;|/]+")
@@ -373,6 +374,8 @@ def _normalize_role_token(tok: str) -> str:
         return "sales"
     if t in {"accounting", "accountant"}:
         return "accountant"
+    if t in {"warehouse", "staff_warehouse_foreign", "staff_warehouse_domestic"}:
+        return "warehouse"
     if t in {"hr", "human_resources", "human resources"}:
         return "hr"
     return t.lower()
@@ -592,6 +595,8 @@ def build_principal_from_session() -> Dict[str, Any]:
         app_role = "ACCOUNTANT"
     elif "hr" in norm:
         app_role = "HR"
+    elif "warehouse" in norm:
+        app_role = "WAREHOUSE"
     else:
         app_role = "OTHER"
 

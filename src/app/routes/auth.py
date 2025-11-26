@@ -97,7 +97,7 @@ def login():
 
     # 🔴 CHỈ cho HOAT_DONG, mọi trạng thái khác đều chặn
     norm_status = (user.get("status") or "").upper()
-    print(f"[auth.login] user={username}, status={norm_status}")
+    print(f"[auth.login] user={username}, status={norm_status}")        
 
     if norm_status != "HOAT_DONG":
         return render_template(
