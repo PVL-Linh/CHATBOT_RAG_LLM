@@ -6,8 +6,10 @@ except:
     from Embedding_FAISS import main_All
 
 from Prosessing_HR.Embedding_FAISS_Accountant import main_accountant
+from Embedding_FAISS_WAREHOUSE import main_warehouse
 
 if __name__ == "__main__":
     main_All()
     main_HR()
     main_accountant()
+    main_warehouse()

@@ -97,7 +97,7 @@ def login():
 
     # 🔴 CHỈ cho HOAT_DONG, mọi trạng thái khác đều chặn
     norm_status = (user.get("status") or "").upper()
-    print(f"[auth.login] user={username}, status={norm_status}")        
+    print(f"[auth.login] user={username}, status={norm_status}")
 
     if norm_status != "HOAT_DONG":
         return render_template(
@@ -127,8 +127,8 @@ def login():
     session['staff_id'] = staff_id
     session['user_id'] = staff_id
 
-    # Thay vì redirect thẳng về chat → đi qua trang trung gian để phá history
-    return redirect(url_for('pages.post_login'))
+    next_url = request.form.get("next") or request.args.get("next") or url_for("pages.chat")
+    return redirect(next_url)
 
 
 @bp.route("/logout")

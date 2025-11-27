@@ -15,7 +15,7 @@ class AppConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-change-in-production")
 
     # Upload / json 
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024
     JSON_SORT_KEYS = False
     JSONIFY_PRETTYPRINT_REGULAR = False
     PREFERRED_URL_SCHEME = "https"
