@@ -33,6 +33,7 @@
   {% set can_marketing = is_admin or is_mkt or is_sales or is_mgr_any %}
   {% set can_sales = is_admin or (',sales,' in r_all) or mgr_sales %}
   {% set can_accountant = is_admin or (',accountant,' in r_all) %}
+  {% set can_warehouse = is_admin or (',warehouse,' in r_all) %}
   {% set can_hr = is_admin or (',hr,' in r_all) %}
   {% set can_admin = is_admin %}
 
@@ -58,6 +59,13 @@
       </a>
       {% endif %}
       
+      {% if can_warehouse %}
+      <a class="nav-item {{ 'active' if active=='warehouse' else '' }}" href="{{ url_for('pages.warehouse') }}">
+        <i data-lucide="warehouse"></i>
+        <span>Warehouse</span>
+      </a>
+      {% endif %}
+
       {% if can_hr %}
       <a class="nav-item {{ 'active' if active=='hr' else '' }}" href="{{ url_for('pages.hr') }}">
         <i data-lucide="users"></i>
