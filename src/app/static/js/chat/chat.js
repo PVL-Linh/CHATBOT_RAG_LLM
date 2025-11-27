@@ -1421,4 +1421,25 @@
 
     lucide.createIcons();
   }
+  // ======== CHỐNG BACK VÀO LẠI CHAT – PHIÊN BẢN HOÀN HẢO ========
+document.addEventListener('DOMContentLoaded', () => {
+  // Chỉ đẩy thêm 1 lớp bảo vệ nữa (đã có 3 lớp từ post_login rồi)
+  history.pushState(null, '', '/login');
+
+  // Chỉ kích hoạt ép về login khi người dùng THỰC SỰ bấm Back
+  // (không kích hoạt ngay khi load trang)
+  const handleBack = () => {
+    // Nếu đang ở trang chat và bấm Back → ép về login
+    if (window.location.pathname === '/' || window.location.pathname === '/chat') {
+      window.location.replace('/login');
+    }
+  };
+
+  window.addEventListener('popstate', handleBack);
+
+  // Cleanup (tốt hơn)
+  window.addEventListener('beforeunload', () => {
+    window.removeEventListener('popstate', handleBack);
+  });
+});
 })();

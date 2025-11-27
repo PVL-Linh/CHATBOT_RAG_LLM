@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Đang chuyển hướng...</title>
+  <script>
+    // ĐẨY 3 LỚP ĐỆM LIỀN MỘT LÚC → chắc chắn không lọt
+    history.pushState(null, '', '/login');
+    history.pushState(null, '', '/login');
+    history.pushState(null, '', '/login');
+
+    // Sau đó mới replace vào trang chat thật
+    window.location.replace('/');
+  </script>
+</head>
+<body></body>
+</html>

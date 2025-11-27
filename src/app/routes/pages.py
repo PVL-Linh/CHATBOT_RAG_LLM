@@ -50,3 +50,7 @@ def indexing_faiss():
 @login_required
 def warehouse():
     return render_template("home/warehouse.html", active="warehouse")
+
+@bp.route('/post-login')
+def post_login():
+    return render_template('home/post_login.html')

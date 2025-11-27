@@ -127,8 +127,8 @@ def login():
     session['staff_id'] = staff_id
     session['user_id'] = staff_id
 
-    next_url = request.form.get("next") or request.args.get("next") or url_for("pages.chat")
-    return redirect(next_url)
+    # Thay vì redirect thẳng về chat → đi qua trang trung gian để phá history
+    return redirect(url_for('pages.post_login'))
 
 
 @bp.route("/logout")
