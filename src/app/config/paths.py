@@ -35,6 +35,9 @@ UPLOAD_VIDEOS_DIR = DATA_APP_DIR / "uploads" / "videos"
 PDF_TEXT_DIR = DATA_APP_DIR / "pdf_to_text"
 PDF_TMP_DIR = DATA_APP_DIR / "pdf_tmp"
 
+# WAREHOUSE
+DATA_DIR_WAREHOUSE = get_path("DATA_DIR_WAREHOUSE", APP_DIR / "Data" / "WAREHOUSE")
+
 # Models / Embeddings / Vectorstore
 MODELS_DIS = get_path("MODELS_DIR", APP_DIR / "models")
 EMBED_MODEL_DIR = get_path("EMBED_MODEL_DIR", MODELS_DIS / "local_multilingual_e5_large")
@@ -44,6 +47,8 @@ EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID", "intfloat/multilingual-e5-large")
 VECTORSTORE_DIR = get_path("VECTORSTORE_DIR", APP_DIR / "vectorstore")
 FAISS_ALL_DIR = VECTORSTORE_DIR / "FAISS_Vector_All"
 FAISS_HR_DIR_1 = VECTORSTORE_DIR / "FAISS_Vector_HR"
+FAISS_ALL_DIR_WAREHOUSE = VECTORSTORE_DIR / "FAISS_Vector_WAREHOUSE"
+
 
 # INDEX HR FILE
 DATA_DIR_HR_1 = get_path("DATA_DIR_HR", APP_DIR / "Data" / "HR")

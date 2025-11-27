@@ -15,6 +15,7 @@ def register_blueprints(app: Flask) -> None:
     from .accountant_rag import bp_accountant_rag, bp_accountant_history
     from .indexing import indexing_bp
     from .upload_file import bp as upload_bp
+    from .chat_WareHouse import bp as chat_warehouse_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(pages_bp)
     app.register_blueprint(chat_bp)
@@ -30,6 +31,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(bp_accountant_rag)
     app.register_blueprint(bp_accountant_history)
     app.register_blueprint(upload_bp)
+    app.register_blueprint(chat_warehouse_bp)
 
 
 def register_error_handlers(app: Flask) -> None:

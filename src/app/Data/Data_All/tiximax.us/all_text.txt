@@ -409,14 +409,14 @@ Ngành hàng kinh doanh của bạn*
 
 ================================================================================
 
-URL: https://tiximax.us/bai-viet
+URL: https://tiximax.us/archive
 TITLE: 
 
 
 
 ================================================================================
 
-URL: https://tiximax.us/archive
+URL: https://tiximax.us/bai-viet
 TITLE: 
 
 
@@ -430,13 +430,6 @@ TITLE:
 
 ================================================================================
 
-URL: https://tiximax.us/blocks/404-page-not-found
-TITLE: 
-
-
-
-================================================================================
-
 URL: https://tiximax.us/blocks/footer
 TITLE: 
 
@@ -444,96 +437,7 @@ TITLE:
 
 ================================================================================
 
-URL: https://tiximax.us/blog
-TITLE: Blog - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-BLOG
-TIXIMAX US chuyên cung cấp dịch vụ vận chuyển và mua hộ hàng Mỹ về Việt Nam, đảm bảo minh bạch – nhanh chóng – an toàn. Tại đây, chúng tôi sẽ liên tục cập nhật bảng giá, chính sách gửi hàng, hướng dẫn mua sắm và săn deal giúp khách hàng tiếp cận nguồn hàng chất lượng với chi phí tối ưu. Hãy theo dõi những bài viết mới nhất để cập nhật tin nóng và nhận ngay ưu đãi độc quyền !
-DANH MỤC LIÊN QUAN
-TIN TỨC DỊCH VỤ
-HỖ TRỢ KHÁCH HÀNG
-KIẾN THỨC THỊ TRƯỜNG
-TIN TỨC DỊCH VỤ
-KÝ GỬI HÀNG HÓA 2 CHIỀU MỸ – VIỆT NAM
-Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
-Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
-07
-Sep
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
-Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
-06
-Sep
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
-21
-Aug
-Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
-Bạn đang tìm hiểu về công ty forwarder nhưng chưa rõ vai trò, các loại [...]
-20
-Aug
-Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
-Nhập khẩu hóa chất là hoạt động phổ biến trong sản xuất, nghiên cứu và [...]
-06
-Aug
-Mua hàng Walmart Mỹ giá rẻ: 5 mẹo cần biết
-Bạn đang tìm cách mua hàng Walmart để sở hữu những sản phẩm chính hãng [...]
-24
-Jul
-Mua hàng trên Jomashop – Cách mua đồng hồ Mỹ chính hãng
-Bạn đang tìm cách mua đồng hồ Mỹ chính hãng với giá tốt? Hãy khám [...]
-23
-Jul
-Cách mua hàng eBay Mỹ: Hướng dẫn, đấu giá và kinh nghiệm
-eBay là một trong những sàn thương mại điện tử lớn nhất thế giới, đặc [...]
-22
-Jul
-Xem thêm
-MUA HỘ HÀNG MỸ VỀ VIỆT NAM
-Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
-Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
-07
-Sep
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
-Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
-06
-Sep
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
-21
-Aug
-XEM THÊM
-HỖ TRỢ KHÁCH HÀNG
-Mua hàng Walmart Mỹ giá rẻ: 5 mẹo cần biết
-Bạn đang tìm cách mua hàng Walmart để sở hữu những sản phẩm chính hãng [...]
-24
-Jul
-Mua hàng trên Jomashop – Cách mua đồng hồ Mỹ chính hãng
-Bạn đang tìm cách mua đồng hồ Mỹ chính hãng với giá tốt? Hãy khám [...]
-23
-Jul
-Cách mua hàng eBay Mỹ: Hướng dẫn, đấu giá và kinh nghiệm
-eBay là một trong những sàn thương mại điện tử lớn nhất thế giới, đặc [...]
-22
-Jul
-XEM THÊM
-KIẾN THỨC THỊ TRƯỜNG
-Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
-Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
-07
-Sep
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
-Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
-06
-Sep
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
-21
-Aug
-Xem thêm
-
-================================================================================
-
-URL: https://tiximax.us/category
+URL: https://tiximax.us/blocks/404-page-not-found
 TITLE: 
 
 
@@ -684,6 +588,95 @@ Họ và tên của bạn
 Email của bạn
 Số điện thoại của bạn
 Nội dung liên hệ
+
+================================================================================
+
+URL: https://tiximax.us/blog
+TITLE: Blog - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+BLOG
+TIXIMAX US chuyên cung cấp dịch vụ vận chuyển và mua hộ hàng Mỹ về Việt Nam, đảm bảo minh bạch – nhanh chóng – an toàn. Tại đây, chúng tôi sẽ liên tục cập nhật bảng giá, chính sách gửi hàng, hướng dẫn mua sắm và săn deal giúp khách hàng tiếp cận nguồn hàng chất lượng với chi phí tối ưu. Hãy theo dõi những bài viết mới nhất để cập nhật tin nóng và nhận ngay ưu đãi độc quyền !
+DANH MỤC LIÊN QUAN
+TIN TỨC DỊCH VỤ
+HỖ TRỢ KHÁCH HÀNG
+KIẾN THỨC THỊ TRƯỜNG
+TIN TỨC DỊCH VỤ
+KÝ GỬI HÀNG HÓA 2 CHIỀU MỸ – VIỆT NAM
+Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
+Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
+07
+Sep
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
+06
+Sep
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
+21
+Aug
+Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
+Bạn đang tìm hiểu về công ty forwarder nhưng chưa rõ vai trò, các loại [...]
+20
+Aug
+Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
+Nhập khẩu hóa chất là hoạt động phổ biến trong sản xuất, nghiên cứu và [...]
+06
+Aug
+Mua hàng Walmart Mỹ giá rẻ: 5 mẹo cần biết
+Bạn đang tìm cách mua hàng Walmart để sở hữu những sản phẩm chính hãng [...]
+24
+Jul
+Mua hàng trên Jomashop – Cách mua đồng hồ Mỹ chính hãng
+Bạn đang tìm cách mua đồng hồ Mỹ chính hãng với giá tốt? Hãy khám [...]
+23
+Jul
+Cách mua hàng eBay Mỹ: Hướng dẫn, đấu giá và kinh nghiệm
+eBay là một trong những sàn thương mại điện tử lớn nhất thế giới, đặc [...]
+22
+Jul
+Xem thêm
+MUA HỘ HÀNG MỸ VỀ VIỆT NAM
+Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
+Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
+07
+Sep
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
+06
+Sep
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
+21
+Aug
+XEM THÊM
+HỖ TRỢ KHÁCH HÀNG
+Mua hàng Walmart Mỹ giá rẻ: 5 mẹo cần biết
+Bạn đang tìm cách mua hàng Walmart để sở hữu những sản phẩm chính hãng [...]
+24
+Jul
+Mua hàng trên Jomashop – Cách mua đồng hồ Mỹ chính hãng
+Bạn đang tìm cách mua đồng hồ Mỹ chính hãng với giá tốt? Hãy khám [...]
+23
+Jul
+Cách mua hàng eBay Mỹ: Hướng dẫn, đấu giá và kinh nghiệm
+eBay là một trong những sàn thương mại điện tử lớn nhất thế giới, đặc [...]
+22
+Jul
+XEM THÊM
+KIẾN THỨC THỊ TRƯỜNG
+Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
+Nhu cầu gửi thuốc tây đi Mỹ ngày càng lớn trong cộng đồng người Việt, [...]
+07
+Sep
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+Nhu cầu gửi hàng đông lạnh đi Mỹ đang ngày càng tăng cao, đặc biệt [...]
+06
+Sep
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+Bạn đang thắc mắc forwarder làm những gì trong hoạt động xuất nhập khẩu và [...]
+21
+Aug
+Xem thêm
 
 ================================================================================
 
@@ -1098,6 +1091,13 @@ Ngành hàng kinh doanh của bạn*
 
 ================================================================================
 
+URL: https://tiximax.us/category
+TITLE: 
+
+
+
+================================================================================
+
 URL: https://tiximax.us/chuyen-muc
 TITLE: 
 
@@ -1380,6 +1380,213 @@ TƯ VẤN MIỄN PHÍ
 
 ================================================================================
 
+URL: https://tiximax.us/forwarder-lam-nhung-gi
+TITLE: Forwarder làm những gì? Công việc Forwarder từ A–Z - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+KIẾN THỨC THỊ TRƯỜNG
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+Posted on
+21/08/2025
+22/08/2025
+by
+Chuyên viên TIXIMAX
+21
+Aug
+Bạn đang thắc mắc
+forwarder làm những gì
+trong hoạt động xuất nhập khẩu và vận tải quốc tế? Nếu không hiểu rõ vai trò và công việc của forwarder, doanh nghiệp rất dễ gặp rủi ro như sai chứng từ, chậm thông quan hay phát sinh chi phí không đáng có. Bài viết này sẽ giúp bạn nắm vững khái niệm, công việc forwarder, các vị trí trong công ty forwarder và quy trình làm việc chuẩn, từ đó tối ưu quản lý chuỗi vận tải hàng hóa hiệu quả hơn.
+I. Forwarder là gì?
+Forwarder là gì?
+Forwarder hay còn gọi là
+Freight Forwarder
+là công ty giao nhận vận tải quốc tế, đóng vai trò trung gian giữa chủ hàng với các hãng vận tải như hãng tàu biển, hãng hàng không.
+Forwarder đóng vai trò quan trọng trong chuỗi cung ứng hàng hóa
+Forwarder không trực tiếp sở hữu phương tiện vận tải (tàu, máy bay, xe tải) mà thay vào đó, họ tổ chức, điều phối và quản lý toàn bộ quá trình vận chuyển hàng hóa từ điểm xuất phát đến điểm đến cuối cùng.
+Nhiều người hay nhầm lẫn forwarder với logistics hoặc hãng vận tải. Thực tế:
+Forwarder
+: chuyên tập trung vào dịch vụ giao nhận quốc tế, xử lý chứng từ, thủ tục hải quan, đặt chỗ tàu/airline.
+Logistics company
+: phạm vi rộng hơn, bao gồm cả kho bãi, phân phối, vận tải nội địa, quản lý chuỗi cung ứng.
+Hãng vận tải (Carrier)
+: đơn vị trực tiếp khai thác phương tiện vận chuyển (tàu, máy bay, xe).
+Như vậy, có thể hiểu một cách ngắn gọn:
+forwarder là nghề gì?
+→ Là nghề kết nối và tổ chức vận chuyển hàng hóa quốc tế cho doanh nghiệp.
+Nhân viên forwarder là gì?
+→ Là người phụ trách công việc khai thác, xử lý chứng từ, chăm sóc khách hàng và đảm bảo hàng hóa được giao đúng cam kết.
+II. Forwarder làm những gì?
+1.
+Tư vấn & lập phương án vận chuyển chuyên nghiệp
+Forwarder phân tích các yếu tố như loại hàng hóa, thời gian giao nhận, ngân sách và tính cấp bách để đề xuất phương thức vận tải phù hợp (đường biển, hàng không hay đa phương thức). Họ cũng so sánh nhiều tuyến và hãng vận tải (carrier) khác nhau để cân bằng giữa
+chi phí – tốc độ – độ tin cậy
+, giúp doanh nghiệp có được phương án tối ưu.
+2.
+Gom hàng & đặt chỗ
+Đối với các lô hàng nhỏ, forwarder thường tiến hành
+gom chung container hoặc khoang chứa (LCL)
+nhằm tận dụng tối đa không gian vận chuyển, từ đó giảm đáng kể chi phí cho khách hàng. Ngoài ra, forwarder còn thực hiện việc
+đặt chỗ với hãng tàu, hãng bay hoặc các phương tiện vận tải nội địa
+, đảm bảo hàng hóa có lịch trình ổn định.
+3.
+Xử lý chứng từ vận tải & thương mại
+Một trong những công việc quan trọng nhất của forwarder là
+chuẩn bị, kiểm tra và hợp thức hóa chứng từ
+như vận đơn (B/L, AWB), hóa đơn thương mại, packing list, giấy chứng nhận xuất xứ (C/O), bảo hiểm… Tính chính xác của giấy tờ giúp tránh rủi ro chậm trễ, phạt hải quan hoặc tranh chấp trong quá trình vận chuyển.
+Forwarder hỗ trợ xử lý chứng từ
+4.
+Thông quan & tuân thủ pháp lý
+Forwarder chịu trách nhiệm khai báo hải quan, phân loại mã HS, tính thuế xuất nhập khẩu và đảm bảo doanh nghiệp
+tuân thủ quy định pháp luật trong nước lẫn quốc tế
+. Nhờ kinh nghiệm chuyên môn, forwarder giúp giảm thiểu nguy cơ vi phạm pháp lý, ví dụ như các quy định kiểm soát xuất khẩu (EAR) ở Mỹ.
+5.
+Sắp xếp bảo hiểm hàng hóa
+Để bảo vệ lợi ích của doanh nghiệp, forwarder thường
+cung cấp hoặc tư vấn mua bảo hiểm vận tải
+. Điều này giúp giảm thiểu rủi ro khi hàng hóa bị hư hỏng, mất mát hoặc gặp sự cố bất khả kháng trong quá trình vận chuyển quốc tế.
+6.
+Theo dõi tiến độ & xử lý sự cố
+Forwarder không chỉ giao nhận mà còn
+giám sát hành trình lô hàng theo thời gian thực
+, đồng thời cập nhật liên tục cho khách hàng. Khi phát sinh sự cố như trễ tàu, kẹt cảng, thiếu chứng từ, họ sẽ nhanh chóng tìm giải pháp để hạn chế thiệt hại cho doanh nghiệp.
+7.
+Dịch vụ giá trị gia tăng (Value-Added Services)
+Ngoài vận chuyển, forwarder còn cung cấp nhiều dịch vụ hỗ trợ:
+Kho bãi, lưu trữ, đóng/rút hàng (de-consolidation)
+.
+Tư vấn thị trường quốc tế, luật xuất nhập khẩu và rủi ro chính trị
+.
+Ứng dụng công nghệ logistics
+như hệ thống tracking, ERP, hay công cụ quản lý chuỗi cung ứng, giúp doanh nghiệp có tầm nhìn minh bạch và quản trị hiệu quả hơn.
+III. Các bộ phận và vị trí trong công ty Forwarder
+Trong một công ty forwarder, cơ cấu tổ chức thường được chia thành nhiều
+bộ phận chuyên trách
+để đảm bảo quá trình vận chuyển diễn ra trơn tru từ khâu chào giá đến khi giao hàng thành công. Hiểu rõ vai trò của từng vị trí sẽ giúp bạn nắm rõ
+công việc forwarder
+và hình dung cụ thể hơn
+nhân viên forwarder là gì
+.
+1. Bộ phận Sales cước (Sales Freight)
+Bộ phận Sales cước giữ vai trò quan trọng trong doanh nghiệp forwarder với nhiệm vụ chính là tìm kiếm khách hàng mới, tư vấn tuyến vận chuyển, báo giá và chốt hợp đồng dịch vụ. Nhân sự Sales cần am hiểu thị trường vận tải, nắm vững giá cước của hãng tàu hoặc hãng hàng không, đồng thời có khả năng thương lượng để đưa ra giải pháp tối ưu cho khách hàng. Đây được coi là “đầu ra” của forwarder vì trực tiếp mang lại doanh thu cho doanh nghiệp.
+Ví dụ: Khi một công ty xuất khẩu gạo muốn gửi hàng sang Philippines, Sales forwarder sẽ phân tích chi phí đường biển, thời gian vận chuyển và đưa ra bảng báo giá cạnh tranh.
+2. Bộ phận Chứng từ (Documentation)
+Bộ phận Chứng từ (Documentation)
+trong công ty forwarder đảm nhận nhiệm vụ chuẩn hóa và kiểm tra toàn bộ hồ sơ vận chuyển, từ vận đơn (B/L, AWB), invoice, packing list, C/O cho đến các giấy tờ cần thiết khác. Công việc này đòi hỏi sự tỉ mỉ và chính xác tuyệt đối, bởi chỉ một sai sót nhỏ trong chứng từ cũng có thể khiến lô hàng bị chậm thông quan hoặc phát sinh thêm chi phí. Đây là vị trí then chốt, giúp doanh nghiệp xuất nhập khẩu yên tâm rằng hàng hóa luôn được đảm bảo tính hợp pháp và tuân thủ quy định.
+Forwarder làm việc với những bộ phận nào
+3. Bộ phận Customer Service (CS)
+Bộ phận Chứng từ (Documentation)
+chịu trách nhiệm chuẩn hóa và kiểm tra toàn bộ hồ sơ vận chuyển, bao gồm phát hành vận đơn (B/L, AWB), invoice, packing list, C/O và các loại giấy tờ liên quan. Nhân viên chứng từ cần làm việc tỉ mỉ và chính xác tuyệt đối, bởi chỉ một sai sót nhỏ cũng có thể dẫn đến chậm trễ thông quan hoặc phát sinh chi phí không mong muốn. Đây là vị trí giữ vai trò then chốt, giúp doanh nghiệp xuất nhập khẩu yên tâm rằng lô hàng luôn hợp pháp và đúng quy định.
+4. Bộ phận Thông quan (Customs Clearance)
+Bộ phận Thông quan (Customs Clearance)
+chuyên phụ trách khai báo hải quan và xử lý các thủ tục pháp lý liên quan đến hàng hóa xuất nhập khẩu. Nhân viên ở vị trí này cần am hiểu quy định về mã HS, thuế xuất nhập khẩu, kiểm dịch, cũng như các yêu cầu kiểm định chất lượng. Họ giống như “người đại diện pháp lý” của doanh nghiệp khi làm việc với cơ quan hải quan. Đây là công việc đòi hỏi sự chính xác tuyệt đối và kiến thức chuyên môn sâu, nhằm hạn chế tối đa rủi ro bị phạt hoặc tình trạng hàng bị giữ tại cảng.
+5. Bộ phận Vận hành giao nhận (Operation)
+Bộ phận Vận hành giao nhận (Operation)
+chịu trách nhiệm quản lý toàn bộ khâu nhận hàng, sắp xếp phương tiện vận tải nội địa và kiểm soát lịch trình giao nhận tại cảng, ICD hoặc kho bãi. Đây là những người trực tiếp tiếp xúc với hàng hóa, đảm bảo việc xếp dỡ và vận chuyển diễn ra đúng kế hoạch.
+Công việc đòi hỏi sự nhanh nhẹn, khả năng xử lý tình huống tại hiện trường và phối hợp chặt chẽ với hãng tàu, hãng bay cũng như đơn vị kho bãi. Khác với các bộ phận chủ yếu làm việc giấy tờ trong văn phòng, nhân viên Operation thường có mặt nhiều ở hiện trường để giám sát và giải quyết sự cố phát sinh.
+IV. Quy trình làm việc với Forwarder
+Để hiểu rõ hơn
+forwarder làm gì
+trong vận tải quốc tế, chúng ta hãy xem chi tiết quy trình làm việc tiêu chuẩn giữa doanh nghiệp xuất nhập khẩu và một công ty forwarder. Thông thường, quy trình gồm 6 bước sau:
+1. Doanh nghiệp gửi yêu cầu vận chuyển
+Doanh nghiệp cần cung cấp đầy đủ thông tin về lô hàng của mình, bao gồm loại hàng hóa, số lượng, trọng lượng, kích thước, địa điểm đi và đến, cùng với thời gian mong muốn. Đây là bước quan trọng để forwarder nắm bắt chính xác nhu cầu, từ đó đưa ra những giải pháp vận chuyển tối ưu nhất.
+Ví dụ, một công ty thủy sản ở Cà Mau muốn xuất khẩu 10 tấn tôm đông lạnh sang Nhật, họ sẽ gửi yêu cầu chi tiết này để forwarder bắt đầu công việc của mình.
+2. Forwarder báo giá & đề xuất tuyến
+Dựa trên thông tin khách hàng cung cấp, forwarder sẽ tiến hành tư vấn các tuyến vận tải phù hợp, lựa chọn phương thức vận chuyển (đường biển, hàng không, đường bộ) và gửi báo giá cụ thể.
+Ngoài giá cước, forwarder còn đề xuất thời gian vận chuyển dự kiến, các chi phí phụ (nếu có) và phương án giúp tiết kiệm chi phí. Đây chính là giai đoạn thể hiện rõ vai trò của forwarder – không chỉ đơn thuần là vận chuyển, mà còn là người tư vấn, tính toán chi phí và rủi ro cho khách hàng.
+3. Ký hợp đồng dịch vụ
+Khi cả hai bên đã đồng ý với báo giá và các điều khoản, hợp đồng dịch vụ logistics sẽ được ký kết. Hợp đồng này là căn cứ pháp lý quan trọng, ghi rõ trách nhiệm, quyền lợi của doanh nghiệp và forwarder, các loại phí, thời gian giao nhận, và điều khoản bồi thường trong trường hợp có sự cố. Điều này đảm bảo quyền lợi cho cả hai bên trong suốt quá trình vận chuyển.
+4. Nhận hàng & booking
+Khi cả hai bên đã đồng ý với báo giá và các điều khoản, hợp đồng dịch vụ logistics sẽ được ký kết. Hợp đồng này là căn cứ pháp lý quan trọng, ghi rõ trách nhiệm, quyền lợi của doanh nghiệp và forwarder, các loại phí, thời gian giao nhận, và điều khoản bồi thường trong trường hợp có sự cố. Điều này đảm bảo quyền lợi cho cả hai bên trong suốt quá trình vận chuyển.
+5. Chuẩn bị chứng từ & thông quan
+Đây là một trong những khâu phức tạp nhất. Forwarder sẽ hỗ trợ doanh nghiệp chuẩn bị và kiểm tra các loại chứng từ cần thiết như invoice, packing list, vận đơn (B/L hoặc AWB), chứng nhận xuất xứ (C/O), chứng nhận kiểm dịch…
+Cùng lúc, họ sẽ tiến hành khai báo hải quan điện tử và hoàn tất các thủ tục cần thiết để hàng hóa được thông quan thuận lợi. Khâu này thể hiện rõ chuyên môn của forwarder trong việc xử lý các thủ tục pháp lý phức tạp.
+6. Vận chuyển – giao hàng – đối soát
+Quy trình làm việc với Forwarder
+Sau khi thông quan, hàng hóa sẽ được vận chuyển theo tuyến đã đặt. Forwarder sẽ thường xuyên cập nhật tình trạng đơn hàng để khách hàng yên tâm. Khi hàng đến điểm đến, họ hỗ trợ giao hàng tận nơi (nếu khách yêu cầu) và làm thủ tục giao nhận với người nhập khẩu.
+Cuối cùng, forwarder và doanh nghiệp sẽ cùng tiến hành đối soát chứng từ, chi phí và thanh toán. Nhờ có forwarder, doanh nghiệp không phải tự mình làm việc với nhiều bên như hãng tàu, hải quan, kho bãi, mà chỉ cần phối hợp qua một đầu mối duy nhất, giúp tiết kiệm thời gian và công sức đáng kể.
+V. Lợi ích khi sử dụng dịch vụ Forwarder
+Đối với người Việt, đặc biệt là những người chưa có kinh nghiệm, việc giao thương với thị trường Mỹ có thể rất phức tạp. Dưới đây là những lợi ích khi bạn chọn một
+Forwarder
+uy tín:
+Đơn giản hóa thủ tục:
+Forwarder sẽ thay bạn xử lý mọi giấy tờ, khai báo hải quan, giúp bạn vượt qua rào cản ngôn ngữ và quy định phức tạp.
+Tiết kiệm chi phí:
+Nhờ có mạng lưới rộng khắp, Forwarder có thể thương lượng giá cước tốt, giúp bạn tránh các chi phí phát sinh không mong muốn.
+Dịch vụ trọn gói:
+Bạn chỉ cần gửi hàng, Forwarder sẽ lo toàn bộ quy trình từ khâu nhận hàng tại Mỹ cho đến giao hàng tận nơi tại Việt Nam (và ngược lại), giúp bạn tiết kiệm thời gian và công sức.
+An tâm tuyệt đối:
+Bạn sẽ được cập nhật liên tục tình trạng lô hàng, có thể theo dõi trực tuyến bất cứ lúc nào, đảm bảo hàng hóa đến nơi an toàn và đúng hẹn.
+Chọn Forwarder là cách thông minh để đơn giản hóa việc vận chuyển hàng hóa, giúp bạn an tâm khi giao thương với thị trường Mỹ.
+VI. Những kỹ năng cần có của nhân viên Forwarder
+Để trả lời câu hỏi
+nhân viên forwarder là gì
+hay
+forwarder là nghề gì
+, cần hiểu rằng đây là những người trực tiếp tham gia vào chuỗi vận tải quốc tế, từ khâu tìm khách, làm chứng từ, khai báo hải quan đến điều phối vận hành. Do đó, họ cần có sự kết hợp giữa kiến thức chuyên môn và kỹ năng mềm.
+1. Kiến thức chuyên môn vững vàng
+Hiểu rõ về Incoterms – các điều kiện thương mại quốc tế để tư vấn chính xác cho khách hàng.
+Nắm vững thủ tục hải quan, mã HS, thuế suất xuất nhập khẩu và các chính sách quản lý hàng hóa đặc thù.
+Có khả năng xử lý chứng từ quốc tế như Bill of Lading, Airway Bill, C/O, kiểm dịch…
+Đây là nền tảng quan trọng nhất để nhân viên forwarder đảm bảo hàng hóa lưu thông đúng quy định.
+2. Kỹ năng mềm cần thiết
+Giao tiếp & thương lượng
+: nhân viên forwarder thường xuyên làm việc với hãng tàu, khách hàng, cơ quan hải quan nên cần kỹ năng đàm phán tốt.
+Quản lý thời gian
+: nghề forwarder gắn liền với deadline khắt khe (cut-off booking, lịch tàu, lịch bay). Do đó, khả năng sắp xếp công việc là bắt buộc.
+Xử lý tình huống
+: khi hàng hóa bị kẹt, trễ chuyến, nhân viên forwarder phải nhanh chóng tìm giải pháp thay thế.
+3. Ngoại ngữ và tin học văn phòng
+Ngoại ngữ, đặc biệt là tiếng Anh, là “chìa khóa” của nghề forwarder. Hầu hết email, chứng từ, hệ thống đặt chỗ đều dùng tiếng Anh.
+Tin học văn phòng và kỹ năng sử dụng phần mềm logistics giúp nhân viên làm việc nhanh, chính xác, giảm sai sót.
+VII. Kết luận
+Forwarder giữ vai trò trung gian quan trọng trong hoạt động logistics, giúp doanh nghiệp tiết kiệm thời gian, chi phí và hạn chế rủi ro trong quá trình vận tải quốc tế. Hiểu rõ
+forwarder làm những gì
+không chỉ giúp bạn phối hợp hiệu quả hơn với đối tác mà còn tránh được những sai sót về chứng từ, thủ tục hải quan hay phát sinh chi phí ngoài dự kiến.
+Vì vậy, trước khi lựa chọn dịch vụ vận tải, doanh nghiệp cần nắm chắc quy trình làm việc với forwarder cũng như đánh giá năng lực của họ. Đồng thời, việc hiểu rõ công việc forwarder sẽ giúp bạn chủ động hơn trong quản lý lô hàng, đảm bảo hàng hóa được vận chuyển an toàn, nhanh chóng và đúng pháp lý.
+Bạn đang tìm hiểu
+công việc forwarder
+hoặc cần hỗ trợ dịch vụ vận tải quốc tế? Hãy liên hệ ngay với
+TIXIMAX Logistics
+để được tư vấn và triển khai giải pháp vận chuyển tối ưu cho doanh nghiệp của bạn.
+This entry was posted in
+KIẾN THỨC THỊ TRƯỜNG
+. Bookmark the
+permalink
+.
+Chuyên viên TIXIMAX
+Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+Leave a Reply
+Cancel reply
+Your email address will not be published.
+Required fields are marked
+*
+Comment
+*
+Name
+*
+Email
+*
+Website
+Save my name, email, and website in this browser for the next time I comment.
+Recent Posts
+07
+Sep
+Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
+06
+Sep
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+21
+Aug
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+20
+Aug
+Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
+06
+Aug
+Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
+
+================================================================================
+
 URL: https://tiximax.us/cong-ty-forwarder
 TITLE: Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
 
@@ -1594,213 +1801,6 @@ permalink
 Chuyên viên TIXIMAX
 Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
 Forwarder làm những gì? Công việc Forwarder từ A–Z
-Leave a Reply
-Cancel reply
-Your email address will not be published.
-Required fields are marked
-*
-Comment
-*
-Name
-*
-Email
-*
-Website
-Save my name, email, and website in this browser for the next time I comment.
-Recent Posts
-07
-Sep
-Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
-06
-Sep
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
-21
-Aug
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-20
-Aug
-Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
-06
-Aug
-Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
-
-================================================================================
-
-URL: https://tiximax.us/forwarder-lam-nhung-gi
-TITLE: Forwarder làm những gì? Công việc Forwarder từ A–Z - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-KIẾN THỨC THỊ TRƯỜNG
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-Posted on
-21/08/2025
-22/08/2025
-by
-Chuyên viên TIXIMAX
-21
-Aug
-Bạn đang thắc mắc
-forwarder làm những gì
-trong hoạt động xuất nhập khẩu và vận tải quốc tế? Nếu không hiểu rõ vai trò và công việc của forwarder, doanh nghiệp rất dễ gặp rủi ro như sai chứng từ, chậm thông quan hay phát sinh chi phí không đáng có. Bài viết này sẽ giúp bạn nắm vững khái niệm, công việc forwarder, các vị trí trong công ty forwarder và quy trình làm việc chuẩn, từ đó tối ưu quản lý chuỗi vận tải hàng hóa hiệu quả hơn.
-I. Forwarder là gì?
-Forwarder là gì?
-Forwarder hay còn gọi là
-Freight Forwarder
-là công ty giao nhận vận tải quốc tế, đóng vai trò trung gian giữa chủ hàng với các hãng vận tải như hãng tàu biển, hãng hàng không.
-Forwarder đóng vai trò quan trọng trong chuỗi cung ứng hàng hóa
-Forwarder không trực tiếp sở hữu phương tiện vận tải (tàu, máy bay, xe tải) mà thay vào đó, họ tổ chức, điều phối và quản lý toàn bộ quá trình vận chuyển hàng hóa từ điểm xuất phát đến điểm đến cuối cùng.
-Nhiều người hay nhầm lẫn forwarder với logistics hoặc hãng vận tải. Thực tế:
-Forwarder
-: chuyên tập trung vào dịch vụ giao nhận quốc tế, xử lý chứng từ, thủ tục hải quan, đặt chỗ tàu/airline.
-Logistics company
-: phạm vi rộng hơn, bao gồm cả kho bãi, phân phối, vận tải nội địa, quản lý chuỗi cung ứng.
-Hãng vận tải (Carrier)
-: đơn vị trực tiếp khai thác phương tiện vận chuyển (tàu, máy bay, xe).
-Như vậy, có thể hiểu một cách ngắn gọn:
-forwarder là nghề gì?
-→ Là nghề kết nối và tổ chức vận chuyển hàng hóa quốc tế cho doanh nghiệp.
-Nhân viên forwarder là gì?
-→ Là người phụ trách công việc khai thác, xử lý chứng từ, chăm sóc khách hàng và đảm bảo hàng hóa được giao đúng cam kết.
-II. Forwarder làm những gì?
-1.
-Tư vấn & lập phương án vận chuyển chuyên nghiệp
-Forwarder phân tích các yếu tố như loại hàng hóa, thời gian giao nhận, ngân sách và tính cấp bách để đề xuất phương thức vận tải phù hợp (đường biển, hàng không hay đa phương thức). Họ cũng so sánh nhiều tuyến và hãng vận tải (carrier) khác nhau để cân bằng giữa
-chi phí – tốc độ – độ tin cậy
-, giúp doanh nghiệp có được phương án tối ưu.
-2.
-Gom hàng & đặt chỗ
-Đối với các lô hàng nhỏ, forwarder thường tiến hành
-gom chung container hoặc khoang chứa (LCL)
-nhằm tận dụng tối đa không gian vận chuyển, từ đó giảm đáng kể chi phí cho khách hàng. Ngoài ra, forwarder còn thực hiện việc
-đặt chỗ với hãng tàu, hãng bay hoặc các phương tiện vận tải nội địa
-, đảm bảo hàng hóa có lịch trình ổn định.
-3.
-Xử lý chứng từ vận tải & thương mại
-Một trong những công việc quan trọng nhất của forwarder là
-chuẩn bị, kiểm tra và hợp thức hóa chứng từ
-như vận đơn (B/L, AWB), hóa đơn thương mại, packing list, giấy chứng nhận xuất xứ (C/O), bảo hiểm… Tính chính xác của giấy tờ giúp tránh rủi ro chậm trễ, phạt hải quan hoặc tranh chấp trong quá trình vận chuyển.
-Forwarder hỗ trợ xử lý chứng từ
-4.
-Thông quan & tuân thủ pháp lý
-Forwarder chịu trách nhiệm khai báo hải quan, phân loại mã HS, tính thuế xuất nhập khẩu và đảm bảo doanh nghiệp
-tuân thủ quy định pháp luật trong nước lẫn quốc tế
-. Nhờ kinh nghiệm chuyên môn, forwarder giúp giảm thiểu nguy cơ vi phạm pháp lý, ví dụ như các quy định kiểm soát xuất khẩu (EAR) ở Mỹ.
-5.
-Sắp xếp bảo hiểm hàng hóa
-Để bảo vệ lợi ích của doanh nghiệp, forwarder thường
-cung cấp hoặc tư vấn mua bảo hiểm vận tải
-. Điều này giúp giảm thiểu rủi ro khi hàng hóa bị hư hỏng, mất mát hoặc gặp sự cố bất khả kháng trong quá trình vận chuyển quốc tế.
-6.
-Theo dõi tiến độ & xử lý sự cố
-Forwarder không chỉ giao nhận mà còn
-giám sát hành trình lô hàng theo thời gian thực
-, đồng thời cập nhật liên tục cho khách hàng. Khi phát sinh sự cố như trễ tàu, kẹt cảng, thiếu chứng từ, họ sẽ nhanh chóng tìm giải pháp để hạn chế thiệt hại cho doanh nghiệp.
-7.
-Dịch vụ giá trị gia tăng (Value-Added Services)
-Ngoài vận chuyển, forwarder còn cung cấp nhiều dịch vụ hỗ trợ:
-Kho bãi, lưu trữ, đóng/rút hàng (de-consolidation)
-.
-Tư vấn thị trường quốc tế, luật xuất nhập khẩu và rủi ro chính trị
-.
-Ứng dụng công nghệ logistics
-như hệ thống tracking, ERP, hay công cụ quản lý chuỗi cung ứng, giúp doanh nghiệp có tầm nhìn minh bạch và quản trị hiệu quả hơn.
-III. Các bộ phận và vị trí trong công ty Forwarder
-Trong một công ty forwarder, cơ cấu tổ chức thường được chia thành nhiều
-bộ phận chuyên trách
-để đảm bảo quá trình vận chuyển diễn ra trơn tru từ khâu chào giá đến khi giao hàng thành công. Hiểu rõ vai trò của từng vị trí sẽ giúp bạn nắm rõ
-công việc forwarder
-và hình dung cụ thể hơn
-nhân viên forwarder là gì
-.
-1. Bộ phận Sales cước (Sales Freight)
-Bộ phận Sales cước giữ vai trò quan trọng trong doanh nghiệp forwarder với nhiệm vụ chính là tìm kiếm khách hàng mới, tư vấn tuyến vận chuyển, báo giá và chốt hợp đồng dịch vụ. Nhân sự Sales cần am hiểu thị trường vận tải, nắm vững giá cước của hãng tàu hoặc hãng hàng không, đồng thời có khả năng thương lượng để đưa ra giải pháp tối ưu cho khách hàng. Đây được coi là “đầu ra” của forwarder vì trực tiếp mang lại doanh thu cho doanh nghiệp.
-Ví dụ: Khi một công ty xuất khẩu gạo muốn gửi hàng sang Philippines, Sales forwarder sẽ phân tích chi phí đường biển, thời gian vận chuyển và đưa ra bảng báo giá cạnh tranh.
-2. Bộ phận Chứng từ (Documentation)
-Bộ phận Chứng từ (Documentation)
-trong công ty forwarder đảm nhận nhiệm vụ chuẩn hóa và kiểm tra toàn bộ hồ sơ vận chuyển, từ vận đơn (B/L, AWB), invoice, packing list, C/O cho đến các giấy tờ cần thiết khác. Công việc này đòi hỏi sự tỉ mỉ và chính xác tuyệt đối, bởi chỉ một sai sót nhỏ trong chứng từ cũng có thể khiến lô hàng bị chậm thông quan hoặc phát sinh thêm chi phí. Đây là vị trí then chốt, giúp doanh nghiệp xuất nhập khẩu yên tâm rằng hàng hóa luôn được đảm bảo tính hợp pháp và tuân thủ quy định.
-Forwarder làm việc với những bộ phận nào
-3. Bộ phận Customer Service (CS)
-Bộ phận Chứng từ (Documentation)
-chịu trách nhiệm chuẩn hóa và kiểm tra toàn bộ hồ sơ vận chuyển, bao gồm phát hành vận đơn (B/L, AWB), invoice, packing list, C/O và các loại giấy tờ liên quan. Nhân viên chứng từ cần làm việc tỉ mỉ và chính xác tuyệt đối, bởi chỉ một sai sót nhỏ cũng có thể dẫn đến chậm trễ thông quan hoặc phát sinh chi phí không mong muốn. Đây là vị trí giữ vai trò then chốt, giúp doanh nghiệp xuất nhập khẩu yên tâm rằng lô hàng luôn hợp pháp và đúng quy định.
-4. Bộ phận Thông quan (Customs Clearance)
-Bộ phận Thông quan (Customs Clearance)
-chuyên phụ trách khai báo hải quan và xử lý các thủ tục pháp lý liên quan đến hàng hóa xuất nhập khẩu. Nhân viên ở vị trí này cần am hiểu quy định về mã HS, thuế xuất nhập khẩu, kiểm dịch, cũng như các yêu cầu kiểm định chất lượng. Họ giống như “người đại diện pháp lý” của doanh nghiệp khi làm việc với cơ quan hải quan. Đây là công việc đòi hỏi sự chính xác tuyệt đối và kiến thức chuyên môn sâu, nhằm hạn chế tối đa rủi ro bị phạt hoặc tình trạng hàng bị giữ tại cảng.
-5. Bộ phận Vận hành giao nhận (Operation)
-Bộ phận Vận hành giao nhận (Operation)
-chịu trách nhiệm quản lý toàn bộ khâu nhận hàng, sắp xếp phương tiện vận tải nội địa và kiểm soát lịch trình giao nhận tại cảng, ICD hoặc kho bãi. Đây là những người trực tiếp tiếp xúc với hàng hóa, đảm bảo việc xếp dỡ và vận chuyển diễn ra đúng kế hoạch.
-Công việc đòi hỏi sự nhanh nhẹn, khả năng xử lý tình huống tại hiện trường và phối hợp chặt chẽ với hãng tàu, hãng bay cũng như đơn vị kho bãi. Khác với các bộ phận chủ yếu làm việc giấy tờ trong văn phòng, nhân viên Operation thường có mặt nhiều ở hiện trường để giám sát và giải quyết sự cố phát sinh.
-IV. Quy trình làm việc với Forwarder
-Để hiểu rõ hơn
-forwarder làm gì
-trong vận tải quốc tế, chúng ta hãy xem chi tiết quy trình làm việc tiêu chuẩn giữa doanh nghiệp xuất nhập khẩu và một công ty forwarder. Thông thường, quy trình gồm 6 bước sau:
-1. Doanh nghiệp gửi yêu cầu vận chuyển
-Doanh nghiệp cần cung cấp đầy đủ thông tin về lô hàng của mình, bao gồm loại hàng hóa, số lượng, trọng lượng, kích thước, địa điểm đi và đến, cùng với thời gian mong muốn. Đây là bước quan trọng để forwarder nắm bắt chính xác nhu cầu, từ đó đưa ra những giải pháp vận chuyển tối ưu nhất.
-Ví dụ, một công ty thủy sản ở Cà Mau muốn xuất khẩu 10 tấn tôm đông lạnh sang Nhật, họ sẽ gửi yêu cầu chi tiết này để forwarder bắt đầu công việc của mình.
-2. Forwarder báo giá & đề xuất tuyến
-Dựa trên thông tin khách hàng cung cấp, forwarder sẽ tiến hành tư vấn các tuyến vận tải phù hợp, lựa chọn phương thức vận chuyển (đường biển, hàng không, đường bộ) và gửi báo giá cụ thể.
-Ngoài giá cước, forwarder còn đề xuất thời gian vận chuyển dự kiến, các chi phí phụ (nếu có) và phương án giúp tiết kiệm chi phí. Đây chính là giai đoạn thể hiện rõ vai trò của forwarder – không chỉ đơn thuần là vận chuyển, mà còn là người tư vấn, tính toán chi phí và rủi ro cho khách hàng.
-3. Ký hợp đồng dịch vụ
-Khi cả hai bên đã đồng ý với báo giá và các điều khoản, hợp đồng dịch vụ logistics sẽ được ký kết. Hợp đồng này là căn cứ pháp lý quan trọng, ghi rõ trách nhiệm, quyền lợi của doanh nghiệp và forwarder, các loại phí, thời gian giao nhận, và điều khoản bồi thường trong trường hợp có sự cố. Điều này đảm bảo quyền lợi cho cả hai bên trong suốt quá trình vận chuyển.
-4. Nhận hàng & booking
-Khi cả hai bên đã đồng ý với báo giá và các điều khoản, hợp đồng dịch vụ logistics sẽ được ký kết. Hợp đồng này là căn cứ pháp lý quan trọng, ghi rõ trách nhiệm, quyền lợi của doanh nghiệp và forwarder, các loại phí, thời gian giao nhận, và điều khoản bồi thường trong trường hợp có sự cố. Điều này đảm bảo quyền lợi cho cả hai bên trong suốt quá trình vận chuyển.
-5. Chuẩn bị chứng từ & thông quan
-Đây là một trong những khâu phức tạp nhất. Forwarder sẽ hỗ trợ doanh nghiệp chuẩn bị và kiểm tra các loại chứng từ cần thiết như invoice, packing list, vận đơn (B/L hoặc AWB), chứng nhận xuất xứ (C/O), chứng nhận kiểm dịch…
-Cùng lúc, họ sẽ tiến hành khai báo hải quan điện tử và hoàn tất các thủ tục cần thiết để hàng hóa được thông quan thuận lợi. Khâu này thể hiện rõ chuyên môn của forwarder trong việc xử lý các thủ tục pháp lý phức tạp.
-6. Vận chuyển – giao hàng – đối soát
-Quy trình làm việc với Forwarder
-Sau khi thông quan, hàng hóa sẽ được vận chuyển theo tuyến đã đặt. Forwarder sẽ thường xuyên cập nhật tình trạng đơn hàng để khách hàng yên tâm. Khi hàng đến điểm đến, họ hỗ trợ giao hàng tận nơi (nếu khách yêu cầu) và làm thủ tục giao nhận với người nhập khẩu.
-Cuối cùng, forwarder và doanh nghiệp sẽ cùng tiến hành đối soát chứng từ, chi phí và thanh toán. Nhờ có forwarder, doanh nghiệp không phải tự mình làm việc với nhiều bên như hãng tàu, hải quan, kho bãi, mà chỉ cần phối hợp qua một đầu mối duy nhất, giúp tiết kiệm thời gian và công sức đáng kể.
-V. Lợi ích khi sử dụng dịch vụ Forwarder
-Đối với người Việt, đặc biệt là những người chưa có kinh nghiệm, việc giao thương với thị trường Mỹ có thể rất phức tạp. Dưới đây là những lợi ích khi bạn chọn một
-Forwarder
-uy tín:
-Đơn giản hóa thủ tục:
-Forwarder sẽ thay bạn xử lý mọi giấy tờ, khai báo hải quan, giúp bạn vượt qua rào cản ngôn ngữ và quy định phức tạp.
-Tiết kiệm chi phí:
-Nhờ có mạng lưới rộng khắp, Forwarder có thể thương lượng giá cước tốt, giúp bạn tránh các chi phí phát sinh không mong muốn.
-Dịch vụ trọn gói:
-Bạn chỉ cần gửi hàng, Forwarder sẽ lo toàn bộ quy trình từ khâu nhận hàng tại Mỹ cho đến giao hàng tận nơi tại Việt Nam (và ngược lại), giúp bạn tiết kiệm thời gian và công sức.
-An tâm tuyệt đối:
-Bạn sẽ được cập nhật liên tục tình trạng lô hàng, có thể theo dõi trực tuyến bất cứ lúc nào, đảm bảo hàng hóa đến nơi an toàn và đúng hẹn.
-Chọn Forwarder là cách thông minh để đơn giản hóa việc vận chuyển hàng hóa, giúp bạn an tâm khi giao thương với thị trường Mỹ.
-VI. Những kỹ năng cần có của nhân viên Forwarder
-Để trả lời câu hỏi
-nhân viên forwarder là gì
-hay
-forwarder là nghề gì
-, cần hiểu rằng đây là những người trực tiếp tham gia vào chuỗi vận tải quốc tế, từ khâu tìm khách, làm chứng từ, khai báo hải quan đến điều phối vận hành. Do đó, họ cần có sự kết hợp giữa kiến thức chuyên môn và kỹ năng mềm.
-1. Kiến thức chuyên môn vững vàng
-Hiểu rõ về Incoterms – các điều kiện thương mại quốc tế để tư vấn chính xác cho khách hàng.
-Nắm vững thủ tục hải quan, mã HS, thuế suất xuất nhập khẩu và các chính sách quản lý hàng hóa đặc thù.
-Có khả năng xử lý chứng từ quốc tế như Bill of Lading, Airway Bill, C/O, kiểm dịch…
-Đây là nền tảng quan trọng nhất để nhân viên forwarder đảm bảo hàng hóa lưu thông đúng quy định.
-2. Kỹ năng mềm cần thiết
-Giao tiếp & thương lượng
-: nhân viên forwarder thường xuyên làm việc với hãng tàu, khách hàng, cơ quan hải quan nên cần kỹ năng đàm phán tốt.
-Quản lý thời gian
-: nghề forwarder gắn liền với deadline khắt khe (cut-off booking, lịch tàu, lịch bay). Do đó, khả năng sắp xếp công việc là bắt buộc.
-Xử lý tình huống
-: khi hàng hóa bị kẹt, trễ chuyến, nhân viên forwarder phải nhanh chóng tìm giải pháp thay thế.
-3. Ngoại ngữ và tin học văn phòng
-Ngoại ngữ, đặc biệt là tiếng Anh, là “chìa khóa” của nghề forwarder. Hầu hết email, chứng từ, hệ thống đặt chỗ đều dùng tiếng Anh.
-Tin học văn phòng và kỹ năng sử dụng phần mềm logistics giúp nhân viên làm việc nhanh, chính xác, giảm sai sót.
-VII. Kết luận
-Forwarder giữ vai trò trung gian quan trọng trong hoạt động logistics, giúp doanh nghiệp tiết kiệm thời gian, chi phí và hạn chế rủi ro trong quá trình vận tải quốc tế. Hiểu rõ
-forwarder làm những gì
-không chỉ giúp bạn phối hợp hiệu quả hơn với đối tác mà còn tránh được những sai sót về chứng từ, thủ tục hải quan hay phát sinh chi phí ngoài dự kiến.
-Vì vậy, trước khi lựa chọn dịch vụ vận tải, doanh nghiệp cần nắm chắc quy trình làm việc với forwarder cũng như đánh giá năng lực của họ. Đồng thời, việc hiểu rõ công việc forwarder sẽ giúp bạn chủ động hơn trong quản lý lô hàng, đảm bảo hàng hóa được vận chuyển an toàn, nhanh chóng và đúng pháp lý.
-Bạn đang tìm hiểu
-công việc forwarder
-hoặc cần hỗ trợ dịch vụ vận tải quốc tế? Hãy liên hệ ngay với
-TIXIMAX Logistics
-để được tư vấn và triển khai giải pháp vận chuyển tối ưu cho doanh nghiệp của bạn.
-This entry was posted in
-KIẾN THỨC THỊ TRƯỜNG
-. Bookmark the
-permalink
-.
-Chuyên viên TIXIMAX
-Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
 Leave a Reply
 Cancel reply
 Your email address will not be published.
@@ -2577,28 +2577,6 @@ TIXIMAX US luôn sẵn lòng đồng hành cùng bạn để mọi giao dịch q
 
 ================================================================================
 
-URL: https://tiximax.us/khai-bao-hai-quan-quoc-te-chinh-ngach
-TITLE: Khai báo hải quan quốc tế chính ngạch - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-Skip to content
-Trang chủ
-Về chúng tôi
-Bảng giá
-Hướng dẫn
-Hướng dẫn tạo đơn hàng
-Quy trình mua hàng hộ
-Dịch vụ
-DỊCH VỤ MUA HỘ HÀNG MỸ
-VẬN CHUYỂN HÀNG TỪ MỸ VỀ VIỆT NAM
-DỊCH VỤ GỬI HÀNG ĐI MỸ
-ĐẤU GIÁ, ĐÀM PHÁN NHÀ CUNG CẤP
-Blog
-TIN TỨC DỊCH VỤ
-HỖ TRỢ KHÁCH HÀNG
-KIẾN THỨC THỊ TRƯỜNG
-
-================================================================================
-
 URL: https://tiximax.us/mua-hang-amazon
 TITLE: Hướng Dẫn Mua Hàng Amazon Mỹ: Từ A đến Z Cho Người Mới - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
 
@@ -2813,6 +2791,28 @@ Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuy
 
 ================================================================================
 
+URL: https://tiximax.us/khai-bao-hai-quan-quoc-te-chinh-ngach
+TITLE: Khai báo hải quan quốc tế chính ngạch - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+Skip to content
+Trang chủ
+Về chúng tôi
+Bảng giá
+Hướng dẫn
+Hướng dẫn tạo đơn hàng
+Quy trình mua hàng hộ
+Dịch vụ
+DỊCH VỤ MUA HỘ HÀNG MỸ
+VẬN CHUYỂN HÀNG TỪ MỸ VỀ VIỆT NAM
+DỊCH VỤ GỬI HÀNG ĐI MỸ
+ĐẤU GIÁ, ĐÀM PHÁN NHÀ CUNG CẤP
+Blog
+TIN TỨC DỊCH VỤ
+HỖ TRỢ KHÁCH HÀNG
+KIẾN THỨC THỊ TRƯỜNG
+
+================================================================================
+
 URL: https://tiximax.us/category/tin-tuc-dich-vu
 TITLE: TIN TỨC DỊCH VỤ - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
 
@@ -2865,30 +2865,6 @@ URL: https://tiximax.us/news
 TITLE: 
 
 
-
-================================================================================
-
-URL: https://tiximax.us/category/huong-dan
-TITLE: Hướng dẫn Archives - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-Nothing Found
-It seems we can’t find what you’re looking for. Perhaps searching can help.
-Recent Posts
-07
-Sep
-Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
-06
-Sep
-Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
-21
-Aug
-Forwarder làm những gì? Công việc Forwarder từ A–Z
-20
-Aug
-Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
-06
-Aug
-Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
 
 ================================================================================
 
@@ -3040,6 +3016,30 @@ Tên của bạn*
 Số điện thoại*
 Email của bạn
 Ngành hàng kinh doanh của bạn*
+
+================================================================================
+
+URL: https://tiximax.us/category/huong-dan
+TITLE: Hướng dẫn Archives - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+Nothing Found
+It seems we can’t find what you’re looking for. Perhaps searching can help.
+Recent Posts
+07
+Sep
+Gửi Thuốc Tây Đi Mỹ Hợp Pháp: Quy Định, Thủ Tục & Bảng Giá Mới Nhất
+06
+Sep
+Bí Quyết Gửi Hàng Đông Lạnh Đi Mỹ: Đóng Gói Đúng Chuẩn
+21
+Aug
+Forwarder làm những gì? Công việc Forwarder từ A–Z
+20
+Aug
+Công ty Forwarder là gì? Dịch vụ & Chi phí bạn cần biết
+06
+Aug
+Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuyên
 
 ================================================================================
 
@@ -4620,21 +4620,14 @@ TITLE:
 
 ================================================================================
 
-URL: https://tiximax.us/tat-ca-bai-viet
-TITLE: 
-
-
-
-================================================================================
-
-URL: https://tiximax.us/tin-tuc
-TITLE: 
-
-
-
-================================================================================
-
 URL: https://tiximax.us/tags
+TITLE: 
+
+
+
+================================================================================
+
+URL: https://tiximax.us/tat-ca-bai-viet
 TITLE: 
 
 
@@ -4837,131 +4830,10 @@ Thủ tục nhập khẩu hóa chất – Chia sẻ kinh nghiệm và lời khuy
 
 ================================================================================
 
-URL: https://tiximax.us/ve-chung-toi-tiximax
-TITLE: Về chúng tôi - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+URL: https://tiximax.us/tin-tuc
+TITLE: 
 
-VỀ CHÚNG TÔI
-TIXIMAX US – DỊCH VỤ VẬN CHUYỂN, MUA HỘ
-TIXIMAX US là một sản phẩm của Công ty Cổ phần Tiximax – Là đối tác Logistics uy tín chuyên cung cấp các giải pháp vận chuyển và mua sắm quốc tế toàn diện.
-Liên hệ
-BÁO GIÁ
-VỀ CHÚNG TÔI
-TIXIMAX US –
-Dịch vụ trực thuộc Công ty Cổ phần Tiximax, cung cấp giải pháp Logistics trọn gói, từ mua hộ đến vận chuyển quốc tế, đảm bảo uy tín, minh bạch và tối ưu chi phí.
-Liên hệ
-BÁO GIÁ
-TIXIMAX CUNG CẤP CÁC DỊCH VỤ
-Vận chuyển và ký gửi hàng hóa hai chiều Mỹ – Việt Nam
-Mua hàng hộ từ các sàn Thương mại điện tử ở Mỹ
-Dịch vụ thanh toán quốc tế
-TIXIMAX CUNG CẤP CÁC DỊCH VỤ
-Vận chuyển và ký gửi hàng hóa hai chiều Mỹ – Việt Nam
-Mua hàng hộ từ các sàn Thương mại điện tử ở Mỹ
-Dịch vụ thanh toán quốc tế
-SỨ MỆNH
-Tiximax cam kết trở thành cầu nối tin cậy giữa thị trường Mỹ và người tiêu dùng Việt, góp phần thu hẹp khoảng cách địa lý bằng dịch vụ mua hộ và vận chuyển chuyên biệt. Chúng tôi theo đuổi mục tiêu mang hàng hóa Mỹ đến tay người Việt một cách nhanh chóng, minh bạch và tiết kiệm.
-Tăng tốc hành trình hàng Mỹ về Việt Nam
-: Tiximax vận hành chuỗi dịch vụ khép kín từ mua hộ, kiểm tra, gom hàng đến vận chuyển, giúp khách hàng an tâm với quy trình rõ ràng và chất lượng hàng hóa được đảm bảo xuyên suốt.
-Đồng hành cùng doanh nghiệp Việt hội nhập quốc tế
-: Chúng tôi hỗ trợ kết nối nguồn hàng chất lượng từ Mỹ, tối ưu thủ tục mua bán, thanh toán và logistics, tạo nền tảng vững chắc để các doanh nghiệp Việt mở rộng thị trường và nâng cao năng lực cạnh tranh toàn cầu.
-SỨ MỆNH
-TIXIMAX US cam kết trở thành cầu nối tin cậy giữa thị trường Mỹ và người tiêu dùng Việt, góp phần thu hẹp khoảng cách địa lý bằng dịch vụ mua hộ và vận chuyển chuyên biệt.
-Tăng tốc hành trình hàng Mỹ về Việt Nam
-: TIXIMAX US vận hành chuỗi dịch vụ khép kín từ mua hộ, kiểm tra, gom hàng đến vận chuyển, giúp khách hàng an tâm với quy trình rõ ràng và chất lượng hàng hóa được đảm bảo xuyên suốt.
-Đồng hành cùng doanh nghiệp Việt hội nhập quốc tế
-: Chúng tôi hỗ trợ kết nối nguồn hàng chất lượng từ Mỹ, tối ưu thủ tục mua bán, thanh toán và logistics, tạo nền tảng vững chắc để các doanh nghiệp Việt mở rộng thị trường và nâng cao năng lực cạnh tranh toàn cầu.
-TẦM NHÌN
-“Đến năm 2030, TIXIMAX US sẽ trở thành đối tác mua hộ và vận chuyển hàng Mỹ hàng đầu cho người Việt, góp phần mở rộng cánh cửa thương mại giữa hai quốc gia. Chúng tôi hướng đến xây dựng một hệ sinh thái trung gian hiện đại, minh bạch và hiệu quả – kết nối trực tiếp thị trường Mỹ với người tiêu dùng và doanh nghiệp Việt Nam.”
-TẦM NHÌN
-“Đến năm 2030, TIXIMAX US sẽ trở thành đối tác mua hộ và vận chuyển hàng Mỹ hàng đầu cho người Việt, góp phần mở rộng cánh cửa thương mại giữa hai quốc gia. Chúng tôi hướng đến xây dựng một hệ sinh thái trung gian hiện đại, minh bạch và hiệu quả – kết nối trực tiếp thị trường Mỹ với người tiêu dùng và doanh nghiệp Việt Nam.”
-GIÁ TRỊ CỐT LÕI
-Tại TIXIMAX US, mọi hoạt động được định hướng bởi năm giá trị cốt lõi nhằm phục vụ tốt nhất cho thị trường Mỹ – Việt:
-TIN CẬY
-: Cam kết minh bạch, đúng hạn và bảo vệ quyền lợi khách hàng trong từng giao dịch xuyên biên giới.
-CHUẨN MỰC
-: Tuân thủ tiêu chuẩn quốc tế, không ngừng nâng cao năng lực để xử lý hàng hóa Mỹ hiệu quả và chính xác.
-KHÁCH HÀNG LÀ TRUNG TÂM
-: Thấu hiểu nhu cầu mua hộ – vận chuyển từ Mỹ về Việt Nam và phục vụ bằng sự tận tâm, linh hoạt.
-LIÊN TỤC CẢI TIẾN
-: Ứng dụng công nghệ mới, tối ưu quy trình và nâng cao trải nghiệm khách hàng từng ngày.
-KẾT NỐI TOÀN CẦU
-: Xây dựng đội ngũ gắn kết, phát triển hệ sinh thái vận hành trơn tru giữa Mỹ và Việt Nam.
-MỤC TIÊU CỦA TIXIMAX
-TIXIMAX không chỉ hướng tới một tương lai phát triển bền vững – chúng tôi chủ động hoạch định từng bước đi với các mục tiêu cụ thể và đo lường được. Mỗi mục tiêu đều phản ánh khát vọng vươn xa và khẳng định vai trò tiên phong trong lĩnh vực logistics và thương mại xuyên biên giới.
-Đến năm 2030, TIXIMAX đặt mục tiêu:
-5+
-Kho tập kết hàng tại Mỹ
-100+
-Đối tác B2B thường xuyên
-5000+
-Đơn hàng mỗi tháng
-MỤC TIÊU CỦA TIXIMAX
-TIXIMAX không chỉ hướng tới một tương lai phát triển bền vững – chúng tôi chủ động hoạch định từng bước đi với các mục tiêu cụ thể và đo lường được. Mỗi mục tiêu đều phản ánh khát vọng vươn xa và khẳng định vai trò tiên phong trong lĩnh vực Logistics và thương mại xuyên biên giới.
-Đến năm 2030, TIXIMAX đặt mục tiêu:
-100+
-Đối tác B2B thường xuyên
-5+
-Kho tập kết hàng tại Mỹ
-5000+
-Đơn hàng mỗi tháng
-VÌ SAO TIXIMAX US RA ĐỜI ?
-“Câu chuyện bắt đầu từ một cuộc gọi đường dài…”
-Trong một buổi tối cuối năm 2021, giữa dòng người tấp nập, Founder TIXIMAX – Anh Hoàng Anh đã nhận được cuộc gọi từ một khách hàng lâu năm
-“Anh ơi, em có đơn hàng mỹ phẩm bên Amazon muốn gửi về cho mẹ ở Biên Hòa mà tìm hoài không có bên nào nhận chu đáo từ A đến Z.”
-Và đó không phải là cuộc gọi đầu tiên.
-Ngày càng nhiều người Việt tại Mỹ – từ sinh viên, kiều bào, đến người bán hàng online – loay hoay với bài toán
-gửi hàng về Việt Nam
-: thủ tục rườm rà, mất hàng, thời gian kéo dài, không ai chịu trách nhiệm đến cùng.
-Là người từng làm việc nhiều năm trong ngành thương mại quốc tế, nhà sáng lập Tiximax nhận ra một
-“khoảng trống mênh mông”
-chưa được phục vụ đúng mức:
-Mỹ – thị trường hàng hóa lớn nhất thế giới – nhưng lại là tuyến vận chuyển đầy bất tiện cho người Việt.
-Trong những cuộc trò chuyện kéo dài đến khuya với các chủ shop tại Mỹ, với người thân ở Mỹ, anh hiểu rằng: nếu không có một dịch vụ trung gian thật
-minh bạch – trọn gói – đúng thời gian
-, thì người Việt sẽ mãi bị chậm bước trên đường kết nối thương mại xuyên Thái Bình Dương.
-Và thế là,
-TIXIMAX US ra đời.
-Không phải để làm dịch vụ đơn thuần, mà để
-gỡ rào cản giữa người Việt ở hai bờ đại dương
-– một hệ sinh thái vận chuyển, mua hộ và kết nối thương mại
-linh hoạt – uy tín – chuyên biệt cho tuyến Mỹ – Việt Nam
-.
-NĂNG LỰC VÀ CAM KẾT
-Tại Tiximax, chúng tôi kiến tạo lợi thế cạnh tranh cho mọi giao dịch thương mại giữa Hoa Kỳ và Việt Nam bằng:
-Hệ thống vận chuyển tối ưu:
-Mạng lưới logistics chuyên biệt và đối tác chiến lược tại cả hai quốc gia, đảm bảo quy trình thông quan nhanh chóng và hiệu quả.
-Đội ngũ chuyên gia song ngữ:
-Am hiểu sâu sắc thị trường, văn hóa và pháp lý Mỹ – Việt, sẵn sàng hỗ trợ mọi nhu cầu và giải quyết các thách thức đặc thù.
-Giải pháp giao dịch an toàn:
-Tối ưu hóa chi phí và đảm bảo tính minh bạch, tuân thủ mọi quy định tài chính trong các giao dịch xuyên biên giới.
-NĂNG LỰC VÀ CAM KẾT
-Tại TIXIMAX US, chúng tôi kiến tạo lợi thế cạnh tranh cho mọi giao dịch thương mại giữa Hoa Kỳ và Việt Nam bằng:
-Hệ thống vận chuyển tối ưu:
-Mạng lưới logistics chuyên biệt và đối tác chiến lược tại cả hai quốc gia, đảm bảo quy trình thông quan nhanh chóng và hiệu quả.
-Đội ngũ chuyên gia song ngữ:
-Am hiểu sâu sắc thị trường, văn hóa và pháp lý Mỹ – Việt, sẵn sàng hỗ trợ mọi nhu cầu và giải quyết các thách thức đặc thù.
-Giải pháp tài chính tích hợp:
-Dễ dàng mua hàng hộ từ sàn TMĐT và thanh toán hộ,
-minh bạch mọi giao dịch xuyên biên giới
-.
-TẠI SAO BẠN NÊN CHỌN TIXIMAX?
-Đối tác chiến lược của bạn trên hành trình mua hàng Mỹ – Việt :
-Uy Tín –  Tận Tâm – Trách Nhiệm
-Chuyên gia am hiểu hai thị trường:
-Kiến thức sâu sắc về văn hóa, pháp lý và xu hướng kinh doanh của cả Mỹ và Việt Nam.
-Gỡ bỏ mọi rào cản giao thương:
-Đơn giản hóa thủ tục, ngôn ngữ, tiền tệ, giúp bạn dễ dàng tiếp cận sản phẩm Mỹ.
-Minh bạch tuyệt đối, an tâm trọn vẹn:
-Chi phí rõ ràng, không ẩn phí, hỗ trợ 24/7, xây dựng lòng tin bền vững.
-Đối tác tận tâm, minh bạch:
-Uy tín là ưu tiên hàng đầu; chi phí luôn rõ ràng, không phụ phí ẩn, hỗ trợ 24/7.
-TIXIMAX US – Kết nối giao thương Mỹ – Việt, mở rộng cơ hội không giới hạn.
-ĐÃ ĐẾN LÚC BỨT PHÁ CÙNG TIXIMAX US?
-Bạn đang đứng trước ngưỡng cửa của những cơ hội vàng. Với TIXIMAX, thị trường quốc tế không còn là mục tiêu xa vời mà là sân chơi của bạn. Đừng chần chừ, hãy cùng chúng tôi biến mọi khát vọng thành hành động, định vị vững chắc thương hiệu của bạn trên trường quốc tế.
-Họ và tên của bạn
-Email của bạn
-Số điện thoại của bạn
-Nội dung liên hệ
+
 
 ================================================================================
 
@@ -5160,6 +5032,181 @@ Ngành hàng kinh doanh của bạn*
 
 ================================================================================
 
+URL: https://tiximax.us/ve-chung-toi-tiximax
+TITLE: Về chúng tôi - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+VỀ CHÚNG TÔI
+TIXIMAX US – DỊCH VỤ VẬN CHUYỂN, MUA HỘ
+TIXIMAX US là một sản phẩm của Công ty Cổ phần Tiximax – Là đối tác Logistics uy tín chuyên cung cấp các giải pháp vận chuyển và mua sắm quốc tế toàn diện.
+Liên hệ
+BÁO GIÁ
+VỀ CHÚNG TÔI
+TIXIMAX US –
+Dịch vụ trực thuộc Công ty Cổ phần Tiximax, cung cấp giải pháp Logistics trọn gói, từ mua hộ đến vận chuyển quốc tế, đảm bảo uy tín, minh bạch và tối ưu chi phí.
+Liên hệ
+BÁO GIÁ
+TIXIMAX CUNG CẤP CÁC DỊCH VỤ
+Vận chuyển và ký gửi hàng hóa hai chiều Mỹ – Việt Nam
+Mua hàng hộ từ các sàn Thương mại điện tử ở Mỹ
+Dịch vụ thanh toán quốc tế
+TIXIMAX CUNG CẤP CÁC DỊCH VỤ
+Vận chuyển và ký gửi hàng hóa hai chiều Mỹ – Việt Nam
+Mua hàng hộ từ các sàn Thương mại điện tử ở Mỹ
+Dịch vụ thanh toán quốc tế
+SỨ MỆNH
+Tiximax cam kết trở thành cầu nối tin cậy giữa thị trường Mỹ và người tiêu dùng Việt, góp phần thu hẹp khoảng cách địa lý bằng dịch vụ mua hộ và vận chuyển chuyên biệt. Chúng tôi theo đuổi mục tiêu mang hàng hóa Mỹ đến tay người Việt một cách nhanh chóng, minh bạch và tiết kiệm.
+Tăng tốc hành trình hàng Mỹ về Việt Nam
+: Tiximax vận hành chuỗi dịch vụ khép kín từ mua hộ, kiểm tra, gom hàng đến vận chuyển, giúp khách hàng an tâm với quy trình rõ ràng và chất lượng hàng hóa được đảm bảo xuyên suốt.
+Đồng hành cùng doanh nghiệp Việt hội nhập quốc tế
+: Chúng tôi hỗ trợ kết nối nguồn hàng chất lượng từ Mỹ, tối ưu thủ tục mua bán, thanh toán và logistics, tạo nền tảng vững chắc để các doanh nghiệp Việt mở rộng thị trường và nâng cao năng lực cạnh tranh toàn cầu.
+SỨ MỆNH
+TIXIMAX US cam kết trở thành cầu nối tin cậy giữa thị trường Mỹ và người tiêu dùng Việt, góp phần thu hẹp khoảng cách địa lý bằng dịch vụ mua hộ và vận chuyển chuyên biệt.
+Tăng tốc hành trình hàng Mỹ về Việt Nam
+: TIXIMAX US vận hành chuỗi dịch vụ khép kín từ mua hộ, kiểm tra, gom hàng đến vận chuyển, giúp khách hàng an tâm với quy trình rõ ràng và chất lượng hàng hóa được đảm bảo xuyên suốt.
+Đồng hành cùng doanh nghiệp Việt hội nhập quốc tế
+: Chúng tôi hỗ trợ kết nối nguồn hàng chất lượng từ Mỹ, tối ưu thủ tục mua bán, thanh toán và logistics, tạo nền tảng vững chắc để các doanh nghiệp Việt mở rộng thị trường và nâng cao năng lực cạnh tranh toàn cầu.
+TẦM NHÌN
+“Đến năm 2030, TIXIMAX US sẽ trở thành đối tác mua hộ và vận chuyển hàng Mỹ hàng đầu cho người Việt, góp phần mở rộng cánh cửa thương mại giữa hai quốc gia. Chúng tôi hướng đến xây dựng một hệ sinh thái trung gian hiện đại, minh bạch và hiệu quả – kết nối trực tiếp thị trường Mỹ với người tiêu dùng và doanh nghiệp Việt Nam.”
+TẦM NHÌN
+“Đến năm 2030, TIXIMAX US sẽ trở thành đối tác mua hộ và vận chuyển hàng Mỹ hàng đầu cho người Việt, góp phần mở rộng cánh cửa thương mại giữa hai quốc gia. Chúng tôi hướng đến xây dựng một hệ sinh thái trung gian hiện đại, minh bạch và hiệu quả – kết nối trực tiếp thị trường Mỹ với người tiêu dùng và doanh nghiệp Việt Nam.”
+GIÁ TRỊ CỐT LÕI
+Tại TIXIMAX US, mọi hoạt động được định hướng bởi năm giá trị cốt lõi nhằm phục vụ tốt nhất cho thị trường Mỹ – Việt:
+TIN CẬY
+: Cam kết minh bạch, đúng hạn và bảo vệ quyền lợi khách hàng trong từng giao dịch xuyên biên giới.
+CHUẨN MỰC
+: Tuân thủ tiêu chuẩn quốc tế, không ngừng nâng cao năng lực để xử lý hàng hóa Mỹ hiệu quả và chính xác.
+KHÁCH HÀNG LÀ TRUNG TÂM
+: Thấu hiểu nhu cầu mua hộ – vận chuyển từ Mỹ về Việt Nam và phục vụ bằng sự tận tâm, linh hoạt.
+LIÊN TỤC CẢI TIẾN
+: Ứng dụng công nghệ mới, tối ưu quy trình và nâng cao trải nghiệm khách hàng từng ngày.
+KẾT NỐI TOÀN CẦU
+: Xây dựng đội ngũ gắn kết, phát triển hệ sinh thái vận hành trơn tru giữa Mỹ và Việt Nam.
+MỤC TIÊU CỦA TIXIMAX
+TIXIMAX không chỉ hướng tới một tương lai phát triển bền vững – chúng tôi chủ động hoạch định từng bước đi với các mục tiêu cụ thể và đo lường được. Mỗi mục tiêu đều phản ánh khát vọng vươn xa và khẳng định vai trò tiên phong trong lĩnh vực logistics và thương mại xuyên biên giới.
+Đến năm 2030, TIXIMAX đặt mục tiêu:
+5+
+Kho tập kết hàng tại Mỹ
+100+
+Đối tác B2B thường xuyên
+5000+
+Đơn hàng mỗi tháng
+MỤC TIÊU CỦA TIXIMAX
+TIXIMAX không chỉ hướng tới một tương lai phát triển bền vững – chúng tôi chủ động hoạch định từng bước đi với các mục tiêu cụ thể và đo lường được. Mỗi mục tiêu đều phản ánh khát vọng vươn xa và khẳng định vai trò tiên phong trong lĩnh vực Logistics và thương mại xuyên biên giới.
+Đến năm 2030, TIXIMAX đặt mục tiêu:
+100+
+Đối tác B2B thường xuyên
+5+
+Kho tập kết hàng tại Mỹ
+5000+
+Đơn hàng mỗi tháng
+VÌ SAO TIXIMAX US RA ĐỜI ?
+“Câu chuyện bắt đầu từ một cuộc gọi đường dài…”
+Trong một buổi tối cuối năm 2021, giữa dòng người tấp nập, Founder TIXIMAX – Anh Hoàng Anh đã nhận được cuộc gọi từ một khách hàng lâu năm
+“Anh ơi, em có đơn hàng mỹ phẩm bên Amazon muốn gửi về cho mẹ ở Biên Hòa mà tìm hoài không có bên nào nhận chu đáo từ A đến Z.”
+Và đó không phải là cuộc gọi đầu tiên.
+Ngày càng nhiều người Việt tại Mỹ – từ sinh viên, kiều bào, đến người bán hàng online – loay hoay với bài toán
+gửi hàng về Việt Nam
+: thủ tục rườm rà, mất hàng, thời gian kéo dài, không ai chịu trách nhiệm đến cùng.
+Là người từng làm việc nhiều năm trong ngành thương mại quốc tế, nhà sáng lập Tiximax nhận ra một
+“khoảng trống mênh mông”
+chưa được phục vụ đúng mức:
+Mỹ – thị trường hàng hóa lớn nhất thế giới – nhưng lại là tuyến vận chuyển đầy bất tiện cho người Việt.
+Trong những cuộc trò chuyện kéo dài đến khuya với các chủ shop tại Mỹ, với người thân ở Mỹ, anh hiểu rằng: nếu không có một dịch vụ trung gian thật
+minh bạch – trọn gói – đúng thời gian
+, thì người Việt sẽ mãi bị chậm bước trên đường kết nối thương mại xuyên Thái Bình Dương.
+Và thế là,
+TIXIMAX US ra đời.
+Không phải để làm dịch vụ đơn thuần, mà để
+gỡ rào cản giữa người Việt ở hai bờ đại dương
+– một hệ sinh thái vận chuyển, mua hộ và kết nối thương mại
+linh hoạt – uy tín – chuyên biệt cho tuyến Mỹ – Việt Nam
+.
+NĂNG LỰC VÀ CAM KẾT
+Tại Tiximax, chúng tôi kiến tạo lợi thế cạnh tranh cho mọi giao dịch thương mại giữa Hoa Kỳ và Việt Nam bằng:
+Hệ thống vận chuyển tối ưu:
+Mạng lưới logistics chuyên biệt và đối tác chiến lược tại cả hai quốc gia, đảm bảo quy trình thông quan nhanh chóng và hiệu quả.
+Đội ngũ chuyên gia song ngữ:
+Am hiểu sâu sắc thị trường, văn hóa và pháp lý Mỹ – Việt, sẵn sàng hỗ trợ mọi nhu cầu và giải quyết các thách thức đặc thù.
+Giải pháp giao dịch an toàn:
+Tối ưu hóa chi phí và đảm bảo tính minh bạch, tuân thủ mọi quy định tài chính trong các giao dịch xuyên biên giới.
+NĂNG LỰC VÀ CAM KẾT
+Tại TIXIMAX US, chúng tôi kiến tạo lợi thế cạnh tranh cho mọi giao dịch thương mại giữa Hoa Kỳ và Việt Nam bằng:
+Hệ thống vận chuyển tối ưu:
+Mạng lưới logistics chuyên biệt và đối tác chiến lược tại cả hai quốc gia, đảm bảo quy trình thông quan nhanh chóng và hiệu quả.
+Đội ngũ chuyên gia song ngữ:
+Am hiểu sâu sắc thị trường, văn hóa và pháp lý Mỹ – Việt, sẵn sàng hỗ trợ mọi nhu cầu và giải quyết các thách thức đặc thù.
+Giải pháp tài chính tích hợp:
+Dễ dàng mua hàng hộ từ sàn TMĐT và thanh toán hộ,
+minh bạch mọi giao dịch xuyên biên giới
+.
+TẠI SAO BẠN NÊN CHỌN TIXIMAX?
+Đối tác chiến lược của bạn trên hành trình mua hàng Mỹ – Việt :
+Uy Tín –  Tận Tâm – Trách Nhiệm
+Chuyên gia am hiểu hai thị trường:
+Kiến thức sâu sắc về văn hóa, pháp lý và xu hướng kinh doanh của cả Mỹ và Việt Nam.
+Gỡ bỏ mọi rào cản giao thương:
+Đơn giản hóa thủ tục, ngôn ngữ, tiền tệ, giúp bạn dễ dàng tiếp cận sản phẩm Mỹ.
+Minh bạch tuyệt đối, an tâm trọn vẹn:
+Chi phí rõ ràng, không ẩn phí, hỗ trợ 24/7, xây dựng lòng tin bền vững.
+Đối tác tận tâm, minh bạch:
+Uy tín là ưu tiên hàng đầu; chi phí luôn rõ ràng, không phụ phí ẩn, hỗ trợ 24/7.
+TIXIMAX US – Kết nối giao thương Mỹ – Việt, mở rộng cơ hội không giới hạn.
+ĐÃ ĐẾN LÚC BỨT PHÁ CÙNG TIXIMAX US?
+Bạn đang đứng trước ngưỡng cửa của những cơ hội vàng. Với TIXIMAX, thị trường quốc tế không còn là mục tiêu xa vời mà là sân chơi của bạn. Đừng chần chừ, hãy cùng chúng tôi biến mọi khát vọng thành hành động, định vị vững chắc thương hiệu của bạn trên trường quốc tế.
+Họ và tên của bạn
+Email của bạn
+Số điện thoại của bạn
+Nội dung liên hệ
+
+================================================================================
+
+URL: https://tiximax.us/chinh-sach-doi-tra-hang-hoa
+TITLE: Chính Sách Đổi Trả Hàng Hóa - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+Chính Sách Đổi Trả Hàng Hóa
+I. Nguyên tắc chung
+TIXIMAX US đóng vai trò là đơn vị trung gian, hỗ trợ khách hàng đặt mua hàng hóa từ các trang thương mại điện tử và nhà cung cấp tại Hoa Kỳ, sau đó vận chuyển về Việt Nam. Do đặc thù là dịch vụ mua hộ quốc tế, chính sách đổi/ trả mang tính hỗ trợ và phụ thuộc vào quy định từ phía người bán tại Mỹ.
+II. Trường hợp được hỗ trợ đổi/trả
+Chúng tôi chỉ tiếp nhận hỗ trợ đổi/trả đối với các trường hợp sau:
+Hàng hóa hư hỏng do quá trình vận chuyển: móp, vỡ, trầy xước nặng ảnh hưởng đến chức năng sử dụng; thiếu linh kiện; không còn nguyên trạng.
+Giao sai sản phẩm: khác mẫu mã, màu sắc, kích thước, phiên bản hoặc số lượng so với đơn đã đặt.
+Hàng không đúng cam kết từ người bán: hàng không chính hãng (nếu có bằng chứng xác thực), sản phẩm lỗi kỹ thuật nghiêm trọng, không thể sử dụng.
+Lưu ý:
+Không hỗ trợ đổi/ trả trong các trường hợp mang tính chủ quan như: đổi ý, không thích, mua nhầm, thay đổi nhu cầu.
+III. Điều kiện để được hỗ trợ
+Khách hàng cần đảm bảo các điều kiện sau để được xem xét hỗ trợ:
+Gửi yêu cầu đổi/trả trong vòng 24 giờ kể từ thời điểm nhận hàng.
+Có ảnh hoặc video quay lại quá trình mở hàng (unbox), thể hiện rõ tình trạng ban đầu của sản phẩm.
+Sản phẩm còn nguyên bao bì, tem nhãn, chưa qua sử dụng và không có dấu hiệu hư hỏng do người dùng.
+Với sản phẩm lỗi kỹ thuật, cần gửi kèm clip chứng minh rõ tình trạng lỗi.
+IV. Quy trình xử lý đổi/trả
+Bước 1:
+Khách hàng gửi yêu cầu đổi/ trả đến bộ phận chăm sóc khách hàng của TIXIMAX qua Zalo hoặc email, cung cấp mã đơn hàng, lý do và bằng chứng.
+Bước 2:
+TIXIMAX tiếp nhận, xác minh thông tin và phản hồi trong vòng 3 ngày làm việc.
+Bước 3:
+Nếu lỗi thuộc về TIXIMAX (giao sai, lỗi đóng gói, vận chuyển): chúng tôi sẽ hỗ trợ hoàn toàn chi phí đổi/trả hoặc hoàn tiền tương đương.
+Nếu lỗi thuộc về người bán: TIXIMAX sẽ hỗ trợ liên hệ lại với người bán tại Mỹ để yêu cầu xử lý (thời gian và kết quả phụ thuộc vào chính sách của từng bên bán).
+Trong trường hợp không thể đổi trả, chúng tôi sẽ hỗ trợ thương lượng một mức bồi thường hợp lý nếu xác định có lỗi rõ ràng.
+V. Thời gian xử lý
+Phản hồi ban đầu trong vòng 3 ngày làm việc sau khi nhận đủ thông tin.
+Trường hợp cần liên hệ với người bán tại Mỹ có thể kéo dài từ 2 – 4 tuần tùy vào phản hồi của họ.
+VI. Các trường hợp bị từ chối đổi/trả
+TIXIMAX có quyền từ chối hỗ trợ nếu:
+Không có video mở hàng để chứng minh lỗi.
+Sản phẩm đã qua sử dụng, bao bì bị hỏng, không còn nguyên tem niêm phong.
+Hàng đặt theo yêu cầu riêng (in tên, thiết kế riêng, đặt trước, v.v.).
+Hàng dễ vỡ nhưng không có yêu cầu gia cố khi vận chuyển.
+Lỗi do người dùng sử dụng sai cách hoặc bảo quản không đúng.
+VII. Thông tin liên hệ
+Mọi thắc mắc hoặc yêu cầu hỗ trợ đổi/trả, vui lòng liên hệ TIXIMAX US qua:
+Hotline: 0906 704 701
+Email:
+global.trans@tiximax.net
+Thời gian làm việc: 08:15 – 17:15 từ Thứ 2 đến Thứ 7
+
+================================================================================
+
 URL: https://tiximax.us/chinh-sach-bao-mat
 TITLE: CHÍNH SÁCH BẢO MẬT - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
 
@@ -5236,195 +5283,6 @@ Email
 : globaltrans@tiximax.net
 Hotline
 : 0906 704 701
-
-================================================================================
-
-URL: https://tiximax.us/lien-he
-TITLE: Liên hệ - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-Liên Hệ Báo Giá
-Bạn cần vận chuyển hàng từ Mỹ về Việt Nam? TIXIMAX US là giải pháp tối ưu với chi phí cạnh tranh và giao hàng siêu tốc!
-TIXIMAX US
-Bạn đang tìm kiếm giải pháp vận chuyển hàng hóa từ Mỹ về Việt Nam? TIXIMAX US tự hào là đối tác logistics chuyên tuyến hàng đầu, mang đến cho bạn:
-Mức phí cạnh tranh:
-Đảm bảo không có chi phí phát sinh ẩn.
-Thời gian giao hàng siêu tốc:
-Giúp hàng hóa đến nơi nhanh chóng.
-Hãy liên hệ ngay hôm nay để nhận báo giá ưu đãi cho lô hàng của bạn!
-Địa chỉ:
-65 Đường số 9, Hiệp Bình Phước, Thủ Đức, Hồ Chí Minh.
-Email:
-globaltrans@tiximax.net
-Liên hệ:
-+84 906 704 701
-Họ và tên của bạn
-Email của bạn
-Số điện thoại của bạn
-Nội dung liên hệ
-TIXIMAX TRÊN GOOGLE MAP
-
-================================================================================
-
-URL: https://tiximax.us/dieu-khoan-dich-vu
-TITLE: ĐIỀU KHOẢN DỊCH VỤ - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-ĐIỀU KHOẢN DỊCH VỤ TIXIMAX
-TIXIMAX US là thương hiệu trực thuộc Công ty Cổ phần TIXIMAX, chuyên cung cấp dịch vụ vận chuyển và mua hộ hàng hóa từ Mỹ về Việt Nam. Công ty Cổ phần TIXIMAX (“TIXIMAX”, “chúng tôi”) thiết lập điều khoản này nhằm xác định rõ quyền và nghĩa vụ giữa TIXIMAX và khách hàng (“bạn”) khi sử dụng bất kỳ dịch vụ nào thuộc hệ sinh thái TIXIMAX US. Việc tiếp tục sử dụng dịch vụ của chúng tôi đồng nghĩa bạn đã đọc, hiểu và đồng thuận với tất cả nội dung nêu trong điều khoản này.
-I. GIỚI THIỆU CHUNG
-1.1. Mục đích và phạm vi điều chỉnh
-Điều khoản này quy định quyền và trách nhiệm giữa TIXIMAX US và người sử dụng dịch vụ – bao gồm cá nhân, doanh nghiệp, đại lý hay tổ chức – khi sử dụng các dịch vụ liên quan đến mua hộ, vận chuyển quốc tế, khai báo hải quan, lưu kho và các tiện ích logistics khác do TIXIMAX US triển khai cho tuyến Mỹ – Việt Nam.
-1.2. Việc chấp thuận điều khoản
-Khi sử dụng bất kỳ dịch vụ nào của TIXIMAX US (qua website, ứng dụng hoặc các hình thức liên hệ khác), bạn mặc nhiên được hiểu là đã đồng ý với các điều khoản này, kể cả trong trường hợp không có thỏa thuận bằng văn bản.
-1.3. Bản chất dịch vụ
-TIXIMAX US hoạt động như một đơn vị trung gian hỗ trợ mua hộ, nhập khẩu, vận chuyển và thông quan hàng hóa từ Hoa Kỳ về Việt Nam. Chúng tôi kết nối giữa khách hàng và các nhà cung cấp tại Mỹ, đồng thời đảm bảo quy trình vận chuyển – khai báo – giao nhận được thực hiện đúng quy định và hiệu quả nhất.
-II. DỊCH VỤ ĐƯỢC CUNG CẤP
-2.1. Dịch vụ mua hộ hàng Mỹ
-TIXIMAX US cung cấp dịch vụ hỗ trợ khách hàng đặt mua sản phẩm từ các website thương mại điện tử hoặc nhà cung cấp tại Hoa Kỳ theo đúng yêu cầu.
-Chúng tôi không đại diện cho bất kỳ người bán nào tại Mỹ và không bảo đảm về chất lượng sản phẩm, chính sách bảo hành hay cam kết từ phía nhà cung cấp.
-Trách nhiệm của TIXIMAX US giới hạn trong phạm vi: thanh toán thay khách, nhận hàng, vận chuyển về Việt Nam và xử lý các thủ tục thông quan.
-2.2. Dịch vụ vận chuyển quốc tế & nội địa
-Chúng tôi tiếp nhận hàng hóa từ người bán, vận chuyển về kho trung chuyển tại Mỹ, sau đó xuất hàng về Việt Nam và giao đến địa chỉ nhận theo yêu cầu.
-TIXIMAX US cũng cung cấp các dịch vụ hỗ trợ như: lưu kho, gom hàng, chia lô, đóng gói gia cố, và lựa chọn hình thức vận chuyển nhanh hoặc tiết kiệm.
-Thời gian giao hàng được tối ưu nhưng không thể bảo đảm tuyệt đối, do có thể chịu ảnh hưởng từ các yếu tố khách quan như thủ tục hải quan, thời tiết hoặc chính sách quốc tế.
-2.3. Dịch vụ hỗ trợ thông quan và giấy tờ chuyên ngành
-TIXIMAX US hỗ trợ khai báo hải quan, xử lý các khoản thuế và thực hiện thủ tục chuyên ngành nếu hàng hóa nằm trong diện kiểm tra.
-Trong các tình huống đặc biệt như hàng bị kiểm tra, tạm giữ hoặc yêu cầu bổ sung hồ sơ, chúng tôi sẽ phối hợp hỗ trợ giải quyết, nhưng không chịu trách nhiệm toàn diện về kết quả cuối cùng.
-III. TRÁCH NHIỆM VÀ NGHĨA VỤ CỦA KHÁCH HÀNG
-3.1. Trách nhiệm cung cấp thông tin
-Khách hàng cần cung cấp đầy đủ và chính xác các thông tin cá nhân hoặc doanh nghiệp bao gồm: họ tên, địa chỉ nhận hàng, số điện thoại, email, mã số thuế (đối với tổ chức/doanh nghiệp).
-Mọi thông tin liên quan đến hàng hóa – bao gồm mô tả, số lượng, chứng từ, hóa đơn – cần được khai báo rõ ràng trước khi vận chuyển.
-Khách hàng có trách nhiệm bảo đảm hàng hóa là hợp pháp, không nằm trong danh mục cấm xuất/nhập khẩu và không vi phạm quy định pháp luật Việt Nam – Hoa Kỳ.
-3.2. Về chính sách thanh toán
-Khách hàng cần thanh toán toàn bộ hoặc một phần chi phí theo báo giá xác nhận từ TIXIMAX US trước khi chúng tôi tiến hành xử lý đơn hàng.
-Trong quá trình vận chuyển, nếu phát sinh thêm chi phí như: thuế nhập khẩu, lưu kho, phụ phí từ hãng vận chuyển hoặc phí kiểm định – TIXIMAX US sẽ thông báo và chỉ thực hiện bàn giao hàng sau khi các khoản này được thanh toán đầy đủ.
-3.3. Về việc kiểm tra & xác nhận hàng hóa
-Ngay khi nhận được hàng, khách hàng cần kiểm tra kỹ lô hàng – bao gồm: tình trạng bao bì, số lượng, chủng loại.
-Nếu phát hiện hàng bị thiếu, vỡ, sai mẫu hoặc có dấu hiệu bất thường, quý khách phải gửi phản hồi kèm hình ảnh/video chứng minh trong vòng
-24 giờ
-kể từ thời điểm nhận hàng.
-TIXIMAX US sẽ không tiếp nhận xử lý khiếu nại sau thời hạn trên.
-IV. TRÁCH NHIỆM VÀ CAM KẾT CỦA TIXIMAX
-4.1. Cam kết dịch vụ
-TIXIMAX US cam kết thực hiện dịch vụ theo đúng thông tin đã xác nhận với khách hàng, bao gồm lộ trình, thời gian xử lý, cước phí và các điều khoản liên quan.
-Chúng tôi minh bạch trong toàn bộ quy trình – từ bảng giá, phụ phí, lịch vận chuyển đến các yếu tố có thể ảnh hưởng đến tiến độ đơn hàng.
-Trường hợp phát sinh sự cố trong khâu vận chuyển, thông quan hoặc làm việc với bên thứ ba, TIXIMAX US sẽ hỗ trợ tối đa để phối hợp xử lý cùng khách hàng.
-4.2. Chính sách bảo mật
-TIXIMAX US tôn trọng và bảo vệ toàn diện dữ liệu của khách hàng – bao gồm thông tin cá nhân, đơn hàng, giao dịch và nội dung trao đổi.
-Chúng tôi không chia sẻ dữ liệu với bên thứ ba nếu không có sự đồng thuận từ khách hàng, ngoại trừ khi có yêu cầu từ cơ quan chức năng theo quy định pháp luật.
-4.3. Giới hạn trách nhiệm
-TIXIMAX US không chịu trách nhiệm về chất lượng, nguồn gốc hoặc tình trạng sản phẩm do người bán tại Mỹ cung cấp – đặc biệt đối với các đơn hàng mua hộ hoặc khách tự đặt.
-Chúng tôi không chịu trách nhiệm nếu xảy ra rủi ro do lỗi từ phía khách hàng như: khai báo sai thông tin, gửi hàng cấm, sử dụng danh tính giả mạo…
-TIXIMAX US được miễn trách nhiệm trong các tình huống bất khả kháng như: thiên tai, dịch bệnh, chiến tranh, khủng hoảng vận tải, lệnh cấm vận hoặc thay đổi chính sách xuất nhập khẩu đột ngột.
-V. HÀNG HÓA VẬN CHUYỂN – QUY ĐỊNH CHI TIẾT
-5.1. Danh mục hàng cấm vận chuyển
-Vũ khí, ma túy, hóa chất độc hại, tiền tệ, tài sản có giá trị cao (vàng bạc, chứng khoán, cổ vật).
-Văn hóa phẩm đồi trụy, hàng giả, hàng không rõ nguồn gốc xuất xứ.
-Sinh vật sống, hàng dễ cháy nổ, thực phẩm không kiểm dịch.
-5.2. Danh mục hàng có điều kiện
-Mỹ phẩm, thực phẩm chức năng, đồ điện tử, hàng có pin – yêu cầu cung cấp hóa đơn hoặc giấy tờ kèm theo.
-Hàng có kích thước lớn, hàng cồng kềnh hoặc dễ vỡ phải được đóng gói đúng quy chuẩn hoặc sẽ bị từ chối nhận.
-VI. BỒI THƯỜNG VÀ GIẢI QUYẾT KHIẾU NẠI
-6.1. Chính sách bồi thường
-Trong trường hợp hàng hóa bị mất mát hoặc hư hỏng do lỗi từ phía TIXIMAX US trong quá trình vận chuyển:
-Nếu có hóa đơn chứng minh giá trị
-: Mức bồi thường tối đa là
-100% giá trị hàng hóa
-.
-Nếu không có chứng từ
-: Bồi thường theo mức cố định, tối đa
-500.000 VNĐ/kiện
-(hoặc tương đương bằng USD theo tỷ giá tại thời điểm xử lý).
-Lưu ý:
-Chính sách bồi thường
-không áp dụng
-với:
-Hàng hóa không khai báo đúng thông tin, sai mô tả, thuộc danh mục cấm hoặc hạn chế vận chuyển.
-Hàng bị hư hỏng do
-đóng gói không đúng kỹ thuật
-từ phía người gửi.
-6.2. Thời gian tiếp nhận và xử lý khiếu nại
-Khiếu nại cần được gửi trong
-vòng 24 giờ
-kể từ khi quý khách nhận hàng.
-Quý khách cần cung cấp
-video/ảnh mở kiện
-, hóa đơn (nếu có), và mô tả chi tiết tình trạng hàng.
-TIXIMAX US sẽ phản hồi và giải quyết trong thời gian tối đa
-07 ngày làm việc
-kể từ khi tiếp nhận đủ thông tin hợp lệ.
-VII. SỬA ĐỔI, ĐÌNH CHỈ, CHẤM DỨT DỊCH VỤ
-7.1 Điều khoản chung
-Quyền điều chỉnh
-: TIXIMAX US có quyền cập nhật, sửa đổi Điều khoản Dịch vụ để phù hợp với thực tế vận hành và các quy định pháp luật hiện hành. Mọi thay đổi sẽ được công bố minh bạch trên website chính thức của chúng tôi.
-Từ chối cung cấp dịch vụ
-: TIXIMAX US có quyền từ chối phục vụ hoặc ngừng hợp tác với khách hàng có hành vi gian lận, cố tình gây thiệt hại, vi phạm điều khoản, hoặc không thực hiện đầy đủ nghĩa vụ tài chính.
-Ngừng sử dụng dịch vụ
-: Khách hàng có thể chủ động ngừng sử dụng dịch vụ bất cứ lúc nào. Tuy nhiên, khách hàng vẫn có trách nhiệm hoàn tất mọi chi phí phát sinh hoặc cam kết chưa thực hiện tại thời điểm ngừng sử dụng.
-7.2 Hiệu lực và luật điều chỉnh
-Hiệu lực áp dụng
-: Các điều khoản này có hiệu lực kể từ thời điểm khách hàng bắt đầu sử dụng dịch vụ của TIXIMAX US, thông qua bất kỳ hình thức nào như website, email, ứng dụng hoặc tương tác trực tiếp.
-Luật điều chỉnh
-: Điều khoản Dịch vụ này được điều chỉnh bởi pháp luật Hoa Kỳ và các quy định liên quan của Việt Nam trong phạm vi dịch vụ giao thương giữa hai nước. Trong trường hợp có tranh chấp, hai bên sẽ ưu tiên giải quyết bằng thương lượng. Nếu không đạt được thỏa thuận, vụ việc sẽ được xử lý theo quy trình pháp lý tại cơ quan có thẩm quyền.
-VIII. LUẬT ÁP DỤNG VÀ GIẢI QUYẾT TRANH CHẤP
-Điều khoản này được điều chỉnh theo pháp luật Việt Nam.
-Mọi tranh chấp sẽ được giải quyết thông qua thương lượng, nếu không thành công sẽ đưa ra Tòa án có thẩm quyền tại TP.HCM.
-IX. LIÊN HỆ VÀ HỖ TRỢ
-TIXIMAX US – Đối tác tin cậy trong dịch vụ mua hộ & vận chuyển hàng Mỹ về Việt Nam.
-Website:
-https://tiximax.us/
-Hotline:
-0906 704 701
-Email CSKH:
-global.trans@tiximax.net
-Giờ làm việc:
-8h15 – 17h15 (Thứ 2 – Thứ 7)
-
-================================================================================
-
-URL: https://tiximax.us/chinh-sach-doi-tra-hang-hoa
-TITLE: Chính Sách Đổi Trả Hàng Hóa - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
-
-Chính Sách Đổi Trả Hàng Hóa
-I. Nguyên tắc chung
-TIXIMAX US đóng vai trò là đơn vị trung gian, hỗ trợ khách hàng đặt mua hàng hóa từ các trang thương mại điện tử và nhà cung cấp tại Hoa Kỳ, sau đó vận chuyển về Việt Nam. Do đặc thù là dịch vụ mua hộ quốc tế, chính sách đổi/ trả mang tính hỗ trợ và phụ thuộc vào quy định từ phía người bán tại Mỹ.
-II. Trường hợp được hỗ trợ đổi/trả
-Chúng tôi chỉ tiếp nhận hỗ trợ đổi/trả đối với các trường hợp sau:
-Hàng hóa hư hỏng do quá trình vận chuyển: móp, vỡ, trầy xước nặng ảnh hưởng đến chức năng sử dụng; thiếu linh kiện; không còn nguyên trạng.
-Giao sai sản phẩm: khác mẫu mã, màu sắc, kích thước, phiên bản hoặc số lượng so với đơn đã đặt.
-Hàng không đúng cam kết từ người bán: hàng không chính hãng (nếu có bằng chứng xác thực), sản phẩm lỗi kỹ thuật nghiêm trọng, không thể sử dụng.
-Lưu ý:
-Không hỗ trợ đổi/ trả trong các trường hợp mang tính chủ quan như: đổi ý, không thích, mua nhầm, thay đổi nhu cầu.
-III. Điều kiện để được hỗ trợ
-Khách hàng cần đảm bảo các điều kiện sau để được xem xét hỗ trợ:
-Gửi yêu cầu đổi/trả trong vòng 24 giờ kể từ thời điểm nhận hàng.
-Có ảnh hoặc video quay lại quá trình mở hàng (unbox), thể hiện rõ tình trạng ban đầu của sản phẩm.
-Sản phẩm còn nguyên bao bì, tem nhãn, chưa qua sử dụng và không có dấu hiệu hư hỏng do người dùng.
-Với sản phẩm lỗi kỹ thuật, cần gửi kèm clip chứng minh rõ tình trạng lỗi.
-IV. Quy trình xử lý đổi/trả
-Bước 1:
-Khách hàng gửi yêu cầu đổi/ trả đến bộ phận chăm sóc khách hàng của TIXIMAX qua Zalo hoặc email, cung cấp mã đơn hàng, lý do và bằng chứng.
-Bước 2:
-TIXIMAX tiếp nhận, xác minh thông tin và phản hồi trong vòng 3 ngày làm việc.
-Bước 3:
-Nếu lỗi thuộc về TIXIMAX (giao sai, lỗi đóng gói, vận chuyển): chúng tôi sẽ hỗ trợ hoàn toàn chi phí đổi/trả hoặc hoàn tiền tương đương.
-Nếu lỗi thuộc về người bán: TIXIMAX sẽ hỗ trợ liên hệ lại với người bán tại Mỹ để yêu cầu xử lý (thời gian và kết quả phụ thuộc vào chính sách của từng bên bán).
-Trong trường hợp không thể đổi trả, chúng tôi sẽ hỗ trợ thương lượng một mức bồi thường hợp lý nếu xác định có lỗi rõ ràng.
-V. Thời gian xử lý
-Phản hồi ban đầu trong vòng 3 ngày làm việc sau khi nhận đủ thông tin.
-Trường hợp cần liên hệ với người bán tại Mỹ có thể kéo dài từ 2 – 4 tuần tùy vào phản hồi của họ.
-VI. Các trường hợp bị từ chối đổi/trả
-TIXIMAX có quyền từ chối hỗ trợ nếu:
-Không có video mở hàng để chứng minh lỗi.
-Sản phẩm đã qua sử dụng, bao bì bị hỏng, không còn nguyên tem niêm phong.
-Hàng đặt theo yêu cầu riêng (in tên, thiết kế riêng, đặt trước, v.v.).
-Hàng dễ vỡ nhưng không có yêu cầu gia cố khi vận chuyển.
-Lỗi do người dùng sử dụng sai cách hoặc bảo quản không đúng.
-VII. Thông tin liên hệ
-Mọi thắc mắc hoặc yêu cầu hỗ trợ đổi/trả, vui lòng liên hệ TIXIMAX US qua:
-Hotline: 0906 704 701
-Email:
-global.trans@tiximax.net
-Thời gian làm việc: 08:15 – 17:15 từ Thứ 2 đến Thứ 7
 
 ================================================================================
 
@@ -5661,6 +5519,148 @@ Thông tin liên hệ:
 Email: global.trans@tiximax.net
 Hotline / Zalo: +84 906 704 701
 Website: https://tiximax.us/
+
+================================================================================
+
+URL: https://tiximax.us/lien-he
+TITLE: Liên hệ - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+Liên Hệ Báo Giá
+Bạn cần vận chuyển hàng từ Mỹ về Việt Nam? TIXIMAX US là giải pháp tối ưu với chi phí cạnh tranh và giao hàng siêu tốc!
+TIXIMAX US
+Bạn đang tìm kiếm giải pháp vận chuyển hàng hóa từ Mỹ về Việt Nam? TIXIMAX US tự hào là đối tác logistics chuyên tuyến hàng đầu, mang đến cho bạn:
+Mức phí cạnh tranh:
+Đảm bảo không có chi phí phát sinh ẩn.
+Thời gian giao hàng siêu tốc:
+Giúp hàng hóa đến nơi nhanh chóng.
+Hãy liên hệ ngay hôm nay để nhận báo giá ưu đãi cho lô hàng của bạn!
+Địa chỉ:
+65 Đường số 9, Hiệp Bình Phước, Thủ Đức, Hồ Chí Minh.
+Email:
+globaltrans@tiximax.net
+Liên hệ:
++84 906 704 701
+Họ và tên của bạn
+Email của bạn
+Số điện thoại của bạn
+Nội dung liên hệ
+TIXIMAX TRÊN GOOGLE MAP
+
+================================================================================
+
+URL: https://tiximax.us/dieu-khoan-dich-vu
+TITLE: ĐIỀU KHOẢN DỊCH VỤ - TIXIMAX - VẬN CHUYỂN, MUA HỘ HÀNG MỸ
+
+ĐIỀU KHOẢN DỊCH VỤ TIXIMAX
+TIXIMAX US là thương hiệu trực thuộc Công ty Cổ phần TIXIMAX, chuyên cung cấp dịch vụ vận chuyển và mua hộ hàng hóa từ Mỹ về Việt Nam. Công ty Cổ phần TIXIMAX (“TIXIMAX”, “chúng tôi”) thiết lập điều khoản này nhằm xác định rõ quyền và nghĩa vụ giữa TIXIMAX và khách hàng (“bạn”) khi sử dụng bất kỳ dịch vụ nào thuộc hệ sinh thái TIXIMAX US. Việc tiếp tục sử dụng dịch vụ của chúng tôi đồng nghĩa bạn đã đọc, hiểu và đồng thuận với tất cả nội dung nêu trong điều khoản này.
+I. GIỚI THIỆU CHUNG
+1.1. Mục đích và phạm vi điều chỉnh
+Điều khoản này quy định quyền và trách nhiệm giữa TIXIMAX US và người sử dụng dịch vụ – bao gồm cá nhân, doanh nghiệp, đại lý hay tổ chức – khi sử dụng các dịch vụ liên quan đến mua hộ, vận chuyển quốc tế, khai báo hải quan, lưu kho và các tiện ích logistics khác do TIXIMAX US triển khai cho tuyến Mỹ – Việt Nam.
+1.2. Việc chấp thuận điều khoản
+Khi sử dụng bất kỳ dịch vụ nào của TIXIMAX US (qua website, ứng dụng hoặc các hình thức liên hệ khác), bạn mặc nhiên được hiểu là đã đồng ý với các điều khoản này, kể cả trong trường hợp không có thỏa thuận bằng văn bản.
+1.3. Bản chất dịch vụ
+TIXIMAX US hoạt động như một đơn vị trung gian hỗ trợ mua hộ, nhập khẩu, vận chuyển và thông quan hàng hóa từ Hoa Kỳ về Việt Nam. Chúng tôi kết nối giữa khách hàng và các nhà cung cấp tại Mỹ, đồng thời đảm bảo quy trình vận chuyển – khai báo – giao nhận được thực hiện đúng quy định và hiệu quả nhất.
+II. DỊCH VỤ ĐƯỢC CUNG CẤP
+2.1. Dịch vụ mua hộ hàng Mỹ
+TIXIMAX US cung cấp dịch vụ hỗ trợ khách hàng đặt mua sản phẩm từ các website thương mại điện tử hoặc nhà cung cấp tại Hoa Kỳ theo đúng yêu cầu.
+Chúng tôi không đại diện cho bất kỳ người bán nào tại Mỹ và không bảo đảm về chất lượng sản phẩm, chính sách bảo hành hay cam kết từ phía nhà cung cấp.
+Trách nhiệm của TIXIMAX US giới hạn trong phạm vi: thanh toán thay khách, nhận hàng, vận chuyển về Việt Nam và xử lý các thủ tục thông quan.
+2.2. Dịch vụ vận chuyển quốc tế & nội địa
+Chúng tôi tiếp nhận hàng hóa từ người bán, vận chuyển về kho trung chuyển tại Mỹ, sau đó xuất hàng về Việt Nam và giao đến địa chỉ nhận theo yêu cầu.
+TIXIMAX US cũng cung cấp các dịch vụ hỗ trợ như: lưu kho, gom hàng, chia lô, đóng gói gia cố, và lựa chọn hình thức vận chuyển nhanh hoặc tiết kiệm.
+Thời gian giao hàng được tối ưu nhưng không thể bảo đảm tuyệt đối, do có thể chịu ảnh hưởng từ các yếu tố khách quan như thủ tục hải quan, thời tiết hoặc chính sách quốc tế.
+2.3. Dịch vụ hỗ trợ thông quan và giấy tờ chuyên ngành
+TIXIMAX US hỗ trợ khai báo hải quan, xử lý các khoản thuế và thực hiện thủ tục chuyên ngành nếu hàng hóa nằm trong diện kiểm tra.
+Trong các tình huống đặc biệt như hàng bị kiểm tra, tạm giữ hoặc yêu cầu bổ sung hồ sơ, chúng tôi sẽ phối hợp hỗ trợ giải quyết, nhưng không chịu trách nhiệm toàn diện về kết quả cuối cùng.
+III. TRÁCH NHIỆM VÀ NGHĨA VỤ CỦA KHÁCH HÀNG
+3.1. Trách nhiệm cung cấp thông tin
+Khách hàng cần cung cấp đầy đủ và chính xác các thông tin cá nhân hoặc doanh nghiệp bao gồm: họ tên, địa chỉ nhận hàng, số điện thoại, email, mã số thuế (đối với tổ chức/doanh nghiệp).
+Mọi thông tin liên quan đến hàng hóa – bao gồm mô tả, số lượng, chứng từ, hóa đơn – cần được khai báo rõ ràng trước khi vận chuyển.
+Khách hàng có trách nhiệm bảo đảm hàng hóa là hợp pháp, không nằm trong danh mục cấm xuất/nhập khẩu và không vi phạm quy định pháp luật Việt Nam – Hoa Kỳ.
+3.2. Về chính sách thanh toán
+Khách hàng cần thanh toán toàn bộ hoặc một phần chi phí theo báo giá xác nhận từ TIXIMAX US trước khi chúng tôi tiến hành xử lý đơn hàng.
+Trong quá trình vận chuyển, nếu phát sinh thêm chi phí như: thuế nhập khẩu, lưu kho, phụ phí từ hãng vận chuyển hoặc phí kiểm định – TIXIMAX US sẽ thông báo và chỉ thực hiện bàn giao hàng sau khi các khoản này được thanh toán đầy đủ.
+3.3. Về việc kiểm tra & xác nhận hàng hóa
+Ngay khi nhận được hàng, khách hàng cần kiểm tra kỹ lô hàng – bao gồm: tình trạng bao bì, số lượng, chủng loại.
+Nếu phát hiện hàng bị thiếu, vỡ, sai mẫu hoặc có dấu hiệu bất thường, quý khách phải gửi phản hồi kèm hình ảnh/video chứng minh trong vòng
+24 giờ
+kể từ thời điểm nhận hàng.
+TIXIMAX US sẽ không tiếp nhận xử lý khiếu nại sau thời hạn trên.
+IV. TRÁCH NHIỆM VÀ CAM KẾT CỦA TIXIMAX
+4.1. Cam kết dịch vụ
+TIXIMAX US cam kết thực hiện dịch vụ theo đúng thông tin đã xác nhận với khách hàng, bao gồm lộ trình, thời gian xử lý, cước phí và các điều khoản liên quan.
+Chúng tôi minh bạch trong toàn bộ quy trình – từ bảng giá, phụ phí, lịch vận chuyển đến các yếu tố có thể ảnh hưởng đến tiến độ đơn hàng.
+Trường hợp phát sinh sự cố trong khâu vận chuyển, thông quan hoặc làm việc với bên thứ ba, TIXIMAX US sẽ hỗ trợ tối đa để phối hợp xử lý cùng khách hàng.
+4.2. Chính sách bảo mật
+TIXIMAX US tôn trọng và bảo vệ toàn diện dữ liệu của khách hàng – bao gồm thông tin cá nhân, đơn hàng, giao dịch và nội dung trao đổi.
+Chúng tôi không chia sẻ dữ liệu với bên thứ ba nếu không có sự đồng thuận từ khách hàng, ngoại trừ khi có yêu cầu từ cơ quan chức năng theo quy định pháp luật.
+4.3. Giới hạn trách nhiệm
+TIXIMAX US không chịu trách nhiệm về chất lượng, nguồn gốc hoặc tình trạng sản phẩm do người bán tại Mỹ cung cấp – đặc biệt đối với các đơn hàng mua hộ hoặc khách tự đặt.
+Chúng tôi không chịu trách nhiệm nếu xảy ra rủi ro do lỗi từ phía khách hàng như: khai báo sai thông tin, gửi hàng cấm, sử dụng danh tính giả mạo…
+TIXIMAX US được miễn trách nhiệm trong các tình huống bất khả kháng như: thiên tai, dịch bệnh, chiến tranh, khủng hoảng vận tải, lệnh cấm vận hoặc thay đổi chính sách xuất nhập khẩu đột ngột.
+V. HÀNG HÓA VẬN CHUYỂN – QUY ĐỊNH CHI TIẾT
+5.1. Danh mục hàng cấm vận chuyển
+Vũ khí, ma túy, hóa chất độc hại, tiền tệ, tài sản có giá trị cao (vàng bạc, chứng khoán, cổ vật).
+Văn hóa phẩm đồi trụy, hàng giả, hàng không rõ nguồn gốc xuất xứ.
+Sinh vật sống, hàng dễ cháy nổ, thực phẩm không kiểm dịch.
+5.2. Danh mục hàng có điều kiện
+Mỹ phẩm, thực phẩm chức năng, đồ điện tử, hàng có pin – yêu cầu cung cấp hóa đơn hoặc giấy tờ kèm theo.
+Hàng có kích thước lớn, hàng cồng kềnh hoặc dễ vỡ phải được đóng gói đúng quy chuẩn hoặc sẽ bị từ chối nhận.
+VI. BỒI THƯỜNG VÀ GIẢI QUYẾT KHIẾU NẠI
+6.1. Chính sách bồi thường
+Trong trường hợp hàng hóa bị mất mát hoặc hư hỏng do lỗi từ phía TIXIMAX US trong quá trình vận chuyển:
+Nếu có hóa đơn chứng minh giá trị
+: Mức bồi thường tối đa là
+100% giá trị hàng hóa
+.
+Nếu không có chứng từ
+: Bồi thường theo mức cố định, tối đa
+500.000 VNĐ/kiện
+(hoặc tương đương bằng USD theo tỷ giá tại thời điểm xử lý).
+Lưu ý:
+Chính sách bồi thường
+không áp dụng
+với:
+Hàng hóa không khai báo đúng thông tin, sai mô tả, thuộc danh mục cấm hoặc hạn chế vận chuyển.
+Hàng bị hư hỏng do
+đóng gói không đúng kỹ thuật
+từ phía người gửi.
+6.2. Thời gian tiếp nhận và xử lý khiếu nại
+Khiếu nại cần được gửi trong
+vòng 24 giờ
+kể từ khi quý khách nhận hàng.
+Quý khách cần cung cấp
+video/ảnh mở kiện
+, hóa đơn (nếu có), và mô tả chi tiết tình trạng hàng.
+TIXIMAX US sẽ phản hồi và giải quyết trong thời gian tối đa
+07 ngày làm việc
+kể từ khi tiếp nhận đủ thông tin hợp lệ.
+VII. SỬA ĐỔI, ĐÌNH CHỈ, CHẤM DỨT DỊCH VỤ
+7.1 Điều khoản chung
+Quyền điều chỉnh
+: TIXIMAX US có quyền cập nhật, sửa đổi Điều khoản Dịch vụ để phù hợp với thực tế vận hành và các quy định pháp luật hiện hành. Mọi thay đổi sẽ được công bố minh bạch trên website chính thức của chúng tôi.
+Từ chối cung cấp dịch vụ
+: TIXIMAX US có quyền từ chối phục vụ hoặc ngừng hợp tác với khách hàng có hành vi gian lận, cố tình gây thiệt hại, vi phạm điều khoản, hoặc không thực hiện đầy đủ nghĩa vụ tài chính.
+Ngừng sử dụng dịch vụ
+: Khách hàng có thể chủ động ngừng sử dụng dịch vụ bất cứ lúc nào. Tuy nhiên, khách hàng vẫn có trách nhiệm hoàn tất mọi chi phí phát sinh hoặc cam kết chưa thực hiện tại thời điểm ngừng sử dụng.
+7.2 Hiệu lực và luật điều chỉnh
+Hiệu lực áp dụng
+: Các điều khoản này có hiệu lực kể từ thời điểm khách hàng bắt đầu sử dụng dịch vụ của TIXIMAX US, thông qua bất kỳ hình thức nào như website, email, ứng dụng hoặc tương tác trực tiếp.
+Luật điều chỉnh
+: Điều khoản Dịch vụ này được điều chỉnh bởi pháp luật Hoa Kỳ và các quy định liên quan của Việt Nam trong phạm vi dịch vụ giao thương giữa hai nước. Trong trường hợp có tranh chấp, hai bên sẽ ưu tiên giải quyết bằng thương lượng. Nếu không đạt được thỏa thuận, vụ việc sẽ được xử lý theo quy trình pháp lý tại cơ quan có thẩm quyền.
+VIII. LUẬT ÁP DỤNG VÀ GIẢI QUYẾT TRANH CHẤP
+Điều khoản này được điều chỉnh theo pháp luật Việt Nam.
+Mọi tranh chấp sẽ được giải quyết thông qua thương lượng, nếu không thành công sẽ đưa ra Tòa án có thẩm quyền tại TP.HCM.
+IX. LIÊN HỆ VÀ HỖ TRỢ
+TIXIMAX US – Đối tác tin cậy trong dịch vụ mua hộ & vận chuyển hàng Mỹ về Việt Nam.
+Website:
+https://tiximax.us/
+Hotline:
+0906 704 701
+Email CSKH:
+global.trans@tiximax.net
+Giờ làm việc:
+8h15 – 17h15 (Thứ 2 – Thứ 7)
 
 ================================================================================
 

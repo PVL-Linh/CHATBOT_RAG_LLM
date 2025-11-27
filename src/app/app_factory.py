@@ -3,7 +3,7 @@ from flask import Flask, jsonify
 from flask_compress import Compress
 from app.routes import register_blueprints, register_error_handlers
 from werkzeug.middleware.proxy_fix import ProxyFix
-from app.tools.migrate_users_csv_to_sqlite import migrate
+# from app.tools.migrate_users_csv_to_sqlite import migrate
 # from app.routes.auth import init_auth
 from app.config.settings import AppConfig
 

@@ -1,7 +1,8 @@
 import os
 import threading
 from .paths import FAISS_ALL_DIR
-
+from dotenv import load_dotenv
+load_dotenv()
 class ChatConfig:
     LLM_SEM = threading.Semaphore(int(os.environ.get("SEM_LLM", 24)))
     MAX_HISTORY = int(os.environ.get("MAX_HISTORY", 100))
@@ -34,17 +35,28 @@ class Chat_HR:
 
 
 class hybrid_retriever:
-    TOP_K = os.environ.get("TOP_K", 14) # 15
-    K_SEM = os.environ.get("K_SEM", 15) # 18 
-    K_LEX = os.environ.get("K_LEX", 18) # 22
-    MMR_FETCH_K = os.environ.get("MMR_FETCH_K", 60) # 70
-    MMR_LAMBDA = os.environ.get("MMR_LAMBDA", 0.5) # 0.6
+    TOP_K = int(os.environ.get("TOP_K", "14") or "14")
+    K_SEM = int(os.environ.get("K_SEM", "16") or "16")
+    K_LEX = int(os.environ.get("K_LEX", "18") or "18")
+    MMR_FETCH_K = int(os.environ.get("MMR_FETCH_K", "60") or "60")
+    MMR_LAMBDA = float(os.environ.get("MMR_LAMBDA", "0.6") or "0.6")
+    USE_RERANK = os.environ.get("USE_RERANK", "True").lower() in ("true", "1", "yes", "on")
+    RERANK_CANDIDATES = int(os.environ.get("RERANK_CANDIDATES", "70") or "70")
+    RERANK_MODEL = os.environ.get("RERANK_MODEL", "BAAI/bge-reranker-v2-m3")
 
-    USE_RERANK = os.environ.get("USE_RERANK", "True").lower() == "true"
-    RERANK_CANDIDATES = os.environ.get("RERANK_CANDIDATES", 60) # 70
-    RERANK_TOP_K = os.environ.get("RERANK_TOP_K", TOP_K)
-    RERANK_MODEL = os.environ.get("RERANK_MODEL", "BAAI/bge-reranker-v2-m3") # BAAI/bge-reranker-v2-m3
+try:
+    _rerank_default = os.environ.get("RERANK_TOP_K") or os.environ.get("TOP_K") or str(hybrid_retriever.TOP_K) or "14"
+    hybrid_retriever.RERANK_TOP_K = int(_rerank_default)
+except ValueError:
+    hybrid_retriever.RERANK_TOP_K = 14 
 
+class Chat_engine:
+    DB_CONF_THRESHOLD = float(os.environ.get("DB_CONF_THRESHOLD", "0.65"))
+    REWRITE_DB_WITH_LLM = os.environ.get("REWRITE_DB_WITH_LLM", "1").strip() not in {
+        "0",
+        "false",
+        "False",
+    }
 
 class Gemini_Config_LLM:
     token = os.environ.get("HF_TOKEN")

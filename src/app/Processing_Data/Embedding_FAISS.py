@@ -15,7 +15,7 @@ except ImportError:
     from DataBase_Web.web_crawler import web_crawler
     from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText #, processing_Data_dockinkToText_v2
 
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 800))
 CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
@@ -95,6 +95,8 @@ def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
     process_documents(DOCS_DIR, DATA_DIR)
+    process_documents(input_folder="./Documents/Regulation", output_folder="./src/app/Data/Data_All/Regulation")
+    process_documents(input_folder="./Documents/Warehouse", output_folder="./src/app/Data/Data_All/Warehouse")
     process_documents(input_folder="./Documents/Accountant", output_folder="./src/app/Data/Data_All/Accountant")
     process_documents(input_folder="./Documents/Operate", output_folder="./src/app/Data/Data_All/Operate")
     web_crawler("Data_All")
