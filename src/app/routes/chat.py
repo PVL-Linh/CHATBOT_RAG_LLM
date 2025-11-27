@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
-from app.Login.login_required import build_principal_from_session
+from app.Login.login_required import build_principal_from_session, login_required
 from .chat_engine import handle_chat_request
 
 bp = Blueprint("chat", __name__)
 
 @bp.route("/api/chat", methods=["POST"])
+@login_required(api=True)
 def chat_api():
     data = request.get_json(force=True) or {}
     user_text = (data.get("message") or "").strip()
@@ -26,5 +27,6 @@ def chat_api():
 
 
 @bp.route("/chat", methods=["POST"])
+@login_required(api=True)
 def chat_api_alias():
     return chat_api()

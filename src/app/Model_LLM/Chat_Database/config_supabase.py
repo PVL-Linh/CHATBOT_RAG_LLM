@@ -3,7 +3,7 @@ import os, datetime as dt
 from dotenv import load_dotenv
 load_dotenv()
 
-BASE_API_URL = os.environ.get("BASE_API_URL", "https://sides-vacuum-tire-abc.trycloudflare.com").rstrip("/")
+BASE_API_URL = os.environ.get("BASE_API_URL", "https://get-api-supabase-tiximax-seven.vercel.app").rstrip("/")
 API_KEY = os.environ.get("API_KEY", "")
 DEFAULT_PAGE_SIZE = int(os.environ.get("DEFAULT_PAGE_SIZE", "500"))
 

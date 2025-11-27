@@ -12,7 +12,7 @@ from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from flask import session
 from app.services.history import get_history, add_message, create_new_session
-from app.Helpers.prompt_internal import SYSTEM_PRIMER, sys_instr
+from app.Helpers.prompt_internal import SYSTEM_PRIMER_WAREHOUSE, sys_instr_warehouse
 from app.Model_LLM.model_llm import LLM_model
 from app.Model_LLM.hybrid_retriever import rerank, TOP_K
 from app.config.settings import ChatConfig, Chat_engine
@@ -257,7 +257,7 @@ def _analyze_followup_and_lang(
             "set_lang": "vi",
         }
 
-    prompt = f"""{sys_instr}
+    prompt = f"""{sys_instr_warehouse}
 
     [CURRENT_PREFERRED_LANG]
     {current_lang}
@@ -534,7 +534,7 @@ def _rewrite_db_answer(
         )
 
     guard = (
-        SYSTEM_PRIMER
+        SYSTEM_PRIMER_WAREHOUSE
         + lang_rule
         + "\nYÊU CẦU: giữ NGUYÊN số liệu, số tiền, phần trăm, mã đơn, mã lô.\n"
         "Không thêm bớt số. Nếu một số không cần thiết có quyền bỏ. "
@@ -637,7 +637,7 @@ def _rag_answer(
     else:
         lang_instruction = "\nTrả lời bằng tiếng Việt, tự nhiên, dễ hiểu."
 
-    system_prompt = f"""{SYSTEM_PRIMER}
+    system_prompt = f"""{SYSTEM_PRIMER_WAREHOUSE}
 {lang_instruction}
 
 {context_hint}

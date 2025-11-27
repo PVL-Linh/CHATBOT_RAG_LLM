@@ -4,11 +4,10 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 from flask import Blueprint, jsonify, request, session
 from app.config.paths import USER_CHAT_ALL
-# Decorator đăng nhập (ưu tiên module hiện tại)
 try:
     from app.Login.login_required import login_required
 except Exception:
-    from app.Login.login_required import login_required  # fallback
+    from app.Login.login_required import login_required
 from app.config.settings import ChatConfig
 bp = Blueprint("history_api", __name__)
 
