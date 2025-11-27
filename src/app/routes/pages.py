@@ -45,3 +45,12 @@ def admin():
 @login_required
 def indexing_faiss():
     return render_template("home/indexing_Faiss.html", active="indexing_faiss")
+
+@bp.route("/warehouse", methods=['GET'])
+@login_required
+def warehouse():
+    return render_template("home/warehouse.html", active="warehouse")
+
+@bp.route('/post-login')
+def post_login():
+    return render_template('home/post_login.html')
