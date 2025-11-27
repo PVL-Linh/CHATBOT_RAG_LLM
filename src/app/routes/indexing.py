@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List
 
 from flask import Blueprint, request, jsonify
-
+from app.Login.login_required import login_required
 from app.indexing.config_indexing import DEPTS_ROOT_DEFAULT, all_known_paths, canonical_dept, list_departments
 from app.indexing.list_cmd import list_index_sources
 from app.indexing.add_indexing import add_files_to_index
@@ -29,10 +29,12 @@ def _json_error(msg: str, code: int = 400):
     return jsonify({"ok": False, "error": msg}), code
 
 @indexing_bp.get("/health")
+@login_required(api=True)
 def health():
     return jsonify({"ok": True, "service": "indexing"})
 
 @indexing_bp.get("/paths")
+@login_required(api=True)
 def get_paths():
     root = request.args.get("root")
     dept = request.args.get("dept")
@@ -41,6 +43,7 @@ def get_paths():
     return jsonify({"ok": True, "data": info})
 
 @indexing_bp.get("/list")
+@login_required(api=True)
 def list_api():
     root = _get_root()
     dept = canonical_dept(request.args.get("dept"))
@@ -58,6 +61,7 @@ def list_api():
                     "sources": [{"source": s, "chunks": n} for s, n in rows]})
 
 @indexing_bp.post("/add")
+@login_required(api=True)
 def add_api():
     root = _get_root()
     dept = (request.form.get("dept") or (request.json.get("dept") if request.is_json and request.json else None))
@@ -106,6 +110,7 @@ def add_api():
     return _json_error("Send multipart 'files' or JSON {'paths': [...]}")
 
 @indexing_bp.post("/delete")
+@login_required(api=True)
 def delete_api():
     root = _get_root()
     if not request.is_json or not request.json:

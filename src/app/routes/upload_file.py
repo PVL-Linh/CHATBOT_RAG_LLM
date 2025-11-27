@@ -4,10 +4,9 @@ from __future__ import annotations
 import os
 import time
 from typing import List, Dict, Any
-
 from flask import Blueprint, request, jsonify, session
 from werkzeug.utils import secure_filename
-
+from app.Login.login_required import login_required
 from app.config.paths import UPLOAD_DIR
 
 bp = Blueprint("upload_file", __name__)
@@ -33,6 +32,7 @@ def _get_user_upload_dir() -> str:
 
 
 @bp.route("/api/upload", methods=["POST"])
+@login_required(api=True)
 def upload_file():
     """
     Upload 1 hoặc nhiều file để dùng làm context RAG trong phiên (session_doc_vs).

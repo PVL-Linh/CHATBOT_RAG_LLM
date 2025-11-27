@@ -22,7 +22,7 @@ try:
     from rag_hr.engine_hr import answer_with_rag, continue_with_last
 except Exception as e_a:
     try:
-        from rag_hr.engine_hr import answer_with_rag, continue_with_last
+        from app.Model_LLM.hr import answer_with_rag, continue_with_last
     except Exception as e_b:
         print("[ERR] Không import được engine HR.")
         print("Hãy đảm bảo một trong hai layout sau tồn tại:")

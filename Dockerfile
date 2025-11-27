@@ -25,7 +25,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN set -eux; \
-
   printf '%s\n' \
     'Acquire::Retries "5";' \
     'Acquire::http::Timeout "30";' \

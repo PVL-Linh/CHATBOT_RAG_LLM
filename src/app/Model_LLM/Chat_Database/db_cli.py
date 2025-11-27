@@ -2381,7 +2381,7 @@ import requests
 try:
     from .config_supabase import BASE_API_URL, API_KEY, DEFAULT_PAGE_SIZE, VN_TZ
 except Exception:
-    BASE_API_URL = os.environ.get("BASE_API_URL", "https://get-api-supabase-tiximax.onrender.com").rstrip("/")
+    BASE_API_URL = os.environ.get("BASE_API_URL", "https://get-api-supabase-tiximax-seven.vercel.app").rstrip("/")
     API_KEY = os.environ.get("API_KEY", "123456").strip()
     DEFAULT_PAGE_SIZE = int(os.environ.get("DEFAULT_PAGE_SIZE", "200"))
     try:

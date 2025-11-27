@@ -221,6 +221,7 @@ _INBOX: Dict[str, Dict[str, Any]] = {}
 _PROCESSED: Dict[str, Dict[str, Any]] = {}
 
 @bp_hr_rag.post("/receive")
+@login_required(api=True)
 @login_required
 def receive_message():
     data = request.get_json(silent=True) or {}
@@ -238,7 +239,7 @@ def receive_message():
     return jsonify({"message_id": msg_id, "status": "received"}), 201
 
 @bp_hr_rag.post("/reply")
-@login_required
+@login_required(api=True)
 def reply_message():
     data = request.get_json(silent=True) or {}
     msg_id = (data.get("message_id") or "").strip()
@@ -299,7 +300,7 @@ def reply_message():
         return _json_error(str(e), 500)
 
 @bp_hr_rag.post("/ask")
-@login_required
+@login_required(api=True)
 def ask_direct():
     data = request.get_json(silent=True) or {}
     q = _trim(str(data.get("question", "")))
@@ -315,7 +316,7 @@ def ask_direct():
 
 # ===================== CHAT (with FK-safe) ======================
 @bp_hr_rag.post("/chat")
-@login_required
+@login_required(api=True)
 def chat_api():
     data = request.get_json(force=True) or {}
     user_text = (data.get("message") or "").strip()
@@ -346,7 +347,7 @@ def chat_api():
         return _json_error(str(e), 500)
 
 @bp_hr_rag.post("/chat/stream")
-@login_required
+@login_required(api=True)
 def chat_stream():
     data = request.get_json(force=True) or {}
     user_text = (data.get("message") or "").strip()
@@ -380,20 +381,20 @@ def chat_stream():
 
 # ======================= HISTORY (guarded) =======================
 @bp_hr_history.post("/new_session")
-@login_required
+@login_required(api=True)
 def new_session():
     title = (request.get_json(silent=True) or {}).get("title") or "Cuộc trò chuyện HR"
     sid = create_hr_session(user=_get_user(), title=title)
     return jsonify({"session_id": sid, "title": title}), 201
 
 @bp_hr_history.get("/sessions")
-@login_required
+@login_required(api=True)
 def list_sessions():
     limit = request.args.get("limit", default=200, type=int)
     return jsonify({"sessions": get_hr_sessions_list(user=_get_user(), limit=limit)})
 
 @bp_hr_history.get("/by_session")
-@login_required
+@login_required(api=True)
 def get_session():
     sid = request.args.get("session_id", "").strip()
     if not sid:
@@ -406,7 +407,7 @@ def get_session():
     return jsonify({"session_id": sid, "items": get_hr_session_messages(sid)})
 
 @bp_hr_history.post("/rename_session")
-@login_required
+@login_required(api=True)
 def rename_session_ep():
     d = request.get_json(silent=True) or {}
     sid = d.get("session_id", "").strip()
@@ -422,7 +423,7 @@ def rename_session_ep():
     return jsonify({"ok": True})
 
 @bp_hr_history.post("/delete_session")
-@login_required
+@login_required(api=True)
 def delete_session_ep():
     d = request.get_json(silent=True) or {}
     sid = d.get("session_id", "").strip()
@@ -437,7 +438,7 @@ def delete_session_ep():
     return jsonify({"ok": True})
 
 @bp_hr_history.get("/current_session")
-@login_required
+@login_required(api=True)
 def current_session():
     data = get_latest_hr_session(user=_get_user())
     if not data:
