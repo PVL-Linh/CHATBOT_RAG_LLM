@@ -1,16 +1,19 @@
 from __future__ import annotations
+
 import os
 import re
 import time
 import json
 from typing import List, Dict, Any, Tuple, Optional
+from pathlib import Path
+
 import fitz
 import docx as docx_lib
 import unicodedata
-from pathlib import Path
+from flask import session
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
-from flask import session
+
 from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER, sys_instr
 from app.Model_LLM.model_llm import LLM_model
@@ -23,12 +26,16 @@ from app.config.paths import DATA_DIR, FAISS_ALL_DIR
 LLM_SEM = ChatConfig.LLM_SEM
 DB_CONF_THRESHOLD = Chat_engine.DB_CONF_THRESHOLD
 REWRITE_DB_WITH_LLM = Chat_engine.REWRITE_DB_WITH_LLM
+
+# Mini FAISS cache cho tài liệu upload theo session
 SESSION_DOC_VS: Dict[str, FAISS] = {}
-SESSION_DOC_SUMMARY: Dict[str, str] = {}
+SESSION_DOC_VS_META: Dict[str, Dict[str, float]] = {}
+
 
 # ======================================================================
 # 1. HISTORY / CTX HELPERS
 # ======================================================================
+
 def _normalize_vi(text: str) -> str:
     if not text:
         return ""
@@ -313,6 +320,7 @@ def _analyze_followup_and_lang(
 # ======================================================================
 # 4. FILE UPLOAD (VS session) + STRIP SOURCE
 # ======================================================================
+
 def strip_source_citations(text: str) -> str:
     if not text:
         return text
@@ -420,6 +428,8 @@ def _extract_text_from_uploaded_file(path: str) -> str:
             return ""
 
     return ""
+
+
 def _summarize_uploaded_file(
     gclient,
     GEMINI_MODEL,
@@ -432,6 +442,7 @@ def _summarize_uploaded_file(
         return ""
 
     detected_lang = _auto_detect_lang(raw_text)
+    snippet = raw_text[:15000]  # Giới hạn để tránh quá dài
 
     prompt = f"""Tóm tắt tài liệu sau thành khoảng {max_lines} dòng chính.
 - Giữ nguyên số liệu quan trọng, mã số, tên riêng, bảng biểu (dùng định dạng ASCII nếu cần).
@@ -440,8 +451,8 @@ def _summarize_uploaded_file(
 - Trả lời bằng tiếng {'Việt' if detected_lang == 'vi' else 'Anh'}.
 
 [TÀI LIỆU]
-{raw_text[:15000]}  # Giới hạn để tránh quá dài
-"""  # Giảm từ 20000 xuống 15000 để an toàn
+{snippet}
+"""
 
     contents = [{"role": "user", "parts": [{"text": prompt}]}]
     try:
@@ -469,8 +480,6 @@ def _split_text_to_chunks(text: str, max_chars: int = 800, overlap: int = 200) -
         start = max(0, end - overlap)
     return chunks
 
-SESSION_DOC_VS: Dict[str, FAISS] = {}
-SESSION_DOC_VS_META: Dict[str, Dict[str, float]] = {}
 
 def _build_session_doc_vs(
     session_id: str,
@@ -515,9 +524,6 @@ def _build_session_doc_vs(
     return vs
 
 
-# ======================================================================
-# SỬA LẠI _get_session_doc_vs ĐỂ FIX LỖI DECODE (an toàn với bytes/string từ Redis)
-# ======================================================================
 def _get_session_doc_vs(
     session_id: str,
     embeddings,
@@ -526,6 +532,10 @@ def _get_session_doc_vs(
     GEMINI_MODEL,
     GEN_CFG,
 ) -> Optional[FAISS]:
+    """
+    Dùng summary + chunk để build FAISS cho session.
+    Cache meta (mtime) + summary trong Redis để tránh build lại nếu file không đổi.
+    """
     if not session_id or not file_paths:
         return None
 
@@ -538,33 +548,34 @@ def _get_session_doc_vs(
             except Exception:
                 continue
 
-    # Lấy cached meta từ Redis và handle bytes/str
+    # Lấy cached meta từ Redis (string)
     cached_meta_key = f"session_doc_vs_meta:{session_id}"
     cached_meta_raw = redis_client.get(cached_meta_key)
-    cached_meta_str = None
+    cached_meta_str: Optional[str] = None
+
     if cached_meta_raw:
         if isinstance(cached_meta_raw, bytes):
             try:
-                cached_meta_str = cached_meta_raw.decode('utf-8')
+                cached_meta_str = cached_meta_raw.decode("utf-8")
             except UnicodeDecodeError:
-                cached_meta_str = None  # Bỏ nếu lỗi
+                cached_meta_str = None
         elif isinstance(cached_meta_raw, str):
             cached_meta_str = cached_meta_raw
         else:
-            cached_meta_str = str(cached_meta_raw)  # Fallback
+            cached_meta_str = str(cached_meta_raw)
 
-    cached_meta = {}
+    cached_meta: Dict[str, float] = {}
     if cached_meta_str:
         try:
             cached_meta = json.loads(cached_meta_str)
         except json.JSONDecodeError:
-            cached_meta = {}  # Nếu lỗi JSON, rebuild
+            cached_meta = {}
 
-    # Nếu meta khớp và VS cached tồn tại → return cached
+    # Nếu meta khớp và VS cached tồn tại → dùng lại
     if SESSION_DOC_VS.get(session_id) and cached_meta == current_meta:
         return SESSION_DOC_VS.get(session_id)
 
-    # Build mới
+    # Build mới từ summary
     texts: List[str] = []
     metas: List[Dict[str, Any]] = []
 
@@ -572,14 +583,14 @@ def _get_session_doc_vs(
         if not os.path.exists(path):
             continue
 
-        # Lấy summary từ Redis và handle bytes/str
         summary_key = f"file_summary:{session_id}:{os.path.basename(path)}"
         summary_raw = redis_client.get(summary_key)
-        summary = None
+        summary: Optional[str] = None
+
         if summary_raw:
             if isinstance(summary_raw, bytes):
                 try:
-                    summary = summary_raw.decode('utf-8')
+                    summary = summary_raw.decode("utf-8")
                 except UnicodeDecodeError:
                     summary = None
             elif isinstance(summary_raw, str):
@@ -587,17 +598,15 @@ def _get_session_doc_vs(
             else:
                 summary = str(summary_raw)
 
-        # Nếu không có hoặc rỗng → generate mới
         if not summary or not summary.strip():
             summary = _summarize_uploaded_file(gclient, GEMINI_MODEL, GEN_CFG, path)
             if summary:
-                # Lưu luôn dưới dạng bytes để nhất quán
-                redis_client.set(summary_key, summary.encode('utf-8'), ex=86400)
+                # Lưu dạng unicode string cho đơn giản
+                redis_client.set(summary_key, summary, ex=86400)
 
         if not summary or not summary.strip():
             continue
 
-        # Chunk summary
         chunks = _split_text_to_chunks(summary, max_chars=500, overlap=100)
         src = os.path.basename(path)
         for ch in chunks:
@@ -607,25 +616,25 @@ def _get_session_doc_vs(
     if not texts:
         return None
 
-    # Build VS từ texts
     vs = FAISS.from_texts(texts, embeddings, metadatas=metas)
     SESSION_DOC_VS[session_id] = vs
 
-    # Cache meta mới dưới dạng bytes
+    # Cache meta mới dưới dạng string
     meta_json = json.dumps(current_meta)
-    redis_client.set(cached_meta_key, meta_json.encode('utf-8'), ex=86400)
+    redis_client.set(cached_meta_key, meta_json, ex=86400)
 
+    SESSION_DOC_VS_META[session_id] = current_meta
     return vs
+
 
 def _clear_session_doc_vs(session_id: str) -> None:
     SESSION_DOC_VS.pop(session_id, None)
     SESSION_DOC_VS_META.pop(session_id, None)
-    
+
     redis_client.delete(f"session_doc_vs_meta:{session_id}")
     keys = redis_client.keys(f"file_summary:{session_id}:*")
     if keys:
         redis_client.delete(*keys)
-
 
 
 def _extract_src_and_url(meta: dict) -> tuple[str, str]:
@@ -646,6 +655,7 @@ def _extract_src_and_url(meta: dict) -> tuple[str, str]:
 
     return src_name or "", url or ""
 
+
 def _is_query_about_uploaded_file(
     user_text: str,
     lang: str = "vi",
@@ -654,13 +664,12 @@ def _is_query_about_uploaded_file(
     GEN_CFG=None,
 ) -> bool:
     """
-    Dùng Gemini để quyết định: người dùng có đang hỏi về file đã upload không?
-    Chỉ gọi 1 lần LLM → chính xác 99.9%, không cần keyword.
+    Dùng Gemini để quyết định: người dùng có đang hỏi về nội dung của file đã upload không?
+    Trả lời YES/NO.
     """
     if not gclient or not user_text.strip():
         return False
 
-    # Nếu câu quá dài (>400 ký tự) → cắt ngắn để tiết kiệm token
     query = user_text.strip()[:500]
 
     prompt = f"""Bạn là chuyên gia phân tích ngữ cảnh chat.
@@ -684,17 +693,17 @@ Trả lời:"""
     try:
         contents = [{"role": "user", "parts": [{"text": prompt}]}]
         raw, _ = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
-        result = raw.strip().upper()
+        result = (raw or "").strip().upper()
         return result == "YES" or result.startswith("YES")
     except Exception as e:
         print(f"[DEBUG] Lỗi detect file query: {e}")
-        # Fallback an toàn: nếu lỗi → giả định là KHÔNG hỏi về file (để không bị lẫn RAG)
         return False
-    
+
 
 # ======================================================================
 # 5. GEMINI HISTORY + RAG + DB
 # ======================================================================
+
 def _to_gemini_history_no_system(history_msgs: List[Dict[str, str]]) -> List[Dict]:
     out = []
     for m in history_msgs:
@@ -754,9 +763,6 @@ def _rewrite_db_answer(
         return answer_text
 
 
-# ======================================================================
-# SỬA LẠI _rag_answer – THÊM THAM SỐ only_use_session_docs
-# ======================================================================
 def _rag_answer(
     user_text: str,
     gclient,
@@ -770,7 +776,6 @@ def _rag_answer(
     only_use_session_docs: bool = False,
 ) -> tuple[str, dict]:
     session_doc_paths = session_doc_paths or []
-    # ← Đảm bảo không None
     start_total = time.time()
 
     session_docs: List[Document] = []
@@ -781,9 +786,7 @@ def _rag_answer(
 
     has_uploaded_files = bool(session_doc_paths)
 
-    # ==================================================================
-    # 1. TÌM TRONG FILE UPLOAD (dùng SUMMARY → siêu nhẹ, không load full nữa)
-    # ==================================================================
+    # 1. Tìm trong file upload (summary VS)
     if has_uploaded_files:
         try:
             vs = _get_session_doc_vs(
@@ -802,9 +805,7 @@ def _rag_answer(
             print(f"[RAG] Lỗi khi tìm trong session docs: {e}")
             session_docs = []
 
-    # ==================================================================
-    # 2. TÌM GLOBAL RAG (chỉ khi không bắt buộc chỉ dùng file)
-    # ==================================================================
+    # 2. Global RAG (nếu được phép)
     if not only_use_session_docs:
         try:
             t0 = time.time()
@@ -813,9 +814,7 @@ def _rag_answer(
         except Exception as e:
             print(f"[RAG] Lỗi global RAG: {e}")
 
-    # ==================================================================
-    # 3. GỘP + RERANK
-    # ==================================================================
+    # 3. Gộp & rerank
     all_candidates = session_docs + global_docs
 
     context_hint = ""
@@ -854,9 +853,7 @@ def _rag_answer(
             print(f"[RAG] Lỗi rerank: {e}")
             context_hint = "(Có lỗi khi xử lý tài liệu tham khảo.)"
 
-    # ==================================================================
     # 4. SYSTEM PROMPT + GỌI LLM
-    # ==================================================================
     lang = (lang_hint or "vi").lower()
     lang_instruction = "\nTrả lời bằng tiếng Anh, rõ ràng, chuyên nghiệp." if lang.startswith("en") else "\nTrả lời bằng tiếng Việt, tự nhiên, dễ hiểu."
 
@@ -866,7 +863,6 @@ def _rag_answer(
 {context_hint}
 """
 
-    # Lấy history sạch
     hist_msgs = [
         m for m in get_history()
         if m.get("role") in ("user", "assistant")
@@ -881,9 +877,6 @@ def _rag_answer(
     result, llm_time = _safe_gemini_generate(gclient, GEMINI_MODEL, contents, GEN_CFG)
     final_answer = strip_source_citations(result.strip())
 
-    # ==================================================================
-    # 5. TIMING
-    # ==================================================================
     timing = {
         "embedding": 0.0,
         "search": round(search_time_session + search_time_global + rerank_time, 2),
@@ -953,7 +946,16 @@ def handle_chat_request(
 
     # ====== 2. Xử lý lệnh xoá file ======
     if user_text.lower().strip() in ["xóa file", "xoá file", "hủy file", "delete file", "clear file"]:
-        session.pop("uploaded_files", None)
+        uploaded_files_meta = session.get("uploaded_files", None)
+
+        # Nếu sau này bạn chuyển qua dạng dict {session_id: [...]}
+        if isinstance(uploaded_files_meta, dict):
+            uploaded_files_meta.pop(session_id, None)
+            session["uploaded_files"] = uploaded_files_meta
+        else:
+            # Hiện tại vẫn là list → xoá hết như cũ
+            session.pop("uploaded_files", None)
+
         _clear_session_doc_vs(session_id)
         final_answer = "Đã xoá toàn bộ file đã upload trong phiên này."
         add_message("assistant", final_answer, session_id=session_id)
@@ -967,10 +969,31 @@ def handle_chat_request(
 
     # ====== 3. Lấy file upload ======
     uploaded_files_meta = session.get("uploaded_files", [])
-    session_doc_paths: List[str] = [
-        item["path"] for item in uploaded_files_meta
-        if isinstance(item, dict) and item.get("path") and os.path.exists(item["path"])
-    ]
+
+    session_doc_paths: List[str] = []
+
+    # Trường hợp hiện tại: uploaded_files_meta là list các dict {"path": ..., ...}
+    if isinstance(uploaded_files_meta, list) and uploaded_files_meta:
+        # Đi lùi từ file mới nhất về cũ → lấy file ĐẦU TIÊN có path tồn tại
+        for item in reversed(uploaded_files_meta):
+            if not isinstance(item, dict):
+                continue
+            p = item.get("path")
+            if p and isinstance(p, str) and os.path.exists(p):
+                session_doc_paths.append(p)
+                break
+
+    # Trường hợp tương lai: session["uploaded_files"] = { session_id: [ {path: ...}, ... ], ... }
+    elif isinstance(uploaded_files_meta, dict):
+        meta_for_session = uploaded_files_meta.get(session_id) or []
+        if isinstance(meta_for_session, list) and meta_for_session:
+            for item in reversed(meta_for_session):
+                if not isinstance(item, dict):
+                    continue
+                p = item.get("path")
+                if p and isinstance(p, str) and os.path.exists(p):
+                    session_doc_paths.append(p)
+                    break
 
     # ====== 4. Cập nhật ngôn ngữ ======
     if analysis.get("set_lang") in ("vi", "en"):
@@ -1016,7 +1039,7 @@ def handle_chat_request(
         if session_doc_paths:
             ctx["last_docs"] = [os.path.basename(p) for p in session_doc_paths]
 
-    # ====== Ghi trả lời ======
+    # ====== Ghi trả lời ====== 
     add_message("assistant", final_answer, session_id=session_id)
 
     # ====== Cập nhật context ======
@@ -1025,12 +1048,12 @@ def handle_chat_request(
     except Exception:
         pass
 
-    # ====== Smart Summary (giữ nguyên nếu bạn có) ======
+    # ====== Smart Summary ======
     try:
         history = get_history()
         user_count = len([m for m in history if m.get("role") == "user"])
         if user_count >= 7 and user_count % 7 == 0:
-            # (giữ nguyên phần summary cũ nếu cần)
+            # chỗ này bạn đang để pass, mình giữ nguyên
             pass
     except Exception:
         pass
@@ -1047,8 +1070,6 @@ def handle_chat_request(
             **(timing if 'timing' in locals() else {}),
         },
     }
-
-
 
 # from __future__ import annotations
 
