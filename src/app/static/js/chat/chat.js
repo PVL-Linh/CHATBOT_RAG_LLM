@@ -387,15 +387,16 @@
         filesToShow.forEach(file => {
           const name = file.name || file.filename || file.file || file.path || "";
           const ext = (name.split(".").pop() || "").toUpperCase();
-          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
+          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP", "BMP"].includes(ext);
 
+          // Tạo pill như ban đầu – giữ nguyên 100% thiết kế cũ
           const pill = document.createElement("div");
-          // dùng lại style .file-pill cho đồng bộ, thêm class riêng nếu cần
           pill.className = "file-pill msg-file-pill";
           pill.innerHTML = `
-          <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
-          <span class="file-name">${htmlEscape(name)}</span>
-        `;
+            <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
+            <span class="file-name">${htmlEscape(name)}</span>
+          `;
+
           header.appendChild(pill);
         });
 
@@ -1422,24 +1423,24 @@
     lucide.createIcons();
   }
   // ======== CHỐNG BACK VÀO LẠI CHAT – PHIÊN BẢN HOÀN HẢO ========
-document.addEventListener('DOMContentLoaded', () => {
-  // Chỉ đẩy thêm 1 lớp bảo vệ nữa (đã có 3 lớp từ post_login rồi)
-  history.pushState(null, '', '/login');
+  document.addEventListener('DOMContentLoaded', () => {
+    // Chỉ đẩy thêm 1 lớp bảo vệ nữa (đã có 3 lớp từ post_login rồi)
+    history.pushState(null, '', '/login');
 
-  // Chỉ kích hoạt ép về login khi người dùng THỰC SỰ bấm Back
-  // (không kích hoạt ngay khi load trang)
-  const handleBack = () => {
-    // Nếu đang ở trang chat và bấm Back → ép về login
-    if (window.location.pathname === '/' || window.location.pathname === '/chat') {
-      window.location.replace('/login');
-    }
-  };
+    // Chỉ kích hoạt ép về login khi người dùng THỰC SỰ bấm Back
+    // (không kích hoạt ngay khi load trang)
+    const handleBack = () => {
+      // Nếu đang ở trang chat và bấm Back → ép về login
+      if (window.location.pathname === '/' || window.location.pathname === '/chat') {
+        window.location.replace('/login');
+      }
+    };
 
-  window.addEventListener('popstate', handleBack);
+    window.addEventListener('popstate', handleBack);
 
-  // Cleanup (tốt hơn)
-  window.addEventListener('beforeunload', () => {
-    window.removeEventListener('popstate', handleBack);
+    // Cleanup (tốt hơn)
+    window.addEventListener('beforeunload', () => {
+      window.removeEventListener('popstate', handleBack);
+    });
   });
-});
 })();
