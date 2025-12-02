@@ -1258,7 +1258,9 @@ def handle_chat_request(
             # Lấy n file mới nhất (do session_doc_paths đã build từ reversed(uploaded_files_meta))
             session_paths_for_rag = session_doc_paths[:n]
 
-        only_use_session_docs = bool(session_paths_for_rag)
+        only_use_session_docs = bool(session_paths_for_rag) and (
+            is_generic_current or bool(focus_sources)
+        )
 
         print(
             f"[RAG MODE] session_id={session_id} | all_files={len(session_doc_paths)} "
