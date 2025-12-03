@@ -15,8 +15,8 @@ except ImportError:
     from DataBase_Web.web_crawler import web_crawler
     from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText #, processing_Data_dockinkToText_v2
 
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 800))
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
