@@ -32,9 +32,9 @@
   {% set is_mgr_any = mgr_mkt or mgr_sales %}
   {% set can_marketing = is_admin or is_mkt or is_sales or is_mgr_any %}
   {% set can_sales = is_admin or (',sales,' in r_all) or mgr_sales %}
-  {% set can_accountant = is_admin or (',accountant,' in r_all) %}
+  {% set can_accountant = is_admin or (',accountant,' in r_all) or (',hr,' in r_all) %}
   {% set can_warehouse = is_admin or (',warehouse,' in r_all) %}
-  {% set can_hr = is_admin or (',hr,' in r_all) %}
+  {% set can_hr = is_admin or (',hr,' in r_all) or (',accountant,' in r_all) %}
   {% set can_admin = is_admin %}
 
   <nav class="s-nav">

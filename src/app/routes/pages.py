@@ -22,12 +22,12 @@ def sales():
     return render_template('home/sales.html', current_user=session.get('user'), active='sales')
 
 @bp.route('/hr', methods=['GET'])
-@login_required
+@login_required(roles=['hr', 'accountant'])
 def hr():
     return render_template('home/hr.html', current_user=session.get('user'), active='hr')
 
 @bp.route('/accountant', methods=['GET'])
-@login_required
+@login_required(roles=['hr', 'accountant'])
 def accountant():
     return render_template('home/accountant.html', current_user=session.get('user'), active='accountant')
 

@@ -13,6 +13,9 @@ import unicodedata
 from flask import session
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
+import zipfile
+import io
+import tempfile
 
 from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER, sys_instr
@@ -467,6 +470,115 @@ def strip_source_citations(text: str) -> str:
 
     return text
 
+def _extract_text_from_pages(path: str) -> str:
+    """
+    Đọc file .pages (Apple Pages).
+    Ưu tiên:
+      1. PDF bên trong (nếu có) -> fitz.
+      2. index*.xml (nếu có) -> strip tag XML.
+      3. Fallback: OCR trên preview.jpg / preview-web.jpg bên trong (nếu có).
+    """
+    if not os.path.exists(path):
+        print(f"[PAGES DEBUG] File không tồn tại: {path}")
+        return ""
+
+    try:
+        with zipfile.ZipFile(path, "r") as zf:
+            names = zf.namelist()
+            print(f"[PAGES DEBUG] Namelist trong {os.path.basename(path)}:")
+            for n in names:
+                print("  -", n)
+
+            # 1) Tìm PDF (nếu có)
+            pdf_names = [n for n in names if n.lower().endswith(".pdf")]
+            if pdf_names:
+                pdf_name = pdf_names[0]
+                print(f"[PAGES DEBUG] Dùng PDF bên trong: {pdf_name}")
+                data = zf.read(pdf_name)
+                try:
+                    doc = fitz.open(stream=data, filetype="pdf")
+                    pages = []
+                    for p in doc:
+                        t = p.get_text()
+                        if t.strip():
+                            pages.append(t)
+                    doc.close()
+                    text_pdf = "\n".join(pages).strip()
+                    print(f"[PAGES DEBUG] Độ dài text từ PDF: {len(text_pdf)}")
+                    if text_pdf:
+                        return text_pdf
+                except Exception as e:
+                    print(f"[PAGES DEBUG] Lỗi đọc PDF nội bộ .pages: {e}")
+
+            # 2) Tìm index*.xml (nếu có)
+            xml_names = [
+                n for n in names
+                if n.lower().endswith(".xml") and "index" in n.lower()
+            ]
+            if xml_names:
+                xml_name = xml_names[0]
+                print(f"[PAGES DEBUG] Dùng XML bên trong: {xml_name}")
+                data = zf.read(xml_name)
+                try:
+                    text = data.decode("utf-8", errors="ignore")
+                except Exception:
+                    text = data.decode("latin-1", errors="ignore")
+
+                text = re.sub(r"<[^>]+>", " ", text)
+                text = re.sub(r"\s+", " ", text)
+                text = text.strip()
+                print(f"[PAGES DEBUG] Độ dài text từ XML: {len(text)}")
+                if text:
+                    return text
+
+            # 3) Fallback: OCR trên preview*.jpg / .png
+            img_candidates = [
+                n for n in names
+                if n.lower().endswith((".jpg", ".jpeg", ".png"))
+                and "preview" in n.lower()
+            ]
+
+            if img_candidates:
+                # ưu tiên preview.jpg > preview-web > preview-micro
+                def _score(name: str) -> tuple[int, int, int]:
+                    ln = name.lower()
+                    return (
+                        0 if "preview.jpg" in ln else 1,
+                        0 if "preview-web" in ln else 1,
+                        0 if "micro" in ln else 1,
+                    )
+
+                img_candidates.sort(key=_score)
+                img_name = img_candidates[0]
+                print(f"[PAGES DEBUG] Dùng ảnh preview để OCR: {img_name}")
+
+                data = zf.read(img_name)
+                suffix = os.path.splitext(img_name)[1].lower() or ".jpg"
+
+                tmp_path = None
+                try:
+                    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+                        tmp.write(data)
+                        tmp_path = tmp.name
+
+                    text_ocr = extract_text_from_image(tmp_path) or ""
+                    print(f"[PAGES DEBUG] Độ dài text OCR từ preview: {len(text_ocr)}")
+                    return text_ocr.strip()
+                except Exception as e:
+                    print(f"[PAGES DEBUG] Lỗi OCR preview trong .pages: {e}")
+                finally:
+                    if tmp_path and os.path.exists(tmp_path):
+                        try:
+                            os.remove(tmp_path)
+                        except Exception:
+                            pass
+
+            print("[PAGES DEBUG] Không tìm thấy PDF, XML hay preview để đọc text.")
+
+    except Exception as e:
+        print(f"[PAGES] Lỗi đọc .pages {path}: {e}")
+
+    return ""
 
 def _extract_text_from_uploaded_file(path: str) -> str:
     ext = os.path.splitext(path)[1].lower()
@@ -508,7 +620,11 @@ def _extract_text_from_uploaded_file(path: str) -> str:
             return "\n".join(pages)
         except Exception:
             return ""
-
+        
+    #hỗ trợ file .pages
+    if ext == ".pages":
+        return _extract_text_from_pages(path)
+    
     # ===== ẢNH: gọi utils riêng =====
     if is_image_path(path):
         return extract_text_from_image(path)

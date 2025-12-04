@@ -12,7 +12,7 @@ from app.config.paths import UPLOAD_DIR
 bp = Blueprint("upload_file", __name__)
 
 # Thêm extension cho hình ảnh (jpg, jpeg, png, gif, bmp)
-ALLOWED_EXTENSIONS = {".txt", ".pdf", ".docx", ".jpg", ".jpeg", ".png"}
+ALLOWED_EXTENSIONS = {".txt", ".pdf", ".docx", ".jpg", ".jpeg", ".png", ".pages"}
 
 
 def _allowed_file(filename: str) -> bool:
