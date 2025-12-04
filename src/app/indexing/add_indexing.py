@@ -13,6 +13,12 @@ try:
     from app.Processing_Data.pdf_to_text import process_pdf_documents
 except Exception:
     process_pdf_documents = None
+
+try:
+    from app.Processing_Data.xlxs_to_csv import xlsx_to_txt_by_column_all_sheets
+except Exception:
+    xlsx_to_txt_by_column_all_sheets = None
+    
 from .paths_indexing import dept_paths, list_txt_files_under, rel_from_data_dir
 from .config_indexing import CHUNK_OVERLAP, CHUNK_SIZE
 
@@ -64,7 +70,7 @@ def _chunk_text_to_docs(text: str, rel_source: str) -> List[Document]:
         d.metadata["chunk_id"] = i
     return chunks
 
-def _safe_read_text(path: str) -> str:
+def _safe_read_text(path: str)  -> str:
     try:
         with open(path, "r", encoding="utf-8") as f:
             return _clean_text(f.read())
@@ -186,7 +192,42 @@ def add_files_to_index(root: str, dept: str, paths: List[str]) -> Dict[str, Any]
                 rel = rel_from_data_dir(txt_path, data_dir)
                 staged_rel_txts.append(rel)
                 seen_in_batch.add(base_l)
+        elif ext == ".xlsx":
+            if xlsx_to_txt_by_column_all_sheets is None:
+                result["skipped_invalid"].append(p_abs)
+                result["errors"].append("Chưa cấu hình converter XLSX→TXT; từ chối XLSX.")
+                continue
 
+            # Ghi nhận list TXT trước khi convert
+            before = set(os.path.abspath(x) for x in list_txt_files_under(data_dir))
+
+            try:
+                # Convert 1 file .xlsx -> nhiều .txt (mỗi sheet 1 file)
+                # Output_dir = data_dir để sau đó rel_from_data_dir dùng chung logic
+                xlsx_to_txt_by_column_all_sheets(p_abs, data_dir)
+            except Exception as e:
+                result["errors"].append(f"Chuyển XLSX→TXT lỗi: {os.path.basename(p_abs)} → {e}")
+                continue
+
+            # Lấy các TXT mới sinh ra
+            after = set(os.path.abspath(x) for x in list_txt_files_under(data_dir))
+            new_txt_abs = sorted(after - before)
+
+            for txt_path in new_txt_abs:
+                base = os.path.basename(txt_path)
+                base_l = base.lower()
+                if (base_l in existed_lower) or (base_l in seen_in_batch):
+                    result["skipped_duplicates"].append(base)
+                    try:
+                        os.remove(txt_path)
+                    except Exception:
+                        pass
+                    continue
+
+                rel = rel_from_data_dir(txt_path, data_dir)
+                staged_rel_txts.append(rel)
+                seen_in_batch.add(base_l)
+                
         else:
             result["skipped_invalid"].append(p_abs)
 
