@@ -15,7 +15,7 @@
         <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
           <ul id="chatList" class="chat-list mb-3"></ul>
           <div id="greeting" class="greeting">
-            <div class="g-title-xl">Hello, Can I help you?</div>
+            <div class="g-title-xl">Hello {{session.get('user', 'User')}}, Can I help you?</div>
           </div>
         </div>
         <footer class="composer position-sticky bottom-0">
