@@ -22,7 +22,7 @@ ALLOWED_ROLES = {
     "hr",
     "admin",
     "manager_sales",
-    "accounting",
+    "accountant",
     "warehouse",
 }
 
