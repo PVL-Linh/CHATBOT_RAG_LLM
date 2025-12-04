@@ -5,7 +5,7 @@ from .chat_engine import handle_chat_request
 
 bp = Blueprint("WAREHOUSE", __name__)
 
-@bp.route("/api/WAREHOUSE", methods=["POST"])
+@bp.route("/api/WAREHOUSE/chat", methods=["POST"])
 def chat_api():
     data = request.get_json(force=True) or {}
     user_text = (data.get("message") or "").strip()

@@ -13,7 +13,7 @@ from app.indexing.delete_indexing import delete_sources_from_index
 
 indexing_bp = Blueprint("indexing", __name__, url_prefix="/api/indexing")
 
-ALLOWED_EXTS = {".txt", ".pdf"}
+ALLOWED_EXTS = {".txt", ".pdf", ".xlsx", ".docx"}
 def _allowed_file(filename: str) -> bool: return Path(filename).suffix.lower() in ALLOWED_EXTS
 
 def _get_root() -> str:

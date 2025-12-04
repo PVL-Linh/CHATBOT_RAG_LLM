@@ -8,7 +8,7 @@ CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", "250"))
 THIS_DIR = Path(__file__).resolve().parent
 APP_DIR = THIS_DIR.parent
 DEPTS_ROOT_DEFAULT: Path = APP_DIR / "vectorstore"
-CANONICAL_DEPTS = ("All", "HR", "Accountant")
+CANONICAL_DEPTS = ("Data_All", "HR", "Accountant")
 
 
 def canonical_dept(name: str | None) -> str | None:
@@ -17,8 +17,8 @@ def canonical_dept(name: str | None) -> str | None:
 
     n = str(name).strip().lower()
 
-    if n in ("all", "faiss_vector_all", "faiss-vector-all", "vector_all"):
-        return "All"
+    if n in ("data_all", "faiss_vector_data_all", "faiss-vector-data-all", "vector_data_all"):
+        return "Data_All"
 
     if n in ("hr", "faiss_vector_hr", "faiss-vector-hr", "humanresources"):
         return "HR"
@@ -37,7 +37,7 @@ def dept_paths(root: str | Path | None, dept: str):
     root_path = root_path.resolve()
 
     # Map data_dir theo cấu trúc thật
-    if d == "All":
+    if d == "Data_All":
         data_dir = (APP_DIR / "Data" / "Data_All").resolve()
     else:
         data_dir = (APP_DIR / "Data" / d).resolve()

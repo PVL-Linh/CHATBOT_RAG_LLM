@@ -25,6 +25,7 @@ instance/
 src/app/Data/
 src/test.py
 src/uploads/
+src/app/uploads/
 
 
 # Python

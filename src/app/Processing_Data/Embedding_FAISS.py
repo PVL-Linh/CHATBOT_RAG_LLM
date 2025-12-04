@@ -24,7 +24,7 @@ SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 DOCS_DIR = "./Documents/Data_All"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All"))
+INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_Data_All"))
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
 def _select_device() -> str:

@@ -12,8 +12,8 @@ def canonical_dept(dept: Optional[str]) -> Optional[str]:
     low = d.lower()
     if low in ("hr",):
         return "HR"
-    if low in ("all", "default"):
-        return "All"
+    if low in ("Data_All", "default"):
+        return "Data_All"
     if low in ("accoutant"):
         return "Accountant"
     return d
@@ -43,7 +43,7 @@ def all_known_paths(root: Optional[str] = None,
 
     result: Dict[str, Dict[str, str]] = {}
 
-    for d in ("All", "HR", "Accountant"):
+    for d in ("Data_All", "HR", "Accountant"):
         info = _std_paths_for_dept(root_effective, d)
         result[d] = info
     cd = canonical_dept(dept)
