@@ -1,7 +1,7 @@
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from app.Login.login_required import build_principal_from_session
-from .chat_engine import handle_chat_request
+from .chat_WareHouse_Engine import handle_chat_request
 
 bp = Blueprint("WAREHOUSE", __name__)
 
