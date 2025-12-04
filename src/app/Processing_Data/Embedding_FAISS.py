@@ -8,6 +8,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
 from pdf_to_text import process_documents
 import torch
+
+from xlxs_to_txt import batch_convert_to_txt
 try:
     from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText #, processing_Data_dockinkToText_v2
     from .DataBase_Web.web_crawler import web_crawler
@@ -95,6 +97,7 @@ def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
     process_documents(DOCS_DIR, DATA_DIR)
+    batch_convert_to_txt(input_dir="./Documents/Sales", output_dir="./src/app/Data/Data_All/Sales")
     process_documents(input_folder="./Documents/Regulation", output_folder="./src/app/Data/Data_All/Regulation")
     process_documents(input_folder="./Documents/Warehouse", output_folder="./src/app/Data/Data_All/Warehouse")
     process_documents(input_folder="./Documents/Accountant", output_folder="./src/app/Data/Data_All/Accountant")

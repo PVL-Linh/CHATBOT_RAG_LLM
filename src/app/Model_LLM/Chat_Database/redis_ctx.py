@@ -16,7 +16,7 @@ import redis
 # ============================================================
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-DEFAULT_TTL = int(os.environ.get("REDIS_CTX_TTL", "86400"))  # 1 ngày
+DEFAULT_TTL = int(os.environ.get("REDIS_CTX_TTL", "1800"))  # 30 phút
 
 class DictRedis:
     """

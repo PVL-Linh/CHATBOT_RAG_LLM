@@ -38,6 +38,9 @@ PDF_TMP_DIR = DATA_APP_DIR / "pdf_tmp"
 # WAREHOUSE
 DATA_DIR_WAREHOUSE = get_path("DATA_DIR_WAREHOUSE", APP_DIR / "Data" / "WAREHOUSE")
 
+# SALES
+DATA_DIR_SALES = get_path("DATA_DIR_SALES", APP_DIR / "Data" / "Sales")
+
 # Models / Embeddings / Vectorstore
 MODELS_DIS = get_path("MODELS_DIR", APP_DIR / "models")
 EMBED_MODEL_DIR = get_path("EMBED_MODEL_DIR", MODELS_DIS / "local_multilingual_e5_large")
@@ -48,7 +51,7 @@ VECTORSTORE_DIR = get_path("VECTORSTORE_DIR", APP_DIR / "vectorstore")
 FAISS_ALL_DIR = VECTORSTORE_DIR / "FAISS_Vector_Data_All"
 FAISS_HR_DIR_1 = VECTORSTORE_DIR / "FAISS_Vector_HR"
 FAISS_ALL_DIR_WAREHOUSE = VECTORSTORE_DIR / "FAISS_Vector_WAREHOUSE"
-
+FAISS_ALL_DIR_SALES = VECTORSTORE_DIR / "FAISS_Vector_SALES"
 
 # INDEX HR FILE
 DATA_DIR_HR_1 = get_path("DATA_DIR_HR", APP_DIR / "Data" / "HR")

@@ -1,5 +1,3 @@
-# app/routes/chat.py (hoặc nơi bạn đang đặt Blueprint)
-
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from app.Login.login_required import build_principal_from_session, login_required
