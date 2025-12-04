@@ -44,27 +44,20 @@
 }
 
 .msg.user .bubble {
-  background: linear-gradient(135deg, #fbc02d 0%, #ffa000 100%);
+  background: linear-gradient(135deg, #FBC02D 0%, #FFA000 100%);
   color: #000;
   border: none;
   border-radius: 20px;
   position: relative;
 
-  /* backdrop-filter: blur(10px); */
+  backdrop-filter: blur(10px);
   overflow: hidden;
 }
 .msg.user .bubble::before {
-  content: "";
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.3) 0%,
-    transparent 100%
-  );
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 100%);
   pointer-events: none;
 }
 
@@ -84,7 +77,7 @@
   margin: 0;
 }
 
-.msg .bubble p + p {
+.msg .bubble p+p {
   margin-top: 0.5em;
 }
 
@@ -133,21 +126,21 @@
 }
 
 .composer-inner {
-  max-width: 980px;
-  margin: 12px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 35px;
-  background: #fff;
+    max-width: 980px;
+    margin: 12px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 35px;
+    background: #fff;   
 }
 
 .input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 #chatInput {
@@ -190,10 +183,10 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, .2);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity .2s ease, visibility .2s ease;
   z-index: 40;
 }
 
@@ -210,10 +203,10 @@
   width: 340px;
   max-width: 92vw;
   background: #fff;
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, .08);
   transform: translateX(100%);
-  transition: transform 0.25s ease;
+  transition: transform .25s ease;
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -228,7 +221,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
 }
 
 .hp-actions {
@@ -240,7 +233,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, .12);
   border-radius: 8px;
   padding: 6px 10px;
   background: transparent;
@@ -266,7 +259,7 @@
 }
 
 .hp-item:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(0, 0, 0, .04);
 }
 
 .hp-item .row {
@@ -288,7 +281,7 @@
 
 .hp-item .meta {
   font-size: 12px;
-  opacity: 0.6;
+  opacity: .6;
 }
 
 .hp-item .acts {
@@ -302,7 +295,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, .12);
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
@@ -310,7 +303,7 @@
 
 .hp-footer {
   padding: 8px 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, .08);
 }
 
 @media (max-width: 768px) {
@@ -341,7 +334,7 @@
 
 .table-as-cards .rcell-label {
   font-weight: 600;
-  opacity: 0.8;
+  opacity: .8;
   white-space: nowrap;
 }
 
@@ -350,12 +343,12 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 576px) {
+@media (max-width:576px) {
   .table-as-cards {
     display: block;
   }
 
-  .table-as-cards + table {
+  .table-as-cards+table {
     display: none !important;
   }
 }
@@ -367,9 +360,9 @@
   --tbl-border-blue: #9fbfe0;
   --bubble-max-w: 620px;
   --bubble-max-w-table: 660px;
-  --tbl-font: 13px; /* thu nhỏ chữ trong bảng */
+  --tbl-font: 13px;          /* thu nhỏ chữ trong bảng */
   --tbl-pad: 6px 8px;
-  --page-bg: #f6f8fb;
+  --page-bg: #f6f8fb; 
 }
 
 .msg .bubble.is-table {
@@ -382,10 +375,10 @@
   overflow-x: hidden !important;
 }
 
-.msg .bubble .table-scroll > table {
+.msg .bubble .table-scroll > table{
   width: 100% !important;
   min-width: 0 !important;
-  table-layout: fixed !important; /* ép cột co đều */
+  table-layout: fixed !important;   /* ép cột co đều */
   border-collapse: collapse;
 }
 
@@ -395,16 +388,16 @@
 }
 
 .msg .bubble .table-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, .35);
   border-radius: 6px;
 }
 
 .msg .bubble .table-scroll::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, .08);
 }
 
 /* Bảng rộng tự nhiên, tối thiểu bằng khung để không bị co méo */
-.msg .bubble .table-scroll > table {
+.msg .bubble .table-scroll>table {
   width: max-content;
   /* cho phép rộng hơn khung */
   min-width: 100%;
@@ -415,7 +408,7 @@
 
 /* Ô dữ liệu có thể xuống dòng (không bị cắt mất chữ) */
 .msg .bubble .table-scroll th,
-.msg .bubble .table-scroll td {
+.msg .bubble .table-scroll td{
   white-space: normal !important;
   word-break: break-word;
   padding: var(--tbl-pad);
@@ -424,29 +417,27 @@
 }
 
 /* Màu + sticky header khi cuộn dọc */
-.msg .bubble .table-scroll thead th {
-  position: static !important; /* bỏ sticky khi không cuộn ngang */
+.msg .bubble .table-scroll thead th{
+  position: static !important;  /* bỏ sticky khi không cuộn ngang */
   box-shadow: none !important;
   background: none !important;
 }
 
 /* Sticky cột đầu (Khu vực nhận hàng) để đọc ngang */
 .msg .bubble .table-scroll th:first-child,
-.msg .bubble .table-scroll td:first-child {
+.msg .bubble .table-scroll td:first-child{
   position: static !important;
   left: auto !important;
   box-shadow: none !important;
 }
 /* Canh phải các cột số, cột đầu canh trái cho dễ đọc */
 .msg .bubble .table-scroll td:not(:first-child),
-.msg .bubble .table-scroll th:not(:first-child) {
+.msg .bubble .table-scroll th:not(:first-child){
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 .msg .bubble .table-scroll td:first-child,
-.msg .bubble .table-scroll th:first-child {
-  text-align: left;
-}
+.msg .bubble .table-scroll th:first-child{ text-align: left; }
 /* Dòng kẻ & padding cơ bản */
 .table-scroll th,
 .table-scroll td {
@@ -456,7 +447,7 @@
 }
 
 .table-scroll tbody tr:nth-child(odd) {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, .03);
 }
 
 /* ====== Scrollbar ẩn cho chat ====== */
@@ -497,7 +488,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
   cursor: pointer;
 }
 
@@ -509,16 +500,16 @@
 main.container-fluid.d-flex {
   /* fallback -> modern browsers */
   min-height: 100vh;
-  min-height: 100dvh; /* dynamic viewport height (mobile) */
+  min-height: 100dvh;   /* dynamic viewport height (mobile) */
 }
 
 /* Bảo đảm chuỗi cha cho phép flex grow đúng */
 main.container-fluid.d-flex .row.flex-grow-1 {
-  min-height: 0; /* rất quan trọng khi là flex child */
+  min-height: 0;       /* rất quan trọng khi là flex child */
   flex: 1 1 auto;
 }
 #chatShell {
-  min-height: 0; /* bạn đã có, nhắc lại để chắc chắn */
+  min-height: 0;       /* bạn đã có, nhắc lại để chắc chắn */
   display: flex;
   flex-direction: column;
 }
@@ -533,16 +524,14 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 
 /* Composer luôn hiển thị đầy đủ ở đáy, tôn trọng safe-area iOS */
 .composer {
-  position: sticky; /* giữ như bạn dùng */
+  position: sticky;               /* giữ như bạn dùng */
   bottom: 0;
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
 }
 
 /* Tránh composer bị “tụt” vì margin dưới quá lớn trên màn nhỏ */
-@media (max-width: 576px) {
-  .composer-inner {
-    margin-bottom: 0;
-  }
+@media (max-width: 576px){
+  .composer-inner{ margin-bottom: 0; }
 }
 /* ===== Typing: shimmer text + elegant bouncing dots ===== */
 .typing {
@@ -555,12 +544,10 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   font-weight: 600;
   letter-spacing: 0.2px;
   /* shimmer nhẹ trên chữ */
-  background: linear-gradient(
-    90deg,
-    rgba(17, 24, 39, 0.92) 0%,
-    rgba(17, 24, 39, 0.68) 40%,
-    rgba(17, 24, 39, 0.92) 80%
-  );
+  background: linear-gradient(90deg,
+      rgba(17, 24, 39, .92) 0%,
+      rgba(17, 24, 39, .68) 40%,
+      rgba(17, 24, 39, .92) 80%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -569,12 +556,8 @@ main.container-fluid.d-flex .row.flex-grow-1 {
 }
 
 @keyframes txm-shimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 200% 50%;
-  }
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
 
 /* 3 chấm tròn “thở” nhịp nhàng */
@@ -587,148 +570,111 @@ main.container-fluid.d-flex .row.flex-grow-1 {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(17, 24, 39, 0.65); /* hợp với nền xanh bubble */
+  background: rgba(17, 24, 39, .65);         /* hợp với nền xanh bubble */
   animation: txm-dot 1.2s ease-in-out infinite;
 }
-.typing .dots3 span:nth-child(1) {
-  animation-delay: 0s;
-}
-.typing .dots3 span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-.typing .dots3 span:nth-child(3) {
-  animation-delay: 0.3s;
-}
+.typing .dots3 span:nth-child(1) { animation-delay: 0s; }
+.typing .dots3 span:nth-child(2) { animation-delay: .15s; }
+.typing .dots3 span:nth-child(3) { animation-delay: .30s; }
 
 @keyframes txm-dot {
-  0%,
-  70%,
-  100% {
-    transform: translateY(0) scale(0.9);
-    opacity: 0.55;
-  }
-  35% {
-    transform: translateY(-3px) scale(1.05);
-    opacity: 1;
-  }
+  0%, 70%, 100% { transform: translateY(0) scale(.9); opacity: .55; }
+  35%          { transform: translateY(-3px) scale(1.05); opacity: 1; }
 }
 
 /* tinh chỉnh trong bubble để luôn căn giữa đẹp */
-#typingRow .bubble {
-  padding: 8px 14px;
-}
+#typingRow .bubble { padding: 8px 14px; }
 /* Greeting hero text above composer */
-.greeting {
-  position: absolute;
-  left: 50%;
-  top: 18%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-  color: #0f172a; /* slate-900 */
-  pointer-events: none; /* không chắn click */
+.greeting{
+  position:absolute;
+  left:50%;
+  top:18%;
+  transform:translateX(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:6px;
+  color:#0f172a;            /* slate-900 */
+  pointer-events:none;      /* không chắn click */
 }
-.greeting .g-title-xl {
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  font-size: clamp(26px, 4.6vw, 44px);
-  line-height: 1.1;
+.greeting .g-title-xl{
+  font-weight:400;
+  letter-spacing:-0.02em;
+  font-size:clamp(26px,4.6vw,44px);
+  line-height:1.1;
 }
 /* Nền trang dịu hơn để tách ô nhập */
-body {
-  background: var(--page-bg);
-}
+body{ background: var(--page-bg); }
 /* =======================
    Bubble effects (float OFF)
    ======================= */
 
 /* Tham số chỉnh nhanh */
-:root {
-  --float-amp: 4px; /* không dùng nữa, để nguyên */
+:root{
+  --float-amp: 4px;          /* không dùng nữa, để nguyên */
   --float-shadow: 12px;
   --float-dur: 6s;
-  --enter-dur: 260ms; /* pop-in */
-  --hover-lift: 4px; /* nhấc lên khi hover */
+  --enter-dur: 260ms;         /* pop-in */
+  --hover-lift: 4px;          /* nhấc lên khi hover */
 }
 
 /* Pop-in khi bubble mới render (GIỮ) */
-@keyframes txm-pop-in {
-  0% {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-    filter: saturate(0.9);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(-2px) scale(1.01);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: none;
-  }
+@keyframes txm-pop-in{
+  0%   {opacity:0; transform:translateY(6px) scale(.98); filter:saturate(.9)}
+  60%  {opacity:1; transform:translateY(-2px) scale(1.01)}
+  100% {opacity:1; transform:translateY(0) scale(1); filter:none}
 }
 
 /* (TẮT) Keyframes txm-float vẫn giữ nguyên nhưng sẽ không được gọi */
 /* Giữ lại để tránh lỗi tham chiếu nếu nơi khác import */
-@keyframes txm-float {
-  0% {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-  }
-  50% {
-    transform: translateY(calc(-1 * var(--float-amp)));
-    box-shadow: 0 var(--float-shadow) 24px rgba(0, 0, 0, 0.06);
-  }
-  100% {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-  }
+@keyframes txm-float{
+  0%   {transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.06)}
+  50%  {transform:translateY(calc(-1 * var(--float-amp)));
+        box-shadow:0 var(--float-shadow) 24px rgba(0,0,0,.06)}
+  100% {transform:translateY(0); box-shadow:0 4px 10px rgba(0,0,0,.06)}
 }
 
 /* Áp dụng mặc định cho mọi bubble — TẮT float */
-.msg .bubble {
+.msg .bubble{
   will-change: transform, box-shadow;
-  animation: none !important; /* <— NGẮT txm-float */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  animation: none !important;                 /* <— NGẮT txm-float */
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
   animation-delay: 0s !important;
 }
 
 /* Khi mới thêm vào DOM — CHỈ pop-in 1 lần, KHÔNG float tiếp */
-.msg .bubble.is-enter {
-  animation: txm-pop-in var(--enter-dur) cubic-bezier(0.22, 1, 0.36, 1) 1 !important;
+.msg .bubble.is-enter{
+  animation: txm-pop-in var(--enter-dur) cubic-bezier(.22,1,.36,1) 1 !important;
 }
 
 /* Reduce motion: như cũ */
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce){
   .msg .bubble,
-  .msg .bubble.is-enter {
-    animation: none !important;
-    transition: none !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  .msg .bubble.is-enter{
+    animation:none !important;
+    transition:none !important;
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
   }
 }
 /* ===== Typing: Neo Dots — Lively ===== */
-:root {
-  --typing-size: 9px; /* đường kính chấm */
-  --typing-gap: 12px; /* khoảng cách giữa chấm */
-  --typing-color: #111827; /* màu chấm mặc định */
-  --typing-dur: 900ms; /* chu kỳ nhịp */
-  --typing-halo: rgba(99, 102, 241, 0.45); /* màu halo */
-  --typing-underline: rgba(99, 102, 241, 0.22);
+:root{
+  --typing-size: 9px;                 /* đường kính chấm */
+  --typing-gap: 12px;                 /* khoảng cách giữa chấm */
+  --typing-color: #111827;            /* màu chấm mặc định */
+  --typing-dur: 900ms;                /* chu kỳ nhịp */
+  --typing-halo: rgba(99,102,241,.45);/* màu halo */
+  --typing-underline: rgba(99,102,241,.22);
 }
 
-#typingRow .bubble {
+#typingRow .bubble{
   padding: 8px 16px;
   display: inline-flex;
   align-items: center;
 }
 
 /* khối chứa 3 chấm */
-.typing-neo {
+.typing-neo{
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -737,160 +683,108 @@ body {
 }
 
 /* underline có shimmer + parallax rất nhẹ */
-.typing-neo::after {
-  content: "";
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  bottom: -8px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--typing-underline),
-    transparent
-  );
+.typing-neo::after{
+  content:"";
+  position:absolute;
+  left:-4px; right:-4px; bottom:-8px;
+  height:2px; border-radius:2px;
+  background: linear-gradient(90deg, transparent, var(--typing-underline), transparent);
   animation: typing-underline 1600ms ease-in-out infinite;
-  pointer-events: none;
+  pointer-events:none;
 }
-@keyframes typing-underline {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: translateX(0);
-  }
-  50% {
-    opacity: 0.85;
-    transform: translateX(8px);
-  }
+@keyframes typing-underline{
+  0%,100%{ opacity:.35; transform:translateX(0) }
+  50%    { opacity:.85; transform:translateX(8px) }
 }
 
 /* chấm */
-.typing-neo .dot {
+.typing-neo .dot{
   position: relative;
   width: var(--typing-size);
   height: var(--typing-size);
   border-radius: 50%;
   background: var(--typing-color);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
-  transform: translateY(0) scale(0.88);
-  opacity: 0.7;
-  animation: typing-bounce var(--typing-dur) cubic-bezier(0.2, 0.65, 0.25, 1.35)
-    infinite;
+  box-shadow: 0 3px 10px rgba(0,0,0,.18);
+  transform: translateY(0) scale(.88);
+  opacity: .7;
+  animation: typing-bounce var(--typing-dur) cubic-bezier(.2,.65,.25,1.35) infinite;
   will-change: transform, opacity, filter;
 }
 
 /* halo phát sáng (parallax) */
-.typing-neo .dot::before {
-  content: "";
-  position: absolute;
-  inset: -8px;
+.typing-neo .dot::before{
+  content:"";
+  position:absolute; inset:-8px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    var(--typing-halo) 0%,
-    rgba(99, 102, 241, 0) 60%
-  );
+  background: radial-gradient(circle, var(--typing-halo) 0%, rgba(99,102,241,0) 60%);
   filter: blur(6px);
-  opacity: 0; /* sẽ tăng ở đỉnh */
+  opacity:.0;                         /* sẽ tăng ở đỉnh */
   transform: translateZ(0);
   transition: opacity 180ms ease;
 }
 
 /* lệch pha từng chấm + parallax ngang */
-.typing-neo .dot:nth-child(1) {
-  animation-delay: 0ms;
-}
-.typing-neo .dot:nth-child(2) {
-  animation-delay: 120ms;
-}
-.typing-neo .dot:nth-child(3) {
-  animation-delay: 240ms;
-}
+.typing-neo .dot:nth-child(1){ animation-delay: 0ms;    }
+.typing-neo .dot:nth-child(2){ animation-delay: 120ms;  }
+.typing-neo .dot:nth-child(3){ animation-delay: 240ms;  }
 
-@keyframes typing-bounce {
-  0%,
-  100% {
-    transform: translateY(0) translateX(0) scale(0.88);
-    opacity: 0.7;
-    filter: none;
+@keyframes typing-bounce{
+  0%,100%{
+    transform: translateY(0) translateX(0) scale(.88);
+    opacity:.7; filter: none;
   }
-  35% {
+  35%{
     transform: translateY(-5px) translateX(2px) scale(1.08);
-    opacity: 1;
-    filter: hue-rotate(6deg); /* đổi sắc rất nhẹ */
+    opacity:1;
+    filter: hue-rotate(6deg);         /* đổi sắc rất nhẹ */
   }
 }
 
 /* tăng halo đúng thời điểm đỉnh */
-.typing-neo .dot {
+.typing-neo .dot{
   animation-name: typing-bounce, typing-halo;
   animation-duration: var(--typing-dur), var(--typing-dur);
-  animation-timing-function: cubic-bezier(0.2, 0.65, 0.25, 1.35), ease-in-out;
+  animation-timing-function: cubic-bezier(.2,.65,.25,1.35), ease-in-out;
   animation-iteration-count: infinite, infinite;
 }
-@keyframes typing-halo {
-  0%,
-  100% {
-  }
-  35% {
-  }
+@keyframes typing-halo{
+  0%,100%{ }
+  35%{ }
 }
 /* dùng selector để bật opacity halo tại đỉnh */
-.typing-neo .dot:nth-child(1) {
-  --phase: 0ms;
-}
-.typing-neo .dot:nth-child(2) {
-  --phase: 120ms;
-}
-.typing-neo .dot:nth-child(3) {
-  --phase: 240ms;
-}
-.typing-neo .dot {
+.typing-neo .dot:nth-child(1){ --phase: 0ms; }
+.typing-neo .dot:nth-child(2){ --phase: 120ms; }
+.typing-neo .dot:nth-child(3){ --phase: 240ms; }
+.typing-neo .dot{
   /* “hack” nhỏ: theo dõi state bằng drop-shadow biến thiên */
-  filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  filter: drop-shadow(0 0 0 rgba(0,0,0,0));
 }
-.typing-neo .dot::before {
+.typing-neo .dot::before{
   animation: haloPulse var(--typing-dur) ease-in-out infinite;
 }
-.typing-neo .dot:nth-child(2)::before {
-  animation-delay: 120ms;
-}
-.typing-neo .dot:nth-child(3)::before {
-  animation-delay: 240ms;
-}
-@keyframes haloPulse {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  35% {
-    opacity: 0.9;
-  }
+.typing-neo .dot:nth-child(2)::before{ animation-delay: 120ms; }
+.typing-neo .dot:nth-child(3)::before{ animation-delay: 240ms; }
+@keyframes haloPulse{
+  0%,100%{ opacity:0 }
+  35%    { opacity:.9 }
 }
 
 /* Bubble người dùng (nền vàng): chấm đậm hơn để tương phản */
 .msg.user #typingRow .dot,
-.msg.user .typing-neo .dot {
-  background: #0f172a;
+.msg.user .typing-neo .dot{
+  background:#0f172a;
 }
-.msg.user .typing-neo::after {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 0, 0, 0.18),
-    transparent
-  );
+.msg.user .typing-neo::after{
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,.18), transparent);
 }
 
 /* Reduce motion */
-@media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce){
   .typing-neo::after,
   .typing-neo .dot,
-  .typing-neo .dot::before {
-    animation: none !important;
-    opacity: 0.85;
+  .typing-neo .dot::before{
+    animation:none !important;
+    opacity:.85;
   }
 }
 .input-wrap:focus-within {
@@ -992,6 +886,7 @@ body {
   display: flex;
   align-items: flex-end;
   background: #f8f9fa;
+  ;
   border: 1px solid #e0e0e0;
   border-radius: 28px;
   padding: 10px 16px;
@@ -1000,11 +895,10 @@ body {
 
 .input-wrap:focus-within {
   border-color: #c0c4cc;
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
 }
 
-.attach-btn,
-.send-btn {
+.attach-btn, .send-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1017,12 +911,8 @@ body {
   transition: background 0.2s;
 }
 
-.attach-btn:hover {
-  background: #e9ecef;
-}
-.send-btn:hover {
-  background: #e9ecef;
-}
+.attach-btn:hover { background: #e9ecef; }
+.send-btn:hover { background: #e9ecef; }
 
 .send-btn i {
   width: 20px;
@@ -1032,8 +922,8 @@ body {
 /* Mỗi message của user xếp dọc: file-pill ở trên, bubble ở dưới */
 .msg.user {
   display: flex;
-  flex-direction: column; /* quan trọng: xếp các con theo cột */
-  align-items: flex-end; /* căn về bên phải như cũ */
+  flex-direction: column;   /* quan trọng: xếp các con theo cột */
+  align-items: flex-end;    /* căn về bên phải như cũ */
 }
 
 /* Có thể giữ lại style pill cũ */
