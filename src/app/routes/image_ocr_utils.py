@@ -26,6 +26,7 @@ except Exception as e:
     print("=" * 60)
 
 
+
 # ======================================================================
 # 1. TRANSFORM / TILE ẢNH
 # ======================================================================
@@ -336,6 +337,7 @@ def cleanup_ocr_text(text: str) -> str:
     text = _fix_water_invoice(text)
     text = _fix_ocr_letter_digit_confusion(text)
     text = re.sub(r'[ \t]{2,}', ' ', text)
+    print(f"text.strip(): {text.strip()}")
     return text.strip()
 
 # ======================================================================

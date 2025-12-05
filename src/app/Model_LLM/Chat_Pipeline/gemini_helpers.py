@@ -277,7 +277,7 @@ def _is_query_about_uploaded_file(
     if not gclient or not user_text.strip():
         return False
 
-    query = user_text.strip()[:15000]
+    query = user_text.strip()[:1500]
     prompt = f"""Bạn là chuyên gia phân tích ngữ cảnh chat.
     Có file đã được upload trong phiên này.
     Người dùng có đang hỏi cụ thể về nội dung của file đó không?

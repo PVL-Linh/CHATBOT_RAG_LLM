@@ -24,6 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+ENV TESSERACT_PATH=/usr/bin/tesseract
+
 RUN set -eux; \
   printf '%s\n' \
     'Acquire::Retries "5";' \
