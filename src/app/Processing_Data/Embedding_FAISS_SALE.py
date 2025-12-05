@@ -6,19 +6,20 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
-from pdf_to_text import process_documents
 import torch
 
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 800))
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
+from xlxs_to_txt import batch_convert_to_txt
+
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
-DOCS_DIR = "./Documents/Sales"
+DOCS_SALES_DIR = "./Documents/Sales"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_SALES"))
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_SALES"))
+DATA_SALES_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/SALES"))
+INDEX_SALES_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_SALES"))
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
 def _select_device() -> str:
@@ -85,13 +86,11 @@ def _load_text_files(folder: str) -> Dict[str, str]:
     print(f"📄 Loaded {loaded} .txt files (skipped {skipped}, excluded: {', '.join(sorted(excluded))}) from {folder}")
     return data
 
-def main_All():
-    os.makedirs(INDEX_DIR, exist_ok=True)
-    os.makedirs(DATA_DIR, exist_ok=True)
-    process_documents(DOCS_DIR, DATA_DIR)
-    raw = _load_text_files(DATA_DIR)
+def main_Sales():
+    batch_convert_to_txt(DOCS_SALES_DIR, DATA_SALES_DIR)
+    raw = _load_text_files(DATA_SALES_DIR)
     if not raw:
-        raise RuntimeError(f"Không có TXT/CSV trong {DATA_DIR}")
+        raise RuntimeError(f"Không có TXT/CSV trong {DATA_SALES_DIR}")
     docs: List[Document] = []
     for fname, text in raw.items():
         t = _clean_text(text)
@@ -125,5 +124,5 @@ def main_All():
 
     print(f"⚙️ Building FAISS… (chunks={len(chunks)}, size={CHUNK_SIZE}, overlap={CHUNK_OVERLAP}, device={device}, batch={batch})")
     vs = FAISS.from_documents(chunks, emb)
-    vs.save_local(INDEX_DIR)
-    print(f"✅ FAISS index saved at: {INDEX_DIR}")
+    vs.save_local(INDEX_SALES_DIR)
+    print(f"✅ FAISS index saved at: {INDEX_SALES_DIR}")

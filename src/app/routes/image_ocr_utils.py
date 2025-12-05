@@ -8,16 +8,23 @@ from typing import List, Tuple, Optional
 from PIL import Image, ImageEnhance
 from torchvision import transforms as T
 from torchvision.transforms.functional import InterpolationMode
-
 try:
     import pytesseract
-    pytesseract.get_tesseract_version()
+    import os
+    TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.exists(TESSERACT_PATH):
+        pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
+    print(f"[OCR] Using tesseract at: {pytesseract.pytesseract.tesseract_cmd}")
+    print(f"[OCR] Version: {pytesseract.get_tesseract_version()}")
+
 except Exception as e:
     print("=" * 60)
-    print("CẢNH BÁO: Tesseract OCR chưa được cài đặt (image_ocr_utils.py)!")
-    print("→ Vui lòng cài từ: https://github.com/UB-Mannheim/tesseract/wiki")
-    print("→ Sau đó thêm C:\\Program Files\\Tesseract-OCR vào PATH")
+    print("CẢNH BÁO: Tesseract OCR chưa hoạt động trong image_ocr_utils.py!")
+    print(f"Lỗi: {e}")
+    print("→ Kiểm tra lại đường dẫn TESSERACT_PATH trỏ tới tesseract.exe")
     print("=" * 60)
+
 
 # ======================================================================
 # 1. TRANSFORM / TILE ẢNH

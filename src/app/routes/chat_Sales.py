@@ -1,11 +1,11 @@
 from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from app.Login.login_required import build_principal_from_session, login_required
-from app.Model_LLM.Chat_Pipeline.chat_handler_WareHouse import handle_chat_request
+from app.Model_LLM.Chat_Pipeline.chat_handler import handle_chat_request
 
-bp = Blueprint("WAREHOUSE", __name__)
+bp = Blueprint("Sales", __name__)
 
-@bp.route("/api/WAREHOUSE/chat", methods=["POST"])
+@bp.route("/api/Sales/chat", methods=["POST"])
 @login_required(api=True)
 def chat_api():
     data = request.get_json(force=True) or {}

@@ -8,6 +8,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings 
 from pdf_to_text import process_documents
 import torch
+
+from xlxs_to_txt import batch_convert_to_txt
 try:
     from .Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText #, processing_Data_dockinkToText_v2
     from .DataBase_Web.web_crawler import web_crawler
@@ -15,8 +17,8 @@ except ImportError:
     from DataBase_Web.web_crawler import web_crawler
     from Prosessing_HR.pdf_to_text_HR import processing_Data_doclinkToText #, processing_Data_dockinkToText_v2
 
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 800))
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
@@ -24,7 +26,7 @@ SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 DOCS_DIR = "./Documents/Data_All"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_All"))
-INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_Data_All"))
+INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_All"))
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
 def _select_device() -> str:
@@ -95,6 +97,7 @@ def main_All():
     os.makedirs(INDEX_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
     process_documents(DOCS_DIR, DATA_DIR)
+    batch_convert_to_txt(input_dir="./Documents/Sales", output_dir="./src/app/Data/Data_All/Sales")
     process_documents(input_folder="./Documents/Regulation", output_folder="./src/app/Data/Data_All/Regulation")
     process_documents(input_folder="./Documents/Warehouse", output_folder="./src/app/Data/Data_All/Warehouse")
     process_documents(input_folder="./Documents/Accountant", output_folder="./src/app/Data/Data_All/Accountant")

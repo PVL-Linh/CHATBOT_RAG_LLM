@@ -24,9 +24,8 @@ instance/
 # Bỏ Data trong src
 src/app/Data/
 src/test.py
-src/uploads/
 src/app/uploads/
-
+app/uploads/
 
 # Python
 __pycache__/

@@ -9,15 +9,15 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from pdf_to_text import process_documents
 import torch
 
-CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 800))
-CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 250))
+CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE", 1000))
+CHUNK_OVERLAP = int(os.environ.get("CHUNK_OVERLAP", 300))
 if CHUNK_OVERLAP >= CHUNK_SIZE:
     CHUNK_OVERLAP = max(0, CHUNK_SIZE // 4)
 
 SEPARATORS = ["\n\n", "\n", ". ", " ", ""]
 DOCS_DIR = "./Documents/Warehouse"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/Data_WAREHOUSE"))
+DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../Data/WAREHOUSE"))
 INDEX_DIR = os.path.abspath(os.path.join(BASE_DIR, "../vectorstore/FAISS_Vector_WAREHOUSE"))
 EMBED_MODEL_NAME = os.environ.get("EMBED_MODEL_DIR", "./src/app/models/local_multilingual_e5_large")
 
