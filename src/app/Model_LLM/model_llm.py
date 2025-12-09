@@ -365,12 +365,12 @@ def LLM_model(
 
     # ====== Gemini ======
     gclient = get_gemini_client()
-    GEMINI_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.0-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.5-flash")
     GEN_CFG = genai_types.GenerateContentConfig(
         temperature=float(os.getenv("GEMINI_TEMPERATURE", "0.2")),
-        max_output_tokens=int(os.getenv("GEMINI_MAX_OUTPUT", "6000")),
+        max_output_tokens=int(os.getenv("GEMINI_MAX_OUTPUT", "4000")),
         top_p=float(os.getenv("GEMINI_TOP_P", "0.95")),
-        top_k=int(os.getenv("GEMINI_TOP_K", "40")),
+        top_k=int(os.getenv("GEMINI_TOP_K", "20")),
     )
 
     return embeddings, vector_store, retriever, gclient, GEMINI_MODEL, GEN_CFG
