@@ -30,8 +30,8 @@ class Chat_HR:
     HR_OUTPUT = os.getenv("HR_OUTPUT", "AUTO")
     RAG_TOPK_HR = int(os.getenv("RAG_TOPK_HR", 40))
     USE_RERANK_HR = os.getenv("USE_RERANK_HR", "1") == "1"
-    GEMINI_MODEL_ANSWER_HR = os.environ.get("GEMINI_MODEL_ANSWER_HR", "gemini-2.0-flash")
-    GEMINI_MODEL_JUDGE_HR  = os.environ.get("GEMINI_MODEL_JUDGE_HR",  "gemini-2.0-flash")
+    GEMINI_MODEL_ANSWER_HR = os.environ.get("GEMINI_MODEL_ANSWER_HR", "gemma-3-4b-it")
+    GEMINI_MODEL_JUDGE_HR  = os.environ.get("GEMINI_MODEL_JUDGE_HR",  "gemma-3-4b-it")
 
 
 class hybrid_retriever:
