@@ -365,7 +365,7 @@ def LLM_model(
 
     # ====== Gemini ======
     gclient = get_gemini_client()
-    GEMINI_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.5-flash")
+    GEMINI_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemma-3-4b-it")
     GEN_CFG = genai_types.GenerateContentConfig(
         temperature=float(os.getenv("GEMINI_TEMPERATURE", "0.2")),
         max_output_tokens=int(os.getenv("GEMINI_MAX_OUTPUT", "4000")),
