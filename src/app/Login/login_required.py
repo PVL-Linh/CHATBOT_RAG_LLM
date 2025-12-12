@@ -45,6 +45,8 @@ def _split_roles(val) -> List[str]:
 def _normalize_role_token(tok: str) -> str:
     """Chuẩn hoá các biến thể 'manager sales' -> 'manager_sales', 'sale' -> 'sales'."""
     t = (tok or "").strip().lower().replace("-", "_")
+    if t in {"admin", "manager"}:
+        return "admin"
     if t in {"managermarketing", "manager_marketing", "manager marketing"}:
         return "manager_marketing"
     if t in {"managersales", "manager_sales", "manager sales", "lead_sale"}:
