@@ -10,10 +10,11 @@ from torchvision import transforms as T
 from torchvision.transforms.functional import InterpolationMode
 try:
     import pytesseract
-    import os
-    TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    if os.path.exists(TESSERACT_PATH):
-        pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+    import os  # giữ lại hoặc để ngoài cũng được
+
+    # Ưu tiên env var → Docker sẽ dùng /usr/bin/tesseract, local Windows có thể set env nếu muốn
+    tesseract_cmd = os.getenv("TESSERACT_PATH", "tesseract")
+    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
     print(f"[OCR] Using tesseract at: {pytesseract.pytesseract.tesseract_cmd}")
     print(f"[OCR] Version: {pytesseract.get_tesseract_version()}")
@@ -22,8 +23,11 @@ except Exception as e:
     print("=" * 60)
     print("CẢNH BÁO: Tesseract OCR chưa hoạt động trong image_ocr_utils.py!")
     print(f"Lỗi: {e}")
-    print("→ Kiểm tra lại đường dẫn TESSERACT_PATH trỏ tới tesseract.exe")
+    print("→ Docker/Linux: phải có package tesseract-ocr + tesseract-ocr-vie")
+    print("→ Windows local: set env TESSERACT_PATH='C:\\Program Files\\Tesseract-OCR\\tesseract.exe'")
+    print("   hoặc thêm đường dẫn vào PATH")
     print("=" * 60)
+
 
 
 # ======================================================================
@@ -336,6 +340,7 @@ def cleanup_ocr_text(text: str) -> str:
     text = _fix_water_invoice(text)
     text = _fix_ocr_letter_digit_confusion(text)
     text = re.sub(r'[ \t]{2,}', ' ', text)
+    print(f"text.strip(): {text.strip()}")
     return text.strip()
 
 # ======================================================================

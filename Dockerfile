@@ -24,6 +24,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+ENV TESSERACT_PATH=/usr/bin/tesseract
+
 RUN set -eux; \
   printf '%s\n' \
     'Acquire::Retries "5";' \
@@ -53,7 +55,7 @@ RUN set -eux; \
       if apt-get update && \
          apt-get install -y --no-install-recommends \
            build-essential git curl libgomp1 ffmpeg poppler-utils \
-           tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd; \
+           tesseract-ocr tesseract-ocr-eng tesseract-ocr-vie tesseract-ocr-osd; \
       then \
         return 0; \
       fi; \
