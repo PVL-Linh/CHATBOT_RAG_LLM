@@ -51,7 +51,7 @@ def _normalize_role_token(tok: str) -> str:
         return "manager_marketing"
     if t in {"managersales", "manager_sales", "manager sales", "lead_sale"}:
         return "manager_sales"
-    if t in {"sale", "staff_sale"}:
+    if t in {"sale", "staff_sale", "staff_purchaser"}:
         return "sales"
     if t in {"accounting", "accountant"}:
         return "accountant"
