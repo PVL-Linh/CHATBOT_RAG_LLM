@@ -232,17 +232,17 @@ def login():
             next_url=next_url
         ), 401
 
-    # Đăng nhập thành công → set session
     session.clear()
     session.permanent = remember
 
     session["user"] = user["username"]
-    session["role"] = user.get("role", "")          # role chính
-    session["roles"] = user.get("roles", [])        # list role đầy đủ
+    session["role"] = user.get("role", "")
+    session["roles"] = user.get("roles", [])
+    session["roles"] = user.get("roles", [])
     session["staff_id"] = user.get("staff_id") or user.get("account_id") or user["username"]
     session["user_id"] = session["staff_id"]
     session["account_id"] = user.get("account_id")
-    session["messages"] = []  # cho chat
+    session["messages"] = []
 
     print(f"[auth.login] Đăng nhập thành công: {username} | Roles: {session['roles']}")
 
