@@ -1,14 +1,59 @@
-from flask import Blueprint, render_template, session
+from __future__ import annotations
+from flask import Blueprint, render_template, session, redirect, url_for
+
 from app.Login.login_required import login_required
-from app.services.history import get_history
+
+# Import từ wrapper history mới (Supabase version)
+from app.services.wrapper import (
+    get_current_session_id,
+    get_session_messages,
+    get_sessions_list,
+)
 
 bp = Blueprint('pages', __name__)
 
+
+# ===============================================
+# Trang Chat Chính - Hỗ trợ session hiện tại
+# ===============================================
 @bp.route('/', methods=['GET'])
 @login_required
 def chat():
-    return render_template('home/chat.html', messages=get_history()[-30:], current_user=session.get('user'), active='chat')
+    """
+    Trang chat chính: redirect về session hiện tại (mới nhất).
+    """
+    current_session_id = get_current_session_id()
+    return redirect(url_for('pages.chat_session', session_id=current_session_id))
 
+
+@bp.route('/chat/<session_id>', methods=['GET'])
+@login_required
+def chat_session(session_id: str):
+    """
+    Trang chat chi tiết theo session_id.
+    Nếu session không tồn tại → vẫn load session mới nhất để tránh lỗi.
+    """
+    # Lấy danh sách tất cả session của user
+    sessions = get_sessions_list()
+
+    # Kiểm tra session_id có hợp lệ không
+    valid_session_ids = {s["id"] for s in sessions}
+    if session_id not in valid_session_ids:
+        # Nếu không hợp lệ → chuyển về session mới nhất
+        fallback_session_id = get_current_session_id()
+        return redirect(url_for('pages.chat_session', session_id=fallback_session_id))
+
+    # Load tin nhắn trong session hiện tại (50 tin nhắn gần nhất)
+    messages = get_session_messages(session_id, limit=60)
+
+    return render_template(
+        'home/chat.html',
+        messages=messages,
+        sessions=sessions,                  # để làm sidebar
+        current_session_id=session_id,
+        current_user=session.get('user'),
+        active='chat'
+    )
 
 @bp.route('/marketing', methods=['GET'])
 @login_required(roles=['marketing', 'manager_marketing', 'sales', 'manager_sales'])
