@@ -174,15 +174,18 @@ def get_ctx(session_id: str) -> Dict[str, Any]:
     if not raw:
         return {}
     try:
-        # THÊM: xử lý trường hợp raw là list (lỗi cũ khi lưu history sai)
         if isinstance(raw, list):
-            print(f"[redis_ctx] WARNING: ctx raw là list thay vì dict cho session {session_id}. Reset ctx.")
-            return {}
-        
-        # Bình thường: raw là str (JSON) hoặc dict
-        if isinstance(raw, dict):
+            print(f"[redis_ctx] FIXING corrupted ctx (list → dict) for session {session_id}")
+            raw = {}
+            _client().setex(_k(session_id), DEFAULT_TTL, json.dumps(raw, ensure_ascii=False))
+        elif isinstance(raw, dict):
             return raw
-        return json.loads(raw)
+        else:
+            raw = json.loads(raw)
+        return raw if isinstance(raw, dict) else {}
+    except Exception as e:
+        print(f"[redis_ctx] Parse ctx error for {session_id}: {e}")
+        return {}
     except Exception as e:
         print(f"[redis_ctx] Parse ctx error for {session_id}: {e}")
         return {}
