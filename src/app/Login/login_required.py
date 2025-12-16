@@ -314,6 +314,7 @@ CORE_ROLES = {  # 🔴 SỬA: Đổi tên, chỉ dùng map logic, không filter 
     "manager_sales",
     "accountant",
     "warehouse",
+    "manager",
 }
 
 _ROLE_SPLIT_RE = re.compile(r"[,\s;|/]+")
@@ -339,6 +340,8 @@ def _normalize_role_token(tok: str) -> str:
         return "manager_marketing"
     if t in {"managersales", "manager_sales", "manager sales", "lead_sale"}:
         return "manager_sales"
+    if t in {"manager", "admin"}:
+        return "admin"
     if t in {"sale", "staff_sale"}:
         return "sales"
     if t in {"accounting", "accountant"}:
