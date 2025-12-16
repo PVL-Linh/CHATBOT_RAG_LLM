@@ -174,13 +174,21 @@ def get_ctx(session_id: str) -> Dict[str, Any]:
     if not raw:
         return {}
     try:
-        if isinstance(raw, (dict, list)):
+        if isinstance(raw, list):
+            print(f"[redis_ctx] FIXING corrupted ctx (list → dict) for session {session_id}")
+            raw = {}
+            _client().setex(_k(session_id), DEFAULT_TTL, json.dumps(raw, ensure_ascii=False))
+        elif isinstance(raw, dict):
             return raw
-        return json.loads(raw)
-    except Exception:
-        # nếu parse lỗi thì coi như không có ctx
+        else:
+            raw = json.loads(raw)
+        return raw if isinstance(raw, dict) else {}
+    except Exception as e:
+        print(f"[redis_ctx] Parse ctx error for {session_id}: {e}")
         return {}
-
+    except Exception as e:
+        print(f"[redis_ctx] Parse ctx error for {session_id}: {e}")
+        return {}
 
 def set_ctx(session_id: str, data: Dict[str, Any]) -> None:
     """Ghi context (dict) vào Redis/DictRedis với TTL."""

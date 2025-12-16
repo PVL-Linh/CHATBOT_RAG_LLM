@@ -4,7 +4,7 @@ import time
 from typing import Any, Dict, List, Optional
 from langchain_core.documents import Document
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
-from app.services.history import get_history
+from app.services.wrapper import get_current_session_id, get_session_messages
 from app.Model_LLM.hybrid_retriever import rerank, TOP_K
 from .utils_text import strip_source_citations, _is_internal_prompt_text
 from .session_doc_vs import _get_session_doc_vs
@@ -235,34 +235,38 @@ def _rag_answer(
     extra_file_rule = ""
     if is_file_question:
         extra_file_rule = """
-QUAN TRỌNG (OVERRIDE):
-- Người dùng đang hỏi về NỘI DUNG CÁC FILE đã upload (ảnh / pdf / docx / txt).
-- Tuyệt đối KHÔNG coi đây là lời chào đơn thuần.
-- KHÔNG sử dụng câu chào mặc định kiểu "Tôi là trợ lý ảo nội bộ của Tiximax Logistics. Tôi có thể hỗ trợ gì?".
-- Bắt buộc phải:
-  + Mô tả hoặc tóm tắt nội dung CÁC FILE đang được dùng làm ngữ cảnh.
-  + Nếu người dùng liệt kê nhiều file (ví dụ: "vi-du-phieu-chi.jpg", "giay-bao-dien.png"),
-    hãy trình bày RIÊNG cho từng file, ghi rõ file nào là file nào.
-"""
+    QUAN TRỌNG (OVERRIDE):
+    - Người dùng đang hỏi về NỘI DUNG CÁC FILE đã upload (ảnh / pdf / docx / txt).
+    - Tuyệt đối KHÔNG coi đây là lời chào đơn thuần.
+    - KHÔNG sử dụng câu chào mặc định kiểu "Tôi là trợ lý ảo nội bộ của Tiximax Logistics. Tôi có thể hỗ trợ gì?".
+    - Bắt buộc phải:
+    + Mô tả hoặc tóm tắt nội dung CÁC FILE đang được dùng làm ngữ cảnh.
+    + Nếu người dùng liệt kê nhiều file (ví dụ: "vi-du-phieu-chi.jpg", "giay-bao-dien.png"),
+        hãy trình bày RIÊNG cho từng file, ghi rõ file nào là file nào.
+    """
 
     # SYSTEM_PRIMER là guardrail, không phải để AI mô tả lại.
     system_block = f"""{SYSTEM_PRIMER}
-{lang_instruction}
-{extra_file_rule}
-"""
+    {lang_instruction}
+    {extra_file_rule}
+    """
 
     user_block = f"""[NGỮ CẢNH NỘI BỘ / DỮ LIỆU THAM KHẢO]
-{context_hint}
+    {context_hint}
 
-[NGƯỜI DÙNG HỎI]
-{user_text}
-"""
+    [NGƯỜI DÙNG HỎI]
+    {user_text}
+    """
 
-    # Lịch sử chat (không include system)
+    current_sid = session_id or get_current_session_id()
+    recent_messages = get_session_messages(current_sid, limit=100)
+
     hist_msgs = [
-        m for m in get_history()
-        if m.get("role") in ("user", "assistant")
+        {"role": m["role"], "content": m["content"]}
+        for m in recent_messages
+        if m.get("role") in ("user", "assistant") and m.get("content")
     ]
+
     contents = _to_gemini_history_no_system(hist_msgs)
 
     # Thêm lượt cuối: system + context + câu hỏi

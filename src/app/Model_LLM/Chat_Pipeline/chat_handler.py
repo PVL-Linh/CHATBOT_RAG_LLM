@@ -5,8 +5,6 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from flask import session
-from langchain_core.documents import Document
-from app.services.history import get_history, add_message, create_new_session
 from app.Helpers.prompt_internal import SYSTEM_PRIMER
 from app.Model_LLM.model_llm import LLM_model
 from app.config.paths import DATA_DIR, FAISS_ALL_DIR
@@ -14,7 +12,13 @@ from app.Model_LLM.Chat_Database.db_router import handle_db_message
 from app.Model_LLM.Chat_Database.redis_ctx import update_ctx
 from app.config.settings import Chat_engine
 from app.routes.image_ocr_utils import is_image_path
-
+from app.services.wrapper import (
+    get_current_session_id,
+    get_session_messages,
+    add_message,
+    create_new_session,
+    validate_and_fix_session_id,
+)
 from .utils_text import (
     strip_source_citations,
     _auto_detect_lang,
@@ -105,18 +109,17 @@ def handle_chat_request(
     full_start = time.time()
 
     # 0. Tạo session_id nếu chưa có
-    if not session_id:
-        try:
-            info = create_new_session(
-                session.get("user") or "",
-                title="Cuộc trò chuyện mới",
-            )
-            session_id = info.get("session_id") or str(time.time())
-        except Exception:
-            session_id = str(time.time())
+    # if not session_id:
+    #     title = user_text[:50].strip() or "Cuộc trò chuyện mới"
+    #     info = create_new_session(title=title)
+    #     session_id = validate_and_fix_session_id(session_id)
+    actual_session_id = add_message("user", user_text, session_id=session_id)
+    session_id = actual_session_id
+    from app.Model_LLM.Chat_Database.redis_ctx import clear_ctx
+    clear_ctx(session_id)
 
     # Lưu message user vào history
-    add_message("user", user_text, session_id=session_id)
+    # add_message("user", user_text, session_id=session_id)
 
     # 1. Load LLM + RAG
     bm25_folder = bm25_folder or DATA_DIR
@@ -127,8 +130,26 @@ def handle_chat_request(
     )
 
     # 2. Load context & history
-    ctx = _load_ctx(session_id)
-    history_msgs = _get_history_msgs_for_ctx()
+    ctx = {}
+    history_msgs = _get_history_msgs_for_ctx(session_id)
+    safe_history = []
+    for msg in history_msgs:
+        if isinstance(msg, dict):
+            content = msg.get("content")
+            # FIX: xử lý cả trường hợp content là list (lỗi cũ)
+            if isinstance(content, list):
+                text_parts = []
+                for part in content:
+                    if isinstance(part, dict):
+                        text_parts.append(part.get("text", "") or part.get("inline_data", "") or "")
+                    else:
+                        text_parts.append(str(part))
+                content = " ".join(filter(None, text_parts))
+            elif not isinstance(content, str):
+                content = str(content or "")
+            msg = {**msg, "content": content}
+        safe_history.append(msg)
+    history_msgs = safe_history
 
     # 3. Editor (dịch / viết lại câu trả lời trước)
     analysis = _analyze_followup_and_lang(
@@ -481,10 +502,10 @@ def handle_chat_request(
 
     # 10. Smart summary (hook, để nguyên nếu sau này cần)
     try:
-        history = get_history()
-        user_count = len([m for m in history if m.get("role") == "user"])
-        if user_count >= 7 and user_count % 7 == 0:
-            # có thể trigger auto-summary ở đây
+        msgs = get_session_messages(session_id, limit=200)
+        user_count = len([m for m in msgs if m["role"] == "user"])
+        if user_count >= 10 and user_count % 10 == 0:
+            # Trigger auto-summary nếu cần
             pass
     except Exception:
         pass
