@@ -1,27 +1,18 @@
 from __future__ import annotations
-
 import os
 import errno
 from pathlib import Path
-from typing import Optional, Tuple, Union, Any
-
-# --- Optional: Ẩn warnings deprecate từ huggingface_hub ---
+from typing import Optional, Tuple, Union
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="huggingface_hub.file_download")
 warnings.filterwarnings("ignore", category=UserWarning, module="huggingface_hub.file_download")
-
-# --- LangChain Embeddings (ưu tiên lib mới, fallback lib cũ) ---
 try:
     from langchain_huggingface import HuggingFaceEmbeddings
 except Exception:
     from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.embeddings import Embeddings as LCEmbeddings
 from langchain_community.vectorstores import FAISS
-
-# Hybrid retriever (BM25 + semantic)
 try:
-    # NÊN có signature:
-    # def build_hybrid_retriever(vs, folder: Optional[str] = None, corpus_path: Optional[str] = None)
     from app.Model_LLM.hybrid_retriever import build_hybrid_retriever
 except Exception:
     build_hybrid_retriever = None
@@ -30,9 +21,9 @@ from google import genai as genai_new
 from google.genai import types as genai_types
 from huggingface_hub import snapshot_download
 
-from app.config.paths import EMBED_MODEL_DIR, EMBED_REVISION, EMBED_MODEL_ID, FAISS_ALL_DIR
+from app.config.paths import EMBED_MODEL_DIR, EMBED_REVISION, EMBED_MODEL_ID
 from app.config.settings import Gemini_Config_LLM
-from app.config.llm_paths import PATHS  # <-- class cấu hình đường dẫn
+from app.config.llm_paths import PATHS
 
 
 # =========================
@@ -40,7 +31,6 @@ from app.config.llm_paths import PATHS  # <-- class cấu hình đường dẫn
 # =========================
 def _repo_root() -> Path:
     """Gốc repo để join path tương đối khi REPO_ROOT chưa set."""
-    # __file__ = .../src/app/Model_LLM/model_llm.py
     return Path(__file__).resolve().parents[3]
 
 
@@ -360,7 +350,7 @@ def LLM_model(
     else:
         retriever = vector_store.as_retriever(
             search_type="mmr",
-            search_kwargs={"k": 11},
+            search_kwargs={"k": 7},
         )
 
     # ====== Gemini ======

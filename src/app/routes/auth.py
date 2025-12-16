@@ -99,7 +99,6 @@ def login():
     session["user"] = user["username"]
     session["role"] = user.get("role", "")
     session["roles"] = user.get("roles", [])
-    session["roles"] = user.get("roles", [])
     session["staff_id"] = user.get("staff_id") or user.get("account_id") or user["username"]
     session["user_id"] = session["staff_id"]
     session["account_id"] = user.get("account_id")

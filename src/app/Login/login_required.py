@@ -305,7 +305,7 @@ except Exception:
 # 1. Role hợp lệ + helper chuẩn hoá – 🔴 SỬA: CORE_ROLES không dùng filter
 # ============================================================
 
-CORE_ROLES = {  # 🔴 SỬA: Đổi tên, chỉ dùng map logic, không filter custom
+CORE_ROLES = {
     "marketing",
     "manager_marketing",
     "sales",
@@ -347,7 +347,7 @@ def _normalize_role_token(tok: str) -> str:
         return "hr"
     if t in {"staff_warehouse_domestic", "staff_warehouse_foreign"}:
         return "warehouse"
-    return t.lower()  # 🔴 SỬA: Giữ nguyên custom nếu không map
+    return t.lower()
 
 
 def normalize_roles(raw_roles) -> List[str]:
@@ -357,7 +357,6 @@ def normalize_roles(raw_roles) -> List[str]:
       - đầu ra: list role không trùng, đã normalize, GIỮ CUSTOM (không filter)
     """
     tokens = [_normalize_role_token(x) for x in _split_roles(raw_roles)]
-    # 🔴 SỬA: Bỏ filter: tokens = [r for r in tokens if r in ALLOWED_ROLES or r == "admin"]
     seen: Set[str] = set()
     out: List[str] = []
     for r in tokens:
@@ -369,26 +368,10 @@ def normalize_roles(raw_roles) -> List[str]:
 
 
 # ============================================================
-# 2. get_user: lấy user từ bảng account thật (API Supabase) – 🔴 SỬA: Hash + nhiều cột
+# 2. get_user: lấy user từ bảng account thật (API Supabase) 
 # ============================================================
 
 def get_user(username: str) -> Optional[Dict[str, Any]]:
-    """
-    Lấy user thật từ bảng `account` qua API.
-
-    Trả về dict chuẩn hoá:
-      {
-        "id": account_id or username,
-        "username": str,
-        "password_hash": str (BCrypt hash),  # 🔴 SỬA: Hash thay plain
-        "role": str (role chính),
-        "roles": [list role đã normalize, GIỮ CUSTOM],
-        "staff_id": staff_id or account_id or username,
-        "account_id": account_id,
-        "status": "HOAT_DONG" / "BI_KHOA" / ... (nếu có)
-      }
-    hoặc None nếu không tìm thấy.
-    """
     username = (username or "").strip()
     if not username:
         return None
