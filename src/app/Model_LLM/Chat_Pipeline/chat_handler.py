@@ -109,13 +109,17 @@ def handle_chat_request(
     full_start = time.time()
 
     # 0. Tạo session_id nếu chưa có
-    if not session_id:
-        title = user_text[:50].strip() or "Cuộc trò chuyện mới"
-        info = create_new_session(title=title)
-        session_id = validate_and_fix_session_id(session_id)
+    # if not session_id:
+    #     title = user_text[:50].strip() or "Cuộc trò chuyện mới"
+    #     info = create_new_session(title=title)
+    #     session_id = validate_and_fix_session_id(session_id)
+    actual_session_id = add_message("user", user_text, session_id=session_id)
+    session_id = actual_session_id
+    from app.Model_LLM.Chat_Database.redis_ctx import clear_ctx
+    clear_ctx(session_id)
 
     # Lưu message user vào history
-    add_message("user", user_text, session_id=session_id)
+    # add_message("user", user_text, session_id=session_id)
 
     # 1. Load LLM + RAG
     bm25_folder = bm25_folder or DATA_DIR
@@ -126,8 +130,26 @@ def handle_chat_request(
     )
 
     # 2. Load context & history
-    ctx = _load_ctx(session_id) or {}
+    ctx = {}
     history_msgs = _get_history_msgs_for_ctx(session_id)
+    safe_history = []
+    for msg in history_msgs:
+        if isinstance(msg, dict):
+            content = msg.get("content")
+            # FIX: xử lý cả trường hợp content là list (lỗi cũ)
+            if isinstance(content, list):
+                text_parts = []
+                for part in content:
+                    if isinstance(part, dict):
+                        text_parts.append(part.get("text", "") or part.get("inline_data", "") or "")
+                    else:
+                        text_parts.append(str(part))
+                content = " ".join(filter(None, text_parts))
+            elif not isinstance(content, str):
+                content = str(content or "")
+            msg = {**msg, "content": content}
+        safe_history.append(msg)
+    history_msgs = safe_history
 
     # 3. Editor (dịch / viết lại câu trả lời trước)
     analysis = _analyze_followup_and_lang(

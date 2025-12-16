@@ -577,7 +577,7 @@ class HybridRetrieverManager:
         try:
             k = int(top_k if top_k is not None else self.cfg.rerank_top_k)
         except Exception:
-            k = 14
+            k = 7
 
         if (not self.cfg.use_rerank) or (not docs):
             return [(d, None) for d in docs[:k]]
@@ -631,7 +631,7 @@ def build_hybrid_retriever(
     API cũ:
 
         retriever = build_hybrid_retriever(vs)
-
+t
     API mới (override folder/corpus):
 
         retriever = build_hybrid_retriever(

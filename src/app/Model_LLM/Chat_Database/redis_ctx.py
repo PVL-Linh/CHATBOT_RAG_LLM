@@ -174,13 +174,18 @@ def get_ctx(session_id: str) -> Dict[str, Any]:
     if not raw:
         return {}
     try:
-        if isinstance(raw, (dict, list)):
+        # THÊM: xử lý trường hợp raw là list (lỗi cũ khi lưu history sai)
+        if isinstance(raw, list):
+            print(f"[redis_ctx] WARNING: ctx raw là list thay vì dict cho session {session_id}. Reset ctx.")
+            return {}
+        
+        # Bình thường: raw là str (JSON) hoặc dict
+        if isinstance(raw, dict):
             return raw
         return json.loads(raw)
-    except Exception:
-        # nếu parse lỗi thì coi như không có ctx
+    except Exception as e:
+        print(f"[redis_ctx] Parse ctx error for {session_id}: {e}")
         return {}
-
 
 def set_ctx(session_id: str, data: Dict[str, Any]) -> None:
     """Ghi context (dict) vào Redis/DictRedis với TTL."""

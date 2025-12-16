@@ -1142,6 +1142,11 @@ MY_SALE_INTENTS = {
     "my_orders_month",
     "my_unpaid_orders_month",
     "my_orders_status_month",
+    "my_wait_buy_month",
+    "my_purchased_month",
+    "my_wait_packing_month",
+    "my_in_transit_month",
+    "my_wait_delivery_month",
 }
 
 TEAM_LEAD_INTENTS = {
@@ -1362,7 +1367,11 @@ _STAFF_RE = re.compile(r"nhân viên|sale", re.IGNORECASE)
 _MOST_UNPAID_RE = re.compile(r"nhiều đơn chưa thanh toán nhất", re.IGNORECASE)
 _PAID_RE = re.compile(r"đã thanh toán|đã thu tiền|đã trả hết", re.IGNORECASE)
 _MOST_PAID_RE = re.compile(r"nhiều đơn đã thanh toán nhất", re.IGNORECASE)
-
+_WAIT_BUY_RE = re.compile(r"\b(chờ mua|cho mua|đang chờ mua)\b", re.IGNORECASE)
+_PURCHASED_RE = re.compile(r"\b(đã mua|da mua)\b", re.IGNORECASE)
+_WAIT_PACKING_RE = re.compile(r"\b(chờ đóng gói|cho dong goi|đang chờ đóng gói)\b", re.IGNORECASE)
+_IN_TRANSIT_RE = re.compile(r"\b(đang chuyển|dang chuyen|trên đường|tren duong|bay)\b", re.IGNORECASE)
+_WAIT_DELIVERY_RE = re.compile(r"\b(chờ giao|cho giao|đang giao)\b", re.IGNORECASE)
 
 def _detect_sale_my_orders_intent(
     text: str, scope: Dict[str, Any]
@@ -1390,6 +1399,16 @@ def _detect_sale_my_orders_intent(
     # Kế tiếp: trạng thái
     if _MY_STATUS_RE.search(t):
         return "my_orders_status_month"
+    if _WAIT_BUY_RE.search(t):
+        return "my_wait_buy_month"
+    if _PURCHASED_RE.search(t):
+        return "my_purchased_month"
+    if _WAIT_PACKING_RE.search(t):
+        return "my_wait_packing_month"
+    if _IN_TRANSIT_RE.search(t):
+        return "my_in_transit_month"
+    if _WAIT_DELIVERY_RE.search(t):
+        return "my_wait_delivery_month"
 
     # Mặc định: danh sách đơn
     return "my_orders_month"
@@ -2107,7 +2126,6 @@ def _handle_sale_my_orders(
         f"✅ Intent SALE nội bộ: {sale_intent} (conf={conf:.2f}).",
         {"intent": sale_intent, "confidence": conf, "scope": scope},
     )
-
 
 # =========================
 # HANDLER RIÊNG CHO LEAD_SALE: "đơn theo tuyến team tôi ..."

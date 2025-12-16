@@ -87,7 +87,7 @@
   function lucideRefresh() {
     try {
       if (window.lucide) window.lucide.createIcons();
-    } catch { }
+    } catch {}
   }
 
   function lockScroll(on) {
@@ -132,7 +132,7 @@
   function saveSessions(list) {
     try {
       localStorage.setItem(SESS_KEY, JSON.stringify(list));
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function loadMsgs(id) {
@@ -147,7 +147,7 @@
     try {
       if (msgs.length > MAX_LOCAL_MSGS) msgs = msgs.slice(-MAX_LOCAL_MSGS);
       localStorage.setItem(msgKey(id), JSON.stringify(msgs));
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function anyLocalMessagesExist() {
@@ -167,7 +167,7 @@
           localStorage.removeItem(k);
         }
       });
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function ensureLocalSchema() {
@@ -198,14 +198,14 @@
   function exposeCurrentSessionId() {
     try {
       window.currentSessionId = currentSessionId;
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function setSessionHistoryRef(arr) {
     sessionHistory = Array.isArray(arr) ? arr : [];
     try {
       window.sessionHistory = sessionHistory;
-    } catch (_) { }
+    } catch (_) {}
   }
 
   // FIXED: Proper session adoption without message merging
@@ -342,7 +342,7 @@
       wrapper.querySelectorAll("pre code").forEach((block) => {
         try {
           hljs.highlightElement(block);
-        } catch (_) { }
+        } catch (_) {}
       });
     }
     return wrapper;
@@ -384,16 +384,21 @@
         const header = document.createElement("div");
         header.className = "msg-file-header";
 
-        filesToShow.forEach(file => {
-          const name = file.name || file.filename || file.file || file.path || "";
+        filesToShow.forEach((file) => {
+          const name =
+            file.name || file.filename || file.file || file.path || "";
           const ext = (name.split(".").pop() || "").toUpperCase();
-          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP", "BMP"].includes(ext);
+          const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP", "BMP"].includes(
+            ext
+          );
 
           // Tạo pill như ban đầu – giữ nguyên 100% thiết kế cũ
           const pill = document.createElement("div");
           pill.className = "file-pill msg-file-pill";
           pill.innerHTML = `
-            <i data-lucide="${isImage ? "image" : "file-text"}" class="file-icon"></i>
+            <i data-lucide="${
+              isImage ? "image" : "file-text"
+            }" class="file-icon"></i>
             <span class="file-name">${htmlEscape(name)}</span>
           `;
 
@@ -426,8 +431,10 @@
 
       // Highlight code nếu có
       if (window.hljs) {
-        contentWrapper.querySelectorAll("pre code").forEach(block => {
-          try { hljs.highlightElement(block); } catch { }
+        contentWrapper.querySelectorAll("pre code").forEach((block) => {
+          try {
+            hljs.highlightElement(block);
+          } catch {}
         });
       }
       return;
@@ -451,7 +458,12 @@
     const getDelay = (char) => {
       if (/[.,!?;]/.test(char)) return 50;
       if (/[\u4e00-\u9fff]/.test(char)) return 25;
-      if (/[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/.test(char)) return 25;
+      if (
+        /[àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/.test(
+          char
+        )
+      )
+        return 25;
       if (/\s/.test(char)) return 8;
       return 11;
     };
@@ -472,8 +484,10 @@
           contentWrapper.innerHTML = fullNode.innerHTML;
 
           if (window.hljs) {
-            contentWrapper.querySelectorAll("pre code").forEach(block => {
-              try { hljs.highlightElement(block); } catch { }
+            contentWrapper.querySelectorAll("pre code").forEach((block) => {
+              try {
+                hljs.highlightElement(block);
+              } catch {}
             });
           }
 
@@ -496,7 +510,9 @@
       }
 
       // Cập nhật UI với nội dung hiện tại + con trỏ nháy
-      const temp = renderMarkdown(textSoFar + "<span class='typing-cursor'>|</span>");
+      const temp = renderMarkdown(
+        textSoFar + "<span class='typing-cursor'>|</span>"
+      );
       contentWrapper.innerHTML = temp.innerHTML;
       scrollToBottom();
 
@@ -717,7 +733,7 @@
         node.classList.add("active");
         node.scrollIntoView({ block: "nearest" });
       }
-    } catch (_) { }
+    } catch (_) {}
   }
 
   function renderItemNode(s) {
@@ -730,8 +746,9 @@
       row.className = "row";
       row.innerHTML = `
           <div class="name">${htmlEscape(s.title || "Cuộc trò chuyện")}</div>
-          <div class="meta">${s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
-        }</div>`;
+          <div class="meta">${
+            s.last_ts ? new Date(s.last_ts).toLocaleString() : ""
+          }</div>`;
       const acts = document.createElement("div");
       acts.className = "acts";
       acts.innerHTML = `
@@ -765,8 +782,8 @@
           <div class="chat-avatar"><i data-lucide="user"></i></div>
           <div class="chat-text">
             <div class="chat-title">${htmlEscape(
-      s.title || "Cuộc trò chuyện"
-    )}</div>
+              s.title || "Cuộc trò chuyện"
+            )}</div>
             <div class="chat-preview">${htmlEscape(s.preview || "")}</div>
             <div class="chat-time">${formatTime(s.last_ts)}</div>
           </div>
@@ -833,7 +850,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: id, title: newTitle }),
       });
-    } catch { }
+    } catch {}
 
     // Update local mirrors
     updateLocalSession(id, (s) => {
@@ -897,7 +914,7 @@
         // Không còn phiên nào -> tạo phiên mới
         try {
           await createNewSession();
-        } catch { }
+        } catch {}
       }
     }
 
@@ -915,7 +932,7 @@
       await startRenderSessions();
       closeContainer();
       return;
-    } catch { }
+    } catch {}
 
     // Try API directly
     try {
@@ -935,7 +952,7 @@
           return;
         }
       }
-    } catch { }
+    } catch {}
 
     // Local fallback
     ensureSession(true);
@@ -986,7 +1003,7 @@
         closeContainer();
         return;
       }
-    } catch { }
+    } catch {}
 
     // Local fallback
     openLocalSession(sessionId);
@@ -1015,7 +1032,7 @@
           );
         }
       }
-    } catch { }
+    } catch {}
   }
 
   function showMessages(messages) {
@@ -1047,7 +1064,7 @@
         mutator(arr[idx]);
         saveSessions(arr);
       }
-    } catch { }
+    } catch {}
   }
 
   function clearLocal(id) {
@@ -1056,10 +1073,10 @@
         (s) => String(s.id) !== String(id)
       );
       saveSessions(filtered);
-    } catch { }
+    } catch {}
     try {
       localStorage.removeItem(MSG_KEY_PREFIX + id);
-    } catch { }
+    } catch {}
   }
 
   // =========================
@@ -1135,7 +1152,7 @@
             );
           }
         }
-      } catch (_) { }
+      } catch (_) {}
     }
   }
   // =========================
@@ -1148,7 +1165,7 @@
     }
 
     const formData = new FormData();
-    selectedFiles.forEach(file => {
+    selectedFiles.forEach((file) => {
       formData.append("file", file); // backend: request.files.getlist("file")
     });
 
@@ -1270,7 +1287,10 @@
         removeTyping();
         const msg = err && err.message ? err.message : String(err);
         // Nếu lỗi do uploadSelectedFiles ném ra → msg đã có tiền tố "Upload file thất bại"
-        addMessage("assistant", msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`);
+        addMessage(
+          "assistant",
+          msg.startsWith("Upload file") ? msg : `Lỗi kết nối: ${msg}`
+        );
         console.error(err);
       } finally {
         // 4. Bỏ khóa dù thành công hay thất bại
@@ -1347,7 +1367,7 @@
       render: startRenderSessions,
       create: createNewSession,
     };
-  } catch (_) { }
+  } catch (_) {}
 
   // =========================
   // Initialization
@@ -1360,7 +1380,7 @@
     try {
       currentSessionId = localStorage.getItem(CURR_KEY) || null;
       exposeCurrentSessionId();
-    } catch (_) { }
+    } catch (_) {}
 
     // Bootstrap from server, fallback to local
     bootstrapFromLocalThenServer();
@@ -1368,51 +1388,58 @@
     // Auto-render history if container is visible
     useIdle(startRenderSessions);
   });
-  const fileInput = document.getElementById('fileInput');
-  const filePreviewContainer = document.getElementById('filePreviewContainer');
-  const filePreview = document.getElementById('filePreview');
+  const fileInput = document.getElementById("fileInput");
+  const filePreviewContainer = document.getElementById("filePreviewContainer");
+  const filePreview = document.getElementById("filePreview");
   let selectedFiles = []; // Lưu danh sách file để gửi đi
 
-  fileInput.addEventListener('change', function () {
+  fileInput.addEventListener("change", function () {
     const newFiles = Array.from(this.files);
 
     // Thêm file mới vào danh sách (tránh trùng)
-    newFiles.forEach(file => {
-      if (!selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+    newFiles.forEach((file) => {
+      if (
+        !selectedFiles.some(
+          (f) =>
+            f.name === file.name &&
+            f.size === file.size &&
+            f.lastModified === file.lastModified
+        )
+      ) {
         selectedFiles.push(file);
       }
     });
 
     renderFilePills();
-    this.value = ''; // reset input để có thể chọn lại cùng file
+    this.value = ""; // reset input để có thể chọn lại cùng file
   });
 
   function renderFilePills() {
-    filePreview.innerHTML = '';
+    filePreview.innerHTML = "";
 
     if (selectedFiles.length === 0) {
-      filePreviewContainer.style.display = 'none';
+      filePreviewContainer.style.display = "none";
       return;
     }
 
-    filePreviewContainer.style.display = 'flex';
-    filePreviewContainer.style.display = 'block';
+    filePreviewContainer.style.display = "flex";
+    filePreviewContainer.style.display = "block";
 
     selectedFiles.forEach((file, index) => {
-      const pill = document.createElement('div');
-      pill.className = 'file-pill';
+      const pill = document.createElement("div");
+      pill.className = "file-pill";
 
-      const ext = file.name.split('.').pop().toUpperCase();
-      const isImage = ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'].includes(ext);
+      const ext = file.name.split(".").pop().toUpperCase();
+      const isImage = ["JPG", "JPEG", "PNG", "GIF", "WEBP"].includes(ext);
 
       pill.innerHTML = `
-      <i data-lucide="${isImage ? 'image' : 'file-text'}"></i>
+      <i data-lucide="${isImage ? "image" : "file-text"}"></i>
       <span class="file-name" title="${file.name}">${file.name}</span>
       <button type="button" class="remove-file" data-index="${index}">×</button>
     `;
 
       // Xử lý xóa file
-      pill.querySelector('.remove-file').addEventListener('click', () => {
+      pill.querySelector(".remove-file").addEventListener("click", () => {
         selectedFiles.splice(index, 1);
         renderFilePills();
       });
@@ -1423,24 +1450,27 @@
     lucide.createIcons();
   }
   // ======== CHỐNG BACK VÀO LẠI CHAT – PHIÊN BẢN HOÀN HẢO ========
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // Chỉ đẩy thêm 1 lớp bảo vệ nữa (đã có 3 lớp từ post_login rồi)
-    history.pushState(null, '', '/login');
+    history.pushState(null, "", "/login");
 
     // Chỉ kích hoạt ép về login khi người dùng THỰC SỰ bấm Back
     // (không kích hoạt ngay khi load trang)
     const handleBack = () => {
       // Nếu đang ở trang chat và bấm Back → ép về login
-      if (window.location.pathname === '/' || window.location.pathname === '/chat') {
-        window.location.replace('/login');
+      if (
+        window.location.pathname === "/" ||
+        window.location.pathname === "/chat"
+      ) {
+        window.location.replace("/login");
       }
     };
 
-    window.addEventListener('popstate', handleBack);
+    window.addEventListener("popstate", handleBack);
 
     // Cleanup (tốt hơn)
-    window.addEventListener('beforeunload', () => {
-      window.removeEventListener('popstate', handleBack);
+    window.addEventListener("beforeunload", () => {
+      window.removeEventListener("popstate", handleBack);
     });
   });
 })();
