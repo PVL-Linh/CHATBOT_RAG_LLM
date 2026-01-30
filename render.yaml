@@ -22,11 +22,11 @@ services:
 
       # ---- Security / Session ----
       - key: SECRET_KEY
-        sync: false
+        generateValue: true
       - key: ADMIN_USERNAME
         value: admin
       - key: ADMIN_PASSWORD
-        sync: false
+        value: changeme123
       - key: ADMIN_ROLES
         value: admin,manager_marketing
 
@@ -64,4 +64,8 @@ services:
 
       # ---- API keys ----
       - key: GEMINI_API_KEY
-        sync: false
+        value: YOUR_GEMINI_API_KEY_HERE
+      - key: SUPABASE_URL
+        value: https://your-project.supabase.co
+      - key: SUPABASE_KEY
+        value: YOUR_SUPABASE_KEY_HERE
