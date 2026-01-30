@@ -38,9 +38,9 @@ services:
       - key: TRANSFORMERS_CACHE
         value: /var/lib/tiximax/models/cache
       - key: EMBED_MODEL_ID
-        value: intfloat/multilingual-e5-base
+        value: intfloat/multilingual-e5-small
       - key: EMBED_MODEL_PATH
-        value: /var/lib/tiximax/models/local_multilingual_e5_base
+        value: /var/lib/tiximax/models/local_multilingual_e5_small
       - key: EMBED_DEVICE
         value: cpu
 
