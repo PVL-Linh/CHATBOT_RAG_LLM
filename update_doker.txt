@@ -1,0 +1,29 @@
+* lưu ý: Sau khi sửa Dockerfile: ( cập nhật file )
+
+docker compose build --no-cache tiximax
+docker compose up -d
+
+==================================================
+
+docker compose down --remove-orphans
+docker compose up -d --build
+
+# kiểm tra cả 2 service đã có
+
+docker compose config --services
+
+# phải thấy: tiximax cloudflared
+
+docker compose ps
+
+docker compose logs cloudflared --tail=200
+
+# hoặc trích dòng có link:
+
+docker compose logs cloudflared | Select-String 'trycloudflare.com' | Select -Last 1  # đổi link
+
+
+
+fix error
+
+cloudflared tunnel --url http://localhost:10000 --protocol http2

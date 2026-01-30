@@ -1,0 +1,663 @@
+/* static/css/marketing/marketing.css */
+/* ===== Scope & tokens chung cho trang Marketing (KHÔNG gồm Facebook) ===== */
+#marketing {
+  --bg: #f7f7fb;
+  --card: #fff;
+  --bd: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --border: #e5e7eb;
+  --soft: #f9fafb;
+  --accent: #2563eb;
+
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+}
+
+#marketing *,
+#marketing *::before,
+#marketing *::after {
+  box-sizing: border-box;
+}
+
+/* ======================= */
+/* Layout tổng             */
+/* ======================= */
+#marketing.chat-area {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+
+#marketing .layout {
+  display: grid;
+  height: 100%;
+  min-height: 0; /* cho phép con cuộn */
+}
+
+#marketing .content {
+  padding: 1px;
+}
+
+/* Lưới 2 cột tổng quát của trang (không ép chiều cao) */
+#marketing .content > .grid-2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1px;
+  min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  #marketing .content > .grid-2 {
+    grid-template-columns: minmax(0, 520px) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  #marketing .content > .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+#marketing .content > .grid-2 > * {
+  min-width: 0;
+}
+
+/* Card cơ bản */
+#marketing .card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+/* ======================= */
+/* Form & controls chung   */
+/* ======================= */
+#marketing label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 6px;
+}
+
+#marketing textarea,
+#marketing input,
+#marketing select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  background: #fff;
+}
+
+#marketing textarea:focus,
+#marketing input:focus,
+#marketing select:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+}
+
+#marketing hr {
+  border: none;
+  border-top: 1px solid var(--bd);
+  margin: 10px 0;
+}
+
+/* Grid nhỏ trong form (dùng chung) */
+#marketing .card .grid-2,
+#marketing .card .grid-2.tight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: auto;
+  min-height: auto;
+}
+
+/* Nút primary tự thiết kế (song song với .btn của Bootstrap) */
+#marketing .btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+#marketing .btn-primary:hover {
+  opacity: 0.95;
+}
+
+/* Meta */
+#marketing .meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* ======================= */
+/* Tabs chung              */
+/* ======================= */
+#marketing .tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+#marketing .tab {
+  border: 1px solid var(--bd);
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#marketing .tab.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+#marketing .tab-panel {
+  display: none;
+}
+#marketing .tab-panel.active {
+  display: block;
+}
+
+/* ======================= */
+/* Tiện ích hiển thị       */
+/* ======================= */
+#marketing .used-prompt {
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 10px;
+  overflow: auto;
+  max-width: 100%;
+  white-space: pre-wrap;
+}
+
+#marketing .clamp-pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Loader cục bộ dùng chung */
+#marketing .has-local-loader {
+  position: relative;
+}
+#marketing .local-loader {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  z-index: 10;
+}
+#marketing .local-loader.hidden {
+  display: none;
+}
+
+#marketing .spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 4px solid #c7d2fe;
+  border-top-color: #2563eb;
+  animation: marketing-spin 1s linear infinite;
+}
+@keyframes marketing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toolbar & nút ghost (dùng chung) */
+#marketing .result-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 12px;
+}
+
+#marketing .btn-ghost {
+  --btn-bg: transparent;
+  --btn-bd: var(--border);
+  --btn-tx: var(--text);
+  appearance: none;
+  border: 1px solid var(--btn-bd);
+  background: var(--btn-bg);
+  color: var(--btn-tx);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease, transform 0.05s ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+#marketing .btn-ghost:hover {
+  background: var(--soft);
+  border-color: #d1d5db;
+}
+#marketing .btn-ghost:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+#marketing .btn-ghost:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  outline-offset: 2px;
+}
+#marketing .btn-ghost[disabled],
+#marketing .btn-ghost.is-loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+#marketing .btn-ghost i,
+#marketing .btn-ghost svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Placeholder chung */
+#marketing input::placeholder,
+#marketing textarea::placeholder {
+  color: #9aa3af;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 14px;
+  opacity: 1;
+  letter-spacing: 0.1px;
+}
+#marketing #fb_product::placeholder {
+  color: #6b7280;
+} /* giữ nguyên nếu bạn còn dùng lớp này ngoài FB */
+#marketing #fb_customer::placeholder {
+  color: #94a3b8;
+}
+
+/* Markdown spacing – siết khoảng cách */
+#marketing .markdown p {
+  margin: 6px 0;
+}
+#marketing .markdown ul,
+#marketing .markdown ol {
+  margin: 8px 0 8px 18px;
+}
+#marketing .markdown li {
+  margin: 2px 0;
+  line-height: 1.4;
+}
+
+/* Topbar chung của trang */
+#marketing .topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 16px;
+  border-bottom: 1px solid white;
+  background: var(--bg);
+}
+
+/* Saved list chung */
+#marketing .saved-list .item {
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+#marketing .saved-list .item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+#marketing .saved-list .item-title {
+  font-weight: 700;
+}
+#marketing .saved-list .item-time {
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 8px;
+}
+#marketing .saved-list .item-actions {
+  display: flex;
+  gap: 8px;
+}
+#marketing .saved-list .item-body {
+  display: none;
+  border-top: 1px solid var(--bd);
+  padding: 12px;
+}
+#marketing .saved-list .item.open .item-body {
+  display: block;
+}
+
+/* Toast chung */
+#marketing .toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: #111827;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 9999;
+}
+#marketing .toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Lưới ảnh & item dùng chung (không riêng FB) */
+.img-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.img-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ======================= */
+/* Planner (pl_*)          */
+/* ======================= */
+
+/* Spacing nhỏ */
+#pl_form_card > * + * {
+  margin-top: 10px;
+}
+#pl_result > * + *,
+#pl_saved > * + * {
+  margin-top: 10px;
+}
+
+#pl_form_card h2 {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin-bottom: 6px;
+}
+
+/* Goals block */
+#pl_goals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  #pl_goals {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+#pl_goals .goal-card {
+  display: block;
+  margin: 0;
+  border: 1px solid var(--bd, #e5e7eb);
+  border-radius: 12px;
+  background: #fff;
+  height: 100%;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+#pl_goals .goal-card .inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  height: 100%;
+  box-sizing: border-box;
+}
+#pl_goals .gicon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  line-height: 1;
+}
+#pl_goals .gtext {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.4;
+}
+#pl_goals .goal-card > input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+#pl_goals .goal-card:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+}
+#pl_goals .goal-card.is-active {
+  border-color: #60a5fa;
+  background: #eef6ff;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
+}
+#pl_goals .goal-card.is-active .gicon {
+  background: #dbeafe;
+}
+
+/* Tones */
+#pl_tones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 10px;
+}
+#pl_tones label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border: 1px dashed var(--bd, #e5e7eb);
+  border-radius: 10px;
+  background: #fff;
+  width: 70%;
+}
+#pl_tones input {
+  width: auto;
+}
+
+/* Form controls chung (bổ sung) */
+#marketing .grid-2.tight {
+  align-items: start;
+}
+#marketing .grid-2.tight label {
+  display: flex;
+  flex-direction: column;
+}
+#marketing .grid-2.tight label.tight {
+  display: grid;
+  grid-template-rows: minmax(2.6em, auto) auto;
+  line-height: 1.3;
+}
+#marketing .grid-2.tight label.tight > select,
+#marketing .grid-2.tight label.tight > input,
+#marketing .grid-2.tight label.tight > textarea {
+  margin-top: 8px;
+}
+#marketing .grid-2.tight select,
+#marketing .grid-2.tight input,
+#marketing .grid-2.tight textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tabs & panel phải của Planner */
+.tabs[data-scope="pl"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+.tabs[data-scope="pl"] .tab,
+.tabs[data-scope="pl"] .btn-ghost {
+  min-width: 0;
+}
+#marketing .card:has(.tabs[data-scope="pl"]) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#pl_result,
+#pl_saved {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Result box & scroll chung */
+.result-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.result-scroll {
+  height: 87vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  background: var(--surface, #fff);
+}
+
+/* Nội dung kết quả chung */
+#pl_out {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+#pl_out pre,
+#pl_out code {
+  white-space: pre-wrap;
+  max-width: 100%;
+}
+#pl_out img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ======================= */
+/* Rephrase (re_*)         */
+/* ======================= */
+#rephrase #re_result .markdown.result-scroll {
+  height: 87vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#rephrase #re_saved_list {
+  max-height: 48vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#rephrase .tab-panel {
+  min-height: 0;
+}
+
+/* ======================= */
+/* TikTok (tk_*)           */
+/* ======================= */
+#tiktok #tk_result .markdown.result-scroll {
+  max-height: 43vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#tiktok #tk_saved_list {
+  max-height: 43vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#tiktok .tab-panel {
+  min-height: 0;
+}
+
+/* ======================= */
+/* FAB (fab_*)             */
+/* ======================= */
+#fab #fab_result .markdown.result-scroll {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#fab #fab_saved_list {
+  max-height: 37vh;
+  overflow-y: auto;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+#fab .tab-panel {
+  min-height: 0;
+}
+#fb_result_md .fb-block > strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+#fb_result_md .fb-lines {
+  display: block;
+}
+#fb_result_md .fb-lines > div {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0.15rem 0;
+}
+#fb_result_md .hashtags {
+  margin-top: 0.35rem;
+  color: #16a34a;
+  font-weight: 600;
+}
+#fb_result_md p {
+  white-space: normal !important;
+}

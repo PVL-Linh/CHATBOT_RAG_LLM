@@ -1,0 +1,34 @@
+services:
+  app:
+    build: .
+    container_name: tiximax_app
+    env_file: .env
+    restart: unless-stopped
+    # Mount các dữ liệu cần persist / lớn
+    volumes:
+      - ./instance:/app/instance
+      - ./src/app/vectorstore:/app/src/app/vectorstore
+      - ./src/uploads:/app/src/uploads
+      - ./src/app/models/local_multilingual_e5_large:/app/src/app/models/local_multilingual_e5_large:ro
+    networks: [web]
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [web]
+
+networks:
+  web:
+
+volumes:
+  caddy_data:
+  caddy_config:

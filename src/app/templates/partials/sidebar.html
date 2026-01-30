@@ -1,0 +1,137 @@
+{# templates/partials/sidebar.html #}
+<aside id="sidebar" class="sidebar">
+  <div class="s-header">
+    <button
+      id="sbToggle"
+      class="sb-handle sb-toggle"
+      type="button"
+      title="Thu gọn/Mở rộng"
+      aria-pressed="false"
+      aria-controls="sidebar"
+    >
+      <i data-lucide="menu"></i>
+    </button>
+    <img
+      class="logo"
+      src="{{ url_for('static', filename='images/logo.png') }}"
+      alt="Tiximax"
+    />
+  </div>
+
+  {# --- Chuẩn hoá roles từ session (gộp 'sale' -> 'sales') --- #}
+  {% set r1 = (session.get('role') or '') | replace(';', ',') | replace('|', ',') | replace('/', ',') | replace(' ', ',') | lower %}
+  {% set r2 = (session.get('roles') or []) | join(',') | replace(';', ',') | replace('|',',') | replace('/', ',') | replace(' ', ',') | lower %}
+  {% set r_all = (',' ~ r1 ~ ',' ~ r2 ~ ',') | replace(',,', ',') | replace(',,', ',') | replace(',sale,', ',sales,') %}
+  
+  {# --- Quyền suy diễn theo yêu cầu --- #}
+  {% set is_admin = (',admin,' in r_all) %}
+  {% set mgr_mkt = (',manager_marketing,'in r_all) %}
+  {% set mgr_sales = (',manager_sales,' in r_all) %}
+  {% set is_mkt= (',marketing,' in r_all) or mgr_mkt %}
+  {% set is_sales = (',sales,' in r_all) or mgr_sales %}
+  {% set is_mgr_any = mgr_mkt or mgr_sales %}
+  {% set can_marketing = is_admin or is_mkt or is_sales or is_mgr_any %}
+  {% set can_sales = is_admin or (',sales,' in r_all) or mgr_sales %}
+  {% set can_accountant = is_admin or (',accountant,' in r_all) or (',hr,' in r_all) %}
+  {% set can_warehouse = is_admin or (',warehouse,' in r_all) %}
+  {% set can_hr = is_admin or (',hr,' in r_all) or (',accountant,' in r_all) %}
+  {% set can_admin = is_admin %}
+
+  <nav class="s-nav">
+    {# MAIN Section #}
+    <div class="nav-section">
+      <div class="nav-label">MAIN</div>
+      <a class="nav-item {{ 'active' if active=='chat' else '' }}" href="{{ url_for('pages.chat') }}">
+        <i data-lucide="bot"></i>
+        <span>Tiximax Chatbot</span>
+      </a>
+      {% if can_marketing %}
+      <a class="nav-item {{ 'active' if active=='marketing' else '' }}" href="{{ url_for('pages.marketing') }}">
+        <i data-lucide="megaphone"></i>
+        <span>Marketing</span>
+      </a>
+      {% endif %}
+      
+      {% if can_sales %}
+      <a class="nav-item {{ 'active' if active=='sales' else '' }}" href="{{ url_for('pages.sales') }}">
+        <i data-lucide="shopping-cart"></i>
+        <span>Sales</span>
+      </a>
+      {% endif %}
+      
+      {% if can_warehouse %}
+      <a class="nav-item {{ 'active' if active=='warehouse' else '' }}" href="{{ url_for('pages.warehouse') }}">
+        <i data-lucide="warehouse"></i>
+        <span>Warehouse</span>
+      </a>
+      {% endif %}
+
+      {% if can_hr %}
+      <a class="nav-item {{ 'active' if active=='hr' else '' }}" href="{{ url_for('pages.hr') }}">
+        <i data-lucide="users"></i>
+        <span>Human Resources</span>
+      </a>
+      {% endif %}
+      
+      {% if can_accountant %}
+      <a class="nav-item {{ 'active' if active=='accountant' else '' }}" href="{{ url_for('pages.accountant') }}">
+        <i data-lucide="receipt"></i>
+        <span>Accountant</span>
+      </a>
+      {% endif %}
+      
+      {% if can_admin %}
+      <a class="nav-item {{ 'active' if active=='admin' else '' }}" href="{{ url_for('pages.admin') }}">
+        <i data-lucide="user-cog"></i>
+        <span>Admin</span>
+      </a>
+      {% endif %}
+    </div>
+
+    {# DEPARTMENTS Section #}
+    <div class="nav-section">
+      
+    </div>
+
+    {# TOOLS Section #}
+    <div class="nav-section">
+      <div class="nav-label">TOOLS</div>
+      
+      <a class="nav-item {{ 'active' if active=='transcribe' else '' }}" href="{{ url_for('stt.transcribe') }}">
+        <i data-lucide="mic"></i>
+        <span>Speech to Text</span>
+      </a>
+
+      <a class="nav-item {{ 'active' if active=='page_pdf_to_txt' else '' }}" href="{{ url_for('pdf.page_pdf_to_txt') }}">
+        <i data-lucide="file-text"></i>
+        <span>PDF to Text</span>
+      </a>
+
+      <a class="nav-item {{ 'active' if active=='guide' else '' }}" href="{{ url_for('pages.guide') }}">
+        <i data-lucide="book-open"></i>
+        <span>Use Instructions</span>
+      </a>
+      
+      {% if can_admin %}
+      <a class="nav-item {{ 'active' if active=='indexing_faiss' else '' }}" href="{{ url_for('pages.indexing_faiss') }}">
+        <i data-lucide="database"></i>
+        <span>Indexing (FAISS)</span>
+      </a>
+      {% endif %}
+
+      <a class="nav-item" target="_blank" href="https://docs.google.com/spreadsheets/d/1ANmiHR0bItaLruSLUmlv9TWqQxHgAIhFOdLQ0sm4knc/edit?usp=sharing">
+        <i data-lucide="clipboard-check"></i>
+        <span>Survey</span>
+      </a>
+    </div>
+  </nav>
+
+  <footer class="s-footer">
+      <div class="user" data-username="{{ session.get('user', 'User')[0] | upper }}">
+        <a class="logout-btn" href="{{ url_for('auth.logout') }}" title="Logout">
+        <i data-lucide="log-out"></i>
+        <span>Logout</span>
+      </a>
+      </div>
+  </footer>
+</aside>

@@ -1,0 +1,57 @@
+FORMAT_VERSION: TREE_V2
+FILE: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ.pdf
+SOURCE_PATH: E:\ChatAll\Documents\HR\Diagram\documents_workflowAndText\NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ.pdf
+TITLE: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ
+LANG: vi
+
+STEPS:
+- (none)
+
+TIMELINE:
+- (none)
+
+FORMS:
+- QUY TRÌNH THỬ VIỆC- HỌC VIỆC
+- Người thực hiện: NHÂN VIÊN HÀNH CHÍNH NHÂN SỰ
+- Số hồ sơ:TXM.QT 06
+- P. ĐT
+- NV mới
+- CB chuyên
+- môn/QLTT
+- P. NS
+- 1. Gửi TB CT thử việc
+- 2. ĐT định hướng
+- 3. ĐT chuyên môn
+- 4. Áp dụng, thực hành
+- 5. Tổng kết,
+- Đánh giá
+- Thành công
+- Thất bại
+- 6.1. Xin gia hạn thử
+- việc/Nghỉ việc
+- 6.2. Làm HĐ chính
+- thức
+- Mô tả chi tiết
+- P. NS thống báo đến cho NV mới được biết về chương trình đào tạo, thử việc, học việc kéo dài 2 tháng, kèm những tiêu chuẩn
+- KPIs, và các tiêu chí cần đạt để qua giai đoạn thử việc.
+- 2. P. ĐT tổ chức sắp xếp ĐT định hướng cho NV mới theo chương trình chung của công ty.
+- 3. CB chuyên môn chịu trách nhiệm với NV mới sẽ thêm NV mới vào các nhóm phòng ban, tạo tài khoản riêng theo từng phòng
+- ban của HT quản trị. Trực tiếp ĐT, hỗ trợ và hướng dẫn công việc cho những NV mới đảm bảo họ vượt qua được KPIs trong quá
+- trình thử việc. Tiêu chuẩn KPIs thử việc chi tiết của từng vị trí công việc xem trong Phụ lục 01 (QT… PL01).
+- 4. Đan xen với việc ĐT chuyên môn, NV mới phải thực hành, áp dụng ngay vào trong công việc thực tế. NV mới cần chăm chỉ,
+- chủ động tương tác, làm việc với các NV khác trong công ty để nhanh chóng hòa nhập văn hóa và công việc.
+- 5. Kết thúc thời gian thử việc, P. NS và cán bộ chuyên môn căn cứ vào mức độ hoàn thành KPIs thử việc và những biểu hiện,
+- thái độ của NV mới trong quá trình làm việc để đánh giá kết quả thử việc.
+- 6.1. Có 2 khả năng thất bại trong thời gian thử việc, một là NV thấy công việc không
+- phú hợp tự xin nghỉ, hai là NV không đạt được đầy đủ những tiêu chí, KPIs thử việc:
+- Đối với những NV xin nghỉ việc và những NV năng lực thực sự kém/thái độ, biểu hiện không tốt, đánh giá là không phù hợp và
+- không đáp ứng được yêu cầu công việc sẽ cho thôi việc.
+- Đối với những NV có thái độ, biểu hiện tốt, tha thiết muốn làm việc cho công ty, đạt tỷ lệ KPIs thấp hơn mức tiêu chuẩn tối đa
+- 5%, công ty sẽ cho NV gia hạn thêm thời gian thử việc, nhưng tối đa chỉ gia hạn được thêm 1 tháng, sau 1 tháng nếu tiếp tục
+- không đạt KPIs sẽ cho thôi việc.
+- Tất cả các NV cho nghỉ việc đều sẽ được lưu hồ sơ lại cơ sở dữ liệu của công ty.
+- 6.2. TH NV vượt qua thử việc thành công, P.NS sẽ tiến hành làm HĐ chính thức
+- Biểu mẫu
+- 1. Chương trình thử việc
+- 6.1. Đề xuất gia hạn thời gian thử việc
+- 6.2. HĐ lao động

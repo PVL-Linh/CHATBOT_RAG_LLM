@@ -1,0 +1,97 @@
+:root {
+  --bg: #ffffff;
+  --sidebar: #ffffff;
+  --text: #0f172a;
+  --muted: #667085;
+  --border: #e5e7eb;
+  --soft: #f5f7fb;
+  --accent: #2563eb;
+  --accent-ink: #ffffff;
+  --chip: #eef2ff;
+
+  /* kích thước chung */
+  --sidebar-w: 260px;   /* mặc định; sidebarv1.css sẽ override khi thu gọn/mở */
+
+  /* token sidebar (mặc định) – để sidebarv1.css có thể override */
+  --sb-collapsed: 72px;
+  --sb-expanded: 260px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Container dưới .main chiếm phần còn lại */
+.main > .container-fluid {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-top: calc(var(--topbar-h) + 12px);
+}
+
+/* ===== LAYOUT TỔNG (KHÔNG ép !important để sidebarv1.css dễ override) ===== */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100dvh;
+  height: 100vh;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden; /* chặn cuộn ở body/main, để page con tự cuộn */
+}
+
+.tb-right { display: flex; align-items: center; gap: 8px; }
+
+.page-title { font-size: 16px; margin: 0; }
+.ml4 { margin-left: 6px; }
+
+.btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.icon-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+.icon-btn i { width: 18px; height: 18px; }
+
+/* ===== Nút Logout (base style để dùng nơi khác nếu cần) ===== */
+.btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+.btn-logout:hover { background: #f8fafc; border-color: #cbd5e1; }
+.btn-logout i { width: 18px; height: 18px; }

@@ -1,0 +1,44 @@
+{% extends 'home/base.html' %}
+{% block title %}
+  Tiximax Chatbot HR
+{% endblock %}
+{% block page_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_hr.css', v="1") }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/hr/chat_history_hr.css', v="1") }}" />
+{% endblock %}
+{% block content %}
+  </-- Include chat history sidebar --/>
+  {% include 'partials/chat_history.html' %}
+
+  </-- Layout chat --/>
+  <main class="container-fluid px-2 px-sm-3 px-lg-4 d-flex flex-column h-100">
+    <div class="row justify-content-center flex-grow-1 h-100">
+      <div class="col-12 col-md-11 col-lg-10 col-xl-9 col-xxl-8 d-flex flex-column h-100 gap-3" id="chatShell">
+        <div class="flex-grow-1 overflow-auto" id="chatScroll" tabindex="-1">
+          <ul id="chatList" class="chat-list mb-3"></ul>
+          <div id="greeting" class="greeting">
+            <div class="g-title-xl">Hello {{session.get('user', 'User')}}, Can I help you?</div>
+          </div>
+        </div>
+        <footer class="composer position-sticky bottom-0">
+          <form id="chatForm" class="composer-inner">
+            <div id="filePreviewContainer" class="px-4 mb-2" style="display: none;">
+              <div id="filePreview" class="d-flex flex-wrap gap-2"></div>
+            </div>
+            <div class="input-wrap">
+              <label for="fileInput" class="attach-btn me-2" title="Đính kèm file">
+                <i data-lucide="paperclip"></i>
+              </label>
+              <input type="file" id="fileInput" class="d-none" multiple accept=".pdf,.txt,.docx" />
+              <textarea id="chatInput" rows="1" placeholder="Ask anything" autocomplete="off"></textarea>
+              <button id="sendBtn" class="send-btn" type="submit" title="Gửi"><i data-lucide="send"></i></button>
+            </div>
+          </form>
+        </footer>
+      </div>
+    </div>
+  </main>
+{% endblock %}
+{% block extra_scripts %}
+  <script defer src="{{ url_for('static', filename='js/hr/human.js', v="1") }}"></script>
+{% endblock %}

@@ -1,0 +1,20 @@
+﻿SƠ ĐỒ TỔ CHỨC PHÒNG KINH DOANH INDONESIA
+2 Giám đốc kinh doanh VN
+├─ 2.1 Team Leader Việt Nam
+│  ├─ 2.1.1 Nhân viên kinh doanh
+│  │  └─ 2.1.1.1 TTS Kinh doanh
+│  ├─ 2.1.2 Nhân viên kinh doanh
+│  │  └─ 2.1.2.1 TTS Kinh doanh
+│  ├─ 2.1.3 Nhân viên kinh doanh
+│  │  └─ 2.1.3.1 TTS Kinh doanh
+│  └─ 2.1.4 Nhân viên kinh doanh
+│     └─ 2.1.4.1 TTS Kinh doanh
+├─ 2.2 Leader Bộ phận hỗ trợ kinh doanh
+│  ├─ 2.2.1 Nhân viên Sale Admin
+│  ├─ 2.2.2 Nhân viên kho
+│  ├─ 2.2.3 Nhân viên chứng từ XNK
+│  └─ 2.2.4 CRM-IT
+└─ 2.3 Team Leader Indo
+   ├─ 2.3.1 Nhân viên kho Indo
+   ├─ 2.3.2 Nhân viên kho Indo
+   └─ 2.3.3 Nhân viên kinh doanh - Indo

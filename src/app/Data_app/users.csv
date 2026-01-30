@@ -1,0 +1,13 @@
+﻿username,password,password_hash,role
+hr01,hr01pass,,hr
+admin,admin,,admin
+mkt01,mkt01pass,,managerMarketing
+mkt02,mkt02pass,,managerMarketing
+mkt03,mkt03pass,,marketing
+sale01,sale01pass,,manager_sales
+sale02,sale02pass,,manager_sales
+sale03,sale03pass,,manager_sales
+sale04,sale04pass,,manager_sales
+sale05,sale05pass,,sales
+sale06,sale06pass,,sales
+1,1,,admin

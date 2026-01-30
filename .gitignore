@@ -1,0 +1,79 @@
+# Bỏ models
+src/app/models/
+Trash/
+Documents/
+ingest/
+_deleted/
+
+# Bỏ FAISS_Vector trong src
+src/app/Data/
+instance/
+*.db
+*.db-wal
+*.db-shm
+logs/
+ingest/
+src/app/route/test_chat.py
+src/cli_test.py
+
+TRASH/
+src/app/chat_logs/
+# Bỏ FAISS_Vector trong src
+src/app/FAISS_Vector/
+instance/
+# Bỏ Data trong src
+src/app/Data/
+src/test.py
+src/app/uploads/
+app/uploads/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+.vscode/
+
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Logs & temp
+logs/
+*.log
+.tmp/
+.cache/
+*.tmp
+
+
+
+# DB & big artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.parquet
+*.pt
+*.bin
+*.h5
+*.onnx
+# Docs/bundles
+*.pdf
+*.docx
+*.xlsx
+*.zip
+*.tar
+*.tar.gz
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+
+# User excluded
+.cursor/
+src/app/tools/models/

@@ -1,0 +1,22 @@
+﻿SƠ ĐỒ TỔ CHỨC PHÒNG MARKETING
+4 Giám đốc Marketing/CMO
+├─ 4.1 CRM
+│  ├─ 4.1.1 AI Prompter
+│  └─ 4.1.2 Phân tích Data
+├─ 4.2 Trưởng phòng Digital
+│  ├─ 4.2.1 SEO Website/ content web
+│  │  ├─ 4.2.1.1 TTS Marketing
+│  │  ├─ 4.2.1.2 TTS Marketing
+│  │  └─ 4.2.1.3 TTS Marketing
+│  └─ 4.2.2 Nhân viên Paid Advertising
+├─ 4.3 Trưởng phòng truyền thông/PR
+│  ├─ 4.3.1 Nhân viên PR
+│  └─ 4.3.2 Nhân viên Social media (Livestream)
+├─ 4.4 Trưởng phòng Content
+│  ├─ 4.4.1 Content Leader
+│  └─ 4.4.2 Nhân viên content social media
+│     ├─ 4.4.2.1 TTS Content Social
+│     ├─ 4.4.2.2 TTS Content Social
+│     └─ 4.4.2.3 TTS Content Social
+└─ 4.5 Trưởng phòng Creative
+   └─ 4.5.1 Nhân viên Edit video/Designer

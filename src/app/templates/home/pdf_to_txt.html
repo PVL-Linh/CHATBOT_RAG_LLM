@@ -1,0 +1,129 @@
+{% extends 'home/base.html' %} {% set active = 'page_pdf_to_txt' %} {% block
+title %} PDF → TXT · Tiximax {% endblock %} {% block page_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/pdf_to_txt/pdf_to_txt.css') }}"
+/>
+{% endblock %} {% block topbar %} {% endblock %} {% block history_panel %} {%
+endblock %} {% block footer %} {% endblock %} {% block content %}
+<div class="container-fluid py-2">
+  <div class="row g-3 align-items-start">
+    <!-- LEFT -->
+    <div class="col-12 col-lg-5 col-xl-5">
+      <section
+        class="card pdf-left pdf-panel has-local-loader"
+        id="pdf_form_card"
+      >
+        <h1 class="px-3 pt-3">PDF → TXT</h1>
+
+        <div class="local-loader hidden">
+          <div class="spinner"></div>
+        </div>
+
+        <div class="pdf-form p-3 pt-2">
+          <div class="pdf-row row g-2 align-items-center mb-2">
+            <label for="pdf_file" class="form-label col-12">Chọn PDF</label>
+            <div class="col-12">
+              <input
+                type="file"
+                id="pdf_file"
+                accept=".pdf"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="pdf-row row g-2">
+            <div class="col-12">
+              <button
+                class="btn btn-primary w-100 w-sm-auto"
+                id="pdf_convert"
+                type="button"
+              >
+                Chuyển đổi
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="pdf-status mt-3"
+            id="pdf_status"
+            style="display: none"
+          ></div>
+          <div class="pdf-progress mt-2" aria-hidden="true">
+            <span id="pdf_progress"></span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-12 col-lg-7 col-xl-7">
+      <section class="card pdf-right pdf-panel" id="pdf_result_card">
+        <div
+          class="pdf-topbar d-flex flex-wrap align-items-center justify-content-between gap-2 p-3 pb-2"
+        >
+          <div class="pill-tabs d-flex gap-2 flex-wrap" data-scope="pdf">
+            <button class="pill active" data-tab="result">Result</button>
+            <button class="pill" data-tab="history">History</button>
+          </div>
+
+          <div class="icon-actions d-flex gap-2">
+            <button class="icon-btn" id="pdf_copy" title="Copy">📋</button>
+            <button class="icon-btn" id="pdf_download" title="Download">
+              📥
+            </button>
+            <button class="icon-btn" id="pdf_save" title="Lưu vào lịch sử">
+              💾
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3 pt-2">
+          <!-- TAB: Result -->
+          <div id="pdf_tab_result" class="tab-panel active">
+            <pre id="pdf_out" class="pdf-textarea result-scroll"></pre>
+          </div>
+
+          <!-- TAB: History -->
+          <div id="pdf_tab_history" class="tab-panel">
+            <div
+              class="hist-toolbar d-flex justify-content-end gap-2 mb-2"
+            ></div>
+            <div id="pdf_history_list" class="pdf-history-list"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_scripts %}
+<script
+  defer
+  src="{{ url_for('static', filename='js/pdf_to_txt/pdf_to_txt.js') }}"
+></script>
+<script>
+  (function () {
+    const host = document.querySelector(".pdf-layout");
+    if (!host) return;
+
+    // Gắn cờ trang PDF
+    document.documentElement.classList.add("pdf-page");
+    document.body.classList.add("pdf-page");
+
+    // Gỡ mọi lock thường gặp
+    ["overflow", "overflow-y", "height", "position"].forEach((p) => {
+      document.documentElement.style.removeProperty(p);
+      document.body.style.removeProperty(p);
+    });
+
+    // (tùy chọn) Nếu framework từng khóa bằng class
+    document.body.classList.remove("sidebar-open", "history-open");
+
+    // (tùy chọn) Nếu có overlay loader ẩn nhưng vẫn chắn cuộn
+    document
+      .querySelectorAll(".local-loader.hidden")
+      .forEach((el) => (el.style.pointerEvents = "none"));
+  })();
+</script>
+{% endblock %}

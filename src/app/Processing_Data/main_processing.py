@@ -1,0 +1,17 @@
+try:
+    from .Prosessing_HR.Embedding_FAISS_HR import main_HR
+    from .Embedding_FAISS import main_All
+except:
+    from Prosessing_HR.Embedding_FAISS_HR import main_HR
+    from Embedding_FAISS import main_All
+
+from Prosessing_HR.Embedding_FAISS_Accountant import main_accountant
+from Embedding_FAISS_WAREHOUSE import main_warehouse
+from Embedding_FAISS_SALE import main_Sales
+
+if __name__ == "__main__":
+    main_All()
+    main_HR()
+    main_accountant()
+    main_warehouse()
+    main_Sales()

@@ -1,0 +1,548 @@
+/* Nền gradient như hình mẫu */
+body.bg {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  position: relative;
+  /* tạo stacking context cho ::before */
+  z-index: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  color: #0f172a;
+}
+
+/* lớp nền chuyển màu tự động */
+body.bg::before {
+  content: "";
+  position: fixed;
+  /* phủ toàn màn hình kể cả khi scroll */
+  inset: 0;
+  z-index: -1;
+  background:
+        /* 2 vệt radial để nền sinh động hơn */ radial-gradient(
+      800px 800px at 0% 0%,
+      #4ade80 0%,
+      transparent 40%
+    ),
+    radial-gradient(900px 900px at 100% 100%, #22d3ee 0%, transparent 45%),
+    /* lớp chính */
+      linear-gradient(135deg, #2f8f95 0%, #37a58a 40%, #37b06d 100%);
+  background-size: 200% 200%, 200% 200%, 300% 300%;
+  background-position: 0% 50%, 100% 50%, 0% 50%;
+  filter: hue-rotate(0deg) saturate(1.05);
+  animation: moveGradient 18s ease-in-out infinite alternate,
+    cycleHue 60s linear infinite;
+}
+
+/* di chuyển các lớp gradient */
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%, 100% 50%, 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%, 0% 50%, 100% 50%;
+  }
+}
+
+/* xoay gam màu để “tự đổi màu” */
+@keyframes cycleHue {
+  from {
+    filter: hue-rotate(0deg) saturate(1.05);
+  }
+
+  to {
+    filter: hue-rotate(360deg) saturate(1.05);
+  }
+}
+
+/* Tôn trọng người dùng hạn chế chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  body.bg::before {
+    animation: none;
+  }
+}
+
+/* Thẻ form giữa màn hình */
+.card {
+  width: 420px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px 28px 22px;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.12);
+}
+
+.brand {
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+}
+
+.brand img {
+  height: 42px;
+}
+
+.title {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.alert {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Ô nhập có icon */
+.field {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin: 12px 0;
+  background: #f8fafc;
+}
+
+.field:focus-within {
+  border-color: #86efac;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+}
+
+.field .icon {
+  display: grid;
+  place-items: center;
+  opacity: 0.8;
+}
+
+.field input {
+  border: 0;
+  background: transparent;
+  outline: none;
+  padding: 12px 6px;
+  font-size: 15px;
+}
+
+.eye {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding-right: 8px;
+  color: #0f172a;
+  opacity: 0.7;
+}
+
+/* Hàng phụ */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 2px 14px;
+  font-size: 14px;
+}
+
+.remember {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  /* user-select: none; */
+}
+
+.link {
+  color: #0ea5e9;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Nút đăng nhập */
+.btn {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  border: 0;
+  border-radius: 12px;
+  background: #2e9e86;
+  color: white;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.help {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.eye {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding-right: 8px;
+}
+
+.eye svg {
+  display: block;
+}
+
+.field {
+  grid-template-columns: 32px 1fr 36px;
+}
+
+/* chỗ chứa nút 🙊/🙈 */
+.emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Nền login */
+html,
+body {
+  height: 100%;
+}
+body.bg {
+  min-height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Card luôn nổi trên các bouncer */
+.card {
+  position: relative;
+  z-index: 2;
+}
+
+/* Ảnh nảy (mặc định; JS sẽ set size cụ thể) */
+.bouncer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(0, 0);
+  width: 120px; /* fallback; JS sẽ override */
+  height: auto;
+  opacity: 0.14; /* hơi mờ để không rối mắt khi nhiều ảnh */
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* Tôn trọng "giảm chuyển động" */
+@media (prefers-reduced-motion: reduce) {
+  .bouncer {
+    display: none;
+  }
+}
+
+/* Cho grid không đè lên nút */
+.field {
+  position: relative;
+}
+
+/* Nút toggle luôn ở lớp trên, click trúng chính nó */
+.eye {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent; /* đỡ chớp trên mobile */
+}
+
+/* Bấm vào emoji bên trong vẫn tính là bấm nút */
+.eye * {
+  pointer-events: none;
+}
+/* ---------- ORBS nền mềm ---------- */
+.orbs {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.orbs i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px) saturate(1.1);
+  opacity: 0.2;
+  mix-blend-mode: screen;
+  will-change: transform;
+  animation: orbFloat 18s ease-in-out infinite alternate;
+}
+/* 3 “quả cầu” với kích thước/vị trí khác nhau */
+.orbs .o1 {
+  width: 420px;
+  height: 420px;
+  left: -120px;
+  top: -80px;
+  background: radial-gradient(circle at 30% 30%, #60a5fa 0%, transparent 60%);
+  animation-delay: 0s;
+}
+.orbs .o2 {
+  width: 520px;
+  height: 520px;
+  right: -160px;
+  bottom: -120px;
+  background: radial-gradient(circle at 70% 70%, #34d399 0%, transparent 60%);
+  animation-delay: 0.6s;
+}
+.orbs .o3 {
+  width: 380px;
+  height: 380px;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 50% 50%, #22d3ee 0%, transparent 60%);
+  animation-delay: 1.2s;
+}
+@keyframes orbFloat {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  100% {
+    transform: translateY(-30px) translateX(20px) scale(1.03);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbs {
+    display: none;
+  }
+}
+
+/* ---------- Meter độ mạnh mật khẩu ---------- */
+.pwd-meta {
+  margin: 6px 2px 12px;
+}
+.meter {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+#meter-bar {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #ef4444; /* mặc định yếu */
+  transition: width 0.25s ease, background 0.25s ease;
+}
+#meter-bar.ok {
+  background: #f59e0b;
+} /* trung bình */
+#meter-bar.good {
+  background: #22c55e;
+} /* khá */
+#meter-bar.strong {
+  background: #10b981;
+} /* mạnh */
+
+/* ---------- Nút Đăng nhập: trạng thái loading ---------- */
+.btn.loading {
+  position: relative;
+  color: transparent;
+}
+.btn.loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Link mượt mà hơn */
+.link {
+  text-underline-offset: 3px;
+}
+/* ============ Nút đổi nền ============ */
+.bg-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.15);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.bg-toggle:hover {
+  filter: brightness(1.05);
+}
+
+/* ============ Khung chung cho nền ============ */
+body.bg {
+  position: relative;
+  z-index: 0;
+}
+body.bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Tắt animation nếu người dùng reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  body.bg::before {
+    animation: none !important;
+  }
+}
+
+/* ============ PRESET 1: AURORA (mặc định) ============ */
+body.bg.bg--aurora::before {
+  background: radial-gradient(800px 800px at 0% 0%, #4ade80 0%, transparent 40%),
+    radial-gradient(900px 900px at 100% 100%, #22d3ee 0%, transparent 45%),
+    linear-gradient(135deg, #2f8f95 0%, #37a58a 40%, #37b06d 100%);
+  background-size: 200% 200%, 200% 200%, 300% 300%;
+  background-position: 0% 50%, 100% 50%, 0% 50%;
+  filter: hue-rotate(0deg) saturate(1.05);
+  animation: auroraMove 18s ease-in-out infinite alternate,
+    auroraHue 60s linear infinite;
+}
+@keyframes auroraMove {
+  0% {
+    background-position: 0% 50%, 100% 50%, 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%, 0% 50%, 100% 50%;
+  }
+}
+@keyframes auroraHue {
+  to {
+    filter: hue-rotate(360deg) saturate(1.05);
+  }
+}
+
+/* ============ PRESET 2: MESH GRADIENT (mềm, bay nhẹ) ============ */
+body.bg.bg--mesh::before {
+  background: radial-gradient(
+      600px 600px at 15% 20%,
+      rgba(56, 189, 248, 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 700px at 85% 30%,
+      rgba(34, 197, 94, 0.45),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 800px at 40% 80%,
+      rgba(59, 130, 246, 0.45),
+      transparent 60%
+    ),
+    linear-gradient(120deg, #0e7490, #0f766e 35%, #047857);
+  background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%;
+  animation: meshDrift 22s ease-in-out infinite alternate;
+  filter: saturate(1.05);
+}
+@keyframes meshDrift {
+  0% {
+    background-position: 10% 20%, 80% 30%, 30% 70%, 50% 50%;
+  }
+  100% {
+    background-position: 30% 10%, 60% 50%, 70% 90%, 55% 55%;
+  }
+}
+
+/* ============ PRESET 3: GRID CHẤM (rất nhẹ, kỹ thuật) ============ */
+body.bg.bg--grid::before {
+  background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.08) 1px,
+        transparent 1.2px
+      )
+      0 0/22px 22px,
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  animation: gridPan 18s linear infinite;
+}
+@keyframes gridPan {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 22px 22px, 100% 0;
+  }
+}
+
+/* ============ PRESET 4: STRIPES (sọc chéo tinh tế) ============ */
+body.bg.bg--stripes::before {
+  background: repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06) 0 2px,
+      transparent 2px 12px
+    ),
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  animation: stripesSlide 20s linear infinite;
+}
+@keyframes stripesSlide {
+  to {
+    background-position: 200px 0, 0 0;
+  }
+}
+
+/* ============ PRESET 5: BLOBS ORGANIC (mảng màu organic) ============ */
+body.bg.bg--blobs::before {
+  background: radial-gradient(
+      50% 40% at 15% 20%,
+      rgba(34, 197, 94, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      45% 45% at 85% 30%,
+      rgba(56, 189, 248, 0.35),
+      transparent 60%
+    ),
+    radial-gradient(
+      60% 50% at 40% 80%,
+      rgba(59, 130, 246, 0.3),
+      transparent 60%
+    ),
+    linear-gradient(135deg, #0e7490, #0f766e 35%, #047857);
+  background-size: 160% 160%, 160% 160%, 160% 160%, 100% 100%;
+  animation: blobsFloat 16s ease-in-out infinite alternate;
+  filter: saturate(1.05);
+}
+@keyframes blobsFloat {
+  0% {
+    background-position: 12% 18%, 80% 30%, 35% 82%, 50% 50%;
+  }
+  100% {
+    background-position: 22% 26%, 68% 40%, 45% 72%, 50% 50%;
+  }
+}
+
+/* Card luôn nổi trên nền */
+.card {
+  position: relative;
+  z-index: 2;
+}
