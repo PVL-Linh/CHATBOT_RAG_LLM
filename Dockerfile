@@ -75,11 +75,11 @@ RUN set -eux; \
 
 
 
-COPY requirements.txt constraints.txt ./
+COPY requirements.txt ./
 RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
       torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 && \
-    pip install --no-cache-dir -r requirements.txt -c constraints.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir gunicorn
 
 COPY src ./src
