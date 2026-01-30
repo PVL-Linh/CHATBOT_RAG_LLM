@@ -26,6 +26,7 @@ src/app/Data/
 src/test.py
 src/app/uploads/
 app/uploads/
+Trash/
 
 # Python
 __pycache__/
@@ -77,3 +78,10 @@ Thumbs.db
 # User excluded
 .cursor/
 src/app/tools/models/
+
+.env
+
+update_doker.txt
+pass_has.txt
+constraints.txt
+GPU.txt
